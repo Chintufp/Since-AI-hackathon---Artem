@@ -1,0 +1,39 @@
+{
+  "name": "knowledge-twin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Knowledge Twin — Elisa Since AI hackathon prototype (local service, MCP, Electron companion)",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@10.18.2",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test --experimental-strip-types 'tests/**/*.test.ts' 'src/**/*.test.ts'",
+    "service": "node --experimental-strip-types src/apps/service/main.ts",
+    "mcp": "node --experimental-strip-types src/apps/service/mcp.ts",
+    "demo:reset": "node --experimental-strip-types scripts/demo-reset.ts",
+    "desktop": "node scripts/build.mjs && electron dist/desktop/main.cjs",
+    "dev": "node scripts/dev.mjs",
+    "experiments": "node --experimental-strip-types experiments/run.ts",
+    "benchmark": "node --experimental-strip-types benchmarks/run.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "electron": "^45.2.3",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild"
+    ]
+  }
+}

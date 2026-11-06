@@ -29,3 +29,8 @@ dist/
 Thumbs.db
 desktop.ini
 .idea/
+
+# Knowledge Twin local state and generated artifacts
+data/local/
+dist/
+docs/runs/*/screenshots/*.raw

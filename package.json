@@ -11,14 +11,14 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test --experimental-strip-types 'tests/**/*.test.ts' 'src/**/*.test.ts'",
-    "service": "node --experimental-strip-types src/apps/service/main.ts",
-    "mcp": "node --experimental-strip-types src/apps/service/mcp.ts",
-    "demo:reset": "node --experimental-strip-types scripts/demo-reset.ts",
+    "test": "node --test 'tests/**/*.test.ts' 'src/**/*.test.ts'",
+    "service": "node src/apps/service/main.ts",
+    "mcp": "node src/apps/service/mcp.ts",
+    "demo:reset": "node scripts/demo-reset.ts",
     "desktop": "node scripts/build.mjs && electron dist/desktop/main.cjs",
     "dev": "node scripts/dev.mjs",
-    "experiments": "node --experimental-strip-types experiments/run.ts",
-    "benchmark": "node --experimental-strip-types benchmarks/run.ts"
+    "experiments": "node experiments/run.ts",
+    "benchmark": "node benchmarks/run.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

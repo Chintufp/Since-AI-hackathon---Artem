@@ -23,6 +23,7 @@ This section records the current direction for the team; the detailed sections b
 
 ## Start here
 
+- [Workstreams and delegation plan](docs/WORKSTREAMS.md): ten clear problems, bounded agent assignments, dependencies, technical decisions and the three-part pitch.
 - [Interactive master architecture map](docs/master-map.html): current post-session design, five connected maps, claim schema, learning loops and a case walkthrough. Open the downloaded HTML in a browser; it works offline.
 - [Architecture reference](docs/ARCHITECTURE.md) and [engineering decision queue](docs/ENGINEERING_DECISIONS.md): current component contracts and 18 algorithm, metric and implementation discussions. These refine the earlier vision below.
 - [BRIEF.md](BRIEF.md): supplied challenge text, interpretation, scope, demo objectives and questions for Elisa.

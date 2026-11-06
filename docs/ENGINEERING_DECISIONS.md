@@ -210,7 +210,7 @@ Open [the interactive master map](master-map.html) for the connected architectur
 
 **Question:** What is rewarded for each learning task, and which signal can be gamed?
 
-**Proposed starting point:** Optimize supported useful assistance per eligible opportunity with error, unnecessary-interruption and burden limits. Binary helpfulness remains valid; factual Yes/No answers are evidence. Separate MCP exposure, agent adoption, human usefulness and observed outcomes. Points stay optional and independent.
+**Proposed starting point:** Optimize supported useful assistance per eligible opportunity with error, unnecessary-interruption and burden limits. Binary helpfulness remains valid; factual Yes/No answers are evidence. Separate MCP exposure, agent adoption, human usefulness and observed outcomes. The points experience is planned for implementation with an on/off switch; its rewards remain independent of policy utility and claim support. See [the experience brief](EXPERIENCE_BRIEF.md).
 
 **Alternatives:** Binary helpfulness target; verified terminal outcome; a weighted reward after units and weights are agreed.
 
@@ -266,7 +266,7 @@ Open [the interactive master map](master-map.html) for the connected architectur
 
 **Question:** How do we make contributions pleasant while allowing uninterrupted work?
 
-**Proposed starting point:** Electron is the current desktop application framework direction for macOS and Windows. White pixel-circle avatar with small face, compact input and expandable history. Static SVG preview now; animation later. Optional points toggle.
+**Proposed starting point:** Electron is the current desktop application framework direction for macOS and Windows. White pixel-circle avatar with small face, compact input and expandable history. Static SVG preview now; animation direction to be developed with Artem. Build optional points with smooth reward effects, avatar reactions and optional sounds, plus a quiet preset. See [the experience brief](EXPERIENCE_BRIEF.md).
 
 **Alternatives:** Core UI may be developed in a browser first. Revisit the desktop framework only if measured constraints justify it; adapt menu-bar/Dock and notification-area/taskbar integration per OS.
 

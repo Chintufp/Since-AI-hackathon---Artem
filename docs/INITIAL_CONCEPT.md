@@ -2,7 +2,7 @@
 
 **Preserved from commit `3c46a8a97c1cae7714a14bd77d4874a0cc0764a1` on 6 November 2026.**
 
-This is the earlier README, preserved verbatim below for the team to compare with the [current vision](../README.md). It is a concept and pitch-preparation document, not a record of implemented or measured behavior. In particular, its model/version/pricing claims, budget assumptions, data descriptions, live/cached demo answers and performance statements require verification. The new README distinguishes current direction, proposed implementation and open decisions.
+This is the earlier README, preserved verbatim below for the team to compare with the [current vision](VISION.md). It is a concept and pitch-preparation document, not a record of implemented or measured behavior. In particular, its model/version/pricing claims, budget assumptions, data descriptions, live/cached demo answers and performance statements require verification. The current vision distinguishes current direction, proposed implementation and open decisions.
 
 The original concept-artifact link is retained as a historical reference; its contents were not independently reviewed for this documentation update. No keys, private source material or demo results have been added here.
 

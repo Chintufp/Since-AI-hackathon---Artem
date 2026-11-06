@@ -4,6 +4,8 @@
 
 This document accompanies [the interactive master map](master-map.html). It records proposed components, their contracts and the questions to settle. It does not claim an implemented application, trained policy or production access.
 
+For presentation and product details, see the [current brief](BRIEF.md), [experience/points brief](EXPERIENCE_BRIEF.md) and [pitch-film brief](PITCH_FILM_BRIEF.md). Finding relevant people is an explicit assistance output, based on accessible case contributions.
+
 ## The mental model
 
 Approved sources become contextualized evidence. Useful passages become atomic claims. Claims bind to equipment and, where relevant, incidents. Separate incidents can connect through recurring patterns and reusable procedures. New problems retrieve candidate knowledge, predict additional observable traits, obtain evidence, and return qualified context through the companion or MCP.

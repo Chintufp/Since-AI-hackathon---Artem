@@ -8,7 +8,7 @@ Use this file to start a fresh technical planning session without needing the or
 
 Open this repository and paste:
 
-> Read `docs/TECHNICAL_DISCUSSIONS.md` and `docs/WORKSTREAMS.md`, then consult the relevant parts of `README.md`, `docs/ARCHITECTURE.md` and `docs/ENGINEERING_DECISIONS.md`. I want to discuss the technical design of Knowledge Twin, not start implementation yet. Begin with T01: how evidence automatically forms cases, response histories and claims, and when a short Yes/No question is worth asking. Then work through T02: recommendation thresholds and what certainty means. Use one concrete incident throughout, distinguish my decisions from your proposals, compare practical alternatives, and help me choose the simplest defensible approach. Take one topic at a time. Record agreed decisions and remaining questions when I ask you to save the discussion.
+> Read `docs/TECHNICAL_DISCUSSIONS.md` and `docs/WORKSTREAMS.md`, then consult the relevant parts of `docs/VISION.md`, `docs/ARCHITECTURE.md` and `docs/ENGINEERING_DECISIONS.md`. I want to discuss the technical design of Knowledge Twin, not start implementation yet. Begin with T01: how evidence automatically forms cases, response histories and claims, and when a short Yes/No question is worth asking. Then work through T02: recommendation thresholds and what certainty means. Use one concrete incident throughout, distinguish my decisions from your proposals, compare practical alternatives, and help me choose the simplest defensible approach. Take one topic at a time. Record agreed decisions and remaining questions when I ask you to save the discussion.
 
 To focus a session, replace the last part with:
 
@@ -38,7 +38,7 @@ The architecture, workstream breakdown and static pixel avatar are documented. T
 - Organization-controlled deployment and approved data/model processing boundaries are requirements.
 - Electron is the current framework direction for the full desktop app on macOS and Windows. Intended parity is not yet validated.
 - The avatar is a white pixel circle with a small face. Further animation and design await Artem's direction.
-- Points are optional and can be switched off; participation points do not determine truth or model reward.
+- Build the points experience with an on/off switch, smooth visual rewards and optional sounds. It is optional to use; participation points do not determine truth or model reward. See [the experience brief](EXPERIENCE_BRIEF.md).
 - The same knowledge/investigation service should serve both the UI and external agents through API/MCP.
 - Learnable classification, ranking and question selection are part of the vision. The specific algorithms and training scope remain open.
 
@@ -220,6 +220,8 @@ Start with T01 and T02. T03–T04 and T07 then establish the objects the questio
 
 ### T10 — Engineer experience and animation
 
+Read [the experience brief](EXPERIENCE_BRIEF.md) for the latest rewards/points direction and [the pitch-film brief](PITCH_FILM_BRIEF.md) for the separate cinematic production task. Include people with relevant experience alongside knowledge recommendations.
+
 - What visual personality and motion ideas does Artem want? Hear them before committing the design.
 - What are the compact window, expanded history and question queue interactions?
 - Which avatar states need distinct poses or motion, and which should stay quiet?
@@ -266,4 +268,4 @@ Related Dxx and Wxx items:
 Reason to revisit:
 ```
 
-Update the existing engineering decision entry when a choice is made, rather than leaving contradictory decisions in separate files. The discussion guide preserves questions; `ENGINEERING_DECISIONS.md` tracks decisions and experiments; `WORKSTREAMS.md` defines delegation boundaries; `README.md` communicates the current overall vision.
+Update the existing engineering decision entry when a choice is made, rather than leaving contradictory decisions in separate files. The discussion guide preserves questions; `ENGINEERING_DECISIONS.md` tracks decisions and experiments; `WORKSTREAMS.md` defines delegation boundaries; `VISION.md` communicates the current overall vision. The root README and `docs/README.md` provide navigation.

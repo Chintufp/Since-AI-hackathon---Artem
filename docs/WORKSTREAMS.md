@@ -4,7 +4,7 @@
 
 This document divides the current vision into explainable problems and bounded implementation assignments. It is a planning document: the architecture and static avatar are documented, while the ingestion pipeline, trained policy, MCP service and packaged desktop app are still to be built.
 
-Read the [full vision](../README.md), [architecture reference](ARCHITECTURE.md), [interactive master map](master-map.html) and [engineering decision queue](ENGINEERING_DECISIONS.md) for deeper detail.
+Read the [full vision](VISION.md), [architecture reference](ARCHITECTURE.md), [interactive master map](master-map.html) and [engineering decision queue](ENGINEERING_DECISIONS.md) for deeper detail.
 
 For a fresh planning session, use the [technical discussion guide](TECHNICAL_DISCUSSIONS.md), which preserves the latest questions about Yes/No verification, recommendation thresholds and assistant delegation.
 
@@ -14,7 +14,7 @@ For a fresh planning session, use the [technical discussion guide](TECHNICAL_DIS
 
 The core fits the supplied Elisa brief: capture existing knowledge with minimal additional expert work, connect it to the right entity and validity period, and make it usable by an agent. The brief identifies usability as the primary criterion. Artem reports that the information session accepted quick Yes/No questions while discouraging forms and elaborate feedback.
 
-Our assessment is that the core is coherent and potentially elegant, while the full feature list is broad. One shared memory serves engineers and agents, and one useful answer can improve future assistance. The prototype should demonstrate that loop before adding extensive connectors, clustering experiments, sequential RL or animation polish. This is a design assessment, not a prediction of judging results.
+Our assessment is that the core is coherent and potentially elegant, while the full feature list is broad. One shared memory serves engineers and agents, and one useful answer can improve future assistance. The working product should demonstrate that loop. Design, optional rewards and the cinematic pitch can proceed as separate coordinated workstreams while the core is built. This is a design assessment, not a prediction of judging results.
 
 ## 2. Ten problems, each in one sentence
 
@@ -25,7 +25,7 @@ Our assessment is that the core is coherent and potentially elegant, while the f
 | W03 | Form cases and patterns | How do we decide which fragments belong to one incident and which separate incidents share a recurring pattern? | Cases, timelines and reversible pattern memberships. |
 | W04 | Connect responses and outcomes | How do we reconstruct what people tried, what happened, and under which conditions a response might help again? | Source-backed problem-to-response histories and reusable procedures. |
 | W05 | Establish dependable claims | How do we represent support, contradictions, uncertainty and changing validity without treating repetition as proof? | Claim records, evidence relationships and applicability rules. |
-| W06 | Recommend and test hypotheses | How do we find relevant knowledge, predict distinguishing traits, and decide whether to suggest, check further or abstain? | An investigation service with explicit candidate explanations and checks. |
+| W06 | Recommend and test hypotheses | How do we find relevant knowledge, predict distinguishing traits, and decide whether to suggest, check further or abstain? | An investigation service with candidate explanations, checks and people with relevant experience. |
 | W07 | Ask and learn efficiently | How do we choose a valuable question, a suitable engineer and appropriate timing while learning from the result? | Question coordinator, feedback records and an evaluated selection policy. |
 | W08 | Serve autonomous workflows | How do we let other agents retrieve and contribute qualified knowledge through a stable interface? | API/MCP contracts with sources, conditions, permissions and outcome reporting. |
 | W09 | Create the engineer experience | How do we make contributing and receiving help quick, understandable and pleasant? | Electron interface, pixel avatar, motion system and expandable evidence history. |
@@ -144,7 +144,7 @@ A starting application-state vocabulary is:
 - Result available.
 - Unavailable/error.
 
-These are interface states. Claim uncertainty and evidence limitations remain explicit in text. Motion should support a quiet, responsive experience: clicking opens the input, questions can wait, and expanding reveals the complete available history. Include a reduced-motion option and evaluate idle resource use. Points remain optional and independently switchable.
+These are interface states. Claim uncertainty and evidence limitations remain explicit in text. Motion should support a quiet, responsive experience: clicking opens the input, questions can wait, and expanding reveals the complete available history. Include a reduced-motion option and evaluate idle resource use. The points experience is a planned feature with an on/off switch, optional sound, smooth reward effects and a quiet variant. See the [experience brief](EXPERIENCE_BRIEF.md).
 
 ## 8. Dependency order
 
@@ -187,14 +187,21 @@ Build one complete path before expanding the number of sources or algorithms:
 
 The demonstration should include a supported path that works without a new human answer. A clarification should become reusable knowledge, not a mandatory approval button on every future incident. Label simulated telemetry, stub services and synthetic feedback clearly.
 
-## 10. Pitch structure
+## 10. Pitch structure and creative handoffs
 
-Explain the ten engineering workstreams through three chapters:
+Use four problems in the pitch:
 
-1. **Capture:** existing conversations become useful, structured context without a separate documentation task.
-2. **Establish trust:** sources, conditions, contradictions and small targeted clarifications make the context dependable.
-3. **Reuse:** an engineer or agent receives applicable knowledge at the next decision, with less repeated expert effort.
+| Problem | Our method | What the demo communicates |
+| --- | --- | --- |
+| **1. Useful knowledge is buried in ordinary conversations.** | Interpret messages in context, identify useful passages and extract structured claims. | Existing conversation becomes useful knowledge without someone filling out a form. |
+| **2. Knowledge loses meaning when separated from the incident, equipment, people and outcome.** | Connect claims to entities, cases, attempted responses, conditions, source history and people's contributions. | We can explain what happened, what helped, where that knowledge applies and who has relevant experience. |
+| **3. Similar problems can need different solutions, and historical advice can be incomplete or wrong.** | Retrieve candidates, predict distinguishing traits, check evidence and ask a small question when necessary. | We recommend applicable knowledge, find relevant people and handle a misleading lookalike correctly. |
+| **4. Knowledge must reach people and agents without creating another administrative task.** | Serve the same memory through MCP and a minimal engineer interface; reuse answers across future incidents. | An agent receives useful context, an engineer can find a response or relevant colleague, and a small contribution improves later assistance. |
 
-Show one successful reuse, one misleading lookalike the system handles correctly, and one small clarification reused later. The avatar demonstrates low-friction interaction. Learning demonstrates improvement only when measured; collecting feedback alone does not establish a trained policy.
+Finding a person with relevant experience is a first-class output alongside applicable knowledge. Show the source-backed connection to this case or a related incident, and provide a user-reviewed contact path.
 
-Mention the intended similar Electron workflow on macOS and Windows and organization-controlled deployment as practical advantages. Treat them as planned capabilities until implemented and validated.
+The [product brief](BRIEF.md) records this framing and the latest scope. The [experience brief](EXPERIENCE_BRIEF.md) defines the optional points system, sound/motion direction and design-agent deliverables. The [pitch-film brief](PITCH_FILM_BRIEF.md) defines the cinematic sequence with multiple screens, topology, people and learning.
+
+Assign a director/animation task for the film and a product interaction task for the avatar/rewards, sharing visual assets and event meanings. Coordinate these with the UI and core implementation; creating a film does not itself start application features or policy training.
+
+Mention the intended similar Electron workflow on macOS and Windows and organization-controlled deployment as practical advantages. Keep intended, simulated and implemented behavior identifiable in the presentation.

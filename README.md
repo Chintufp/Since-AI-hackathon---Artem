@@ -23,6 +23,7 @@ This section records the current direction for the team; the detailed sections b
 
 ## Start here
 
+- [Technical discussion guide](docs/TECHNICAL_DISCUSSIONS.md): start a fresh session with the latest clarifications, ten focused technical topics and copyable discussion prompts.
 - [Workstreams and delegation plan](docs/WORKSTREAMS.md): ten clear problems, bounded agent assignments, dependencies, technical decisions and the three-part pitch.
 - [Interactive master architecture map](docs/master-map.html): current post-session design, five connected maps, claim schema, learning loops and a case walkthrough. Open the downloaded HTML in a browser; it works offline.
 - [Architecture reference](docs/ARCHITECTURE.md) and [engineering decision queue](docs/ENGINEERING_DECISIONS.md): current component contracts and 18 algorithm, metric and implementation discussions. These refine the earlier vision below.

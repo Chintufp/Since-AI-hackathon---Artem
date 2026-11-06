@@ -6,6 +6,8 @@ This document divides the current vision into explainable problems and bounded i
 
 Read the [full vision](../README.md), [architecture reference](ARCHITECTURE.md), [interactive master map](master-map.html) and [engineering decision queue](ENGINEERING_DECISIONS.md) for deeper detail.
 
+For a fresh planning session, use the [technical discussion guide](TECHNICAL_DISCUSSIONS.md), which preserves the latest questions about Yes/No verification, recommendation thresholds and assistant delegation.
+
 ## 1. The idea in one sentence
 
 > We turn existing conversations into reusable operational knowledge, ask experts only for consequential missing details, and deliver the right context when an engineer or agent needs it.

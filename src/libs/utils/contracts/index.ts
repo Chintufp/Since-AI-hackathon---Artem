@@ -10,3 +10,4 @@ export * from './models.ts';
 export * from './views.ts';
 export * from './service.ts';
 export * from './scenarios.ts';
+export * from './vocabulary.ts';

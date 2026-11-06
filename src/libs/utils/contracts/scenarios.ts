@@ -6,7 +6,8 @@
  * HIDDEN (benchmarks/experiments only): truth.json, incoming.json answer keys.
  */
 
-export type Split = 'historical-memory' | 'incoming' | 'train' | 'validation' | 'test';
+/** 'demo' families seed the local demo memory; train/validation/test are evaluation splits (by family, never by paraphrase). */
+export type Split = 'demo' | 'train' | 'validation' | 'test';
 
 export interface FamilyManifestEntry {
   id: string;

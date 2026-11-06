@@ -64,3 +64,27 @@ Points/rewards: implemented as a separate `participation` record with an on/off 
 ---
 
 *(Appended as the run progresses; later entries are below.)*
+
+## R12 · DECISION — Four parallel build workers instead of three
+
+The prompt's launch default was three active workers. I ran four in the first build phase (ingest/memory, investigation/questions, UI/desktop, evaluation data) because the evaluation owner only writes data and benchmark code and cannot conflict with the others, and your Mac has 10 cores. Each worker had exclusive paths; none could edit contracts. Reviews are one Opus agent per worker, then a Sonnet fix pass, then the service worker. **Reverse:** nothing to revert; it only affected concurrency.
+
+## R13 · DECISION — Tests run TypeScript natively with node:test
+
+Node 26 strips types without a flag, so tests are plain `node --test` over `*.test.ts` with no framework. Reason: zero dependencies, fast, and the same command works for workers, CI and you.
+
+## R14 · DECISION — Condition vocabulary lives in contracts
+
+Extraction (ingest side) and investigation (query side) must agree on condition keys (`interface.status`, `traffic.counters`, `unit.age`, `site.access`, ...). I put a canonical, organization-extendable list in `src/libs/utils/contracts/vocabulary.ts` so nothing telecom-specific is hard-coded in module logic; organizations extend it through configuration.
+
+## R15 · ASSUMPTION — Requester-observable conditions become "check first", not questions
+
+If the person asking could observe a condition themselves (for example traffic counters right now), the engine recommends checking it instead of asking another person. Questions go to other people only for things they have a question-specific reason to know (they performed the action, reported the outcome, or can observe the site). This follows the closed decision "search permitted sources and available observations before interrupting a person"; the exact rule is a run default.
+
+## R16 · DECISION — Coordinator defaults (U08 stays open)
+
+Per-person daily limit 3, cooldown 30 minutes, max 1 open question per person, max 3 questions per investigation. These are parameters in `contracts/questions.ts` `defaultCoordinatorSettings`, used for the synthetic trials; no live delivery setting is adopted from them.
+
+## R17 · DECISION — Question selector default is the rule baseline
+
+`selectorId: 'rules'` by default. The LinUCB contextual bandit is trained and compared in E03 but only replaces the baseline behind the setting if the predefined checks pass; U01 (next-choice vs whole-investigation) stays open and E09 is not claimed.

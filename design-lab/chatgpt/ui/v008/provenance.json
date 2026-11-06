@@ -1,0 +1,14 @@
+{
+  "status": "checked-frozen",
+  "parentUI": "../v007/study.html",
+  "artAndPanelMotionUnchanged": true,
+  "integration": {
+    "app.js": "c41e23f5dc5f8fcc0f0564c1b0b81d74bbd94457dbba5aeb184305b7af67bd87",
+    "motion.js": "c62fd66366bcc13ac70ce835f838e988b4af560bbad85eec87f7c278f329a371",
+    "shell.html": "61eee86e9950b3b6bbc5a348bb52d447a628a7ce55bef80e3499c74f55a61cf6",
+    "build.cjs": "82a22a97ebee56317a1e6a90dc1fa8674a8f121c68afb69eba7ae1e14f2b4681",
+    "study.html": "6bb96a39b1d108f3bfa0b4d992345e6ab2c57d697c472b096a0808e3e279b83e",
+    "index.html": "8e4330b12dee97ed18e860bbd55e7ecf61db1d4e1db6a91a1b8d704cc1b82477"
+  },
+  "validation": "evidence/checks.json"
+}

@@ -1,0 +1,97 @@
+{
+  "errors": [],
+  "widths": [
+    {
+      "width": 736,
+      "plays": [
+        {
+          "key": "backflip",
+          "frame": 1
+        },
+        {
+          "key": "half",
+          "frame": 1
+        },
+        {
+          "key": "hop",
+          "frame": 1
+        },
+        {
+          "key": "hello",
+          "frame": 1
+        },
+        {
+          "key": "peek",
+          "frame": 1
+        },
+        {
+          "key": "stretching",
+          "frame": 1
+        },
+        {
+          "key": "entrance",
+          "frame": 1
+        },
+        {
+          "key": "moonwalk",
+          "frame": 1
+        },
+        {
+          "key": "hero",
+          "frame": 1
+        },
+        {
+          "key": "idle3",
+          "frame": 1
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "plays": [
+        {
+          "key": "backflip",
+          "frame": 1
+        },
+        {
+          "key": "half",
+          "frame": 1
+        },
+        {
+          "key": "hop",
+          "frame": 1
+        },
+        {
+          "key": "hello",
+          "frame": 1
+        },
+        {
+          "key": "peek",
+          "frame": 1
+        },
+        {
+          "key": "stretching",
+          "frame": 1
+        },
+        {
+          "key": "entrance",
+          "frame": 1
+        },
+        {
+          "key": "moonwalk",
+          "frame": 1
+        },
+        {
+          "key": "hero",
+          "frame": 1
+        },
+        {
+          "key": "idle3",
+          "frame": 1
+        }
+      ],
+      "overflow": false
+    }
+  ]
+}

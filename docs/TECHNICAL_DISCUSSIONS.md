@@ -4,11 +4,99 @@
 
 Use this file to start a fresh technical planning session without needing the original chat. It records the current direction, the latest questions from Artem, and the decisions to work through. Proposed algorithms, schemas and thresholds are not final decisions.
 
+For the chronological reasoning, Artem's corrections and the distinction between rejected, deferred and experimental ideas, read the [technical chat history](TECHNICAL_DISCUSSION_HISTORY.md), recorded 7 November 2026. The checklist below remains the current discussion queue.
+
+## Current discussion checklist — updated 7 November 2026
+
+**Discussion rule:** Work through one decision at a time. When Artem agrees, explicitly say **Closed:** with the agreed decision, then **Next question:** with one concrete question. A proposal stays open until agreed. Cross out closed points in status lists. Closed design decisions do not mean completed implementations. This session remains discussion/documentation only.
+
+**Session boundary:** Discuss technical product behavior here. Artem will discuss demo selection and presentation in another session. Following the 7 November clarification, discuss the question-selection algorithm and training setup next, then plan experiments for other unresolved technical choices. No implementation or overnight agent run is authorized yet. Do not turn architecture discussion into demo-channel selection.
+
+**Latest handoff — 7 November 2026:** Artem requested a saved technical summary and experiment/orchestration plan to take to the other chat, which will combine it with design and a prototype build. Read [OVERNIGHT_TECHNICAL_HANDOFF.md](OVERNIGHT_TECHNICAL_HANDOFF.md). It preserves accepted decisions, proposed defaults, experiment dependencies and an explicit [unanswered-question register](OVERNIGHT_TECHNICAL_HANDOFF.md#8-unanswered-questions--deliberately-preserved). Artem specifically asked to retain the next-question-versus-whole-investigation choice as unanswered (U01), along with the other outstanding questions. Handoff preparation is authorized; this chat has not launched implementation, agents or experiments. The no-model-API and no-Astra constraints remain active.
+
+**Closed in this discussion**
+
+- [x] ~~Hackathon live source: a custom Slack connector.~~ (D01)
+- [x] ~~Historical source routes: Teams and email file imports.~~ (D01)
+- [x] ~~Nango adoption for the hackathon: deferred.~~ (D01)
+- [x] ~~Other platform connections, including Git/repository hosts: show as Planned.~~ (D01)
+- [x] ~~Generalize architecture across source platforms and organizations.~~ (D19)
+- [x] ~~Reusable logic/UI elements belong in `libs/utils`; apps compose shared modules.~~ (D19)
+- [x] ~~Save the source-to-memory graph and editable source as a video reference.~~ ([Film brief](PITCH_FILM_BRIEF.md#saved-visual-reference-sources-converging-into-shared-memory))
+- [x] ~~Questions may arise during active investigations and in the background; background questions target important gaps and keep interruptions low.~~ (D12; selection rules and algorithms still open)
+- [x] ~~First question-eligibility requirement: explain how a plausible answer could change a meaningful present or reasonably anticipated future decision. Missing data or low confidence alone is insufficient.~~ (D12; necessary, not sufficient to interrupt)
+- [x] ~~Second question-eligibility requirement: check accessible conversations and available machine observations first; ask an engineer only if the consequential gap remains unresolved.~~ (D12; lookup methods and budgets remain open)
+- [x] ~~Third question-eligibility requirement: recipients need a question-specific reason to know; link people to relevant work traits and contributions.~~ (D12; exact relationship schema, storage and ranking remain open)
+- [x] ~~Create people-to-work links automatically from sources; keep inferred expertise provisional and correctable.~~ (D12; detailed evidence assessment and algorithms remain open)
+- [x] ~~Background questions have hard per-person budgets and minimum gaps that the selection algorithm cannot override.~~ (D12; actual numbers and configuration remain open)
+- [x] ~~Engineer Yes/No answers are attributed evidence that updates support for claims/hypotheses, not automatic proof or confirmation.~~ (D10; certainty measures and evidence-combination methods remain open)
+- [x] ~~Choose between recommendation-assessment alternatives through an experiment; leave the winning design open and create experiment folders later.~~ (D10, D16; exact comparison and evaluation plan still proposed)
+- [x] ~~Keep the specialist transformer action/outcome assessor as an experiment alongside a prompted LLM assessor; no model is adopted yet.~~ (D10; model, labels and training details remain open)
+- [x] ~~Retain RL as a planned optimization layer for choosing worthwhile questions; the evidence-and-reuse loop also works with a baseline selector.~~ (D18; algorithm, recipient-selection design and reward remain open)
+- [x] ~~This chat owns core algorithm/experiment planning; another agent will own the general overnight plan, including connectors and animation/UI/UX integration.~~ (D16; no agent execution is authorized yet)
+- [x] ~~Use an LLM to generate question candidates with a meaningful gap and validation.~~ (D12; prompts, templates and candidate count remain open)
+- [x] ~~Recipient eligibility depends on the question: relevant firsthand history, supported knowledge or ability to observe a general current condition.~~ (D12; a past case link is not mandatory for every question)
+- [x] ~~Offer Quick factual questions and an optional Evaluative category for comparisons/preferences.~~ (D18; layout, frequency and training use remain open)
+- [x] ~~Reconstruct who did what and what outcome followed; test predicted traits of candidate explanations before recommending a sufficiently supported response.~~ (D11; exact scores and reward remain open)
+- [x] ~~Use synthetic scenarios with fixed hidden facts and recipient knowledge, scenario-family splits, hidden future outcomes and independent evaluation-label review.~~ (D16; dataset details remain open)
+- [x] ~~Initial no-answer policy: preserve unknowns, no automatic broadcast, and reassign only when another suitable recipient and a consequential gap remain.~~ (D12; revisable after evaluation)
+- [x] ~~Use different evidence requirements for diagnostic checks and potentially disruptive corrective actions.~~ (D10; numeric thresholds remain open)
+- [x] ~~External agents may request clarification through the shared coordinator and its limits.~~ (D15; tool/lifecycle contracts remain open)
+- [x] ~~Accept experimental winners using versioned results, fixed criteria and failure review; retain the baseline if improvement is inconclusive.~~ (D16)
+- [x] ~~For later Codex agents use GPT-6.1 Sol or Terra; do not launch Astra agents.~~ (D16; user reports 55% weekly allowance remaining, not a run budget)
+- [x] ~~No model API calls yet; plan a small GPT question-generator alternative to Gemini Flash-Lite.~~ (D16; exact model/access route provisional, no inference or agents launched)
+
+**All remaining discussion areas**
+
+- [ ] T09 / D01, D14: Slack source selection, history and new-message scope, threads/attachments, edits/deletions, connection setup, import formats and common evidence contract. The source/platform choice above is closed; T09 as a whole is not.
+- [ ] Data / D03, D04, D16: historical/incoming/evaluation splits, agent labeling and review, and whether to include simulated prior engineer answers. Demo selection and presentation are deferred to a separate session.
+- [ ] T01 / D06, D07, D10, D12: evidence granularity, automatic extraction/linking, provisional claims, reconstructed action/outcome history, consequential human questions and the no-answer path.
+- [ ] T02 / D10, D11, D16: combined-versus-separate support/applicability comparison and final choice; eligibility rules, score meanings, check/solution thresholds, accepted errors, calibration and abstention.
+- [ ] T03 / D02–D05: conversation context, labels, normalization, classifier/model choices and annotation audits.
+- [ ] T04 / D06–D09, D11: identity resolution, incident versus pattern linking, clustering, response relationships, embedding/retrieval choices and distinguishing checks.
+- [ ] T05 / D12, D13: question generation, recipient selection, timing, budgets, coordination and stopping rules.
+- [ ] T06 / D13, D16, D18: metrics, factual versus helpfulness feedback, rewards, delayed outcomes, evaluation splits, baselines and bandit/RL scope.
+- [ ] T07 / D01, D09, D14: storage/schema, source lineage, validity, corrections/deletion, permissions, identity mapping and organization-controlled deployment/inference details.
+- [ ] T08 / D15: API/MCP contracts, authorization boundaries, consumer workflow and use/outcome reporting.
+- [ ] T10 / D17: detailed onboarding/Connections interactions, avatar states/animation, evidence and people views, points behavior, reduced motion and OS validation; final film treatment remains open despite the saved reference.
+- [ ] Engineering layout / D19: exact modules, interfaces, language/package tooling and process/deployment split. The `libs/utils` placement rule is already closed.
+
+The detailed questions under each Txx section and [engineering decision entry](ENGINEERING_DECISIONS.md) remain the complete working queue; related items above intentionally overlap.
+
+**Unanswered — T05/T06/D18, handoff U01:** Should the initial learned selector optimize the next useful question, keeping full-investigation RL as an experiment? Artem explicitly requested that this remain saved as unanswered. A next-choice selector can still choose again after every answer. Artem tentatively accepts the small-pool → one eligible pair/defer → update/regenerate loop as an experimental starting point; exact candidate count, selector and horizon remain open. No model API calls yet; use a small GPT generator candidate instead of the initial Gemini Flash-Lite route. Preparation of the handoff proceeds without treating this as decided.
+
+### Decisions to discuss before the technical experiment plan
+
+This is the near-term decision packet for the core experiments, updated after Artem's annotated answers. Crossed entries are closed at the stated scope; open details in the final column are not accepted decisions. Work through one remaining decision at a time.
+
+| Order | Decision/status | Agreed scope or remaining question |
+| --- | --- | --- |
+| 1 | ~~Generate candidates with an LLM.~~ | Closed direction. Template assistance, prompts and exact candidate count remain experimental. |
+| 2 | ~~Use question-dependent recipient eligibility.~~ | Closed. Direct involvement matters for historical actions; someone able to observe a general condition may qualify without prior case participation. Ranking remains open. |
+| 3 | What should the learned policy choose? | Provisionally accepted experiment baseline: small candidate pool → one eligible question–person pair/defer → update/regenerate. Two questions is a starting experiment, not a mandatory count or two questions shown to everyone. Exact selector remains open. |
+| 4 | ~~Offer Quick and optional Evaluative question categories.~~ | Closed direction. Evaluative A/B labels are preferences; they do not answer the factual questions. Frequency/layout and training use remain open. |
+| 5 | ~~Reconstruct supported knowledge and test candidate explanations before recommending.~~ | Product direction closed. Numeric certainty targets, metric definitions, reward weights and observation windows remain open. |
+| 6 | Optimize the next choice or the entire investigation first? | Open; explain with a concrete multi-question example. A next-choice selector can still ask adaptively after each answer; sequential RL targets delayed whole-investigation value. |
+| 7 | ~~Use controlled synthetic scenarios and independently reviewed evaluation labels.~~ | Closed direction. Fix hidden facts and recipient knowledge, split scenario families and hide future outcomes. Dataset sizes and review workflow remain open. |
+| 8 | ~~Preserve unknowns; no automatic broadcast after no answer.~~ | Closed initial policy, revisable after evaluation. Retry timing/counts remain open. |
+| 9 | ~~Different evidence requirements for checks and disruptive fixes.~~ | Closed policy. Thresholds and accepted error levels remain open. |
+| 10 | Run as many useful comparisons as resources allow. | Breadth direction accepted; exact priority, count and run budget remain open. Cover selection, extraction/linking, matching/retrieval, assessment variants and transformer assessor without an uncontrolled full combination. |
+| 11 | ~~Allow agent-requested clarification through the shared coordinator.~~ | Capability direction closed. Exact API/MCP tools, lifecycle and outcome-reporting contracts remain open. |
+| 12 | ~~Use versioned results, fixed criteria and failure review to choose winners.~~ | Closed promotion policy; retain the baseline if inconclusive. Numeric acceptance criteria and update cadence remain open. |
+
+Before a later run starts, record these shared run inputs once in the general overnight plan: (R1) hard stop time and timezone; (R2) spending/resource cap and how it is divided across workstreams/providers; (R3) authorized execution scope, including local edits/tests/training versus commit/merge/deployment/external interactions; (R4) contract/integration ownership and the available Codex/Claude execution routes, discovered from the environment where possible. The recommendation is local isolated builds/tests and synthetic experiments, with proposed changes and results prepared for review; no launch follows from this discussion alone. Temporary question budgets can be parameterized in synthetic experiments; real delivery settings must be settled before any live questions. These inputs do not reopen settled source choices. Exact model families, feature encodings, search settings, threshold values and module/file boundaries can be proposed in the technical plan and tested where appropriate.
+
+**Resource constraint:** Use `gpt-6.1-sol` or `gpt-6.1-terra` for later Codex agents; no Astra agents. Artem reports 55% weekly allowance remaining. This is not a numeric experiment-spending cap and does not authorize exhausting it. Claude access/resources remain a separate planning input.
+
+**Inference constraint:** No model API calls yet. Plan a small GPT question generator as the alternative to Gemini Flash-Lite. `gpt-6-luna` at low effort is a proposed candidate from current official model guidance, not a tested winner or an invoked model. Keep this model-under-test choice separate from Sol/Terra implementation-agent assignments. Available execution routes must be established before a run; no API access is implied by a subscription.
+
+**Still queued — T02/D10:** Calibrate the now-agreed different evidence requirements for checks and disruptive fixes. The historical-support/current-applicability design will be selected through an experiment; exact variants, metric definitions and evaluation criteria remain open. Remaining T01 details and background-limit values/configuration remain open too. No experiment folder or implementation should be created yet.
+
 ## Start a new session
 
 Open this repository and paste:
 
-> Read `docs/TECHNICAL_DISCUSSIONS.md` and `docs/WORKSTREAMS.md`, then consult the relevant parts of `docs/VISION.md`, `docs/ARCHITECTURE.md` and `docs/ENGINEERING_DECISIONS.md`. I want to discuss the technical design of Knowledge Twin, not start implementation yet. Begin with T01: how evidence automatically forms cases, response histories and claims, and when a short Yes/No question is worth asking. Then work through T02: recommendation thresholds and what certainty means. Use one concrete incident throughout, distinguish my decisions from your proposals, compare practical alternatives, and help me choose the simplest defensible approach. Take one topic at a time. Record agreed decisions and remaining questions when I ask you to save the discussion.
+> Read `docs/TECHNICAL_DISCUSSIONS.md` and `docs/WORKSTREAMS.md`, then consult the relevant parts of `docs/VISION.md`, `docs/ARCHITECTURE.md`, `docs/INTEGRATIONS.md` and `docs/ENGINEERING_DECISIONS.md`. I want technical discussion only, with no implementation or demo planning. Resume from the current checklist and next question; preserve closed decisions. Discuss the question-selection policy and training/evaluation setup under T05/T06, then plan comparisons for unresolved technical choices. Preserve the remaining T01 (automatic evidence versus human questions) and T02 (recommendation thresholds) questions in the queue. Use concrete examples and distinguish my decisions from your proposals. Take one decision at a time. When a point is agreed, say Closed, then state the next question. Record agreed decisions and remaining questions when I ask you to save.
 
 To focus a session, replace the last part with:
 
@@ -107,7 +195,7 @@ Multiple models can propose interpretations or review labels, but their agreemen
 | T09 | Which collection routes prove the idea with the least integration work? | Adapter boundaries, evidence envelope and first input formats. | W01 / D01, D14 |
 | T10 | How should the companion feel, move and explain its state? | Interaction storyboard, avatar states and design-agent brief. | W09 / D17 |
 
-Start with T01 and T02. T03–T04 and T07 then establish the objects the question policy acts on. T05–T06 define the learning problem. T08 can use draft contracts; T09 can start once the evidence envelope is agreed. T10 can proceed separately against explicit UI mocks.
+Current session order: the connector strategy is closed; continue T01 and then T02. Detailed T09 contracts remain open for later technical discussion. T03–T04 and T07 establish the objects the question policy acts on. T05–T06 define the learning problem and select algorithms later. T08 can use draft contracts. T10 can proceed separately against explicit UI mocks; demo selection/presentation belongs to Artem's other session.
 
 ## 4. Questions to work through in each session
 
@@ -139,7 +227,7 @@ Start with T01 and T02. T03–T04 and T07 then establish the objects the questio
 
 - Which labels cover useful facts, hypotheses, attempts, outcomes and irrelevant chatter?
 - How much surrounding conversation is needed for short replies and interleaved incidents?
-- Should the first comparison be prompted Flash-Lite versus frozen embeddings plus a supervised baseline?
+- Should the first comparison be a prompted small GPT model versus frozen embeddings plus a supervised baseline? Exact model/access remains open under the no-model-API constraint; Flash-Lite is no longer the initial route.
 - How will LLM-generated labels be audited, versioned and separated from test truth?
 - Which identifiers, negations and uncertainty expressions must survive normalization?
 - What costly false negatives deserve a separate evaluation slice?
@@ -210,7 +298,10 @@ Start with T01 and T02. T03–T04 and T07 then establish the objects the questio
 
 ### T09 — Collection boundaries
 
-- Which first inputs demonstrate fragmented knowledge: supplied chat/email, a local note and an image?
+**Closed source choice:** custom Slack live connector plus Teams/email file imports; Nango deferred and other platform connections marked Planned. Detailed collection behavior remains open.
+
+- Which Slack channels/conversations, history range and update events belong in the demo?
+- Which Teams/email import formats are required, and do local notes/images add enough value to include?
 - What common evidence envelope preserves source IDs, authorship where allowed, timestamps and scope?
 - How do deduplication, threading, incremental updates and deletion propagation work?
 - What metadata is missing from a screenshot, and how is that uncertainty retained?

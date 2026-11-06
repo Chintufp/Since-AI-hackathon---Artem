@@ -1,0 +1,35 @@
+[
+  {
+    "width": 736,
+    "touch": false,
+    "backKeepsQuestion": true,
+    "focusReturnsToQuestion": true,
+    "contextPreserved": true,
+    "dismissUndo": true,
+    "fixedAnchor": true,
+    "controlsDoNotOverlap": true,
+    "errors": []
+  },
+  {
+    "width": 320,
+    "touch": false,
+    "backKeepsQuestion": true,
+    "focusReturnsToQuestion": true,
+    "contextPreserved": true,
+    "dismissUndo": true,
+    "fixedAnchor": true,
+    "controlsDoNotOverlap": true,
+    "errors": []
+  },
+  {
+    "width": 320,
+    "touch": true,
+    "backKeepsQuestion": true,
+    "focusReturnsToQuestion": true,
+    "contextPreserved": true,
+    "dismissUndo": true,
+    "fixedAnchor": true,
+    "controlsDoNotOverlap": true,
+    "errors": []
+  }
+]

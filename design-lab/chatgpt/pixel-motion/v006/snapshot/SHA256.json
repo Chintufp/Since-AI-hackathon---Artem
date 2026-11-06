@@ -1,0 +1,14 @@
+{
+  "study.html": "5f7b6fe09e19a72c6a0b8d770a6e76d3bbcfb06b384785f0ce9768ea9f956f30",
+  "index.html": "5bd77798e9a24b78d24aa1784fdc598c34c1b353352daa32c42991c333b42a64",
+  "shell.html": "14ebd086c754d00e157eee8e295e14dc214153f0da6a779407f8dd252fbc48d5",
+  "player.js": "2f5338be72c5545df878da8b0895e8fda5576bac661c475bc856123e3b3cf307",
+  "build.cjs": "88f579ce4df047a0ec4f506fc592fbe6082f6238de34b07c419fd7220c93b3d8",
+  "NOTES.md": "33ee64dcd2d5e7b79be9fe0043713c4ab246c9d200565262636b84a4e20d1d19",
+  "frame-checks.json": "e069b494243f4d1d4c5b1680d470abdb9acd2fe2c62284b3670289f73563091a",
+  "browser-checks.json": "7f00a749b71ee8a11da5b15dd0b894f63743551abbbfde5dcbff8b2bc02ff2b8",
+  "modules/compact-core-acts.js": "f6d5123fb4e84a68d8f3bf9efd80b66e65c1126758dfc4154e3420093a9c6a3c",
+  "modules/compact-prop-acts.js": "83367cd242c5fdc7b18337b5acb96566b673476c5e9480ded732cdb02fab3b2f",
+  "modules/compact-state-acts.js": "599ecc9a43ddfe992a151f75bc696ca610906fe8dc3257d71eb268f10968b816",
+  "modules/minimal-kit.js": "71a931b59382a2741a1b8b765ad64f7795bf42880cdd72991f4b3c90835ca212"
+}

@@ -24,6 +24,19 @@ Tell the four problems in the product brief through one visual journey. The view
 
 ## Draft sequence for the director
 
+### Saved visual reference: sources converging into shared memory
+
+Artem selected this graph on 6 November as a possible visualization for the video. Preserve the many-sources-to-one-pipeline composition: Teams, Slack, email and files feed source adapters, then common evidence records, interpretation/claim extraction and shared knowledge memory. It can support the context-becomes-knowledge beat. Final styling, animation and placement remain open.
+
+- [Original screenshot](assets/source-to-memory-reference.png): retained unchanged as the visual reference.
+- [Editable Mermaid source](assets/source-to-memory.mmd): reconstructs the diagram for adaptation and animation planning.
+
+![User-selected source-to-memory graph reference](assets/source-to-memory-reference.png)
+
+This is a concept diagram, not a claim that every depicted connector works. Git and additional sources may be added to a later version after agreeing the scene; keep the original reference intact.
+
+### Story beats
+
 These beats are a starting storyboard, not locked timing or final art direction. A short main cut and an extended cut are useful options; choose duration around the actual pitch slot.
 
 | Beat | On-screen scene | Meaning / narration direction |

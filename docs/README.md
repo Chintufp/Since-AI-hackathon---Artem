@@ -11,14 +11,20 @@ Planning and development documents live here. The [repository README](../README.
 | Understand the full product vision and rationale | [VISION.md](VISION.md) |
 | Pick a bounded implementation task | [WORKSTREAMS.md](WORKSTREAMS.md) |
 | Start a technical discussion in a new session | [TECHNICAL_DISCUSSIONS.md](TECHNICAL_DISCUSSIONS.md) |
+| Understand how this technical design evolved, including rejected and deferred ideas | [TECHNICAL_DISCUSSION_HISTORY.md](TECHNICAL_DISCUSSION_HISTORY.md) |
+| Combine the technical plan with an overnight prototype/design run | [OVERNIGHT_TECHNICAL_HANDOFF.md](OVERNIGHT_TECHNICAL_HANDOFF.md) — status, experiment queue, agent dependencies and unanswered questions |
 | Inspect architecture, schemas and feedback loops | [ARCHITECTURE.md](ARCHITECTURE.md) and [interactive map](master-map.html) |
+| Plan source connections and reusable module placement | [INTEGRATIONS.md](INTEGRATIONS.md) |
 | Choose algorithms, metrics and thresholds | [ENGINEERING_DECISIONS.md](ENGINEERING_DECISIONS.md) |
+| See the mathematical question-selection loop | [QUESTION_POLICY_DIAGRAM.md](QUESTION_POLICY_DIAGRAM.md) |
 | Design the engineer experience, avatar and optional points | [EXPERIENCE_BRIEF.md](EXPERIENCE_BRIEF.md) |
 | Direct the cinematic pitch video | [PITCH_FILM_BRIEF.md](PITCH_FILM_BRIEF.md) |
 | Review historical research | [RESEARCH.md](RESEARCH.md) and [INITIAL_CONCEPT.md](INITIAL_CONCEPT.md) |
 
 ## Current decisions to preserve
 
+- Closed hackathon connector decision: custom Slack live connector, Teams/email file imports, Nango deferred, other platform connections labeled Planned. Exact source contracts remain open; implementation is not authorized by this discussion.
+- Generalize across platforms and organizations; reusable elements go in focused `libs/utils/*` modules following the Turku project boundary. Apps compose shared modules. Detailed layout remains open.
 - The pitch explains four problems: buried knowledge; lost context and people; uncertain applicability; and low-effort delivery to engineers and agents.
 - Finding people with related incident experience is a product feature, alongside retrieving useful knowledge.
 - The points experience is in planned build scope, with on/off, optional sound, motion preferences and a quiet demo preset.

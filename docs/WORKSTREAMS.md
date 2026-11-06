@@ -8,6 +8,8 @@ Read the [full vision](VISION.md), [architecture reference](ARCHITECTURE.md), [i
 
 For a fresh planning session, use the [technical discussion guide](TECHNICAL_DISCUSSIONS.md), which preserves the latest questions about Yes/No verification, recommendation thresholds and assistant delegation.
 
+For the combined overnight plan, read the [technical handoff](OVERNIGHT_TECHNICAL_HANDOFF.md), prepared 7 November 2026. It supplies the proposed prototype trace, experiment queue, dependencies, constraints and unanswered questions. It does not launch agents or authorize model APIs; implementation starts only under the receiving chat's task instruction. Open research choices are preserved rather than treated as prerequisites to documenting a reversible prototype plan.
+
 ## 1. The idea in one sentence
 
 > We turn existing conversations into reusable operational knowledge, ask experts only for consequential missing details, and deliver the right context when an engineer or agent needs it.
@@ -52,7 +54,7 @@ Usefulness and truth are also different judgments. A speculative diagnosis may b
 
 | Workstream | First prototype boundary | A useful acceptance check |
 | --- | --- | --- |
-| W01 | Supplied chat/email files, pasted text and one image route. Keep continuous capture as a separate extension. | Reimporting the same material preserves provenance without duplicating evidence or credit. |
+| W01 | Agreed: custom Slack live connector plus Teams/email file imports. Defer Nango; other platform connections are Planned. Exact collection scope/formats remain open; paste/image routes are separate scope questions. | Slack and imported evidence use one contract; reimporting the same material preserves provenance without duplicating evidence or credit. |
 | W02 | Context-aware classification and structured extraction, preserving original text and uncertainty. | A short reply is interpreted with its conversation; an access fact is retained; dinner chatter is not treated as a fault. |
 | W03 | Exact identifiers and contextual candidate matching before sophisticated clustering. | One incident continued across channels is linked; a similar incident on another date remains separate. |
 | W04 | Record attempts and reported/observed outcomes with source references. | A restart followed by recurrence remains a temporary workaround, not a lasting fix. |
@@ -91,10 +93,11 @@ Related decisions: D02–D08, D11.
 ### Question policy and learning
 
 - The action is a question–recipient–timing choice, including defer/no-question.
-- Eligible recipients depend on access, case participation, likely firsthand knowledge and workload.
+- Eligible recipients depend on the question: relevant firsthand history, supported knowledge or ability to observe a general current condition, together with access and workload. Historical case participation is not universally required (D12, 7 November 2026).
+- LLM question generation is agreed; prompts, templates and candidate count remain experimental. Quick factual questions and an optional Evaluative comparison category are agreed, with distinct evidence/preference semantics.
 - A factual Yes/No updates evidence; recommendation helpfulness labels decision utility. Either factual answer can make a question valuable.
 - Define question value through consequential new evidence or better decisions, not merely agreement or reduced model self-confidence.
-- Start with a transparent baseline; evaluate a contextual bandit for selection when logs support it. Consider sequential RL when a multi-step policy can demonstrate added value.
+- Retain RL as a planned optimization layer for question selection while the evidence-and-reuse loop also works with a transparent baseline (D18, 7 November 2026). A contextual bandit over question–recipient pairs is the current proposal; model choice and reward remain open. Consider sequential RL when a multi-step policy can demonstrate added value.
 - Define reward components, missing-feedback handling, delayed credit and stopping rules before choosing a specific RL algorithm.
 - Keep user points separate from the model reward and from factual credibility.
 
@@ -113,6 +116,12 @@ Related decisions: D12, D13, D18.
 Related decisions: D13, D16. Metric definitions belong to the architecture discussion; an evaluation agent can implement the agreed measurements.
 
 ## 6. Bounded assignments for separate agents
+
+**Planning ownership — 7 November 2026:** The technical-design chat will prepare the core algorithm and experiment plan for later Codex/Claude agent assignments after the open decisions are discussed. Artem will ask another agent to own general overnight orchestration, including connectors and animation/UI/UX integration. The technical plan must hand off shared contracts, dependencies, file ownership, expected outputs and acceptance checks to that broader plan. No agent execution is started by this planning decision.
+
+**Closed model constraint — 7 November 2026:** For future Codex subagents use `gpt-6.1-sol` or `gpt-6.1-terra`. Do not launch Astra agents. Artem reports 55% of his premium-plan weekly allowance remaining; treat that as a user-reported constraint, not a spending cap or authorization to consume the balance. Plan a resource-bounded experiment queue; exact runtime/spend caps and Claude execution resources remain to be settled. The user explicitly permits these Sol/Terra model overrides for eventual delegation; no agents are launched now.
+
+**Closed inference constraint — 7 November 2026:** Do not use model APIs yet. The planned question-generator experiment should use a small GPT alternative to Gemini Flash-Lite; the exact model/access route is provisional (D16). This is distinct from the coding agents' model assignment. Do not silently enable paid inference, require an API key or assume subscription-backed access to an API. No inference or agent run is authorized by this planning note.
 
 These are delegation briefs, not a claim that agents have been launched. Assign ownership of files and interfaces before starting parallel implementation.
 
@@ -145,6 +154,22 @@ A starting application-state vocabulary is:
 - Unavailable/error.
 
 These are interface states. Claim uncertainty and evidence limitations remain explicit in text. Motion should support a quiet, responsive experience: clicking opens the input, questions can wait, and expanding reveals the complete available history. Include a reduced-motion option and evaluate idle resource use. The points experience is a planned feature with an on/off switch, optional sound, smooth reward effects and a quiet variant. See the [experience brief](EXPERIENCE_BRIEF.md).
+
+### Upload/onboarding note for the UI agent — 6 November 2026
+
+**User context:** Artem proposes demonstrating a system that already has operational history, using existing and additional synthetic data with agent-assisted labeling. He asked to preserve an upload/onboarding idea for the agent working on the UI. This is a planning handoff; the choices below are proposals, not an instruction to start backend implementation.
+
+**Proposed demo entry:** Open directly into a populated workspace containing clearly identified synthetic historical cases. Show that memory and its sources are already available. A fresh incident can then demonstrate retrieval, applicability checks and a useful decision. Replaying first-time setup is optional; the main demo should work without it.
+
+**Small UI addition:** Provide an **Add context** entry point for pasted text or a supported file upload. Keep initial onboarding to an optional compact introduction explaining the preloaded synthetic history and where to add material. If an import route is connected, show processing, the resulting case/claims, source references and unresolved details. If the UI uses a mock, label the import as a preview; do not imply that a working ingestion pipeline or live connector exists. Supported formats must follow the actual adapter contract.
+
+**Priority proposal:** Prioritize the populated workspace, a new incident and expandable evidence history. Add one working import example if it helps demonstrate capture; defer a multi-step onboarding wizard and broad connector setup. The same Add context entry should remain available after onboarding.
+
+**Data boundary:** Historical sources and their agent-produced annotations may be prepared before the demo. Keep annotations attributed to the labeling process; they are not new engineer confirmations. Preserve original sources, unknowns and hypotheses. Incoming demo incidents must have separate identities and must not have their future outcomes or hidden answer keys preloaded into runtime memory. The supplied TRN-042 chat/email can anchor the historical case and its automatic reconstruction; they remain two representations of one example. A separately frozen evaluation set is needed for performance claims.
+
+**Still open:** Whether to show import live, which supported format to use, and the final onboarding presentation. A preloaded demo remains a proposal pending the ongoing technical discussion.
+
+**Connections decision — closed, 6 November 2026:** custom Slack connector for the live demo source, Teams/email file imports, Nango deferred, and other platform connections (including Git/repository hosts) labeled **Planned**. Show implemented capabilities accurately; do not display a successful live connection for a mock. Source selection, history/update scope, exact formats and interaction details remain open. See [connection flow and reusable structure](INTEGRATIONS.md). Reusable UI elements and logic belong in `libs/utils`. Design/documentation only; implementation has not been authorized.
 
 ## 8. Dependency order
 

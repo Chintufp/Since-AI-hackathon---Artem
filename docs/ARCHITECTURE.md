@@ -16,6 +16,7 @@ Cases remain the main organizing unit. Claims are the smaller units whose suppor
 
 ## Confirmed direction and open choices
 
+- Generalize across source platforms and organizations. Reusable logic and UI elements belong in focused `libs/utils/*` modules, consumed by thin apps and evaluation tools. See [connection design and proposed repository layout](INTEGRATIONS.md); connector vendors and detailed package boundaries remain open.
 - Keep collection separate from memory organization and runtime assistance.
 - Minimize specialist effort; Yes/No is a primary input, with unknown/skip/later available.
 - Treat distributed questioning as participation across engineers coordinated by one service. Federated training or multi-agent RL is not assumed.
@@ -87,7 +88,7 @@ Bring historical and new context into one evidence format, without making engine
 
 - Evidence envelope: source ID, item ID, original/reference, actors, thread links, timestamps and access scope
 
-**Proposed approach:** Adapters first. Preserve structure; use explicit OCR only when direct text is unavailable. Start with supplied JSON/email and manual input.
+**Agreed hackathon source scope:** custom Slack live connector plus Teams/email file imports; Nango deferred and other platform connections shown as Planned. Detailed contracts and sync behavior remain open. Preserve source structure; explicit OCR remains a proposed route when direct text is unavailable. This is a design decision, not an implementation claim. See [D01](ENGINEERING_DECISIONS.md#d01--source-contract-and-first-adapters).
 
 **Rules**
 
@@ -590,6 +591,12 @@ Close the evidence loop and distinguish a useful suggestion from a lasting resol
 
 Distribute tiny questions across relevant engineers without broadcasting every uncertainty to everyone.
 
+**Agreed recipient direction — 6 November 2026:** Require a question-specific reason for likely knowledge. Automatically create people-to-work links from source-supported contributions, and keep inferred expertise provisional and correctable. The current [D12 record](ENGINEERING_DECISIONS.md#d12--question-selection-routing-and-stopping) distinguishes these agreed principles from open schema, evidence-assessment and ranking choices.
+
+**Closed clarifications — 7 November 2026:** Use an LLM to generate candidates; prompts, template assistance and candidate count remain experimental. Recipient eligibility depends on the question: relevant firsthand history or supported knowledge for some questions, ability to observe a general current condition for others. Prior case participation is not always required. Initial no-answer behavior preserves unknowns without automatic broadcasting; reassignment requires a suitable recipient and a still-important gap, and this policy may be revised after evaluation. Offer Quick factual questions and optional Evaluative comparisons, keeping evidence updates separate from preference labels.
+
+**Proposed relationship model:** Represent people, incidents, systems, versions, procedures and work topics with typed, source-backed links. For the supplied synthetic TRN-042 account, Veikko reports performing the advised reset and reports recovery; Erkki proposes the explanation and advises the action. These are different reasons to ask them different questions. A shared topic or thread membership alone does not establish firsthand knowledge or broad expertise. Keep explicit ownership, reported contribution and inferred familiarity distinguishable, with available source/time/scope and reversible corrections. Automatic creation from sources is agreed; exact relation types and evidence-assessment rules remain open. A graph representation does not require choosing a dedicated graph database now.
+
 **Inputs**
 
 - Unresolved high-value claims/checks
@@ -608,6 +615,7 @@ Distribute tiny questions across relevant engineers without broadcasting every u
 **Rules**
 
 - Distributed participation uses shared coordination; no federated training or consensus network is assumed.
+- Agreed on 6 November: background questioning obeys hard per-person question budgets and minimum gaps. The selection algorithm cannot override these limits; actual numbers and configuration remain open. Active-investigation limits are not settled by this decision.
 - Source independence is about provenance, not number of people.
 - Do not reveal restricted case details in a question.
 - Stop when useful uncertainty is resolved; never ask until the model receives agreement.
@@ -644,7 +652,7 @@ Get a small, interpretable contribution without a documentation task.
 **Rules**
 
 - Yes/No is sufficient for many labels; uncertainty must still be expressible.
-- A person's answer is attributed evidence, not universal truth.
+- Agreed on 6 November: a person's answer is attributed evidence about the scoped question and updates support for claims/hypotheses; it does not automatically prove or confirm a broader claim. Certainty measures and evidence-combination methods remain open (D10).
 - Equal participation credit for useful confirmations and corrections.
 - Points, answer count and seniority do not automatically weight truth.
 
@@ -801,9 +809,11 @@ Make policy improvement and evaluation possible without treating every interacti
 
 ### Learn question / suggestion policy
 
-**Status:** Later experiment
+**Status:** RL retained as a planned question-selection optimization layer; algorithm and training design open (D18, 7 November 2026)
 
 Learn which eligible question, recipient or recommendation is useful in the current context.
+
+The evidence-and-reuse loop also operates with a baseline selector. Joint question–recipient selection is the current proposal; recommendation-policy learning is a separate open choice. Eligibility and burden limits remain explicit rules outside optimization. LLM extraction and interpretation are not thereby deterministic. Training compares the usefulness of selected actions; it does not require asking a person to choose between two candidate questions.
 
 **Inputs**
 

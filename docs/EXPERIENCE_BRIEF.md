@@ -21,6 +21,8 @@ The product hypothesis is that enjoyable micro-interactions encourage useful vol
 
 ## A proposed contribution interaction
 
+**Closed question-category direction — 7 November 2026:** Offer **Quick** questions for a small factual contribution and an optional **Evaluative** category, which can show two candidate questions for a preference judgment. Ordinary factual answers update attributed evidence; evaluative A/B preferences train/evaluate selection and do not establish the underlying facts. Evaluative contributions are voluntary, count toward interruption/effort limits, and must not become an obligatory second task after each Quick answer. Allow neither/equal/unsure/skip where appropriate. Exact layout, wording and frequency remain design decisions. This is a handoff direction, not an implemented UI.
+
 1. The avatar makes a small, quiet indication that one useful question is available.
 2. The engineer opens it and sees the question, a compact source/context snippet and Yes / No, with unknown/later available.
 3. Selecting an answer gives immediate visual acknowledgement. Saving is represented separately from reward confirmation if the network is slow.
@@ -55,7 +57,7 @@ Exact amounts, caps and award rules are open decisions. Show honest placeholder/
 
 ## Finding people is part of assistance
 
-The interface should offer **People with relevant experience**, alongside applicable knowledge. Show people who participated in this incident, helped resolve a related incident or contributed a relevant check, with a concise reason and accessible source/case link.
+The interface should offer **People with relevant experience**, alongside applicable knowledge. Show people who participated in this incident, helped resolve a related incident or contributed a relevant check, with a concise reason and accessible source/case link. Recipient eligibility is question-dependent: someone authorized and able to observe a general current condition can be suitable without historical case participation. Show the actual reason, such as ability to inspect the relevant status, rather than inventing past expertise.
 
 Example card using synthetic placeholders:
 

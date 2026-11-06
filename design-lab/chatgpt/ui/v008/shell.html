@@ -1,0 +1,213 @@
+<div id="kt-panel-companion-v8">
+<style>
+#kt-panel-companion-v8 { color-scheme:light; font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+#kt-panel-companion-v8 * { box-sizing:border-box; }
+#kt-panel-companion-v8 .rf-stage { position:relative; width:100%; height:248px; color:#252729; }
+#kt-panel-companion-v8 .rf-stage[data-view="question"] { height:460px; }
+#kt-panel-companion-v8 .rf-stage[data-view="settings"] { height:432px; }
+#kt-panel-companion-v8 .rf-stage[data-view="queue"] { height:300px; }
+#kt-panel-companion-v8 .rf-window { position:absolute; bottom:44px; left:50%; width:380px; max-width:calc(100% - 32px); transform:translateX(-50%); background:#fff; border:1px solid #e3e4e5; border-radius:16px; box-shadow:0 7px 20px #22242b08,0 1px 3px #22242b05; }
+#kt-panel-companion-v8 button,#kt-panel-companion-v8 textarea,#kt-panel-companion-v8 input,#kt-panel-companion-v8 select { font:inherit; }
+#kt-panel-companion-v8 button { -webkit-tap-highlight-color:transparent; color:inherit; }
+#kt-panel-companion-v8 button:focus-visible,#kt-panel-companion-v8 textarea:focus-visible,#kt-panel-companion-v8 input:focus-visible,#kt-panel-companion-v8 select:focus-visible { outline:2px solid #8b939a; outline-offset:3px; }
+#kt-panel-companion-v8 .rf-writing { display:block; resize:none; width:100%; height:122px; border:0; border-radius:16px 16px 0 0; padding:24px 24px 10px; background:transparent; color:#252729; font-size:16px; line-height:1.55; letter-spacing:-.02em; }
+#kt-panel-companion-v8 .rf-writing::placeholder { color:#7f8489; opacity:1; }
+#kt-panel-companion-v8 .rf-writing:focus-visible { outline:0; }
+#kt-panel-companion-v8 .rf-window:has(.rf-writing:focus-visible) { border-color:#a8adb2; outline:2px solid #a8b2bb; outline-offset:2px; }
+#kt-panel-companion-v8 .rf-footer { position:relative; display:flex; align-items:center; gap:3px; height:48px; padding:0 90px 0 15px; }
+#kt-panel-companion-v8 .rf-tool { border:0; background:transparent; border-radius:7px; width:30px; height:32px; padding:6px; display:inline-flex; align-items:center; justify-content:center; position:relative; color:#72777c; }
+#kt-panel-companion-v8 .rf-tool:hover { color:#303438; background:#f4f4f4; }
+#kt-panel-companion-v8 .rf-tool svg { width:15px; height:15px; stroke-width:1.6; }
+#kt-panel-companion-v8 .rf-count { position:absolute; top:0; right:0; font-size:11px; color:#65696e; background:#fff; padding:1px; line-height:1; }
+#kt-panel-companion-v8 .rf-divider { width:1px; height:12px; background:#edeeef; margin:0 5px; }
+#kt-panel-companion-v8 .rf-spacer { flex:1; }
+#kt-panel-companion-v8 .rf-send { width:30px; height:30px; border:0; border-radius:8px; background:#303336; color:#fff; display:grid; place-items:center; padding:6px; }
+#kt-panel-companion-v8 .rf-send:disabled { background:#eeeff0; color:#bbbfc2; }
+#kt-panel-companion-v8 .rf-send:not(:disabled):hover { background:#17191b; }
+#kt-panel-companion-v8 .rf-send svg { width:16px; height:16px; }
+#kt-panel-companion-v8 .rf-avatar { position:absolute; width:64px; height:64px; right:14px; bottom:-25px; border:0; padding:0; background:transparent; }
+#kt-panel-companion-v8 .rf-avatar canvas { display:block; width:64px; height:64px; image-rendering:pixelated; }
+#kt-panel-companion-v8 .rf-attachments { padding:0 24px 7px; display:flex; gap:6px; flex-wrap:wrap; }
+#kt-panel-companion-v8 .rf-chip { display:flex; align-items:center; gap:5px; max-width:100%; font-size:11px; color:#74777b; background:#f4f5f5; border-radius:5px; padding:5px 7px; }
+#kt-panel-companion-v8 .rf-chip span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:230px; }
+#kt-panel-companion-v8 .rf-chip button { border:0; padding:0 2px; background:transparent; color:#8b8f93; font-size:12px; }
+#kt-panel-companion-v8 .rf-files { display:none; }
+#kt-panel-companion-v8 .rf-window[data-drag="true"] { outline:2px solid #a9b5c0; outline-offset:4px; background:#fcfdfe; }
+#kt-panel-companion-v8 .rf-preview-note { text-align:center; font-size:11px; line-height:1.3; color:#8b8f94; padding:0 10px 4px; }
+#kt-panel-companion-v8 .rf-question { padding:21px 24px 11px; position:relative; }
+#kt-panel-companion-v8 .rf-case { font-size:11px; color:#838990; margin:0 0 9px; letter-spacing:.025em; }
+#kt-panel-companion-v8 .rf-question h2 { font-size:19px; font-weight:500; line-height:1.3; letter-spacing:-.035em; margin:0; max-width:290px; }
+#kt-panel-companion-v8 .rf-close { position:absolute; top:12px; right:12px; }
+#kt-panel-companion-v8 .rf-responses { display:flex; align-items:center; gap:8px; margin-top:17px; }
+#kt-panel-companion-v8 .rf-secondary-responses { display:flex; align-items:center; gap:10px; margin-top:5px; }
+#kt-panel-companion-v8 .rf-answer { font-size:13px; font-weight:500; background:#fff; border:1px solid #d9dcde; border-radius:8px; height:34px; min-width:57px; padding:0 16px; }
+#kt-panel-companion-v8 .rf-answer:hover { background:#f2f3f4; border-color:#c7cbce; }
+#kt-panel-companion-v8 .rf-later { border:0; background:transparent; padding:8px 5px; color:#737a81; font-size:11px; white-space:nowrap; }
+#kt-panel-companion-v8 .rf-later:hover { color:#464b50; }
+#kt-panel-companion-v8 .rf-reveal { height:0; overflow:hidden; transition:height 240ms steps(6,end); }
+#kt-panel-companion-v8 .rf-history { padding:14px 24px 12px; border-top:1px solid #f0f1f2; }
+#kt-panel-companion-v8 .rf-why { font-size:12px; color:#676e74; line-height:1.45; margin:0 0 13px; }
+#kt-panel-companion-v8 .rf-timeline { padding:0; margin:0; list-style:none; }
+#kt-panel-companion-v8 .rf-timeline li { position:relative; padding:0 0 10px 15px; display:flex; gap:7px; line-height:1.35; font-size:11px; color:#5e666e; }
+#kt-panel-companion-v8 .rf-timeline li::before { content:""; width:4px; height:4px; position:absolute; left:0; top:5px; background:#aeb6bd; }
+#kt-panel-companion-v8 .rf-timeline li:not(:last-child)::after { content:""; width:1px; background:#e5e8ea; position:absolute; top:9px; bottom:0; left:1px; }
+#kt-panel-companion-v8 .rf-timeline li:last-child { padding-bottom:0; }
+#kt-panel-companion-v8 .rf-timeline b { font-weight:400; color:#7f878e; width:61px; flex-shrink:0; }
+#kt-panel-companion-v8 .rf-timeline span { flex:1; }
+#kt-panel-companion-v8 .rf-caveat { font-size:11px; line-height:1.35; color:#7f878e; margin:11px 0 0; }
+#kt-panel-companion-v8 .rf-context-button { display:flex; align-items:center; gap:5px; font-size:11px; color:#737a81; background:transparent; padding:4px 0; border:0; height:32px; }
+#kt-panel-companion-v8 .rf-context-button:hover { color:#343a40; }
+#kt-panel-companion-v8 .rf-context-button svg { width:12px; height:12px; }
+#kt-panel-companion-v8 .rf-context-button[data-open="true"] .rf-down { display:none; }
+#kt-panel-companion-v8 .rf-context-button[data-open="false"] .rf-up { display:none; }
+#kt-panel-companion-v8 .rf-panel-content { padding:20px 24px 8px; position:relative; }
+#kt-panel-companion-v8 .rf-panel-content h2 { font-size:14px; font-weight:500; letter-spacing:-.02em; margin:0 0 16px; }
+#kt-panel-companion-v8 .rf-question-item { display:block; text-align:left; width:100%; background:#fff; border:0; border-top:1px solid #f0f1f2; padding:13px 0; font-size:13px; line-height:1.45; color:#4b5258; }
+#kt-panel-companion-v8 .rf-question-item small { display:block; font-size:11px; line-height:1.4; color:#8d959c; margin-bottom:3px; }
+#kt-panel-companion-v8 .rf-question-item:hover { color:#181b1e; }
+#kt-panel-companion-v8 .rf-settings-rows { display:grid; gap:0; }
+#kt-panel-companion-v8 .rf-setting { display:flex; align-items:center; gap:12px; min-height:37px; border-top:1px solid #f0f1f2; font-size:12px; color:#7b8187; }
+#kt-panel-companion-v8 .rf-setting > span { flex:0 0 77px; }
+#kt-panel-companion-v8 .rf-setting input[type="text"],#kt-panel-companion-v8 .rf-setting input[type="password"],#kt-panel-companion-v8 .rf-setting select { width:0; flex:1; font-size:12px; color:#343a40; border:0; background:transparent; padding:7px 2px; min-width:0; }
+#kt-panel-companion-v8 .rf-setting select { text-align:right; padding-right:0; }
+#kt-panel-companion-v8 .rf-setting input { text-align:right; }
+#kt-panel-companion-v8 .rf-setting input:disabled { color:#a6aab0; }
+#kt-panel-companion-v8 .rf-setting input[type="checkbox"] { margin-left:auto; accent-color:#5c646c; }
+#kt-panel-companion-v8 .rf-setting.rf-option > span { flex:1; }
+#kt-panel-companion-v8 .rf-receipt { padding:26px 24px 17px; }
+#kt-panel-companion-v8 .rf-receipt p { font-size:15px; font-weight:400; margin:0; letter-spacing:-.02em; }
+#kt-panel-companion-v8 .rf-undo { border:0; background:transparent; color:#959ba1; font-size:11px; padding:0; margin-top:10px; }
+#kt-panel-companion-v8 .rf-reduced *,#kt-panel-companion-v8 .rf-reduced *::before,#kt-panel-companion-v8 .rf-reduced *::after { animation:none!important; transition:none!important; }
+#kt-panel-companion-v8 [hidden] { display:none!important; }
+@media (max-width:420px) {
+ #kt-panel-companion-v8 .rf-stage[data-view="question"] { height:490px; }
+ #kt-panel-companion-v8 .rf-window { max-width:calc(100% - 20px); }
+ #kt-panel-companion-v8 .rf-question,#kt-panel-companion-v8 .rf-panel-content { padding-left:19px; padding-right:19px; }
+ #kt-panel-companion-v8 .rf-history { padding-left:19px; padding-right:19px; }
+ #kt-panel-companion-v8 .rf-writing { padding-left:19px; padding-right:19px; }
+ #kt-panel-companion-v8 .rf-footer { padding-left:11px; padding-right:83px; gap:0; }
+ #kt-panel-companion-v8 .rf-avatar { right:10px; }
+ #kt-panel-companion-v8 .rf-tool { width:28px; }
+ #kt-panel-companion-v8 .rf-divider { margin:0 4px; }
+ #kt-panel-companion-v8 .rf-question h2 { font-size:18px; }
+ #kt-panel-companion-v8 .rf-responses { gap:6px; }
+ #kt-panel-companion-v8 .rf-answer { padding:0 14px; min-width:53px; }
+ #kt-panel-companion-v8 .rf-timeline b { width:57px; }
+}
+@media (pointer:coarse) {
+ #kt-panel-companion-v8 .rf-tool,#kt-panel-companion-v8 .rf-send,#kt-panel-companion-v8 .rf-answer,#kt-panel-companion-v8 .rf-later,#kt-panel-companion-v8 .rf-context-button { min-width:44px; min-height:44px; }
+ #kt-panel-companion-v8 .rf-footer { height:54px; padding-left:8px; gap:0; }
+ #kt-panel-companion-v8 .rf-footer .rf-divider { display:none; }
+ #kt-panel-companion-v8 .rf-context-button { font-size:0; min-width:44px; }
+ #kt-panel-companion-v8 .rf-context-button svg { width:14px; height:14px; }
+ #kt-panel-companion-v8 .rf-footer .rf-spacer { min-width:4px; }
+ #kt-panel-companion-v8 .rf-writing { font-size:16px; }
+}
+@media (prefers-reduced-motion:reduce) { #kt-panel-companion-v8 *,#kt-panel-companion-v8 *::before,#kt-panel-companion-v8 *::after { animation:none!important; transition:none!important; } }
+#kt-panel-companion-v8 .rf-avatar { width:64px; height:64px; }
+#kt-panel-companion-v8 .rf-avatar canvas { position:absolute; width:88px; height:88px; left:-12px; top:-18px; pointer-events:none; }
+#kt-panel-companion-v8 .rf-receipt-detail { color:#747b82; font-size:12px; line-height:1.5; margin-top:8px; }
+#kt-panel-companion-v8 .rf-receipt { min-height:122px; }
+#kt-panel-companion-v8 .rf-undo { min-height:32px; color:#59636b; margin-top:6px; }
+#kt-panel-companion-v8 .rf-window[data-collapsed="true"] { border-color:transparent; background:transparent; box-shadow:none; }
+#kt-panel-companion-v8 .rf-window[data-collapsed="true"] .rf-footer { display:none; }
+#kt-panel-companion-v8 .rf-reveal[data-animating="true"] .rf-history { visibility:hidden; }
+#kt-panel-companion-v8 .rf-chip button { min-width:24px; min-height:24px; }
+@media (pointer:coarse) { #kt-panel-companion-v8 .rf-chip button,#kt-panel-companion-v8 .rf-undo { min-height:44px; min-width:44px; } }
+#kt-panel-companion-v8 .rf-context-button { width:100%; height:40px; padding:0 24px; display:flex; justify-content:space-between; border-top:1px solid #edf0f1; font-size:12px; color:#5e676e; }
+#kt-panel-companion-v8 .rf-context-button svg { width:14px; height:14px; }
+#kt-panel-companion-v8 .rf-context-button[data-open="true"] svg { transform:rotate(180deg); }
+#kt-panel-companion-v8 .rf-history { padding:16px 24px 17px; border-top:1px solid #edf0f1; }
+#kt-panel-companion-v8 .rf-evidence-path { list-style:none; margin:0; padding:0; position:relative; }
+#kt-panel-companion-v8 .rf-evidence-path::before { content:''; position:absolute; left:50%; top:9px; bottom:28px; width:1px; background:#cdb569; }
+#kt-panel-companion-v8 .rf-evidence-node { position:relative; text-align:center; padding-top:7px; margin-bottom:8px; }
+#kt-panel-companion-v8 .rf-evidence-node:last-child { margin-bottom:0; }
+#kt-panel-companion-v8 .rf-node-title { display:inline-flex; position:relative; align-items:center; gap:7px; min-height:28px; border:0; background:#fff; padding:4px 12px; color:#886b24; font-size:12px; }
+#kt-panel-companion-v8 .rf-node-title::before { content:''; position:absolute; left:calc(50% - 3px); top:-6px; width:6px; height:6px; background:#d4b452; box-shadow:0 0 0 3px #fff; }
+#kt-panel-companion-v8 .rf-node-title svg { width:11px; height:11px; color:#8e969d; }
+#kt-panel-companion-v8 .rf-node-title[aria-expanded="true"] svg { transform:rotate(180deg); }
+#kt-panel-companion-v8 .rf-evidence-node[data-kind="problem"] .rf-node-title { color:#a34e50; }
+#kt-panel-companion-v8 .rf-evidence-node[data-kind="problem"] .rf-node-title::before { background:#c87474; }
+#kt-panel-companion-v8 .rf-evidence-node[data-kind="reported"] .rf-node-title { color:#43765a; }
+#kt-panel-companion-v8 .rf-evidence-node[data-kind="reported"] .rf-node-title::before { background:#6da287; }
+#kt-panel-companion-v8 .rf-node-detail { position:relative; background:#fff; text-align:left; color:#5e6870; margin:3px 0 8px; padding:9px 0 5px; font-size:12px; line-height:1.55; }
+#kt-panel-companion-v8 .rf-context-caveat { position:relative; margin:10px 0 0; padding-top:5px; background:#fff; color:#7b848c; font-size:11px; line-height:1.5; text-align:center; }
+@media (max-width:420px) { #kt-panel-companion-v8 .rf-context-button,#kt-panel-companion-v8 .rf-history { padding-left:19px; padding-right:19px; } }
+@media (pointer:coarse) { #kt-panel-companion-v8 .rf-context-button { min-height:44px; font-size:12px; } #kt-panel-companion-v8 .rf-node-title { min-height:44px; } }
+#kt-panel-companion-v8 .rf-window { border:0; background:transparent; box-shadow:none; }
+#kt-panel-companion-v8 .rf-surface { position:relative; display:grid; grid-template-rows:minmax(0,1fr) 48px; background:#fff; border:1px solid #e3e4e5; border-radius:16px; overflow:hidden; box-shadow:0 7px 20px #22242b08,0 1px 3px #22242b05; }
+#kt-panel-companion-v8 .rf-content { min-height:0; overflow:hidden; }
+#kt-panel-companion-v8 .rf-footer { background:#fff; }
+#kt-panel-companion-v8 .rf-avatar { right:15px; bottom:-24px; }
+#kt-panel-companion-v8 .rf-reveal { transition:none; }
+#kt-panel-companion-v8 .rf-node-detail { padding:0; margin:0; overflow:hidden; height:0; }
+#kt-panel-companion-v8 .rf-node-detail p { margin:0; padding:12px 0 10px; font:inherit; }
+#kt-panel-companion-v8 .rf-reveal[data-animating="true"] .rf-history { visibility:visible; }
+@media (max-width:420px) { #kt-panel-companion-v8 .rf-avatar { right:11px; } }
+@media (pointer:coarse) { #kt-panel-companion-v8 .rf-surface { grid-template-rows:minmax(0,1fr) 54px; } }
+#kt-panel-companion-v8 .rf-motion-skin { position:absolute; inset:0; background:#fff; border:1px solid #e3e4e5; border-radius:16px; box-shadow:0 7px 20px #22242b08,0 1px 3px #22242b05; pointer-events:none; }
+#kt-panel-companion-v8 .rf-surface { border-color:transparent; background:transparent; box-shadow:none; }
+</style>
+<div class="viz-dotted-background">
+ <div class="rf-stage" data-view="input" aria-label="Refined companion interface">
+  <div class="rf-window">
+   <div class="rf-motion-skin" aria-hidden="true"></div>
+   <div class="rf-surface"><div class="rf-content">
+   <section class="rf-view rf-input" aria-label="Input">
+    <textarea class="rf-writing" aria-label="Message to your companion" placeholder="Tell me what happened…"></textarea>
+    <div class="rf-attachments" hidden></div>
+    <input class="rf-files" type="file" multiple aria-label="Attach files">
+   </section>
+   <section class="rf-view" data-view="question" hidden>
+    <div class="rf-question">
+     <p class="rf-case">TRN-042</p><button class="rf-tool rf-close cursor-interaction" type="button" data-action="queue" aria-label="Back to questions" data-tooltip="Back to questions"><i data-lucide="arrow-left" aria-hidden="true"></i></button>
+     <h2>Did traffic return right after the reset?</h2>
+     <div class="rf-responses"><button class="rf-answer cursor-interaction" type="button" data-action="yes">Yes</button><button class="rf-answer cursor-interaction" type="button" data-action="no">No</button></div>
+     <div class="rf-secondary-responses"><button class="rf-later cursor-interaction" type="button" data-action="unknown">Not sure</button><button class="rf-later cursor-interaction" type="button" data-action="later">Later</button><span class="rf-spacer"></span><button class="rf-later cursor-interaction" type="button" data-action="dismiss">Dismiss</button></div>
+    </div>
+    <div class="rf-reveal" id="rf8-context" inert>
+     <div class="rf-history">
+      <p class="rf-why">I’m checking the timing, so we keep the sequence clear.</p>
+      <ol class="rf-timeline">
+       <li><b>Observed</b><span>Link up, no traffic. Optics normal.</span></li>
+       <li><b>Proposed</b><span>Forwarding-state issue; check counters.</span></li>
+       <li><b>Attempted</b><span>Interface reset.</span></li>
+       <li><b>Reported</b><span>Traffic returned. Exact timing unknown.</span></li>
+      </ol><p class="rf-caveat">Timing alone won’t prove the cause or a lasting fix.</p>
+     </div>
+    </div>
+    <button class="rf-context-button cursor-interaction" type="button" data-action="context" aria-expanded="false" aria-controls="rf8-context" data-open="false">Why this question?<i data-lucide="chevron-down" aria-hidden="true"></i></button>
+   </section>
+   <section class="rf-view rf-panel-content" data-view="queue" aria-label="Questions" hidden>
+    <h2>Questions</h2><button class="rf-tool rf-close cursor-interaction" type="button" data-action="input" aria-label="Back to input" data-tooltip="Back to input"><i data-lucide="corner-up-left" aria-hidden="true"></i></button>
+    <div class="rf-queue-list"></div>
+   </section>
+   <section class="rf-view rf-panel-content" data-view="settings" aria-label="Settings" hidden>
+    <h2>Settings</h2><button class="rf-tool rf-close cursor-interaction" type="button" data-action="input" aria-label="Back to input" data-tooltip="Back to input"><i data-lucide="corner-up-left" aria-hidden="true"></i></button>
+    <div class="rf-settings-rows">
+     <label class="rf-setting"><span>Server</span><input class="rf-server" type="text" value="demo.example.invalid" autocomplete="off" spellcheck="false"></label>
+     <label class="rf-setting"><span>Provider</span><select class="rf-provider"><option>Google</option><option>OpenAI</option><option>Local</option></select></label>
+     <label class="rf-setting"><span>Model</span><select class="rf-model"><option>Gemini · demo</option></select></label>
+     <label class="rf-setting"><span>API key</span><input type="password" placeholder="Unavailable in preview" disabled aria-label="API key disabled in preview"></label>
+     <label class="rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox" checked></label>
+     <label class="rf-setting rf-option"><span>Reduced motion</span><input class="rf-motion" type="checkbox"></label>
+     <label class="rf-setting rf-option"><span>Points</span><input class="rf-points" type="checkbox"></label>
+    </div>
+   </section>
+   <section class="rf-view rf-receipt" data-view="receipt" hidden aria-live="polite"><p class="rf-receipt-title">Recorded: Yes</p><div class="rf-receipt-detail"></div><button class="rf-undo cursor-interaction" type="button" data-action="undo">Undo</button></section>
+   </div>
+   <footer class="rf-footer">
+    <button class="rf-tool cursor-interaction" type="button" data-action="attach" aria-label="Attach text, images or files"><i data-lucide="paperclip" aria-hidden="true"></i></button>
+    <span class="rf-divider"></span>
+    <button class="rf-tool cursor-interaction" type="button" data-action="queue" aria-label="Open questions"><i data-lucide="messages-square" aria-hidden="true"></i><span class="rf-count">2</span></button>
+    <button class="rf-tool cursor-interaction" type="button" data-action="settings" aria-label="Open settings"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button>
+    <span class="rf-spacer"></span>
+    <button class="rf-send cursor-interaction" type="button" data-action="send" aria-label="Send message" disabled><i data-lucide="arrow-up" aria-hidden="true"></i></button>
+
+   </footer>
+   </div>
+   <button class="rf-avatar cursor-interaction" type="button" data-action="input" aria-label="Close panel" aria-expanded="true"><canvas width="44" height="44" role="img" aria-label="White pixel companion at rest"></canvas></button>
+  </div>
+ </div>
+</div>
+<div class="rf-preview-note" aria-live="polite">Local preview · nothing is sent</div>

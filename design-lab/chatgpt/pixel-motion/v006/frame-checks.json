@@ -1,0 +1,162 @@
+{
+  "initial": {
+    "active": "backflip",
+    "state": "idle",
+    "lastFrame": 0,
+    "running": false,
+    "looping": false,
+    "reduced": false,
+    "slow": false,
+    "scheduled": false
+  },
+  "actions": [
+    {
+      "name": "idle3",
+      "frames": 24,
+      "fps": 16,
+      "seconds": 1.5
+    },
+    {
+      "name": "hello",
+      "frames": 10,
+      "fps": 15,
+      "seconds": 0.6666666666666666
+    },
+    {
+      "name": "backflip",
+      "frames": 24,
+      "fps": 16,
+      "seconds": 1.5
+    },
+    {
+      "name": "half",
+      "frames": 24,
+      "fps": 16,
+      "seconds": 1.5
+    },
+    {
+      "name": "hop",
+      "frames": 18,
+      "fps": 16,
+      "seconds": 1.125
+    },
+    {
+      "name": "stretching",
+      "frames": 20,
+      "fps": 16,
+      "seconds": 1.25
+    },
+    {
+      "name": "peek",
+      "frames": 16,
+      "fps": 16,
+      "seconds": 1
+    },
+    {
+      "name": "entrance",
+      "frames": 24,
+      "fps": 16,
+      "seconds": 1.5
+    },
+    {
+      "name": "moonwalk",
+      "frames": 32,
+      "fps": 16,
+      "seconds": 2
+    },
+    {
+      "name": "hero",
+      "frames": 24,
+      "fps": 16,
+      "seconds": 1.5
+    },
+    {
+      "name": "idle",
+      "frames": 1,
+      "fps": 12,
+      "seconds": 0.08333333333333333
+    },
+    {
+      "name": "input",
+      "frames": 10,
+      "fps": 15,
+      "seconds": 0.6666666666666666
+    },
+    {
+      "name": "processing",
+      "frames": 20,
+      "fps": 12,
+      "seconds": 1.6666666666666667
+    },
+    {
+      "name": "question",
+      "frames": 16,
+      "fps": 12,
+      "seconds": 1.3333333333333333
+    },
+    {
+      "name": "result",
+      "frames": 12,
+      "fps": 15,
+      "seconds": 0.8
+    },
+    {
+      "name": "error",
+      "frames": 10,
+      "fps": 12,
+      "seconds": 0.8333333333333334
+    }
+  ],
+  "earlyFrames": [
+    "idle3",
+    "hello",
+    "backflip",
+    "half",
+    "hop",
+    "stretching",
+    "peek",
+    "entrance",
+    "moonwalk",
+    "hero",
+    "idle",
+    "input",
+    "processing",
+    "question",
+    "result",
+    "error"
+  ],
+  "checks": {
+    "fixedThreePoseIdle": true,
+    "idleAndInputInterrupt": true,
+    "hostEcho": true,
+    "pauseResume": true,
+    "slowAndDuration": true,
+    "offscreenHidden": true,
+    "reducedAuthoritative": true,
+    "reducedStates": true
+  },
+  "idleBounds": [
+    {
+      "left": 34,
+      "right": 61,
+      "top": 52,
+      "bottom": 79
+    },
+    {
+      "left": 34,
+      "right": 61,
+      "top": 53,
+      "bottom": 79
+    },
+    {
+      "left": 34,
+      "right": 61,
+      "top": 51,
+      "bottom": 79
+    }
+  ],
+  "pixelCheck": {
+    "rectangles": 354524,
+    "invalidDraws": 0
+  }
+}

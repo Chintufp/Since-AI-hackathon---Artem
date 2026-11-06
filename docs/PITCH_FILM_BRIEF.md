@@ -52,6 +52,14 @@ Use cinematic metaphor freely while keeping these product meanings consistent. M
 
 Prepare the contribution scene so its point effects and sounds can be enabled or removed without recutting the story. The quiet version still shows the engineer's answer and its useful consequence. Coordinate assets and sound with the experience agent.
 
+## Available voiceover resource
+
+Artem reports access to a free ElevenLabs subscription and may use it for the video. Record it as an available narration option for the director/animation agent; the final voice and production workflow remain open.
+
+Agree on the script, tone and pacing first. Try a short narration sample against the animatic, then produce scene-level takes so individual lines can be revised without regenerating the whole film. Keep voiceover separate from music and reward sounds, and retain the script for captions.
+
+Before producing the final narration, check the actual account's available features, generation allowance and applicable usage terms. No account access, audio generation or publishing is requested by this note.
+
 ## Handoff deliverables
 
 1. Discuss Artem's visual references, pacing, color, mood and camera ideas.

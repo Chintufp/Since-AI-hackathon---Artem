@@ -6,6 +6,7 @@ Planning and development documents live here. The [repository README](../README.
 
 | What you want to do | Read |
 | --- | --- |
+| Launch the combined Claude build and experiments | [CLAUDE_BUILD_ORCHESTRATOR_PROMPT.md](CLAUDE_BUILD_ORCHESTRATOR_PROMPT.md) |
 | Understand the challenge and current pitch | [BRIEF.md](BRIEF.md) |
 | Understand the full product vision and rationale | [VISION.md](VISION.md) |
 | Pick a bounded implementation task | [WORKSTREAMS.md](WORKSTREAMS.md) |
@@ -27,6 +28,8 @@ Planning and development documents live here. The [repository README](../README.
 - Documentation describes a design; connectors, trained policies, the MCP service, points effects and the desktop product are not established implementations.
 
 ## Working across sessions and agents
+
+**Source layout selected 7 November:** source lives under `src/`, with reusable modules in `src/libs/utils/` and library documentation in `src/libs/README.md`. Thin applications live in `src/apps/`. This updates the paths in older root-level `apps/` / `libs/` examples. See the [source scaffold](../src/README.md).
 
 Read the relevant brief and its linked technical decisions before editing. Preserve distinctions between a user decision, an assistant proposal and measured behavior. Give each implementation agent a bounded task, input/output contract, owned files and completion checks. Keep shared semantic decisions coordinated.
 

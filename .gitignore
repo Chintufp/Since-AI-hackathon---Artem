@@ -1,0 +1,31 @@
+# Secrets: API keys live in .env, never in the repo
+.env
+.env.*
+!.env.example
+
+# Elisa's challenge material: keep it here, out of the public repo,
+# unless the organisers say it may be published
+private/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Node
+node_modules/
+dist/
+.next/
+
+# Logs and caches
+*.log
+.cache/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/

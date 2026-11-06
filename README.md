@@ -10,6 +10,8 @@ The central idea is to **capture knowledge once and make it useful repeatedly**,
 
 ## Start here
 
+- [Interactive master architecture map](docs/master-map.html): current post-session design, five connected maps, claim schema, learning loops and a case walkthrough. Open the downloaded HTML in a browser; it works offline.
+- [Architecture reference](docs/ARCHITECTURE.md) and [engineering decision queue](docs/ENGINEERING_DECISIONS.md): current component contracts and 18 algorithm, metric and implementation discussions. These refine the earlier vision below.
 - [BRIEF.md](BRIEF.md): supplied challenge text, interpretation, scope, demo objectives and questions for Elisa.
 - This README: current product vision, architecture, rationale, tradeoffs, learning approach and implementation sequence.
 - [Research.md](Research.md): earlier research comparing several hackathon challenges. Its original approval-heavy OpsMemory sketch is historical context; the design below develops it further.

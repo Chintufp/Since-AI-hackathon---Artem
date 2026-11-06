@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 32 32" shape-rendering="crispEdges" role="img" aria-label="White pixel-circle avatar with dark eyes, a tiny smile and pink cheeks">
+  <path fill="#b8c5cf" d="M12 2h8v1h4v2h3v3h2v4h1v8h-1v4h-2v3h-3v2h-4v1h-8v-1H8v-2H5v-3H3v-4H2v-8h1V8h2V5h3V3h4z"/>
+  <path fill="#ffffff" d="M12 3h8v1h4v2h2v2h2v4h1v8h-1v4h-2v2h-2v2h-4v1h-8v-1H8v-2H6v-2H4v-4H3v-8h1V8h2V6h2V4h4z"/>
+  <path fill="#e4edf2" d="M4 21h1v3h2v2h2v1h4v1h7v-1h4v-1h2v-2h2v-3h1v-1h-1v4h-2v2h-2v2h-4v1h-8v-1H8v-2H6v-2H4z"/>
+  <path fill="#243542" d="M10 13h2v3h-2zM20 13h2v3h-2zM14 18h1v1h2v-1h1v2h-4z"/>
+  <path fill="#f2a5b7" d="M7 17h4v2H7zM21 17h4v2h-4z"/>
+</svg>

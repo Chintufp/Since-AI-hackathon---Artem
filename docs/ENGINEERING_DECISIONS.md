@@ -33,7 +33,7 @@ Open [the interactive master map](master-map.html) for the connected architectur
 | D14 | Privacy, hosting and permissions | Before build |
 | D15 | MCP contract and agent authority | Before build |
 | D16 | Evaluation and training lifecycle | Before build |
-| D17 | Companion interaction and points toggle | Prototype |
+| D17 | Electron application, pixel avatar and OS parity | Prototype |
 | D18 | Bandit versus sequential RL scope | Later research |
 
 ## D01 — Source contract and first adapters
@@ -196,13 +196,13 @@ Open [the interactive master map](master-map.html) for the connected architectur
 
 **Question:** When is asking worth it, who can answer firsthand, and when do we stop?
 
-**Proposed starting point:** Shared coordinator chooses relevant, permitted recipients and respects question budgets/cooldowns. Check machine evidence first.
+**Proposed starting point:** Shared coordinator checks machine evidence first, then ranks eligible question–recipient–timing actions or defers. Use decision impact, firsthand answerability, source independence and burden. Reserve and cancel assignments to avoid duplicate questions.
 
 **Alternatives:** Heuristic score, learned ranker or contextual bandit.
 
 **Metrics:** Useful evidence per question; expert minutes; unnecessary interruptions; recipient load.
 
-**Experiment:** Replay high-uncertainty/high-impact versus low-value gaps; include unavailable and uninformed recipients.
+**Experiment:** Compare routing across question families: case link, diagnostic trait, applicability and outcome. Include a knowledgeable unavailable person, a responsive uninformed person, duplicate evidence and a gap that is not worth asking about.
 
 ## D13 — Rewards, binary feedback and points
 
@@ -210,13 +210,13 @@ Open [the interactive master map](master-map.html) for the connected architectur
 
 **Question:** What is rewarded for each learning task, and which signal can be gamed?
 
-**Proposed starting point:** Yes/No labels tied to their question. Policy utility rewards useful decisions, with burden reported separately. Points are independent and optional.
+**Proposed starting point:** Optimize supported useful assistance per eligible opportunity with error, unnecessary-interruption and burden limits. Binary helpfulness remains valid; factual Yes/No answers are evidence. Separate MCP exposure, agent adoption, human usefulness and observed outcomes. Points stay optional and independent.
 
 **Alternatives:** Binary helpfulness target; verified terminal outcome; a weighted reward after units and weights are agreed.
 
-**Metrics:** Verified utility, wrong advice, question burden and missing feedback; no single metric alone.
+**Metrics:** Useful coverage; helpful/assessed recommendations with feedback coverage; unnecessary offers; missed useful opportunities; error and expert effort. Report human, agent and measured outcomes separately.
 
-**Experiment:** A No falsifies a bad hypothesis; a Yes repeats known information; a skipped answer remains missing.
+**Experiment:** An agent reads but ignores context; uses context without outcome proof; a No falsifies a bad hypothesis; a correct offer was unnecessary; abstention misses a useful warning. Include unknown outcomes and delayed recurrence.
 
 ## D14 — Privacy, hosting and permissions
 
@@ -260,19 +260,19 @@ Open [the interactive master map](master-map.html) for the connected architectur
 
 **Experiment:** Ablate each new component and test unseen environment changes.
 
-## D17 — Companion interaction and points toggle
+## D17 — Electron application, pixel avatar and OS parity
 
 **Timing:** Prototype
 
 **Question:** How do we make contributions pleasant while allowing uninterrupted work?
 
-**Proposed starting point:** White circle with small face; animation later. Electron candidate with compact input, optional question and expandable history.
+**Proposed starting point:** Electron is the current desktop application framework direction for macOS and Windows. White pixel-circle avatar with small face, compact input and expandable history. Static SVG preview now; animation later. Optional points toggle.
 
-**Alternatives:** Web-first shell; menu-bar entry; native wrapper later. Earlier limbs/poses remain optional.
+**Alternatives:** Core UI may be developed in a browser first. Revisit the desktop framework only if measured constraints justify it; adapt menu-bar/Dock and notification-area/taskbar integration per OS.
 
-**Metrics:** Time per answer, dismissal rate, usability and idle CPU/memory.
+**Metrics:** Same core workflow on both packaged builds, time per answer, focus/dismissal behavior, usability and idle CPU/memory.
 
-**Experiment:** Ask one contextual Yes/No question without stealing focus; paste an image and expand the source chain.
+**Experiment:** On macOS and Windows, open the avatar, paste/drop an image, answer or defer a question, expand the source chain and close/reopen. Check scaling and permissions. Do not claim tested parity before running these checks.
 
 ## D18 — Bandit versus sequential RL scope
 
@@ -280,7 +280,7 @@ Open [the interactive master map](master-map.html) for the connected architectur
 
 **Question:** Does a long-horizon policy provide measurable value beyond choosing the next useful question?
 
-**Proposed starting point:** Instrument now; start with heuristics/supervised ranking. Try a contextual bandit for eligible question choice before sequential RL.
+**Proposed starting point:** Instrument first; use rules/supervised ranking. Evaluate a contextual bandit for the eligible question–recipient–timing decision and no-question action, with a separately measured recommendation objective. Use sequential RL only when later-state effects justify it.
 
 **Alternatives:** Linear UCB, Thompson-style model or an eventual sequential policy after an environment is defined.
 

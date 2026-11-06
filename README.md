@@ -8,6 +8,19 @@ The central idea is to **capture knowledge once and make it useful repeatedly**,
 
 **Status:** this is a detailed design handoff, not a description of a completed implementation. This documentation update does not implement connectors, train models, ingest private data or operate equipment. Proposed schemas, tools, example outputs and milestones below are illustrative until implemented and tested.
 
+## Latest decisions after the information session
+
+This section records the current direction for the team; the detailed sections below explain the mechanisms.
+
+- **Usability leads the demo.** The supplied official brief prioritizes capturing useful context with minimal additional expert work. Artem reports that the information session explicitly accepted quick Yes/No questions while discouraging forms and elaborate feedback. Reuse existing conversations first; questions should fill consequential gaps.
+- **Evidence-backed claims inside cases.** A case remains the incident container. Each claim carries its own sources, support, contradictions, equipment/context and validity. A reported recovery is different from a verified lasting recovery or a proven cause.
+- **Electron is the desktop application framework.** Both the compact companion and the expanded application are intended to run through Electron on macOS and Windows. The shared service can run on organization-controlled infrastructure. This repository does not yet contain a working desktop app or tested platform builds.
+- **Default avatar: a white pixel circle with a small face.** Dark pixel eyes, a tiny mouth and pink cheeks; animation comes later. See the [static avatar asset](docs/assets/avatar-default.svg) and its preview in the [master map](docs/master-map.html).
+- **Optimize useful assistance and restraint together.** Measure whether the knowledge helped, unnecessary interventions, missed useful opportunities and expert effort. Counting MCP calls or positive clicks alone is insufficient.
+- **Questions are distributed; coordination is shared.** One service chooses a useful question, an eligible engineer and suitable timing, with a defer/no-question option. It learns from outcomes without broadcasting every uncertainty to everyone.
+- **Binary feedback and optional points stay.** Yes/No answers retain their specific meaning; unknown/skip/later remain available. Points can be toggled off and do not determine factual confidence or the model's reward.
+- **Learning starts with a measurable baseline.** Use supervised classification/linking where appropriate, then evaluate a contextual bandit for question or recommendation selection. Sequential RL remains an option for multi-step investigations once the environment, reward and evidence justify it.
+
 ## Start here
 
 - [Interactive master architecture map](docs/master-map.html): current post-session design, five connected maps, claim schema, learning loops and a case walkthrough. Open the downloaded HTML in a browser; it works offline.
@@ -36,7 +49,7 @@ The repository already used **Knowledge Twin**. Earlier discussion used **OpsMem
 | Generality | Support different sources and domains, including local notes and images; avoid tying the product to one chat platform. |
 | Collection modes | Manual contributions, explicitly activated continuous capture/synchronization, and authorized historical backfill. |
 | Hypothesis checks | Central to the vision: retrieve candidates, predict additional traits, then test applicability. |
-| User experience | Minimal companion/input window, optional avatar and menu-bar entry, expandable problem-to-solution history. |
+| User experience | Electron desktop app for macOS and Windows: compact input, white pixel-circle avatar, optional OS entry point and expandable problem-to-solution history. Platform builds are not yet implemented/tested. |
 | Feedback | Simple Yes/No is valid; users choose how much they contribute. A 1–5 usefulness rating remains an optional experiment. |
 | Points | Include an on/off demonstration option; reward useful participation without making agreement with the model profitable. |
 | Autonomy | Adaptation followed by autonomous reuse for supported situations, with ongoing handling of exceptions. |
@@ -382,9 +395,50 @@ RL is a legitimate direction, especially for a sequence of diagnostic decisions.
 
 The practical proposal is to instrument the feedback loop first, establish a baseline, then train the smallest useful policy. Calling a foundation-model API with feedback in the prompt does not automatically train its weights. If the hackathon only records feedback, present that honestly as preparation for learning.
 
+### The main objective: useful assistance with appropriate restraint
+
+The product objective is **more useful decisions from existing knowledge, with fewer unnecessary interruptions and less expert effort**. This is a proposal to evaluate, not a claim that the current system has learned it.
+
+Start by defining an **eligible opportunity**: a user problem query, an agent's authorized context request, or an authorized incident event at which the service could supply context or abstain. Evaluate user-requested assistance and proactive interruptions separately. Deduplicate retries and repeated calls within the same decision so traffic volume does not inflate success.
+
+| Metric | Proposed definition | Why it is needed |
+| --- | --- | --- |
+| Useful assistance per 100 eligible opportunities | Distinct opportunities with a supported helpful intervention / all eligible opportunities in a fully labeled evaluation set | Rewards useful coverage; repeated reads of one claim do not create extra successes |
+| Recommendation usefulness | Helpful recommendations / recommendations whose usefulness was assessed | Measures precision, with assessment count and feedback coverage reported alongside it |
+| Unnecessary intervention rate | Proactive offers judged unnecessary / assessed proactive offers; also report unnecessary offers per 100 eligible events | Captures disruption; a wrong recommendation and a correct but irrelevant interruption can both be unhelpful |
+| Missed useful opportunities | Opportunities with useful available knowledge where the policy failed to offer it / all such labeled opportunities | Prevents an always-silent policy from appearing excellent |
+| Expert burden | Questions and active answering time per incident, plus per-person load | Makes minimal administrative work an explicit constraint |
+| Errors and outcome support | Unsupported/inapplicable advice, reported help, reported resolution, measured recovery and recurrence | Keeps factual dependability separate from popularity |
+
+For the first comparison, use a held-out synthetic scenario set with known useful/irrelevant cases and hidden answers, then add independently reviewed examples. In a real pilot, unanswered interactions have unknown usefulness. Do not silently count them as failures, successes or unnecessary interruptions; report response coverage and audit a sample that includes abstentions. Report numerator, denominator, scenario mix and uncertainty, not just a percentage.
+
+**Proposed optimization target:** maximize supported useful interventions per eligible opportunity, subject to agreed limits on inapplicable advice, unnecessary proactive interruptions and expert burden. Track missed opportunities alongside those limits. Fix the evaluation population and compare with vector-only retrieval and a simple threshold/rule policy. Choose numerical thresholds and any reward weights from that comparison rather than inventing them now.
+
+### MCP use, human feedback and outcomes are different signals
+
+| Event | What we may infer | What we cannot infer from it alone |
+| --- | --- | --- |
+| MCP returns a claim | The agent received/exposed itself to that context | The agent used it or found it useful |
+| Agent records that the claim influenced its answer or plan | Agent-reported adoption, with a trace and claim IDs | The advice was correct or improved the outcome |
+| User answers Yes to “Did this help?” | Human-reported usefulness for that recommendation | Lasting resolution or proven root cause |
+| Authorized workflow reports an action and relevant outcome measurements | Observed behavior/result over the stated window | That this knowledge alone caused the result |
+| Follow-up shows recurrence | The earlier success may have been temporary | Every part of the earlier advice was false |
+
+An agent can submit useful feedback through MCP. Store the reporter type, source, question wording, decision ID, case/claim versions and evidence references. Treat its self-rating as a distinct signal and audit it; an agent rewarding its own generated advice is not independent validation. Human and agent judgments can disagree without one overwriting the other.
+
+Use an event progression such as `context_returned → context_used_reported → action_reported → outcome_observed`, with optional human helpfulness feedback. These events may be missing or arrive out of order. Link them by decision/trace ID rather than assuming that every read led to an action. A successful retrieval is a retrieval metric, not yet a successful operational intervention.
+
+Repeated helpful reuse may improve a recommendation's estimated usefulness **within the relevant conditions**. It must not turn a popular claim into a universally true one. Deduplicate sources and decisions; count genuinely separate outcomes separately from copies or retellings of one event. A useful precaution can prevent a bad action without resolving a fault, so outcome labels depend on the task.
+
 ### Rewards and logging
 
-For a defined binary question, Yes can be reward 1 and No reward 0. That is valid. Log the decision context, eligible candidates, selected action, question, policy/model version, answer time and any later outcome. Where randomized selection is used, log its actual selection probability.
+For “Did this recommendation help?”, Yes can be reward 1 and No reward 0. For “Did the fault recur?”, Yes/No is a factual observation; either answer can make asking the question useful. A rejected case link is a negative supervised label for that link, not automatically a penalty for the policy that asked for clarification.
+
+The question policy needs its own outcome: did the answer provide new supported information that changed or justified a consequential decision, or avoid unsuitable advice? Test this against hidden scenario truth or independent review. A drop in the model's self-reported uncertainty is only a proxy and can reward becoming confidently wrong. Avoid extra rating questions after every factual question; reuse subsequent evidence and assess samples offline.
+
+A possible later sequential reward combines supported task benefit, unnecessary-interruption cost, question/time cost and error penalties. Its units, coefficients, delayed-credit window and handling of missing outcomes remain engineering decisions. Keep component metrics visible even if training uses one scalar reward. Permission and evidence eligibility remain hard rules, not penalties a policy can trade away.
+
+Log decision/trace ID, state snapshot, eligible candidate actions and recipients, selected action, shown question, policy/model version, source/claim versions, answer time, outcome window and later observations. Where randomized selection is used, log its actual selection probability. Keep agent and human feedback provenance distinct. Train/evaluate versioned batches; do not change weights after every click.
 
 A contribution's participation points and the model's reward are separate quantities. A helpful correction can earn the person points while giving the rejected recommendation a zero reward. A user with more points does not automatically receive greater weight as a source of truth.
 
@@ -413,6 +467,38 @@ More useful answers can earn more points. Award comparable participation credit 
 
 **Demo preference:** points can be switched on or off. Assistance, question budget and capture permissions should work independently of that switch. Gamification is a product hypothesis worth testing, not a proven motivation mechanism for every specialist.
 
+### How distributed questioning would work
+
+“Decentralized” describes knowledge and participation distributed across engineers. A shared coordinator is the initial design for assignment, duplicate prevention and stopping. We do not need one RL agent per engineer, federated training or a voting network to implement this.
+
+1. **Identify a decision-relevant gap.** A missing condition, disputed claim, uncertain case link or undocumented outcome creates a candidate question. A low-confidence fact that cannot change any useful decision may not deserve a question.
+2. **Check existing evidence first.** Search permitted threads, notes and available machine observations. Do not ask for an answer already recorded.
+3. **Generate a small set of neutral questions.** Each refers to one claim, period, asset or relationship, with a source excerpt when permitted. Avoid leading wording and compound questions.
+4. **Find eligible recipients.** Use verified identity, case contributions, relevant responsibility, likely firsthand knowledge and access scope. Respect availability, preferences, cooldowns and remaining budgets. Expertise and access are not inferred from points.
+5. **Choose a question–recipient–timing action, or defer.** Start with a transparent ranking based on likely answerability, decision impact, evidence independence and burden. Reserve/expire assignments so several workers do not ask the same question concurrently. Later compare a contextual bandit over these eligible actions with that baseline.
+6. **Record an attributed answer.** Preserve the question, answer, respondent, time, claim version and relevant provenance. Unknown, skip and later are not No. A notification requires an authorized delivery channel; the plan itself does not authorize messaging people.
+7. **Reconcile and stop.** Update the relevant claim/link and re-evaluate dependent hypotheses. Cancel obsolete questions. Ask another qualified person or seek telemetry only when an unresolved discrepancy changes the decision enough to justify the effort.
+
+The learned choice is not simply “the best question” or “the best engineer” globally. It is **which permitted action is most useful in this particular state**, including not asking. A highly responsive engineer is not automatically the right witness. Some questions seek a case link, others seek an observation, an applicability condition or a later outcome; they need different recipients and labels.
+
+| Question family | Example | Memory update |
+| --- | --- | --- |
+| Belongs to this incident | “Is this screenshot from incident 104?” | Evidence-to-case link |
+| Same recurring pattern | “Does this involve the same controller revision as the earlier case?” | Applicability condition; not an incident merge |
+| Observed diagnostic trait | “Were packet counters still zero after the link came up?” | Observation supporting or contradicting a hypothesis |
+| Outcome and duration | “Did traffic fail again during the next shift?” | Qualifies the reported recovery and its observation window |
+| Missing explanation | “Was the interface reset the step immediately before traffic returned?” | Action sequence; temporal association does not prove cause |
+| Relevant contribution | “Did you perform this check in that incident?” | Case-specific person/contribution link |
+| Recommendation usefulness | “Did this information help you choose the next step?” | Decision usefulness label |
+
+For example, ask the engineer who performed the reset about what happened afterward. An expert who only read that engineer's message cannot provide an independent observation of recovery. If another engineer observed recurrence on the next shift, the two reports may describe different time windows rather than one person being wrong. A neutral follow-up narrows the time/scope; a majority vote does not resolve that ambiguity.
+
+### Managing the topology without making it mysterious
+
+Use a typed evidence graph: `person → contribution → evidence → claim → case/asset`, with `supports`, `contradicts`, `qualifies`, `supersedes` and `applies_under` relationships. Procedures and recurring patterns connect multiple cases. These links can initially be rows in PostgreSQL; embeddings support retrieval, while structured records store meaning and provenance. RAG is a way to retrieve this context for generation, not the storage system itself.
+
+Store support and uncertainty at claim level. Evidence quality, independence, recency, applicability and outcome verification are separate dimensions; the whole graph does not need one universal certainty number. A source change invalidates affected derived summaries/procedures and triggers re-evaluation. A summary quoting a claim and a second summary quoting the first must not count as new independent support. Track the original evidence lineage through cycles.
+
 ## 14. People, identity and contacting an expert
 
 Link people to what the evidence says they did in a case: performed a diagnostic, proposed a workaround, reported a result or maintained a relevant service. Do not infer permanent ownership or universal expertise from one incident.
@@ -429,9 +515,21 @@ An **Ask this person** action can draft a concise message with symptoms, checks 
 
 ## 15. Minimal UI, expandable history
 
+### Electron is the application framework
+
+The current desktop direction is **Electron for the application itself**, covering both the compact companion and its expanded window. The UI and its interactions share a codebase; the organization-hosted knowledge service is separate and also serves agents through MCP. Electron supports desktop applications across macOS, Windows and Linux; our current product target is macOS and Windows. Source: [Electron introduction](https://www.electronjs.org/docs/latest/).
+
+Aim for the same core experience on macOS and Windows: open the companion, paste/drop text or an image, ask a question, answer a small prompt and expand the evidence history. Adapt system integration to the OS: macOS menu bar/Dock behavior and Windows notification-area/taskbar behavior differ. Window placement, permissions, shortcuts, scaling, packaging and focus behavior need testing on each platform. Do not present intended parity as a verified build result.
+
+### Default avatar
+
+![White pixel-circle avatar with small dark eyes, a tiny mouth and pink cheeks](docs/assets/avatar-default.svg)
+
+The default is a **white circle drawn on a pixel grid**, with a stepped silhouette, dark pixel eyes, a tiny mouth and pink cheeks inspired by the supplied reference face. The current asset is a static 32×32-grid SVG. It stays crisp at integer scales and is embedded in the architecture preview. Animation is deferred; future limbs, poses or shape changes are optional. The small avatar is the entry point, not a substitute for the expanded case view.
+
 ### Compact companion
 
-- Open from an avatar/edge entry or Mac menu-bar icon.
+- Open from the avatar/edge entry, a macOS menu-bar entry or a Windows notification-area entry.
 - Use one input area supporting pasted text, pasted/dropped photos or screenshots, and optional voice.
 - Distinguish asking for help from adding context through a small action/mode choice or a clear follow-up when intent is ambiguous.
 - Show a compact recommendation or a few credible one-line candidates, the most useful next check, and optional Yes/No feedback.
@@ -473,7 +571,13 @@ Outcome signals may come from telemetry or a workflow status, but “ticket clos
 
 This is a strong proposed framing if the demo proves the second half. Points and avatar customization are adoption features; the pitch should lead with the knowledge captured, the decision improved and the expert effort avoided.
 
-The [official event page](https://sinceai.ai/hackathon) says company challenges are judged separately and emphasizes working demos. We do not yet know Elisa's exact weighting of autonomy. Ask: **“Do you expect autonomous remediation itself, or a dependable knowledge layer that an autonomous workflow can consume?”**
+The supplied official Elisa brief identifies **usability with minimal additional expert work as the primary criterion**, alongside relevance, correct entity/time linking, technical feasibility and suitability for agents. This sharpens the earlier screenshot-based interpretation: demonstrate dependable context delivery to an agent and a real autonomous reuse path; a fully autonomous network-remediation product is not required by the material we have. The information-session report about Yes/No questions comes from Artem, rather than an independently recorded judge quotation.
+
+Include cross-platform intent in the final pitch:
+
+> Our desktop app uses Electron to deliver a similar core experience on macOS and Windows. The compact companion opens into the same evidence history, while the knowledge service can run on the organization's infrastructure and serve operational agents through MCP.
+
+Until builds exist and have been checked on both platforms, introduce that sentence as the **planned architecture**. After validating both builds, say it is demonstrated and show the same input → suggestion → expanded history flow on each. Keep OS-specific placement and permissions honest. The pitch should lead with useful knowledge delivered and expert effort avoided; platform reach supports that story.
 
 ## 17. Organization-controlled deployment and privacy
 
@@ -518,7 +622,7 @@ Start with one application service and a background worker, sharing a versioned 
 
 | Component | Proposed first implementation | Why |
 | --- | --- | --- |
-| Client | Small web/app window; desktop wrapper/menu-bar integration after the core flow | Fast iteration on input and expanded evidence history |
+| Client | Electron desktop application with compact and expanded views; shared web UI code and OS-specific integrations | Similar core workflow on macOS and Windows; validate both packaged builds |
 | API/orchestrator | Containerized service | One investigation and policy engine for UI and integrations |
 | Ingestion worker | Background jobs using the same codebase | Imports, parsing, extraction and indexing should not block the UI |
 | Evidence store | Organization-owned object storage or local equivalent | Images/files and controlled source snapshots |
@@ -647,7 +751,10 @@ Human comparison can ask which result was more useful, with randomized presentat
 | Supported recommendation rate | Whether recommendations have actual source support |
 | Applicability errors | Whether version/context mismatches lead to unsuitable advice |
 | Correct abstentions and missed useful answers | The tradeoff between confidence and coverage |
-| Usefulness and reported/observed resolution | Whether the assistance helps, with the label meaning stated |
+| Useful interventions per eligible opportunity | Useful coverage, with a fixed opportunity definition and assessed scenario population |
+| Recommendation usefulness and feedback coverage | Whether assistance helps among assessed decisions, with unassessed outcomes disclosed |
+| Unnecessary proactive offers and missed useful opportunities | Whether the policy balances restraint and useful coverage |
+| MCP exposure, agent-reported adoption and reported/observed resolution | Separate stages of reuse; reading a claim does not prove it helped |
 | Expert questions and minutes | Whether capture and feedback impose an acceptable burden |
 | Autonomous coverage | How often the defined workflow proceeds without a new human answer |
 | Duplicate handling and stale-claim propagation | Whether memory remains dependable after changes |
@@ -690,24 +797,27 @@ The earlier “approve every knowledge card” sketch in Research.md has evolved
 
 ## 23. Open decisions for the team
 
-1. **Challenge interpretation:** Is autonomous context delivery enough for Elisa's demo, or is remediation expected too?
+1. **Demo contract:** Which agent context request and resulting decision best demonstrate the supplied brief, with minimal new engineer work?
 2. **Primary scenario:** Diagnose a recurring fault, constrain a planned action, or combine them in one small story?
 3. **Sources:** Which two or three input formats best demonstrate fragmented context? Which continuous source is realistic?
 4. **Data:** What approved material and inventory will be available, and what can be published?
 5. **Models:** Which Flash-Lite version or alternative performs adequately on the actual material? What requires a stronger model?
 6. **Languages:** Does the supplied data include Finnish/English mixtures and local aliases? If so, evaluate them rather than assuming support.
-7. **Learning:** Is there enough feedback to demonstrate a trained ranker/bandit, or should the demo focus on the instrumented loop?
+7. **Learning and metrics:** Define an eligible opportunity, useful assistance, unnecessary intervention, missed opportunity and outcome window. Then select a baseline, reward/constraints and whether enough data exists for a ranker/bandit experiment.
 8. **Ratings:** Binary-only initially, or optional 1–5 usefulness in expanded review?
 9. **Points:** What counts as a useful contribution, and how should duplicate/gaming checks work?
 10. **Permissions:** How are source visibility and identity mappings represented, especially for manually imported files?
 11. **Deployment:** Which organization-owned GCP services are actually available, and which model/data terms apply?
 12. **Execution:** Which actions can the downstream workflow take, and how is authorization represented?
 13. **Evaluation:** What constitutes a successful resolution and an appropriate period of observation?
-14. **Branding and UI:** Keep Knowledge Twin, use another name, and how much avatar customization belongs in the first demo?
+14. **Branding and UI:** The default white pixel-circle avatar and Electron direction are set for now. Which macOS and Windows build checks must pass, and how much customization belongs in the demo?
+15. **Question routing:** Which question families, recipient eligibility rules, timing/cooldown constraints and no-question action should the coordinator support first?
+16. **Feedback attribution:** How do MCP adoption events, user helpfulness and observed outcomes join to a decision, and how do we handle delayed or contradictory feedback?
+17. **Certainty and dependencies:** What evidence qualifies a claim for a given workflow, how do we distinguish independent support, and which dependent outputs become stale after a correction?
 
 ## 24. Source notes and implementation honesty
 
-The challenge text comes from the user-supplied screenshot and is reproduced in [BRIEF.md](BRIEF.md). Public event/vendor references were consulted during the discussion and documentation work; this snapshot is dated 6 November 2026. Availability, OAuth rules, product terms and pricing can change and must be rechecked before a real integration.
+The initial challenge text comes from the user-supplied screenshot and is reproduced in [BRIEF.md](BRIEF.md). The later supplied `Elisa_x_SinceAI_2026_Challenge_Brief_FINAL` and synthetic example refine the current architecture; those source files remain in the ignored local `private/Elisa_SinceAI2026/` folder and are not public repository assets. [The architecture reference](docs/ARCHITECTURE.md) distinguishes supplied observations from proposed extensions. The information-session remarks are Artem's report. Public event/vendor references were consulted during the discussion and documentation work; this snapshot is dated 6 November 2026. Availability, OAuth rules, product terms and pricing can change and must be rechecked before a real integration.
 
 Additional background:
 

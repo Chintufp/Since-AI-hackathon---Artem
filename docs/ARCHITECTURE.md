@@ -19,8 +19,8 @@ Cases remain the main organizing unit. Claims are the smaller units whose suppor
 - Treat distributed questioning as participation across engineers coordinated by one service. Federated training or multi-agent RL is not assumed.
 - Record evidence, contradictions, applicable entities and validity rather than assigning one truth score to a whole case.
 - Organization-owned storage and approved inference boundaries are first-class requirements.
-- The default avatar is now a white circle with a small face inspired by the user's reference. Animation is deferred; earlier limb/pose ideas are optional.
-- PostgreSQL/pgvector/object storage, Flash-Lite, Electron, clustering algorithms and learning policies remain proposed implementation choices.
+- The default avatar is a white pixel circle with dark pixel eyes, a tiny mouth and pink cheeks. A static SVG preview is provided; animation is deferred.
+- Electron is the current framework direction for the whole desktop application on macOS and Windows. Shared core behavior is intended; neither platform build has been implemented or validated. PostgreSQL/pgvector/object storage, Flash-Lite, clustering algorithms and learning policies remain proposed implementation choices.
 
 ## LLM-generated labels
 
@@ -45,7 +45,7 @@ Split by scenario family before producing paraphrases or versions for different 
 
 **State:** current candidate hypotheses, supporting/contradicting observations, missing conditions, asset/environment, eligible tools, relevant recipients, previous answers and remaining question budget.
 
-**Actions:** choose an eligible check, ask a scoped question of an eligible engineer, wait, recommend a supported next step, or abstain. Operational permission is not a trainable action.
+**Actions:** choose an eligible check; choose a question–recipient–timing action; defer or ask nothing; recommend a supported next step; or abstain. Shared coordination reserves assignments and cancels stale questions. Operational permission is not a trainable action.
 
 **Transition:** a new observation or attributed answer changes the evidence state. Unknown/skip is missing information, not a negative truth label.
 
@@ -54,6 +54,18 @@ Split by scenario family before producing paraphrases or versions for different 
 **Training path:** versioned labeled data → supervised baselines → logged eligible decisions/outcomes → bandit experiment → optional multi-step RL. Define the environment before selecting PPO, DQN or another deep-RL algorithm. Avoid uncontrolled online weight updates after every click.
 
 **Evaluation path:** independent scenario/time splits, audited labels, vector-only and heuristic baselines, coverage/error/burden together, then shadow comparison and explicit promotion or rollback. Off-policy estimators require appropriate action support, logging and assumptions.
+
+## Utility and feedback contract
+
+Optimize supported useful interventions per eligible opportunity, subject to agreed error, unnecessary-interruption and expert-burden limits. Track missed useful opportunities so always abstaining cannot win. Separate user/agent requests from proactive offers, deduplicate retries and keep the evaluation population fixed.
+
+Measure helpful/assessed recommendations with feedback coverage, unnecessary proactive offers, missed opportunities, questions/minutes and task outcomes. In a labeled evaluation set, report useful coverage over all opportunities. In a pilot, missing feedback remains unknown; audit both offers and abstentions and report counts, scenario mix and uncertainty.
+
+MCP context returned is exposure. Agent-reported context use is adoption. Human-reported helpfulness and independently observed outcomes are different evidence. Link these events by decision/trace ID, case and claim versions; retain reporter type, provenance and time. An agent rewarding its own advice is not independent validation.
+
+Question utility is useful new evidence or improvement to a consequential decision, evaluated against hidden scenario truth or independent review. A factual No can be valuable. Reduced self-reported model uncertainty is only a proxy. Weights, thresholds, delayed-credit rules and missing-data handling remain open decisions.
+
+A claim's factual support is separate from its recommendation usefulness. Repeated reads, copied messages and circular summaries are not independent observations. Engineers may describe different validity windows rather than disagreeing about the same event. Propagate corrections through typed source dependencies rather than assigning one confidence score to the entire graph.
 
 ## Component contracts
 
@@ -514,6 +526,7 @@ Let an operational agent use the same evidence service as the companion.
 - Relevant claims and sources
 - Validity, conflicts, preconditions and missing checks
 - Applicable procedure or useful question
+- Decision/trace and claim-version references for later adoption/outcome feedback
 
 **Proposed approach:** Thin API/MCP adapter over the investigation service. Draft tools: get_context, investigate_problem, get_case_evidence, record_observation, record_outcome and submit_feedback.
 
@@ -523,6 +536,7 @@ Let an operational agent use the same evidence service as the companion.
 - Reads and writes have separate permissions.
 - An operational agent communicates with the engineer under its approved workflow.
 - Operational execution requires separate authority.
+- A context read only proves exposure. Agent-reported use and independently supported help require separate events.
 
 **Evaluate with**
 
@@ -558,6 +572,7 @@ Close the evidence loop and distinguish a useful suggestion from a lasting resol
 - Helped and resolved can both be binary, but remain different questions.
 - Do not infer an action was performed merely because it was suggested.
 - Correlation after an action is recorded with its evidence limits.
+- An agent saying it used knowledge is adoption evidence, not independent proof that the knowledge helped.
 
 **Evaluate with**
 
@@ -584,8 +599,9 @@ Distribute tiny questions across relevant engineers without broadcasting every u
 - One neutral, scoped question
 - Eligible recipient and delivery timing
 - Logged candidate set and decision context
+- No-question/defer decision when expected benefit does not justify burden
 
-**Proposed approach:** Start with rules: relevance × decision impact × likely firsthand knowledge, accounting for effort/load. Learn ranking or a contextual bandit after enough logged outcomes.
+**Proposed approach:** Start with a shared coordinator ranking eligible (question, recipient, timing) actions by likely firsthand answerability, decision impact, evidence independence and burden. Include defer/no-question. Reserve assignments, expire stale questions and cancel resolved duplicates. Later compare a contextual bandit with this baseline.
 
 **Rules**
 
@@ -593,6 +609,7 @@ Distribute tiny questions across relevant engineers without broadcasting every u
 - Source independence is about provenance, not number of people.
 - Do not reveal restricted case details in a question.
 - Stop when useful uncertainty is resolved; never ask until the model receives agreement.
+- Choose a person for this particular gap, not a global popularity or employee ranking.
 
 **Evaluate with**
 
@@ -637,7 +654,7 @@ Get a small, interpretable contribution without a documentation task.
 
 **Discussion items:** D12, D13, D17 in [the decision queue](ENGINEERING_DECISIONS.md).
 
-### Minimal desktop companion
+### Electron desktop application
 
 **Status:** Direction
 
@@ -654,7 +671,7 @@ Provide a low-friction input and question surface, with a full evidence history 
 - Binary answers and correction events
 - Expanded history and user-reviewed contact draft
 
-**Proposed approach:** Electron is a proposed cross-platform shell. Default avatar is a white circle with a small face inspired by the supplied reference; animation is deferred. Earlier limb/pose ideas remain optional.
+**Proposed approach:** Electron is the current framework direction for the whole desktop application on macOS and Windows. Share the compact input and expanded history UI; adapt OS entry points, permissions and window behavior. Default avatar: white pixel circle, small dark eyes/mouth and pink cheeks. Animation is deferred; no platform build is implemented or validated yet.
 
 **Rules**
 
@@ -668,6 +685,7 @@ Provide a low-friction input and question surface, with a full evidence history 
 - Time to submit context or answer
 - Idle resource use
 - Usability and interruption burden
+- Same core workflow on validated macOS and Windows builds
 
 **Discussion items:** D17 in [the decision queue](ENGINEERING_DECISIONS.md).
 
@@ -753,6 +771,7 @@ Make policy improvement and evaluation possible without treating every interacti
 - Question/recommendation candidate set
 - Chosen action, eligible recipients and policy version
 - Feedback, observation windows and delayed outcomes
+- MCP exposure, agent-reported use, human helpfulness and observed outcomes with reporter provenance
 
 **Outputs**
 
@@ -768,6 +787,7 @@ Make policy improvement and evaluation possible without treating every interacti
 - A claim-denying No can still be a useful question outcome.
 - User points are not the model reward.
 - Sensitive payloads do not belong in generic diagnostic logs.
+- Join delayed signals by decision/trace ID and claim version. Deduplicate retries; preserve disagreements.
 
 **Evaluate with**
 
@@ -801,13 +821,15 @@ Learn which eligible question, recipient or recommendation is useful in the curr
 - Permission and operational safety stay outside policy optimization.
 - Offline comparison needs overlap/support and correct logging assumptions.
 - LLM-simulated engineers are useful for plumbing tests, not proof of human benefit.
+- MCP exposure is not usefulness; agent-reported adoption and human/observed outcomes are different signals.
 
 **Evaluate with**
 
-- Useful-answer or verified-help rate
-- Questions/minutes per resolved case
-- Wrong recommendations and abstention coverage
-- Offline estimate uncertainty / online controlled comparison
+- Supported useful interventions per eligible opportunity
+- Recommendation usefulness with assessed/unknown counts
+- Unnecessary proactive offers and missed useful opportunities
+- Questions/minutes and per-person load
+- Offline estimate uncertainty / controlled comparison
 
 **Discussion items:** D12, D13, D16 in [the decision queue](ENGINEERING_DECISIONS.md).
 
@@ -878,6 +900,7 @@ Decide whether a new model or policy earns its complexity and is ready for limit
 - Brier/log loss plus reliability plots where meaningful
 - Autonomous coverage, expert minutes and errors
 - Latency/cost and access-control failures
+- Useful coverage versus unnecessary proactive offers, including abstentions and missing feedback
 
 **Discussion items:** D10, D11, D16 in [the decision queue](ENGINEERING_DECISIONS.md).
 
@@ -1048,6 +1071,6 @@ Live mailbox productization, broad screen capture, a dedicated graph database, a
 - [Logistic regression — scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html): Candidate supervised baseline for explicit classification tasks.
 - [HDBSCAN — scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html): Optional clustering candidate; choose against task metrics rather than adopting it automatically.
 - [MCP server concepts](https://modelcontextprotocol.io/docs/learn/server-concepts): Interface concepts; the proposed tools are not yet implemented.
-- [Electron window APIs](https://www.electronjs.org/docs/latest/api/browser-window): Candidate desktop shell. This artifact does not implement the companion.
+- [Electron desktop framework](https://www.electronjs.org/docs/latest/): Cross-platform framework for the desktop application. Shared behavior is intended; project builds and OS parity are not implemented or validated.
 
 Local private-source links are intentionally not public repository assets. Public references support method descriptions, not claims that these methods have already succeeded in this project.

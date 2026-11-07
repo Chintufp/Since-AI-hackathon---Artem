@@ -346,6 +346,7 @@ test('D-B2-67: the coordinator measures each candidate\'s expected gain and retr
     assert.ok(f.expectedGain! > 0);
     const c = h.cases[0]!;
     assert.equal(f.expectedGain, expectedGain({ kind: 'outcome', completeness: c.completeness, correctness: h.correctness, caseClaims: h.denominators.caseClaims, slots: c.slots, distinguishingKeys: 4, targetSupported: false }));
+    assert.equal(f.expectedGain, 0.0113, 'RTR-117: c 0.5417 x (P_CONFIRM 0.5 x 1/24 claims), D-B2-74; the version question gains 0.0017 (D-B2-67)');
     assert.equal(f.retrievalWeight, 1, 'the case is being retrieved right now (+1); no earlier retrieval');
     assert.equal(f.quietHours, 0);
     assert.match(d.reason, /value\/cost/);

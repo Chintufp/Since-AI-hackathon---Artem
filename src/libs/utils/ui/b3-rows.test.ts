@@ -36,3 +36,14 @@ test('Settings cost row: first name, the counts, simulated seconds labelled, the
   assert.equal(withStore.store, 'Store: 5 cases · completeness 0.50 · correctness unknown · 1 singleton left');
   assert.equal(withStore.title, `${c.line}\nStore: 5 cases · completeness 0.50 · correctness unknown · 1 singleton left`);
 });
+
+test('panel template: every view section is closed before the next one opens (an unclosed Connections view hid the result)', async () => {
+  const { TEMPLATE } = await import('./panel.ts');
+  const tags = [...TEMPLATE.matchAll(/<(\/?)section\b/g)].map((m) => (m[1] ? -1 : 1));
+  let depth = 0;
+  for (const t of tags) {
+    depth += t;
+    assert.ok(depth === 0 || depth === 1, 'sections never nest');
+  }
+  assert.equal(depth, 0);
+});

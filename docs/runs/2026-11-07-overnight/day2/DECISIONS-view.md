@@ -272,3 +272,19 @@ bullet in the root README's judge quick start. The 3-minute script itself is unc
 The UI README (Settings cost row, provenance strip, `openContext`, `costs()`) and the desktop README (`kt:open-context`
 in the IPC table) were brought up to date as well (minor finding).
 Reverse: remove the section and the bullets.
+
+### D-B3-20 · The panel's new lines are tested; an unclosed Connections view hid the result (minor finding; base bug fixed)
+
+Finding: no test touched the strip, the cost row or the case button, and nothing showed them at 320 px. The strip and
+the cost row's text are now pure functions in `ui/b3-rows.ts` (`setProvenance`, `costRow`), used by the panel and
+tested in `b3-rows.test.ts` (hidden and empty without a strip; textContent only; first name, simulated seconds, store
+line, tooltip).
+Running the mock screenshot harness for the 320 px check (into the scratchpad, never over the committed day-1 set)
+showed the result, people, case and contact views empty: the Connections view in the panel template (commit 2c30585,
+already in the run branch base) had no `</section>`, so every view after it was nested inside that hidden section; the
+result view had height 0 and the panel collapsed to its footer. One closing tag fixes it; a test checks that template
+sections never nest (`TEMPLATE` is now exported for it). This is outside B3's brief but blocks the strip from being
+seen at all.
+The Settings cost row is stacked (label above, the two lines full width, left-aligned): the generic `.rf-setting >
+span { flex: 0 0 77px }` rule squeezed the value column to 77 px at 320 px.
+Reverse: inline the two helpers again; the closing tag must stay.

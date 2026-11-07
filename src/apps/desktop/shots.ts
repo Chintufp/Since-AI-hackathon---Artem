@@ -16,7 +16,7 @@
  *    a 60 Hz mousemove flood, hitbox = carrier avatar rect, click-through after every scenario, console errors.
  * Strip specs are written to `companion/strips.json` and `entrance/strips.json`; scripts/screenshot.mjs composes them.
  */
-import { app, ipcMain, screen, session } from 'electron';
+import { app, BrowserWindow as ElectronWindow, ipcMain, screen, session } from 'electron';
 import type { BrowserWindow, Rectangle } from 'electron';
 import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -1330,6 +1330,57 @@ async function realRun(url: string): Promise<void> {
   checks.summary = summarise({ realArrival: checks.realArrival, realHitbox: { pass: (checks.hitbox as { allStatesEqual: boolean }).allStatesEqual } }, false);
 }
 
+/**
+ * B3: the Context Layer page for both stories at a few moments of the t slider, from the real service: a plain 1280x800
+ * window (not the companion window, which never navigates), the page zoomed out to fit when the chart is taller, the
+ * slider moved with its own keyboard handling (role=slider), and the card waited for. Files are named by story and t
+ * (`context-<entity>-t-<moment>.png`, outside the NN-* compare set); what the card said goes into checks.contextShots.
+ */
+async function contextShots(url: string): Promise<void> {
+  const stories: Array<{ entity: string; moments: Array<{ name: string; label: string }> }> = [
+    { entity: 'TRN-042', moments: [{ name: '0914-before-0916', label: '09:14' }, { name: '0922', label: '09:22' }, { name: '0925-after-0922', label: '09:25' }, { name: '14oct-after', label: '14 Oct' }, { name: 'now', label: 'now' }] },
+    { entity: 'RBS-310', moments: [{ name: '1402-thread', label: '14:02' }, { name: '20aug', label: '20 Aug' }, { name: '6oct-after', label: '6 Oct' }] },
+  ];
+  const cw = new ElectronWindow({ width: 1280, height: 800, useContentSize: true, show: !hidden, webPreferences: { sandbox: true, contextIsolation: true } });
+  const run = <T,>(code: string): Promise<T> => cw.webContents.executeJavaScript(code) as Promise<T>;
+  const until = async (code: string, ms = 15000): Promise<void> => {
+    const t = Date.now();
+    while (Date.now() - t < ms) {
+      if (await run<boolean>(code).catch(() => false)) return;
+      await sleep(80);
+    }
+    throw new Error('context page: timed out waiting for ' + code);
+  };
+  const out: Array<Record<string, unknown>> = [];
+  checks.contextShots = out;
+  cw.webContents.on('console-message', (e) => {
+    const { level, message } = e as unknown as { level?: string | number; message?: string };
+    if (level === 'error' || level === 3 || level === '3') consoleErrors.push(`context.html: ${String(message)}`);
+  });
+  for (const story of stories) {
+    cw.webContents.setZoomFactor(1);
+    await cw.loadURL(`${url}/context.html?entity=${encodeURIComponent(story.entity)}`);
+    await until('!!document.getElementById("t") && !!document.querySelector("#told .rtext")');
+    const h = await run<number>('document.documentElement.scrollHeight');
+    const zoom = Math.max(0.6, Math.min(1, 790 / h));
+    cw.webContents.setZoomFactor(zoom);
+    for (const m of story.moments) {
+      const moved = await run<string>(`(() => { const t = document.getElementById('t'); const key = (k) => t.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true }));
+        key('Home'); for (let i = 0; i < 80 && !t.getAttribute('aria-valuetext').startsWith(${JSON.stringify(m.label)}); i++) key('ArrowRight');
+        return t.getAttribute('aria-valuetext'); })()`);
+      if (!moved.startsWith(m.label)) throw new Error(`context page ${story.entity}: no stop ${m.label} (stopped at ${moved})`);
+      await until(`(document.getElementById('told').getAttribute('data-t') || '').startsWith(${JSON.stringify(m.label)}) && !!document.querySelector('#told .rtext')`);
+      await sleep(450);
+      const card = await run<Record<string, string>>(`({ kind: document.querySelector('#told .kind')?.textContent, text: document.querySelector('#told .rtext')?.textContent, provenance: document.querySelector('#told .prov')?.textContent ?? '', caveats: [...document.querySelectorAll('#told .caveat')].map((n) => n.textContent).join(' | '), dimmed: document.querySelectorAll('#chart .bar.dim').length + ' of ' + document.querySelectorAll('#chart .bar').length })`);
+      const image = await cw.webContents.capturePage();
+      const file = `context-${story.entity.toLowerCase().replace(/[^a-z0-9]+/g, '')}-t-${m.name}.png`;
+      writeFileSync(join(outDir, file), image.toPNG());
+      out.push({ file, entity: story.entity, t: moved, zoom, ...card });
+    }
+  }
+  cw.destroy();
+}
+
 async function main(): Promise<void> {
   // Never touch the real app's localStorage (the reload scenario uses it): a throwaway profile per run.
   const profile = mkdtempSync(join(tmpdir(), 'kt-shots-'));
@@ -1367,8 +1418,12 @@ async function main(): Promise<void> {
   session.defaultSession.setPermissionRequestHandler((_wc, _perm, cb) => cb(false));
   if (realUrl) allowServiceCors(session.defaultSession, realUrl);
 
-  if (realUrl) await realRun(realUrl);
-  else await mockRun();
+  // B3: KT_SHOTS_ONLY=context takes only the Context Layer page shots (real service); a full real run adds them at the end.
+  if (realUrl && process.env.KT_SHOTS_ONLY === 'context') await contextShots(realUrl);
+  else if (realUrl) {
+    await realRun(realUrl);
+    await contextShots(realUrl);
+  } else await mockRun();
 
   if (win && !win.isDestroyed()) await collectPageErrors().catch(() => undefined);
   checks.consoleErrors = consoleErrors;

@@ -164,3 +164,24 @@ window-open denial are unchanged. Chosen over an in-app BrowserWindow because th
 judge already has a browser tab for the activity page. Tested: flags.test.ts (names, URL shapes, remote host, file URL,
 credentials). Not clicked at runtime in this pass (the desktop build passes).
 Reverse: drop the IPC entry, `handleOpenContext`, the preload function and the panel option.
+
+## D-B3-11 · Screenshots: a contextShots step in the Electron harness, context only
+
+`shots.ts contextShots(url)` opens a plain 1280x800 BrowserWindow (sandboxed, not the companion window, which never
+navigates) on `<service>/context.html?entity=TRN-042` and `RBS-310`, zooms the page out to fit 800 px when the chart is
+taller (TRN-042: 0.8), moves the t line with the page's own slider keys and waits for the card to carry that moment
+(`#told[data-t]`, set by the page when a result is drawn), then captures. Files: `context-<entity>-t-<moment>.png`
+(outside the NN-* set that `post()` compares with HEAD); what the card said at each moment and how many bars were dimmed
+go to `checks-real.json` (`contextShots`). `KT_SHOTS_ONLY=context` runs only this step; a full real run adds it after the
+panel walk. Committed set (run: `KT_SHOTS_HIDDEN=1 KT_SHOTS_ONLY=context KT_SHOTS_OUT=docs/runs/2026-11-07-overnight/day2/screenshots node scripts/real-check.mjs`,
+port 47951, seed elisa, in-memory db, 0 console errors):
+- TRN-042 09:14 (before 09:16): `none`, 32 of 38 bars dimmed; 09:22: `check-first` "Check the traffic counters
+  first."; 09:25 (after 09:22): `qualified`, bounce the interface; 14 Oct and now: `qualified` "Check the traffic
+  counters first; the fix from TRN-042 was superseded for this version." with "Superseded on 14 Oct by Erkki Expert:
+  fixed in firmware 4.2".
+- RBS-310 14:02 (thread, date unknown): `none` "No barrier code for RBS-310 is on file."; 20 Aug: `reuse` 5802;
+  6 Oct: `reuse` 7731 "replaces 5802 from 20 Aug", the 5802 bar grey with the arrow to 7731.
+Not run in this pass: the mock harness (`scripts/screenshot.mjs`), which would re-take and overwrite the committed
+day-1 panel PNG set; the strip and the cost row are in the mock (`POST /investigate` provenance, `GET /costs`) for its
+next run, and were checked here through the page and the tests, not through panel screenshots.
+Reverse: drop `contextShots` and the `KT_SHOTS_ONLY=context` branch.

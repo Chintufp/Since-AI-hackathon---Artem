@@ -427,6 +427,7 @@ export function contextPage(): string {
     var render = function (r) {
       if (mine !== seq) return;
       told.innerHTML = '';
+      told.setAttribute('data-t', s.label);
       var rec = r.recommendation;
       var k = document.createElement('span'); k.className = 'kind'; k.dataset.kind = rec.kind; k.textContent = rec.kind === 'none' ? 'nothing to reuse' : rec.kind; told.appendChild(k);
       var h = document.createElement('p'); h.className = 'rtext'; h.textContent = rec.text || 'Nothing on file.'; told.appendChild(h);
@@ -438,6 +439,7 @@ export function contextPage(): string {
     };
     if (cache[key]) return render(cache[key]);
     told.innerHTML = '<p class="empty">Asking…</p>';
+    told.removeAttribute('data-t');
     var body = { text: problem.value.trim() || entityName, principal: principal, entityIds: [data.entity.id], allowQuestions: false, preview: true };
     if (s.at) body.at = s.at;
     if (s.atEvidence) body.atEvidence = s.atEvidence;

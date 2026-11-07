@@ -51,6 +51,11 @@ const STREAK_MS = 62.5;
 export const TALL_ACTS: ReadonlySet<ActKey> = new Set<ActKey>(['hop', 'backflip', 'half', 'hero']);
 /** desktop (R32): one-shots that interject in a loop base and return to it (a direct tap while processing). */
 export const LOOP_INTERJECTIONS: ReadonlySet<ActKey> = new Set<ActKey>(['click']);
+
+export interface RunOptions {
+  /** desktop (ux): raise the body by a half-sine of `px` over `ms` on the drop surface (the floor shadow stays on the display canvas). */
+  lift?: { px: number; ms: number };
+}
 /** desktop (R32): entrance frames used as the hardest landing tier, and hop frames for the middle tier. */
 export const LANDING_FRAMES = { hop: [11, 17], entrance: [5, 23] } as const;
 
@@ -158,7 +163,8 @@ export interface CompanionAvatar extends Avatar {
   pose(spec: PoseSpec): void;
   look(gaze: number, view?: LookView): boolean;
   hold(spec: HeldSpec | null): void;
-  run(act: ActKey, from?: number, to?: number): void;
+  /** `lift`: a small vertical bounce of the body on the drop surface (px, over ms) while the frames play; the shadow stays on the floor. */
+  run(act: ActKey, from?: number, to?: number, options?: RunOptions): void;
   fallFrom(liftPx: number, onLand?: (tier: LandingTier) => void, options?: FallOptions): LandingTier;
   setBase(base: BaseMode): void;
   setFallDistance(px: number | null): void;
@@ -515,7 +521,7 @@ export class AvatarController implements CompanionAvatar {
   }
 
   /** desktop (R32): play frames `from`..`to` (inclusive) of `key`, then return to the base mode (which is kept). */
-  run(key: ActKey, from = 0, to?: number): void {
+  run(key: ActKey, from = 0, to?: number, options: RunOptions = {}): void {
     const act = this.acts[key];
     this.stop();
     if (!act || !this.canAnimate()) {
@@ -527,6 +533,20 @@ export class AvatarController implements CompanionAvatar {
     const a = Math.max(0, Math.min(last, int(from, 0)));
     const b = Math.max(a, Math.min(last, int(to ?? last, last)));
     this.mode = key;
+    const lift = options.lift;
+    if (lift && lift.px > 0 && lift.ms > 0 && this.drop && this.dropCtx) {
+      // The body bounces on the drop surface; the resting shadow waits on the display canvas (as in the entrance).
+      renderFloorShadow(this.kit, this.target);
+      this.blit();
+      this.showDrop();
+      const drop = this.drop;
+      this.animate(act, a, b, false, undefined, (elapsed) => {
+        const u = Math.min(1, elapsed / lift.ms);
+        const y = u < 1 ? -lift.px * Math.sin(Math.PI * u) : 0;
+        drop.style.transform = y ? `translateY(${y.toFixed(2)}px)` : '';
+      });
+      return;
+    }
     this.startAct(key, a, b, false);
   }
 
@@ -537,7 +557,7 @@ export class AvatarController implements CompanionAvatar {
   }
 
   /** Play `act` frames `from`..`to` on rAF; loop or return to the base when it ends. The current surface is kept. */
-  private animate(act: Act, from: number, to: number, loop: boolean, onDone?: () => void): void {
+  private animate(act: Act, from: number, to: number, loop: boolean, onDone?: () => void, onTick?: (elapsedMs: number) => void): void {
     this.looping = loop;
     this.onDone = onDone ?? null;
     this.draw(act, from);
@@ -553,6 +573,7 @@ export class AvatarController implements CompanionAvatar {
         return;
       }
       started ??= t;
+      onTick?.(t - started);
       const n = from + Math.max(0, Math.floor(((t - started) * act.fps) / 1000));
       if (n > to) {
         if (this.looping) {

@@ -1,6 +1,6 @@
 export { AvatarController, scaleFor, CROP, DROP, SCENE_SIZE, DISPLAY_CSS_SIZE, IDLE_POSE_MS, ENTRANCE_FALL_MS, ENTRANCE_IMPACT_FRAME, TALL_ACTS, LOOP_INTERJECTIONS, LANDING_FRAMES } from './avatar.ts';
 export { renderFalling, renderFloorShadow } from './entrance-fall.ts';
-export type { Avatar, AvatarHost, AvatarOptions, AvatarStatus, ActKey, PlayOptions, CompanionAvatar, BaseMode, Surface, PoseSpec, FallOptions } from './avatar.ts';
+export type { RunOptions, Avatar, AvatarHost, AvatarOptions, AvatarStatus, ActKey, PlayOptions, CompanionAvatar, BaseMode, Surface, PoseSpec, FallOptions } from './avatar.ts';
 // desktop (R31..R36): physics and composed poses for the companion.
 export {
   derivedGravity, fallDuration, impactSpeed, landingTier, ballistic, turnSequence, turnAt, rollAt, rollDuration,

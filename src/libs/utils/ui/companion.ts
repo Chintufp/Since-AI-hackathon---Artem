@@ -49,6 +49,10 @@ export const COMPANION = {
   TAP_ALLOWANCE: { ms: 180, px: 8 },
   /** R32: carried face: surprised at lift-off, happy after this long. */
   CARRIED_HAPPY_MS: 400,
+  /** Springy tap on a click: a 12 px bounce over 330 ms; while it plays (TAP_HOLD_MS) further clicks still toggle but do not restart it (spam-clicking looked laggy). */
+  TAP_LIFT_PX: 12,
+  TAP_LIFT_MS: 330,
+  TAP_HOLD_MS: 450,
   /** R33: leaving rolls out; returning / arriving hops in (each direction one constant). */
   LEAVE_MOTION: 'roll' as TravelMotion,
   RETURN_MOTION: 'hop' as TravelMotion,
@@ -344,6 +348,14 @@ export function createCompanion(deps: CompanionDeps): Companion {
   let perchedId: string | null = null;
   let lockedAt: number | null = null;
   let lastAlive = clock.now();
+  let tapUntil = 0;
+  /** The Springy tap from its squash frame with a small bounce; not restarted while one is still playing. */
+  const tap = (): void => {
+    const now = clock.now();
+    if (now < tapUntil) return;
+    tapUntil = now + COMPANION.TAP_HOLD_MS;
+    avatar.run('click', 2, undefined, { lift: { px: COMPANION.TAP_LIFT_PX, ms: COMPANION.TAP_LIFT_MS } });
+  };
   let lastState = { away: false, question: false };
   let destroyed = false;
   /** A gesture cancelled internally (command / lock): the native pointerup + click that follow are swallowed. */
@@ -816,7 +828,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
       startCarry();
       return true;
     }
-    avatar.pose({ kind: 'press' });
+    if (clock.now() >= tapUntil) avatar.pose({ kind: 'press' }); // a tap still playing is not cut by the next press
     st = 'pressed';
     emitState();
     return true;
@@ -882,7 +894,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
         }
         panel.toggle();
         // make-room plays the hop while it slides; otherwise the tap continues from frame 2.
-        if (animKind !== 'room') avatar.run('click', 2);
+        if (animKind !== 'room') tap();
         syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
       }
     }
@@ -998,7 +1010,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
     } else {
       st = 'in';
       pointerNear = nearNow();
-      avatar.run('click', 2);
+      tap();
       syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
     }
     emitState();

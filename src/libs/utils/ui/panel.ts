@@ -8,10 +8,12 @@
  * Dismiss + Undo, Escape closes, Cmd/Ctrl+Enter sends, paste/drop attachments as chips,
  * reduced motion settles instantly, stationary avatar hitbox.
  */
+import { modelNotes } from './model-notes.ts';
 import { renderBurst, BURST } from '../motion/burst.ts';
 import type { ActKey, AvatarHost, AvatarStatus, CompanionAvatar } from '../motion/avatar.ts';
 import type { ParticipationOptIn, ParticipationRating, UserSettings } from '../contracts/outcomes.ts';
-import type { DirectoryEntry, Principal } from '../contracts/service.ts';
+import type { DirectoryEntry, InstallJobView, ModelsView, Principal, PullJobView } from '../contracts/service.ts';
+import type { ModelSlotName, ModelSlots, SlotChoice } from '../contracts/models.ts';
 import type { ContactDraft } from '../contracts/questions.ts';
 import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
 import { ApiError } from './api-client.ts';
@@ -28,9 +30,30 @@ import type { QuestionWatch } from './question-watch.ts';
 import { focusOptions, trackModality } from './focus.ts';
 import type { InputModality } from './focus.ts';
 
-export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'receipt' | 'result' | 'people' | 'case' | 'contact' | 'points' | 'connections';
+export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'receipt' | 'result' | 'people' | 'case' | 'contact' | 'points' | 'connections' | 'models';
 const RESTORABLE: ViewName[] = ['input', 'queue', 'settings'];
-const BACK: Partial<Record<ViewName, ViewName>> = { result: 'input', people: 'result', case: 'people', contact: 'people', points: 'settings', connections: 'settings' };
+const BACK: Partial<Record<ViewName, ViewName>> = { result: 'input', people: 'result', case: 'people', contact: 'people', points: 'settings', connections: 'settings', models: 'settings' };
+// B2: Settings -> Models.
+type ApiVendorName = 'anthropic' | 'gemini';
+const MODEL_SLOTS: ModelSlotName[] = ['embed', 'extract', 'phrase'];
+const SLOT_TITLES: Record<ModelSlotName, string> = { embed: 'Find by meaning', extract: 'Read threads', phrase: 'Word questions' };
+const SLOT_WHAT: Record<ModelSlotName, string> = {
+  embed: 'Finds earlier cases described in other words. Rules: matching by spelling.',
+  extract: 'Proposes claims from an imported thread; every claim must quote its message. Rules: the built-in extractor.',
+  phrase: 'Rewords the one question asked; checked before use. Rules: the templates.',
+};
+const API_MODELS: Record<ModelSlotName, string[]> = { embed: ['none (falls back to rules)'], extract: ['claude-haiku-5-5', 'gemini-2.5-flash-lite'], phrase: ['claude-sonnet-5-5', 'gemini-2.5-flash-lite'] };
+const KEY_PAGES: Record<ApiVendorName, string> = { anthropic: 'https://console.anthropic.com/settings/keys', gemini: 'https://aistudio.google.com/app/apikey' };
+const PULL_POLL_MS = 1000;
+const sizeLabel = (b: number): string => (b >= 1e9 ? `${(b / 1e9).toFixed(1)} GB` : `${Math.round(b / 1e6)} MB`);
+const recommended = (v: ModelsView, slot: ModelSlotName): string => (v.catalog[slot].find((e) => e.recommended) ?? v.catalog[slot][0])?.model ?? '';
+/** "all rules" or "local: find, read · hosted: word" for the Settings row. */
+function modelsSummary(m: ModelSlots | undefined): string {
+  if (!m) return 'all rules';
+  const by = (p: SlotChoice['provider']) => MODEL_SLOTS.filter((s) => m[s].provider === p).map((s) => SLOT_TITLES[s].split(' ')[0]!.toLowerCase());
+  const parts = [by('local').length ? `local: ${by('local').join(', ')}` : '', by('api').length ? `hosted: ${by('api').join(', ')}` : ''].filter(Boolean);
+  return parts.length ? parts.join(' · ') : 'all rules';
+}
 
 export interface PanelOptions {
   root: HTMLElement;
@@ -46,6 +69,12 @@ export interface PanelOptions {
   storage?: Pick<Storage, 'getItem' | 'setItem'> | null;
   /** Plays the launch entrance (R05). Disable for tests/screenshots that want a still start. */
   entrance?: boolean;
+  /**
+   * desktop (B2): where an api key goes. The desktop passes the preload bridge (Electron safeStorage in the main
+   * process, which hands the key to the service in memory); without it the key goes straight to POST /models/key
+   * and lasts until the service restarts.
+   */
+  keychain?: { save(provider: 'anthropic' | 'gemini', key: string): Promise<{ present: boolean; stored: boolean }> } | null;
   /**
    * desktop (R31..R36): the companion flags (drag, away, gaze, fidgets). Default: `window.__ktFlags`
    * (set by the desktop renderer). null, `companion: false` or `windowMode: 'column'` = the R28 panel.
@@ -143,8 +172,7 @@ const TEMPLATE = `
     <div class="rf-settings-rows">
      <div class="rf-setting"><span>Server</span><span class="rf-setting-value rf-server rf-selectable"></span></div>
      <label class="rf-setting"><span>You</span><select class="rf-you" aria-label="Who you are"></select></label>
-     <label class="rf-setting"><span>Provider</span><select class="rf-provider" disabled aria-label="Provider"><option>Local only</option></select></label>
-     <div class="rf-setting"><span>Model</span><span class="rf-setting-value rf-model"></span></div>
+     <div class="rf-setting rf-option"><span>Models</span><em class="rf-setting-note rf-models-summary"></em><button class="rf-later" type="button" data-action="models">Open</button></div>
      <label class="rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox"></label>
      <label class="rf-setting rf-option"><span>Reduced motion</span><input class="rf-motion" type="checkbox"></label>
      <div class="rf-setting rf-option"><span>Points &amp; rating</span><button class="rf-later" type="button" data-action="points">Open</button></div>
@@ -174,6 +202,10 @@ const TEMPLATE = `
     <h2>Connections</h2><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back"><i data-icon="arrow-left"></i></button>
     <p class="rf-conn-note">Channels Lumi will read as they are, through Nango. Nothing is connected yet.</p>
     <div class="rf-conn-grid"><button class="rf-conn" type="button" data-action="conn" data-conn="slack" aria-label="Slack (available soon)"><img class="rf-conn-logo" src="logos/slack.svg" alt=""><span class="rf-conn-name">Slack</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="teams" aria-label="Microsoft Teams (available soon)"><img class="rf-conn-logo" src="logos/teams.svg" alt=""><span class="rf-conn-name">Microsoft Teams</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="outlook" aria-label="Outlook mail (available soon)"><img class="rf-conn-logo" src="logos/outlook.svg" alt=""><span class="rf-conn-name">Outlook mail</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="gmail" aria-label="Gmail (available soon)"><img class="rf-conn-logo" src="logos/gmail.svg" alt=""><span class="rf-conn-name">Gmail</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="jira" aria-label="Jira (available soon)"><img class="rf-conn-logo" src="logos/jira.svg" alt=""><span class="rf-conn-name">Jira</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="confluence" aria-label="Confluence (available soon)"><img class="rf-conn-logo" src="logos/confluence.svg" alt=""><span class="rf-conn-name">Confluence</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="servicenow" aria-label="ServiceNow (available soon)"><img class="rf-conn-logo" src="logos/servicenow.svg" alt=""><span class="rf-conn-name">ServiceNow</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="github" aria-label="GitHub (available soon)"><img class="rf-conn-logo" src="logos/github.svg" alt=""><span class="rf-conn-name">GitHub</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button></div>
+   <section class="rf-view rf-panel-content rf-models-view" data-view="models" aria-label="Models" hidden>
+    <h2>Models</h2><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to settings"><i data-icon="arrow-left"></i></button>
+    <p class="rf-models-note">Rules work with nothing installed. A local model runs on this Mac; a hosted one sends text over the internet and only runs with your key.</p>
+    <div class="rf-models-body rf-list-scroll"></div>
    </section>
    <section class="rf-view rf-result" data-view="result" aria-label="Result" hidden>
     <div class="rf-result-head"><p class="rf-result-title"></p><div class="rf-result-notes"></div><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to writing"><i data-icon="arrow-left"></i></button></div>
@@ -282,6 +314,14 @@ export function createPanel(options: PanelOptions): Panel {
   let pointsRating: ParticipationRating | null = null;
   let pointsFrom: ViewName = 'settings';
   let pointsLoad = 0;
+  // B2: Settings -> Models.
+  let modelsView: ModelsView | null = null;
+  let modelsError: string | null = null;
+  let modelsLoad = 0;
+  let installView: InstallJobView | null = null;
+  const modelJobs = new Map<string, PullJobView>();
+  const keyMessages = new Map<ApiVendorName, { ok: boolean; text: string }>();
+  let modelTimers: Array<ReturnType<typeof setTimeout>> = [];
   let timers: Array<ReturnType<typeof setTimeout>> = [];
   let pollTimer: ReturnType<typeof setInterval> | 0 = 0;
   let destroyed = false;
@@ -391,6 +431,12 @@ export function createPanel(options: PanelOptions): Panel {
     }
     // Internal evidence ids are for traces, not for the person answering.
     h.append(el('p', 'rf-why', q.why.replace(/\s*Evidence:\s*(?:ev_\w+[,\s]*)+\.?\s*$/, '')));
+    if (q.wordedBy) {
+      // Honesty on screen (B2): the wording came from the phrase model; the template's wording is one hover away.
+      const w = el('p', 'rf-worded', q.wordedBy[0]!.toUpperCase() + q.wordedBy.slice(1));
+      if (q.templateText) w.title = `Template wording: ${q.templateText}`;
+      h.append(w);
+    }
     if (q.compare) {
       const ul = el('ul', 'rf-compare');
       q.compare.forEach((c, i) => ul.append(el('li', undefined, `${i === 0 ? 'A' : 'B'} · ${c.text}`)));
@@ -495,6 +541,7 @@ export function createPanel(options: PanelOptions): Panel {
     const prose = /\s/.test(r.applicability) ? [r.applicability] : [];
     [...prose, ...r.caveats.slice(0, 3)].filter(Boolean).forEach((t) => notes.append(el('p', 'rf-result-note', t)));
     if (r.nextStep) notes.append(el('p', 'rf-result-note', 'Next: ' + r.nextStep));
+    modelNotes(result.routes ?? []).forEach((t) => notes.append(el('p', 'rf-model-note', t)));
     const path = $('.rf-case-path');
     path.replaceChildren();
     const cv = result.caseView;
@@ -603,7 +650,7 @@ export function createPanel(options: PanelOptions): Panel {
   // ---- settings ----
   function renderSettings(): void {
     $('.rf-server').textContent = api.kind === 'mock' ? 'Dev mock · no service' : api.baseUrl;
-    $('.rf-model').textContent = settings?.model ?? '—';
+    $('.rf-models-summary').textContent = modelsSummary(settings?.models);
     renderYou();
     $<HTMLInputElement>('.rf-mcp').checked = !!settings?.mcp;
     const m = $<HTMLInputElement>('.rf-motion');
@@ -707,6 +754,217 @@ export function createPanel(options: PanelOptions): Panel {
     } catch (e) { showError(e, () => { setView('points'); }); }
   }
 
+  // ---- models (B2: Settings -> Models) ----
+  function renderModels(): void {
+    const body = $('.rf-models-body');
+    body.replaceChildren();
+    const v = modelsView;
+    if (!v) { body.append(el('p', 'rf-points-none', modelsError ?? 'Checking this Mac…')); return; }
+    const slots: ModelSlots = settings?.models ?? { embed: v.slots.embed.choice, extract: v.slots.extract.choice, phrase: v.slots.phrase.choice };
+    for (const slot of MODEL_SLOTS) body.append(slotRow(slot, slots[slot], v));
+    const d = v.detection;
+    const machine = el('p', 'rf-models-machine', d.running ? `Ollama ${d.version ?? ''} running${d.totalMemBytes ? ` · ${Math.round(d.totalMemBytes / 1e9)} GB memory` : ''}${d.freeDiskBytes ? ` · ${Math.round(d.freeDiskBytes / 1e9)} GB free` : ''}`.replace(/\s+·/g, ' ·') : d.installed ? 'Ollama is installed but not running; it starts when a slot is set to local.' : 'Ollama is not installed.');
+    body.append(machine);
+    if (!d.installed && !d.running) body.append(installBlock(v));
+  }
+  function slotRow(slot: ModelSlotName, choice: SlotChoice, v: ModelsView): HTMLElement {
+    const row = el('div', 'rf-model-slot');
+    row.dataset.slot = slot;
+    const status = v.slots[slot];
+    const head = el('div', 'rf-model-head');
+    head.append(el('span', 'rf-model-name', SLOT_TITLES[slot]));
+    const chip = el('span', 'rf-chip', status.chip);
+    chip.dataset.state = status.state;
+    if (status.reason) chip.title = status.reason;
+    head.append(chip);
+    row.append(head, el('p', 'rf-model-what', SLOT_WHAT[slot]));
+    const seg = el('div', 'rf-segmented');
+    seg.setAttribute('role', 'radiogroup');
+    seg.setAttribute('aria-label', `${SLOT_TITLES[slot]}: who runs it`);
+    for (const p of ['rules', 'local', 'api'] as const) {
+      const b = el('button', 'rf-seg', p === 'api' ? 'hosted' : p);
+      b.type = 'button';
+      b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', String(choice.provider === p));
+      b.dataset.on = String(choice.provider === p);
+      // No hosted embedding model in this build (DECISIONS-models D-B2-06): the option is shown, not offered.
+      if (slot === 'embed' && p === 'api' && choice.provider !== 'api') { b.disabled = true; b.title = 'No hosted embedding model in this build'; }
+      b.addEventListener('click', () => { if (choice.provider !== p) void saveSlot(slot, { provider: p, ...(p === 'local' ? { model: recommended(v, slot) } : p === 'api' ? { model: API_MODELS[slot][0]! } : {}) }); });
+      seg.append(b);
+    }
+    row.append(seg);
+    if (choice.provider === 'local') {
+      const sel = el('select', 'rf-model-select');
+      sel.setAttribute('aria-label', `${SLOT_TITLES[slot]} model`);
+      const current = choice.model ?? recommended(v, slot);
+      for (const e of v.catalog[slot]) {
+        const o = el('option', undefined, `${e.model}${e.recommended ? ' · recommended' : ''} · ${e.sizeBytes ? sizeLabel(e.sizeBytes) + ' · ' : ''}${e.label.replace(/ · Download$/, '').replace(/ · \d.*GB$/, '')}`);
+        o.value = e.model;
+        o.title = e.why ?? '';
+        o.disabled = e.availability === 'too-large' && e.model !== current;
+        sel.append(o);
+      }
+      sel.value = current;
+      sel.addEventListener('change', () => void saveSlot(slot, { provider: 'local', model: sel.value }));
+      row.append(sel);
+      const entry = v.catalog[slot].find((e) => e.model === current);
+      if (entry?.why) row.append(el('p', 'rf-model-why', entry.why));
+      const job = modelJobs.get(current);
+      if (job?.state === 'running') row.append(progressLine(job));
+      else if (entry?.availability === 'not-downloaded' && v.detection.running) {
+        const dl = el('button', 'rf-later rf-model-action', `Download ${entry.sizeBytes ? sizeLabel(entry.sizeBytes) : ''}`.trim());
+        dl.type = 'button'; dl.dataset.action = 'model-download'; dl.dataset.model = current;
+        row.append(dl);
+      } else if (entry?.availability === 'too-large') row.append(el('p', 'rf-model-why', `Too large for this Mac: needs about ${entry.minRamGb} GB of memory.`));
+      if (job?.state === 'failed') row.append(el('p', 'rf-model-error', `Download failed: ${job.error ?? job.status}`));
+    } else if (choice.provider === 'api') {
+      const sel = el('select', 'rf-model-select');
+      sel.setAttribute('aria-label', `${SLOT_TITLES[slot]} hosted model`);
+      for (const m of API_MODELS[slot]) { const o = el('option', undefined, m); o.value = m; sel.append(o); }
+      sel.value = choice.model ?? API_MODELS[slot][0]!;
+      sel.addEventListener('change', () => void saveSlot(slot, { provider: 'api', model: sel.value }));
+      row.append(sel);
+      const vendor: ApiVendorName = /^gemini/i.test(sel.value) ? 'gemini' : 'anthropic';
+      const keyRow = el('div', 'rf-model-key');
+      const input = el('input', 'rf-key-input');
+      input.type = 'password';
+      input.autocomplete = 'off';
+      input.spellcheck = false;
+      input.placeholder = v.apiKeys[vendor] ? 'Key held · paste to replace' : `${vendor === 'gemini' ? 'Gemini' : 'Anthropic'} API key`;
+      input.dataset.vendor = vendor;
+      input.setAttribute('aria-label', `${vendor} API key`);
+      const save = el('button', 'rf-later', 'Save key'); save.type = 'button'; save.dataset.action = 'model-key'; save.dataset.vendor = vendor;
+      const test = el('button', 'rf-later', 'Test'); test.type = 'button'; test.dataset.action = 'model-test'; test.dataset.vendor = vendor; test.dataset.model = sel.value;
+      keyRow.append(input, save, test);
+      row.append(keyRow);
+      const link = el('a', 'rf-model-link', vendor === 'gemini' ? 'Create a key in Google AI Studio' : 'Create a key in the Anthropic Console');
+      link.href = KEY_PAGES[vendor];
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      row.append(link);
+      const msg = keyMessages.get(vendor);
+      if (msg) row.append(el('p', msg.ok ? 'rf-model-why' : 'rf-model-error', msg.text));
+      row.append(el('p', 'rf-model-why', options.keychain ? 'The key is kept in the macOS keychain and given to the service in memory only.' : 'The key is held in memory by the service until it restarts; never written to disk.'));
+    }
+    return row;
+  }
+  function installBlock(v: ModelsView): HTMLElement {
+    const box = el('div', 'rf-model-install');
+    const job = installView;
+    if (!job || job.state === 'idle' || job.state === 'failed') {
+      const b = el('button', 'rf-answer rf-model-action', job?.state === 'failed' ? 'Try the install again' : 'Install Ollama');
+      b.type = 'button'; b.dataset.action = 'model-install';
+      box.append(b);
+    }
+    if (job?.state === 'unavailable') {
+      box.append(el('p', 'rf-model-why', 'Homebrew was not found on this Mac.'));
+      const a = el('a', 'rf-model-link', 'Download Ollama for macOS');
+      a.href = job.downloadUrl; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      box.append(a);
+    }
+    if (job && job.log.length) box.append(el('pre', 'rf-model-log rf-selectable', job.log.slice(-8).join('\n')));
+    if (job?.state === 'failed' && job.error) box.append(el('p', 'rf-model-error', job.error));
+    box.append(el('p', 'rf-points-sub', 'Or set it up yourself'));
+    for (const c of v.detection.setup) {
+      const line = el('div', 'rf-model-cmd');
+      line.append(el('code', 'rf-selectable', c));
+      const copy = el('button', 'rf-later', 'Copy'); copy.type = 'button'; copy.dataset.action = 'model-copy'; copy.dataset.text = c;
+      line.append(copy);
+      box.append(line);
+    }
+    return box;
+  }
+  function progressLine(job: PullJobView): HTMLElement {
+    const p = el('div', 'rf-model-progress');
+    const bar = el('span', 'rf-model-bar');
+    bar.style.setProperty('--pct', `${job.percent ?? 0}%`);
+    p.append(bar, el('span', undefined, `downloading ${job.percent ?? 0}%`));
+    return p;
+  }
+  async function loadModels(): Promise<void> {
+    const n = ++modelsLoad;
+    try {
+      const v = await api.models();
+      if (n !== modelsLoad) return;
+      modelsView = v;
+      modelsError = null;
+      try { installView = await api.installJob(); } catch { /* older service */ }
+    } catch (e) {
+      if (n !== modelsLoad) return;
+      modelsError = e instanceof ApiError ? `Could not read the models: ${e.message}` : 'Could not read the models.';
+    }
+    if (state.view === 'models') { renderModels(); motion.view(false); }
+  }
+  async function saveSlot(slot: ModelSlotName, choice: SlotChoice): Promise<void> {
+    await saveSetting({ models: { [slot]: choice } });
+    await loadModels();
+  }
+  async function downloadModel(model: string): Promise<void> {
+    try {
+      const job = await api.pullModel(model);
+      modelJobs.set(model, job);
+      renderModels();
+      pollPull(job.jobId, model);
+    } catch (e) { showError(e, () => { setView('models'); }); }
+  }
+  function pollPull(jobId: string, model: string): void {
+    const t = setTimeout(() => {
+      modelTimers = modelTimers.filter((x) => x !== t);
+      if (destroyed) return;
+      void api.pullJob(jobId).then((job) => {
+        modelJobs.set(model, job);
+        if (job.state === 'running') pollPull(jobId, model);
+        else void loadModels();
+        if (state.view === 'models') renderModels();
+      }, () => undefined);
+    }, PULL_POLL_MS);
+    modelTimers.push(t);
+  }
+  async function installOllama(): Promise<void> {
+    try {
+      installView = await api.installOllama();
+      renderModels();
+      if (installView.state === 'running') pollInstall();
+    } catch (e) { showError(e, () => { setView('models'); }); }
+  }
+  function pollInstall(): void {
+    const t = setTimeout(() => {
+      modelTimers = modelTimers.filter((x) => x !== t);
+      if (destroyed) return;
+      void api.installJob().then((job) => {
+        installView = job;
+        if (job.state === 'running') pollInstall();
+        else void loadModels();
+        if (state.view === 'models') renderModels();
+      }, () => undefined);
+    }, PULL_POLL_MS);
+    modelTimers.push(t);
+  }
+  async function saveKey(vendor: ApiVendorName): Promise<void> {
+    const input = root.querySelector<HTMLInputElement>(`.rf-key-input[data-vendor="${vendor}"]`);
+    const key = input?.value.trim() ?? '';
+    if (!key) return;
+    try {
+      const r = options.keychain ? await options.keychain.save(vendor, key) : { ...(await api.setModelKey(vendor, key)), stored: false };
+      keyMessages.set(vendor, { ok: r.present, text: r.present ? (r.stored ? 'Key saved in the keychain.' : 'Key held in memory.') : 'The key was not accepted.' });
+    } catch (e) {
+      keyMessages.set(vendor, { ok: false, text: e instanceof Error ? e.message : 'The key could not be saved.' });
+    }
+    if (input) input.value = '';
+    await loadModels();
+  }
+  async function testKey(vendor: ApiVendorName, model?: string): Promise<void> {
+    keyMessages.set(vendor, { ok: true, text: 'Testing…' });
+    renderModels();
+    try {
+      const r = await api.testModelKey(vendor, model);
+      keyMessages.set(vendor, r.ok ? { ok: true, text: `Reached ${r.model ?? 'the model'}.` } : { ok: false, text: `Test failed: ${r.error ?? 'no answer'}` });
+    } catch (e) {
+      keyMessages.set(vendor, { ok: false, text: e instanceof Error ? e.message : 'Test failed.' });
+    }
+    if (state.view === 'models') renderModels();
+  }
+
   function applySettings(s: UserSettings): void {
     settings = s;
     state.points = !!s.points;
@@ -714,7 +972,7 @@ export function createPanel(options: PanelOptions): Panel {
     syncMotion();
     if (state.view === 'settings') renderSettings();
   }
-  async function saveSetting(patch: Partial<UserSettings>): Promise<void> {
+  async function saveSetting(patch: Omit<Partial<UserSettings>, 'models'> & { models?: Partial<ModelSlots> }): Promise<void> {
     try { applySettings(await api.putSettings(patch)); } catch (e) { showError(e, () => void saveSetting(patch)); }
   }
 
@@ -745,6 +1003,7 @@ export function createPanel(options: PanelOptions): Panel {
     if (view === 'people') renderPeople();
     if (view === 'case') renderCase();
     if (view === 'points') { renderPoints(); void loadPoints(); }
+    if (view === 'models') { renderModels(); void loadModels(); }
     // The expanded flag survives leaving the question view (restored on return); other views stay collapsed.
     if (view === 'question') setExpanded(state.expanded, false);
     else motion.context(false, false);
@@ -1079,6 +1338,12 @@ export function createPanel(options: PanelOptions): Panel {
         setTimeout(() => { delete button.dataset.soon; }, 1400);
         return;
       }
+      case 'models': setView('models'); focusFor('models'); return;
+      case 'model-download': void downloadModel(button.dataset.model!); return;
+      case 'model-install': void installOllama(); return;
+      case 'model-key': void saveKey(button.dataset.vendor as ApiVendorName); return;
+      case 'model-test': void testKey(button.dataset.vendor as ApiVendorName, button.dataset.model); return;
+      case 'model-copy': void navigator.clipboard?.writeText(button.dataset.text ?? '').catch(() => undefined); button.textContent = 'Copied'; return;
       case 'back': { const to = state.view === 'points' ? pointsFrom : state.view === 'people' && peopleFromCase ? 'case' : BACK[state.view]; if (to) { setView(to); focusFor(to); } return; }
       case 'view-case': {
         const id = button.dataset.caseId!;
@@ -1282,6 +1547,7 @@ export function createPanel(options: PanelOptions): Panel {
     destroy: () => {
       destroyed = true;
       timers.forEach(clearTimeout);
+      modelTimers.forEach(clearTimeout);
       syncPoll();
       detachCompanion();
       modality.detach();

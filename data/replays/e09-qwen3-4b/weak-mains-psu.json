@@ -1,0 +1,553 @@
+{
+ "id": "generations",
+ "entries": {
+  "qwen3:4b|80869472ecbc090a6d6e6d6b": {
+   "inputHash": "b8d2bfaa9f311bcaed7ea169",
+   "outputHash": "ea69bf5d22b8c62878453071",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "condition",
+       "statement": "The forest road gate is locked with a padlock.",
+       "subjectEntityNames": [
+        "forest road gate"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_2254590395acf4a5f5e0",
+         "excerpt": "The forest road gate is locked with a padlock."
+        }
+       ]
+      },
+      {
+       "type": "condition",
+       "statement": "The key to the forest road gate is held by the forest owner, Tuomas Heiskanen.",
+       "subjectEntityNames": [
+        "forest road gate"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_2254590395acf4a5f5e0",
+         "excerpt": "The key is held by the forest owner, Tuomas Heiskanen."
+        }
+       ]
+      },
+      {
+       "type": "condition",
+       "statement": "The key to the forest road gate must be called at least 24 hours before the visit.",
+       "subjectEntityNames": [
+        "forest road gate"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_2254590395acf4a5f5e0",
+         "excerpt": "Call him at least 24 hours before the visit."
+        }
+       ]
+      },
+      {
+       "type": "condition",
+       "statement": "From 1 December to 30 April the forest road is not ploughed beyond the gate.",
+       "subjectEntityNames": [
+        "forest road"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_2254590395acf4a5f5e0",
+         "excerpt": "From 1 December to 30 April the forest road is not ploughed beyond the gate."
+        }
+       ]
+      },
+      {
+       "type": "condition",
+       "statement": "In the period from 1 December to 30 April, take the snowmobile from the Lampela cabin.",
+       "subjectEntityNames": [
+        "snowmobile"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_2254590395acf4a5f5e0",
+         "excerpt": "In that period take the snowmobile from the Lampela cabin."
+        }
+       ]
+      },
+      {
+       "type": "condition",
+       "statement": "The cabin key is in the lockbox by the door, code 3290.",
+       "subjectEntityNames": [
+        "Lampela cabin"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_2254590395acf4a5f5e0",
+         "excerpt": "The cabin key is in the lockbox by the door, code 3290."
+        }
+       ]
+      },
+      {
+       "type": "condition",
+       "statement": "Outside winter, you can drive up to the site with the van.",
+       "subjectEntityNames": [
+        "van"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_2254590395acf4a5f5e0",
+         "excerpt": "Outside winter you can drive up to the site with the van."
+        }
+       ]
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "forest road gate",
+       "aliases": [
+        "forest road gate"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_2254590395acf4a5f5e0",
+         "excerpt": "The forest road gate is locked with a padlock."
+        }
+       ]
+      },
+      {
+       "type": "asset",
+       "name": "Lampela cabin",
+       "aliases": [
+        "Lampela cabin"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_2254590395acf4a5f5e0",
+         "excerpt": "The cabin key is in the lockbox by the door, code 3290."
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:email:maija sundström",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_2254590395acf4a5f5e0",
+         "excerpt": "Access instructions for MW-77: ..."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:forest road gate",
+       "evidenceIds": [
+        "ev_2254590395acf4a5f5e0"
+       ],
+       "title": "Forest road gate access instructions"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_2254590395acf4a5f5e0",
+       "label": "useful",
+       "reason": "Access instructions for MW-77"
+      }
+     ]
+    },
+    "ms": 36555
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|9bfb828d0679e13e6c623350": {
+   "inputHash": "3888dc3614d98f785ed4edc9",
+   "outputHash": "04964358e0ff11136eac616c",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "MW-77 was down again for six minutes at 21:05, input voltage low.",
+       "subjectEntityNames": [
+        "MW-77"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_ecae33efd7a2295b5009",
+         "excerpt": "MW-77 was down again for six minutes at 21:05, input voltage low."
+        }
+       ],
+       "assertedByActorId": "person:slack:U702"
+      },
+      {
+       "type": "hypothesis",
+       "statement": "The mains logger shows sags to 185 V in the evenings when the neighbouring sawmill starts.",
+       "subjectEntityNames": [
+        "mains logger"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_3642a11873faad3ef612",
+         "excerpt": "The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts."
+        }
+       ],
+       "assertedByActorId": "person:slack:U703"
+      },
+      {
+       "type": "advice",
+       "statement": "Replace the battery string and monitor the mains.",
+       "subjectEntityNames": [
+        "battery string"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_9ebeceff0f5cb109fe8c",
+         "excerpt": "Replaced the battery string and left a note to monitor the mains."
+        }
+       ],
+       "assertedByActorId": "person:slack:U701"
+      },
+      {
+       "type": "action",
+       "statement": "Replaced the battery string.",
+       "subjectEntityNames": [
+        "battery string"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_9ebeceff0f5cb109fe8c",
+         "excerpt": "Replaced the battery string and left a note to monitor the mains."
+        }
+       ],
+       "assertedByActorId": "person:slack:U701"
+      },
+      {
+       "type": "outcome",
+       "statement": "The battery string replacement resolved the input voltage issue.",
+       "subjectEntityNames": [
+        "MW-77"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_9ebeceff0f5cb109fe8c",
+         "excerpt": "Replaced the battery string and left a note to monitor the mains."
+        }
+       ],
+       "assertedByActorId": "person:slack:U701"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "MW-77",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_ecae33efd7a2295b5009",
+         "excerpt": "MW-77 was down again for six minutes at 21:05, input voltage low."
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "battery string",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_9ebeceff0f5cb109fe8c",
+         "excerpt": "Replaced the battery string and left a note to monitor the mains."
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:slack:U702",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_ecae33efd7a2295b5009",
+         "excerpt": "MW-77 was down again for six minutes at 21:05, input voltage low."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:slack:U703",
+       "contribution": "advised",
+       "evidence": [
+        {
+         "evidenceId": "ev_3642a11873faad3ef612",
+         "excerpt": "The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts."
+        }
+       ],
+       "firsthand": false
+      },
+      {
+       "personActorId": "person:slack:U701",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_9ebeceff0f5cb109fe8c",
+         "excerpt": "Replaced the battery string and left a note to monitor the mains."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:MW-77",
+       "evidenceIds": [
+        "ev_ecae33efd7a2295b5009",
+        "ev_9ebeceff0f5cb109fe8c"
+       ],
+       "title": "MW-77 input voltage low after PSU swap"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_9ebeceff0f5cb109fe8c",
+       "label": "useful",
+       "reason": "Action and result."
+      }
+     ]
+    },
+    "ms": 37265
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|b85d3125da6e18d682d83d25": {
+   "inputHash": "1e09043d53b5ca83b8b3b53b",
+   "outputHash": "27b3b9f0ee12a3aef1fb15d9",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "Annual leave plans are due on Friday.",
+       "subjectEntityNames": [
+        "Friday"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_65ee166d1a86843a873b",
+         "excerpt": "Annual leave plans are due on Friday, please fill in the sheet."
+        }
+       ],
+       "assertedByActorId": "person:slack:U706"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "Friday",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_65ee166d1a86843a873b",
+         "excerpt": "Annual leave plans are due on Friday, please fill in the sheet."
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:slack:U706",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_65ee166d1a86843a873b",
+         "excerpt": "Annual leave plans are due on Friday, please fill in the sheet."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:Friday",
+       "evidenceIds": [
+        "ev_65ee166d1a86843a873b"
+       ],
+       "title": "Annual leave plans due on Friday"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_65ee166d1a86843a873b",
+       "label": "useful",
+       "reason": "Leave plan deadline"
+      }
+     ]
+    },
+    "ms": 13407
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|e2e95c252dd54b8d041f1f86": {
+   "inputHash": "5cb781c264014918f92f2163",
+   "outputHash": "8764f72bb9d1ceb141d6ad49",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "The MW-77 radio link went down for about four minutes, twice this evening.",
+       "subjectEntityNames": [
+        "MW-77"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_f2d06105c2d43b9ee3f1",
+         "excerpt": "Tauno, the MW-77 radio link went down for about four minutes, twice this evening. No weather alarms, but an 'input voltage low' power alarm at the same moments. Can you check tomorrow morning?"
+        }
+       ],
+       "assertedByActorId": "person:teams:anneli koivisto"
+      },
+      {
+       "type": "hypothesis",
+       "statement": "The long-haul hop towards the Salmijärvi tower is the issue.",
+       "subjectEntityNames": [
+        "long-haul hop"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_f2d06105c2d43b9ee3f1",
+         "excerpt": "Tauno, the MW-77 radio link went down for about four minutes, twice this evening. No weather alarms, but an 'input voltage low' power alarm at the same moments. Can you check tomorrow morning?"
+        }
+       ],
+       "assertedByActorId": "person:teams:anneli koivisto"
+      },
+      {
+       "type": "advice",
+       "statement": "Swap the PSU. But the mains at that site is weak, so keep an eye on it.",
+       "subjectEntityNames": [
+        "PSU"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_daac88e2d1cc9d58ee36",
+         "excerpt": "PSU swapped. Output is clean and the link is up with good margin."
+        }
+       ],
+       "assertedByActorId": "person:teams:olavi rinne"
+      },
+      {
+       "type": "action",
+       "statement": "PSU swapped.",
+       "subjectEntityNames": [
+        "PSU"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_daac88e2d1cc9d58ee36",
+         "excerpt": "PSU swapped. Output is clean and the link is up with good margin."
+        }
+       ],
+       "assertedByActorId": "person:teams:tauno hiltunen"
+      },
+      {
+       "type": "outcome",
+       "statement": "The link is stable with good margin after PSU swap.",
+       "subjectEntityNames": [
+        "MW-77"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_7159d110361c31a3f09f",
+         "excerpt": "The link is stable from our side, no alarms."
+        }
+       ],
+       "assertedByActorId": "person:teams:anneli koivisto"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "MW-77",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_f2d06105c2d43b9ee3f1",
+         "excerpt": "Tauno, the MW-77 radio link went down for about four minutes, twice this evening. No weather alarms, but an 'input voltage low' power alarm at the same moments. Can you check tomorrow morning?"
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "PSU",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_daac88e2d1cc9d58ee36",
+         "excerpt": "PSU swapped. Output is clean and the link is up with good margin."
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:teams:anneli koivisto",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_f2d06105c2d43b9ee3f1",
+         "excerpt": "Tauno, the MW-77 radio link went down for about four minutes, twice this evening. No weather alarms, but an 'input voltage low' power alarm at the same moments. Can you check tomorrow morning?"
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:teams:tauno hiltunen",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_daac88e2d1cc9d58ee36",
+         "excerpt": "PSU swapped. Output is clean and the link is up with good margin."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:teams:olavi rinne",
+       "contribution": "advised",
+       "evidence": [
+        {
+         "evidenceId": "ev_daac88e2d1cc9d58ee36",
+         "excerpt": "PSU swapped. Output is clean and the link is up with good margin."
+        }
+       ],
+       "firsthand": false
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:MW-77",
+       "evidenceIds": [
+        "ev_f2d06105c2d43b9ee3f1"
+       ],
+       "title": "MW-77 radio link down twice with input voltage low alarms"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_f2d06105c2d43b9ee3f1",
+       "label": "useful",
+       "reason": "Initial problem report with symptoms"
+      },
+      {
+       "evidenceId": "ev_daac88e2d1cc9d58ee36",
+       "label": "useful",
+       "reason": "PSU swap and successful outcome"
+      }
+     ]
+    },
+    "ms": 43582
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  }
+ }
+}

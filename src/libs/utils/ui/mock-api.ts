@@ -8,6 +8,9 @@ import type { ApiRoutes, Principal } from '../contracts/service.ts';
 import type { InvestigationState } from '../contracts/investigation.ts';
 import type { QuestionRecord, QuestionStatus } from '../contracts/questions.ts';
 import { defaultUserSettings } from '../contracts/outcomes.ts';
+import { DEFAULT_MODEL_SLOTS } from '../contracts/models.ts';
+import type { ModelSlotName } from '../contracts/models.ts';
+import type { CatalogEntry, InstallJobView, ModelsView, PullJobView, SlotStatusView } from '../contracts/service.ts';
 import type { ParticipationEvent, ParticipationOptIn, ParticipationRating, UserSettings } from '../contracts/outcomes.ts';
 import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
 import { createApiClient, parseRoute } from './api-client.ts';
@@ -56,6 +59,58 @@ interface MockState {
   /** R46: whether the dev user takes part in points, and their events (deterministic for the screenshot harness). */
   optIn: boolean;
   events: ParticipationEvent[];
+  /** B2: models mock state (never a real key: only whether one was given). */
+  installed: string[];
+  pulls: Map<string, PullJobView>;
+  keys: { anthropic: boolean; gemini: boolean };
+  install: InstallJobView;
+  /** Slot failures, as the service's status chip shows them ('busy' scenario). */
+  failures: Partial<Record<ModelSlotName, string>>;
+}
+
+/**
+ * Model states the mock can show (D-B2-62). 'busy': embed on local nomic-embed-text with a download at 42%, phrase on
+ * local qwen3:8b failed after a timeout, extract on a hosted Gemini model without a gemini key (an anthropic key held).
+ */
+export type MockModelsScenario = 'default' | 'busy';
+
+const MOCK_INSTALL: InstallJobView = { state: 'idle', brew: true, log: [], downloadUrl: 'https://ollama.com/download', setup: ['brew install ollama', 'ollama serve', 'ollama pull bge-m3'] };
+
+function mockModels(s: MockState): ModelsView {
+  const slots = s.settings.models ?? DEFAULT_MODEL_SLOTS;
+  const RAM_GB = 24;
+  const entry = (model: string, sizeGb: number, minRamGb: number, why: string, recommended = false): CatalogEntry => {
+    const installed = s.installed.includes(model);
+    const availability: CatalogEntry['availability'] = installed ? 'ready' : minRamGb > RAM_GB ? 'too-large' : 'not-downloaded';
+    const label = availability === 'ready' ? 'installed · ready' : availability === 'too-large' ? 'too large for this Mac' : `not downloaded · ${sizeGb.toFixed(1)} GB · Download`;
+    return { model, why, installed, sizeBytes: sizeGb * 1e9, minRamGb, ...(recommended ? { recommended } : {}), availability, label };
+  };
+  const status = (slot: ModelSlotName): SlotStatusView => {
+    const c = slots[slot];
+    if (c.provider === 'rules') return { choice: c, state: 'off', chip: 'off' };
+    const failed = (reason: string): SlotStatusView => ({ choice: c, state: 'failed', chip: `failed: ${reason}`, reason });
+    if (c.provider === 'api') {
+      // As the service: no hosted embedding model; otherwise the key of the model's own vendor.
+      if (slot === 'embed') return failed('no hosted embedding model; rules used');
+      const vendor = /^gemini/i.test(c.model ?? '') ? 'gemini' : 'anthropic';
+      return s.keys[vendor] ? (s.failures[slot] ? failed(s.failures[slot]!) : { choice: c, state: 'ready', chip: 'ready' }) : failed(`no ${vendor} key`);
+    }
+    const model = c.model ?? { embed: 'bge-m3', extract: 'qwen3:4b', phrase: 'qwen3:8b' }[slot];
+    const job = [...s.pulls.values()].reverse().find((j) => j.model === model && j.state === 'running');
+    if (job) return { choice: c, state: 'downloading', chip: `downloading ${job.percent ?? 0}%`, percent: job.percent ?? 0 };
+    if (s.failures[slot]) return failed(s.failures[slot]!);
+    return s.installed.includes(model) ? { choice: c, state: 'ready', chip: 'ready' } : { choice: c, state: 'not-downloaded', chip: 'not downloaded' };
+  };
+  return {
+    detection: { installed: true, running: true, version: 'dev-mock', totalMemBytes: RAM_GB * 1e9, freeDiskBytes: 300e9, installedModels: s.installed.map((name) => ({ name, capabilities: name === 'bge-m3' ? ['embedding'] : ['completion'] })), setup: ['brew install ollama', 'ollama serve', 'ollama pull bge-m3'] },
+    catalog: {
+      embed: [entry('bge-m3', 1.2, 8, 'Multilingual, finds cases by meaning (dev mock).', true), entry('nomic-embed-text', 0.3, 4, 'Light and fast, English-first (dev mock).')],
+      extract: [entry('qwen3:4b', 2.5, 8, 'Fills the extraction form with a JSON schema (dev mock).', true), entry('qwen3:8b', 5.2, 12, 'Better recall on messy threads (dev mock).')],
+      phrase: [entry('qwen3:8b', 5.2, 12, 'Natural one-sentence questions (dev mock).', true), entry('qwen3:32b', 20, 32, 'Smoothest wording; needs a big Mac (dev mock).')],
+    },
+    slots: { embed: status('embed'), extract: status('extract'), phrase: status('phrase') },
+    apiKeys: { ...s.keys },
+  };
 }
 
 /** R46: fixed points data: three colleagues who take part (Tomas does not), and the dev user's own events. */
@@ -87,7 +142,7 @@ function mockRating(s: MockState): ParticipationRating {
 function freshState(): MockState {
   const records = new Map<string, QuestionRecord>();
   SEED_QUESTIONS.forEach((q, i) => records.set(q.id, record(q, 'queued', i)));
-  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS() };
+  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS(), installed: ['qwen3:8b'], pulls: new Map(), keys: { anthropic: false, gemini: false }, install: { ...MOCK_INSTALL }, failures: {} };
 }
 
 function record(q: SeedQuestion, status: QuestionStatus, i: number): QuestionRecord {
@@ -145,9 +200,11 @@ function makeHandlers(s: MockState): Handlers {
   const optInView = (): ParticipationOptIn => ({ id: 'optin:mock:you', orgId: ORG, personEntityId: ME, participates: s.optIn, since: POINTS_FIXED });
   const h: Handlers = {
     'GET /health': () => ({ ok: true as const, version: 'ui-dev-mock', store: 'memory', routes: Object.keys(h) }),
-    'GET /settings': () => ({ ...s.settings }),
+    // As the service: GET /settings always carries the model slots (rules by default).
+    'GET /settings': () => ({ ...s.settings, models: s.settings.models ?? DEFAULT_MODEL_SLOTS }),
     'PUT /settings': ({ body }) => {
-      s.settings = { ...s.settings, ...body };
+      const { models, ...plain } = body;
+      s.settings = { ...s.settings, ...plain, ...(models ? { models: { ...(s.settings.models ?? DEFAULT_MODEL_SLOTS), ...models } } : {}) };
       return { ...s.settings };
     },
     'GET /cases/:id': ({ params }) => {
@@ -301,13 +358,50 @@ function makeHandlers(s: MockState): Handlers {
       Object.assign(s, freshState());
       return { ok: true as const, imported: [] };
     },
+    // B2: Settings -> Models. A fixed machine with Ollama running and qwen3:8b installed; downloads finish at once.
+    'GET /models': () => mockModels(s),
+    'POST /models/pull': ({ body }) => {
+      const job = { jobId: `pull-mock-${++s.counter}`, model: body.model, state: 'done' as const, status: 'success', percent: 100, startedAt: NOW(), finishedAt: NOW() };
+      s.pulls.set(job.jobId, job);
+      if (!s.installed.includes(body.model)) s.installed.push(body.model);
+      return job;
+    },
+    'GET /models/pull/:id': ({ params }) => {
+      const j = s.pulls.get(params.id!);
+      if (!j) throw new MockHttpError(404, `Unknown download ${params.id}`);
+      return j;
+    },
+    'POST /models/test': ({ body }) => (s.keys[body.provider] ? { ok: true, provider: body.provider, model: body.model ?? 'dev mock model' } : { ok: false, provider: body.provider, error: `no ${body.provider} key` }),
+    'POST /models/key': ({ body }) => {
+      s.keys[body.provider] = body.key.trim().length > 0;
+      return { provider: body.provider, present: s.keys[body.provider] };
+    },
+    // Ollama is already installed in the mock: the install finishes at once with a short log.
+    'POST /models/install': () => {
+      s.install = { ...MOCK_INSTALL, state: 'done', brew: true, log: ['$ brew install ollama', '==> ollama is already installed (dev mock)'], startedAt: NOW(), finishedAt: NOW() };
+      return s.install;
+    },
+    'GET /models/install': () => s.install,
   };
   return h;
 }
 
 /** A FetchLike that serves the mock routes. Exported for tests and for the renderer's ?mock=1 mode. */
-export function createMockFetch(): FetchLike {
+/** Put the mock's models into a scenario (the screenshot harness and tests); 'default' is the fresh state. */
+function applyModelsScenario(s: MockState, scenario: MockModelsScenario): void {
+  const fresh = freshState();
+  s.installed = fresh.installed; s.pulls = fresh.pulls; s.keys = fresh.keys; s.failures = fresh.failures;
+  s.settings = { ...s.settings, models: { ...DEFAULT_MODEL_SLOTS } };
+  if (scenario !== 'busy') return;
+  s.settings = { ...s.settings, models: { embed: { provider: 'local', model: 'nomic-embed-text' }, extract: { provider: 'api', model: 'gemini-2.5-flash-lite' }, phrase: { provider: 'local', model: 'qwen3:8b' } } };
+  s.pulls.set('pull-mock-busy', { jobId: 'pull-mock-busy', model: 'nomic-embed-text', state: 'running', status: 'pulling 970aa74c0a90', percent: 42, startedAt: NOW() });
+  s.keys = { anthropic: true, gemini: false };
+  s.failures = { phrase: 'phrase: no answer within 20000 ms' };
+}
+
+export function createMockFetch(opts: { models?: MockModelsScenario } = {}): FetchLike & { setModelsScenario(scenario: MockModelsScenario): void } {
   const state = freshState();
+  if (opts.models) applyModelsScenario(state, opts.models);
   const handlers = makeHandlers(state);
   const table = (Object.keys(handlers) as RouteKey[]).map((route) => {
     const { method, path } = parseRoute(route);
@@ -315,7 +409,7 @@ export function createMockFetch(): FetchLike {
     const rx = new RegExp('^' + path.replace(/:([A-Za-z]+)/g, (_m, n: string) => (names.push(n), '([^/]+)')) + '$');
     return { route, method, rx, names };
   });
-  return async (input, init) => {
+  const fetchLike: FetchLike = async (input, init) => {
     const url = new URL(input.replace(/^mock:/, 'http:'));
     const method = init?.method ?? 'GET';
     const hit = table.find((t) => t.method === method && t.rx.test(url.pathname));
@@ -340,6 +434,7 @@ export function createMockFetch(): FetchLike {
       throw e;
     }
   };
+  return Object.assign(fetchLike, { setModelsScenario: (scenario: MockModelsScenario) => applyModelsScenario(state, scenario) });
 }
 
 export function createMockApi(): ApiClient {

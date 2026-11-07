@@ -57,6 +57,8 @@
 #kt-panel .rf-reveal { height:0; overflow:hidden; transition:height 240ms steps(6,end); }
 #kt-panel .rf-history { padding:14px 24px 12px; border-top:1px solid #f0f1f2; }
 #kt-panel .rf-why { font-size:12px; color:#676e74; line-height:1.45; margin:0 0 13px; }
+#kt-panel .rf-worded, #kt-panel .rf-model-note { font-size:11px; color:#7b8187; line-height:1.4; margin:-6px 0 12px; font-style:italic; }
+#kt-panel .rf-model-note { margin:4px 0 0; }
 #kt-panel .rf-timeline { padding:0; margin:0; list-style:none; }
 #kt-panel .rf-timeline li { position:relative; padding:0 0 10px 15px; display:flex; gap:7px; line-height:1.35; font-size:11px; color:#5e666e; }
 #kt-panel .rf-timeline li::before { content:""; width:4px; height:4px; position:absolute; left:0; top:5px; background:#aeb6bd; }
@@ -312,3 +314,33 @@
 #kt-panel .rf-conn[data-soon="1"] .rf-conn-soon { opacity:1; }
 #kt-panel .rf-conn:focus-visible { outline:2px solid #8b939a; outline-offset:2px; }
 
+/* B2: Settings -> Models (v008 palette: grey hairlines, muted text, one gold accent) */
+#kt-panel .rf-models-view { padding-bottom:14px; }
+#kt-panel .rf-models-note { font-size:12px; line-height:1.5; color:#747b82; margin:-6px 0 8px; }
+#kt-panel .rf-models-body { max-height:calc(var(--kt-vh) - 230px); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; }
+#kt-panel .rf-model-slot { border-top:1px solid #f0f1f2; padding:10px 0 9px; display:grid; gap:6px; }
+#kt-panel .rf-model-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+#kt-panel .rf-model-name { font-size:12px; font-weight:500; color:#343a40; }
+#kt-panel .rf-model-what, #kt-panel .rf-model-why, #kt-panel .rf-models-machine { font-size:11px; line-height:1.45; color:#8d959c; margin:0; }
+#kt-panel .rf-models-machine { border-top:1px solid #f0f1f2; padding:9px 0 0; }
+#kt-panel .rf-model-error { font-size:11px; line-height:1.45; color:#9a5148; margin:0; }
+#kt-panel .rf-models-view .rf-chip { font-size:10.5px; line-height:1; padding:4px 7px; border-radius:999px; background:#f2f3f4; color:#7b8187; white-space:nowrap; max-width:60%; overflow:hidden; text-overflow:ellipsis; }
+#kt-panel .rf-models-view .rf-chip[data-state="ready"] { background:#eef3ee; color:#4d6b52; }
+#kt-panel .rf-models-view .rf-chip[data-state="downloading"] { background:#f6f1e3; color:#8a7330; }
+#kt-panel .rf-models-view .rf-chip[data-state="failed"] { background:#f6eeec; color:#9a5148; }
+#kt-panel .rf-segmented { display:inline-flex; justify-self:start; border:1px solid #e6e8ea; border-radius:8px; padding:2px; gap:2px; }
+#kt-panel .rf-seg { border:0; background:transparent; font-size:11px; color:#737a81; padding:4px 10px; border-radius:6px; }
+#kt-panel .rf-seg[data-on="true"] { background:#f0f1f2; color:#252729; font-weight:500; }
+#kt-panel .rf-seg:disabled { color:#c4c8cc; }
+#kt-panel .rf-model-select { font-size:12px; color:#343a40; border:1px solid #e6e8ea; border-radius:7px; background:#fff; padding:5px 6px; min-width:0; width:100%; }
+#kt-panel .rf-model-action { justify-self:start; padding-left:0; color:#8a7330; }
+#kt-panel .rf-model-install .rf-model-action { padding:7px 12px; }
+#kt-panel .rf-model-progress { display:flex; align-items:center; gap:8px; font-size:11px; color:#8a7330; }
+#kt-panel .rf-model-bar { flex:1; height:3px; border-radius:2px; background:linear-gradient(90deg, #c9b273 var(--pct), #f0f1f2 var(--pct)); }
+#kt-panel .rf-model-key { display:flex; align-items:center; gap:4px; }
+#kt-panel .rf-key-input { flex:1; min-width:0; font-size:12px; color:#343a40; border:1px solid #e6e8ea; border-radius:7px; padding:5px 7px; background:#fff; }
+#kt-panel .rf-model-link { font-size:11px; color:#737a81; text-decoration:underline; text-underline-offset:2px; justify-self:start; }
+#kt-panel .rf-model-install { display:grid; gap:6px; padding:8px 0 0; }
+#kt-panel .rf-model-log { margin:0; max-height:96px; overflow:auto; font-size:10.5px; line-height:1.4; color:#4b5258; background:#f7f8f8; border-radius:7px; padding:6px 8px; white-space:pre-wrap; }
+#kt-panel .rf-model-cmd { display:flex; align-items:center; justify-content:space-between; gap:8px; border-top:1px solid #f0f1f2; }
+#kt-panel .rf-model-cmd code { font-size:11px; color:#343a40; }

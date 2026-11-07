@@ -1,0 +1,41 @@
+{
+  "calls": 24,
+  "meanMs": 36499,
+  "maxMs": 86406,
+  "over60s": 4,
+  "msPerCall": [
+    45316,
+    68853,
+    21925,
+    17295,
+    63860,
+    58284,
+    13932,
+    57248,
+    18363,
+    31024,
+    61584,
+    16100,
+    32794,
+    86406,
+    13523,
+    14991,
+    36555,
+    37265,
+    13407,
+    43582,
+    30559,
+    20238,
+    14050,
+    58833
+  ],
+  "msPerImport": {
+    "bgp-firmware-flaps": 153389,
+    "fan-temperature": 193324,
+    "config-rollback-private": 127071,
+    "cabling-pinch": 147714,
+    "weak-mains-psu": 130809,
+    "bgp-linecard-private": 123680
+  },
+  "importsOver60s": 6
+}

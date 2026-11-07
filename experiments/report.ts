@@ -368,6 +368,8 @@ export function writeReport(): void {
     out.push('');
   } else out.push('Not run.\n');
 
+  out.push(...modelSections());
+
   const t2 = decision('e02-test');
   const t4 = decision('e04-test');
   out.push('## Test split: one-shot confirmation of the E02 and E04 choices\n');
@@ -410,3 +412,39 @@ export function writeReport(): void {
   writeFileSync(join(HERE, 'RESULTS.md'), out.join('\n'));
   console.log('RESULTS.md written');
 }
+
+/** E08/E09/E10 (BUILD_BRIEF 4 B2, day 2): local models through recorded replays, and the store metric with its bandit. */
+function modelSections(): string[] {
+  const out: string[] = [];
+  out.push(section('E08 - retrieval with a local embedding model (bge-m3)', 'e08-retrieval-embed', 'Same cases and access filters; only the retriever changes. The embedding arms replay bge-m3 vectors recorded once from the local Ollama (`data/replays/e08-bge-m3/`, hash-checked per text). The decision split is validation; demo and train are reported for context. **The test split is not reopened.**', (r) => {
+    const rows = [{ label: 'recall@1', metric: '@1.linking.recall' }, { label: 'recall@3', metric: '@3.linking.recall' }, { label: 'accessible recall@3', metric: '@3.accessible.linking.recall' }, { label: 'precision@3', metric: '@3.linking.precision' }, { label: 'lookalike top-1 rate (lower is better)', metric: 'retrieval.lookalikeTop1Rate' }, { label: 'lookalike rejection rate', metric: 'retrieval.lookalikeRejectionRate' }, { label: 'recommendation kind accuracy', metric: 'recommendation.kindAccuracy' }, { label: 'embedding fallbacks (count)', count: 'embed.fallbacks' }];
+    const bySplit = ['validation', 'train', 'demo'].map((sp) => [`**${sp}**`, '', table(r.variants.filter((v) => v.split === sp), rows), ''].join('\n'));
+    const probe = read<Array<{ text: string; parsedConditions: string[]; target: string; ranks: Record<string, number | null>; top3: Record<string, string[]> }>>('e08-retrieval-embed', 'probe.json') ?? [];
+    const ids = probe[0] ? Object.keys(probe[0].ranks) : [];
+    const ptab = probe.length ? [`| paraphrase (target ${probe[0]!.target}) | parsed conditions | ${ids.join(' | ')} |`, `| --- | --- | ${ids.map(() => '---').join(' | ')} |`, ...probe.map((p) => `| "${p.text}" | ${p.parsedConditions.join(', ') || 'none'} | ${ids.map((i) => (p.ranks[i] ?? '-')).join(' | ')} |`)].join('\n') : 'Probe not run.';
+    return [...bySplit, '**Paraphrase probe on the demo store** (rank of the first case on the target asset among the top 8; `-` = not found). The Elisa files are absent in this checkout, so the target is TRN-117 of optic-forwarding-a, the stand-in for TRN-042.', '', ptab].join('\n');
+  }));
+  out.push(section('E09 - extraction with a local schema-constrained model', 'e09-extraction-model', '**What the arms are.** `rules-extractor@current` is the real import path (measured). The model arms replay the raw JSON the local model returned per thread (`data/replays/e09-<model>/`, one recording pass, hash-checked on model + prompt + schema + seed; route `replay`): scored directly (E01 converter), committed alone through `commitProposal`, and committed as the union POST /import makes with extract=local (rules first, model-only claims labelled). Train and validation separately, as E01.', (r, m) => {
+    const rows = [{ label: 'claim precision', metric: 'claims.all.precision' }, { label: 'claim recall', metric: 'claims.all.recall' }, { label: 'action recall', metric: 'claims.action.recall' }, { label: 'outcome recall', metric: 'claims.outcome.recall' }, { label: 'condition recall', metric: 'claims.condition.recall' }, { label: 'entity recall', metric: 'entities.recall' }, { label: 'false merge rate', metric: 'cases.falseMergeRate' }, { label: 'false split rate', metric: 'cases.falseSplitRate' }, { label: 'attempt performer error', metric: 'attribution.attemptPerformerErrorRate' }, { label: 'outcome reporter error', metric: 'attribution.outcomeReporterErrorRate' }, { label: 'claims (count)', count: 'e09.claims' }, { label: 'attempts (count)', count: 'e09.attempts' }, { label: 'outcomes (count)', count: 'e09.outcomes' }, { label: 'threads with unusable model output', count: 'e09.threadsFailed' }, { label: 'validator drops', count: 'e09.validatorDropped' }, { label: 'model-only claims committed in the union', count: 'e09.modelOnlyClaimsCommitted' }, { label: 'union imports that fell back to rules', count: 'e09.importsFellBack' }];
+    const found = read<{ direct: Array<{ split: string; familyId: string; type: string; statement: string }>; union: unknown[]; modelOnlyClaimsCommitted: unknown[] }>('e09-extraction-model', 'model-found.json');
+    const dropped = read<{ countByKindAndReason: Record<string, number> }>('e09-extraction-model', 'validator-dropped.json');
+    const lat = read<{ calls: number; meanMs: number; maxMs: number; over60s: number; msPerImport?: Record<string, number>; importsOver60s?: number }>('e09-extraction-model', 'latency.json');
+    return [
+      `Model: \`${String((m.config as { model?: string }).model)}\`.`, '',
+      ...['train', 'validation'].map((sp) => [`**${sp}**`, '', table(r.variants.filter((v) => v.split === sp), rows), ''].join('\n')),
+      found ? `**What the model found that the rules missed.** ${found.direct.length} truth claims matched by the model arm and missed by the rules (${found.union.length} of them still counted through the union). Examples:` : '', '',
+      ...(found?.direct.slice(0, 6).map((g) => `- ${g.familyId} (${g.type}): "${g.statement}"`) ?? []), '',
+      dropped ? `**What the validator dropped.** ${Object.entries(dropped.countByKindAndReason).map(([k, n]) => `${k} ${n}`).join(', ') || 'nothing'} (list in \`results/e09-extraction-model/validator-dropped.json\`).` : '', '',
+      lat ? `**Latency.** ${lat.calls} recorded calls, mean ${(lat.meanMs / 1000).toFixed(1)} s, max ${(lat.maxMs / 1000).toFixed(1)} s; ${lat.over60s}/${lat.calls} calls alone exceed the extract slot's 60 s per-import budget${lat.msPerImport ? `; summed per import (one family = one import) ${lat.importsOver60s}/${Object.keys(lat.msPerImport).length} imports exceed it (${Object.entries(lat.msPerImport).map(([f, ms]) => `${f} ${(ms / 1000).toFixed(0)} s`).join(', ')}), so with the live budget those imports fall back to rules` : ''}.` : '',
+    ].join('\n');
+  }));
+  out.push(section('E10 - the store metric and the bandit it rewards', 'e10-store-metric', 'Simulated: a fresh demo store per run (demo:reset --synthetic), the demo:play day (10 h; train and validation sources arrive, simulated engineers investigate, simulated colleagues answer from a seeded model) driven in-process against the real service. The coordinator measures completeness x correctness of the touched case before and after each answer and rewards the selector with the delta minus burden. Same day for both selectors; 3 seeds.', (r) => {
+    const rows = [{ label: 'questions asked (sum over 3 seeds, one simulated day each)', count: 'questions.asked' }, { label: 'answered', metric: 'questions.answerRate' }, { label: 'demo cases (before)', count: 'store.cases.before' }, { label: 'completeness before', count: 'store.completeness.before' }, { label: 'completeness after (same cases)', count: 'store.completeness.after.sameCases' }, { label: 'correctness before', count: 'store.correctness.before' }, { label: 'correctness after (same cases)', count: 'store.correctness.after.sameCases' }, { label: 'supported claims before', metric: 'store.supportedClaims.before' }, { label: 'supported claims after (same cases)', metric: 'store.supportedClaims.after' }, { label: 'same-case gain (points, mean per seed)', count: 'store.product.gainPoints.mean' }, { label: 'questions per point (same cases)', count: 'questions.perPointGained' }, { label: 'measured per-answer deltas (points, sum)', count: 'reward.deltaPoints.sum' }, { label: 'positive per-answer deltas', count: 'reward.deltas.positive' }, { label: 'rewards measured', count: 'rewards.measured' }, { label: 'mean reward', count: 'reward.mean' }, { label: 'questions per measured point', count: 'questions.perMeasuredPoint' }];
+    const seeds = read<Array<Record<string, unknown>>>('e10-store-metric', 'per-seed.json') ?? [];
+    const st = seeds.length ? ['| selector | seed | asked | answered | cases before -> after (all) | product before -> after (same cases) | measured delta sum (points) | mean reward | touched cases with no supported claim |', '| --- | --- | --- | --- | --- | --- | --- | --- | --- |', ...seeds.map((x) => `| ${x.selector} | ${x.seed} | ${x.asked} | ${x.answered} | ${x.casesBefore} -> ${x.casesAfter} | ${x.productBefore} -> ${x.productAfterSameCases} | ${x.sumDeltaPoints} | ${x.meanReward} | ${x.touchedCasesWithNoSupportedClaim} |`)].join('\n') : '';
+    const why = (r.notes ?? []).filter((n) => n.startsWith('Where the negative deltas come from')).map((n) => `**${n.slice(0, n.indexOf(':'))}.** ${n.slice(n.indexOf(':') + 1).trim()}`);
+    return [table(r.variants, rows), '', '**Per seed**', '', st, '', ...why].join('\n');
+  }));
+  return out;
+}
+

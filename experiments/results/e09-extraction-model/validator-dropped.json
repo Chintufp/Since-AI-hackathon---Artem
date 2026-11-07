@@ -1,0 +1,183 @@
+{
+  "countByKindAndReason": {
+    "claim:excerpt-does-not-support": 14,
+    "claim:excerpt-not-in-evidence": 1,
+    "claim:unknown-evidence": 4,
+    "entity:excerpt-not-in-evidence": 1,
+    "link:person-not-author": 2,
+    "link:excerpt-not-in-evidence": 2,
+    "link:unknown-evidence": 3,
+    "entity:excerpt-does-not-support": 1
+  },
+  "items": [
+    {
+      "kind": "claim",
+      "label": "The BGP session is steady after replacing the optic.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "bgp-firmware-flaps"
+    },
+    {
+      "kind": "claim",
+      "label": "Roll back the hold timers on AGG-014.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "bgp-firmware-flaps"
+    },
+    {
+      "kind": "claim",
+      "label": "Both sessions are up after rolling back the hold timers.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "bgp-firmware-flaps"
+    },
+    {
+      "kind": "claim",
+      "label": "AGG-014 has stable BGP peers after ten minutes.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "bgp-firmware-flaps"
+    },
+    {
+      "kind": "claim",
+      "label": "Rolled back to v6 on ACC-30.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "config-rollback-private"
+    },
+    {
+      "kind": "claim",
+      "label": "Uplinks and VLAN 210 are back after v7.1 patch.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "config-rollback-private"
+    },
+    {
+      "kind": "claim",
+      "label": "Swap the SFP on our side anyway, it's cheap and we have had bad batches.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "claim",
+      "label": "Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks.",
+      "reason": "excerpt-not-in-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "claim",
+      "label": "Cleaned both connectors.",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "claim",
+      "label": "Errors dropped a lot but not to zero.",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "claim",
+      "label": "The patch cord looks fine to me, no kinks I can see.",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "entity",
+      "label": "SFP",
+      "reason": "excerpt-not-in-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "link",
+      "label": "person:teams:aila nurmi reported-outcome",
+      "reason": "person-not-author",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "link",
+      "label": "person:teams:henrik sjöberg advised",
+      "reason": "excerpt-not-in-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "link",
+      "label": "person:teams:kimmo rautio performed-action",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "link",
+      "label": "person:teams:kimmo rautio reported-outcome",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "link",
+      "label": "person:teams:kimmo rautio reported-outcome",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "claim",
+      "label": "The key to the forest road gate must be called at least 24 hours before the visit.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "weak-mains-psu"
+    },
+    {
+      "kind": "claim",
+      "label": "In the period from 1 December to 30 April, take the snowmobile from the Lampela cabin.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "weak-mains-psu"
+    },
+    {
+      "kind": "entity",
+      "label": "Lampela cabin",
+      "reason": "excerpt-does-not-support",
+      "familyId": "weak-mains-psu"
+    },
+    {
+      "kind": "link",
+      "label": "person:email:maija sundström reported-outcome",
+      "reason": "excerpt-not-in-evidence",
+      "familyId": "weak-mains-psu"
+    },
+    {
+      "kind": "claim",
+      "label": "The battery string replacement resolved the input voltage issue.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "weak-mains-psu"
+    },
+    {
+      "kind": "claim",
+      "label": "The long-haul hop towards the Salmijärvi tower is the issue.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "weak-mains-psu"
+    },
+    {
+      "kind": "claim",
+      "label": "Swap the PSU. But the mains at that site is weak, so keep an eye on it.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "weak-mains-psu"
+    },
+    {
+      "kind": "claim",
+      "label": "The link is stable with good margin after PSU swap.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "weak-mains-psu"
+    },
+    {
+      "kind": "link",
+      "label": "person:teams:olavi rinne advised",
+      "reason": "person-not-author",
+      "familyId": "weak-mains-psu"
+    },
+    {
+      "kind": "claim",
+      "label": "PE-09 is flapping after 11.2 but it has LC-3, so 11.1.1 should not be the answer.",
+      "reason": "excerpt-does-not-support",
+      "familyId": "bgp-linecard-private"
+    },
+    {
+      "kind": "claim",
+      "label": "The sessions are stable after the BFD interval raise.",
+      "reason": "unknown-evidence",
+      "familyId": "bgp-linecard-private"
+    }
+  ],
+  "threadsWhereTheModelOutputWasUnusable": []
+}

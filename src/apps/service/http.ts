@@ -4,11 +4,11 @@ import type { AddressInfo } from 'node:net';
 import { z, ZodError } from 'zod';
 import type { ApiRoutes } from '../../libs/utils/contracts/index.ts';
 import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/index.ts';
-import type { Engine, ExtendedSettings } from './engine.ts';
+import type { Engine } from './engine.ts';
 import { ServiceError, toServiceError } from './errors.ts';
 import {
   activityQuerySchema, answerSchema, cancelSchema, clockSchema, contextQuerySchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema,
-  observationSchema, optInSchema, outcomeSchema, participationQuerySchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, ratingQuerySchema, settingsPatchSchema,
+  modelInstallSchema, modelKeySchema, modelPullSchema, modelTestSchema, observationSchema, optInSchema, outcomeSchema, participationQuerySchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, ratingQuerySchema, settingsPatchSchema,
 } from './schemas.ts';
 
 /** A handler result that is served as-is (HTML) instead of JSON. */
@@ -47,7 +47,7 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
   const keys = (): string[] => Object.keys(table);
   const table: Record<RouteKey, Handler> = {
     'GET /health': () => engine.health(keys()),
-    'POST /import': (c) => engine.importData(parse(importSchema, c.body)),
+    'POST /import': (c) => engine.importAndEnrich(parse(importSchema, c.body)),
     'GET /connections': () => engine.connections(),
     'GET /cases': (c) => engine.cases(q(c).principalId),
     'GET /cases/:id': (c) => engine.caseView(c.params.id!, q(c).principalId),
@@ -74,7 +74,7 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
     'POST /contact-draft': (c) => engine.contactDraft(parse(contactDraftSchema, c.body)),
     'GET /directory': () => engine.directory(),
     'GET /settings': () => engine.getSettings(),
-    'PUT /settings': (c) => engine.putSettings(parse(settingsPatchSchema, c.body) as Partial<ExtendedSettings>),
+    'PUT /settings': (c) => engine.putSettings(parse(settingsPatchSchema, c.body) as Parameters<Engine['putSettings']>[0]),
     // R46: the rating route is listed before the :personEntityId one, because both match the path "rating".
     'GET /participation/rating': (c) => engine.participationRating(parse(ratingQuerySchema, q(c))),
     'GET /participation/:personEntityId': (c) => engine.participation(c.params.personEntityId!, parse(participationQuerySchema, q(c)).principalId),
@@ -92,6 +92,22 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
     },
     'GET /demo/activity': (c) => engine.activity(parse(activityQuerySchema, q(c))),
     'GET /demo/activity.html': () => new HtmlResponse(engine.activityPage()),
+    'GET /models': () => engine.modelsView(),
+    'POST /models/pull': (c) => engine.pullModel(parse(modelPullSchema, c.body).model),
+    'GET /models/pull/:id': (c) => engine.pullJob(c.params.id!),
+    'POST /models/test': (c) => {
+      const b = parse(modelTestSchema, c.body);
+      return engine.testModelKey(b.provider, b.model);
+    },
+    'POST /models/key': (c) => {
+      const b = parse(modelKeySchema, c.body);
+      return engine.setModelKey(b.provider, b.key);
+    },
+    'POST /models/install': (c) => {
+      parse(modelInstallSchema, c.body ?? {});
+      return engine.installOllama();
+    },
+    'GET /models/install': () => engine.installJob(),
   };
   return table;
 }
@@ -110,6 +126,32 @@ function compile(keys: RouteKey[]): CompiledRoute[] {
     const rx = new RegExp('^' + path.replace(/\./g, '\\.').replace(/:([A-Za-z]+)/g, (_m, n: string) => (names.push(n), '([^/]+)')) + '/?$');
     return { key, method, rx, names };
   });
+}
+
+/**
+ * The same route table without a socket: method + path(+query) + JSON body in, {status, body} out, with the body and
+ * the result passed through JSON exactly as over HTTP. For in-process drivers (the E10 simulated day) that must not open
+ * a port while the network guard is installed. The loopback Host check does not apply (there is no request).
+ */
+export function createDispatcher(engine: Engine): (method: string, pathAndQuery: string, body?: unknown) => Promise<{ status: number; body: unknown }> {
+  const table = buildRoutes(engine);
+  const routes = compile(Object.keys(table) as RouteKey[]);
+  return async (method, pathAndQuery, body) => {
+    try {
+      const url = new URL(pathAndQuery, 'http://local');
+      const pathMatches = routes.filter((r) => r.rx.test(url.pathname));
+      const hit = pathMatches.find((r) => r.method === method);
+      if (!hit) throw pathMatches.length ? new ServiceError(405, `Method ${method} not allowed for ${url.pathname}`) : new ServiceError(404, `No route ${method} ${url.pathname}`);
+      const m = hit.rx.exec(url.pathname)!;
+      const params: Record<string, string> = {};
+      hit.names.forEach((n, i) => (params[n] = safeDecode(m[i + 1]!)));
+      const result = await table[hit.key]({ params, query: url.searchParams, body: body === undefined ? undefined : JSON.parse(JSON.stringify(body)) });
+      return { status: 200, body: result instanceof HtmlResponse ? result.html : JSON.parse(JSON.stringify(result ?? null)) };
+    } catch (e) {
+      const err = toServiceError(e);
+      return { status: err.status, body: { error: err.message } };
+    }
+  };
 }
 
 async function readBody(req: IncomingMessage): Promise<unknown> {

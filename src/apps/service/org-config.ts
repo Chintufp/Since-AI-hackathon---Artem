@@ -3,8 +3,15 @@
  * This is configuration, not core logic: an organization replaces these maps with its own
  * groups, roles and the condition keys each may observe. Nothing here names a person or an incident.
  */
-import type { QuietHours } from '../../libs/utils/contracts/index.ts';
+import type { ModelSlots, QuietHours } from '../../libs/utils/contracts/index.ts';
+import { DEFAULT_MODEL_SLOTS as CONTRACT_DEFAULT_SLOTS } from '../../libs/utils/contracts/index.ts';
 import type { ObservabilityPolicy } from '../../libs/utils/investigation/settings.ts';
+
+/**
+ * Model slots for this organization (BUILD_BRIEF 2.1): every slot on rules, so nothing new runs until someone chooses
+ * a local or api model in Settings -> Models. A host may override this through EngineOptions.models.
+ */
+export const DEFAULT_MODEL_SLOTS: ModelSlots = CONTRACT_DEFAULT_SLOTS;
 
 const EQUIPMENT_FACTS = ['unit.age', 'unit.model', 'unit.revision', 'software.version', 'config.changed'];
 const SITE_FACTS = ['site.access', 'power.state', 'temperature.state'];

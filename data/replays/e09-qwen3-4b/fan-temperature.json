@@ -1,0 +1,670 @@
+{
+ "id": "generations",
+ "entries": {
+  "qwen3:4b|2a902043bb8a94122858b60c": {
+   "inputHash": "bc511d5cb5d56b7987bd5017",
+   "outputHash": "0574ebe09c7245760ef53c43",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "High temperature alarm on OLT-210 again, inlet 58.",
+       "subjectEntityNames": [
+        "OLT-210"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_248fa26d74fdc23cece9",
+         "excerpt": "High temperature alarm on OLT-210 again, inlet 58."
+        }
+       ],
+       "assertedByActorId": "person:slack:U404"
+      },
+      {
+       "type": "hypothesis",
+       "statement": "The fan tray 2 stalls when warm.",
+       "subjectEntityNames": [
+        "fan tray 2"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_dc370318c3c7a6dde547",
+         "excerpt": "Vesa, check fan tray 2, I suspect it stalls when warm."
+        }
+       ],
+       "assertedByActorId": "person:slack:U403"
+      },
+      {
+       "type": "advice",
+       "statement": "Check fan tray 2.",
+       "subjectEntityNames": [
+        "fan tray 2"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_dc370318c3c7a6dde547",
+         "excerpt": "Vesa, check fan tray 2, I suspect it stalls when warm."
+        }
+       ],
+       "assertedByActorId": "person:slack:U403"
+      },
+      {
+       "type": "action",
+       "statement": "Replaced the fan tray.",
+       "subjectEntityNames": [
+        "fan tray 2"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_53159a9bf2743b6e3eef",
+         "excerpt": "Fan tray 2 is stalling intermittently, confirmed. Replaced the tray."
+        }
+       ],
+       "assertedByActorId": "person:slack:U401"
+      },
+      {
+       "type": "outcome",
+       "statement": "Inlet temperature is down to 44.",
+       "subjectEntityNames": [
+        "OLT-210"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_53159a9bf2743b6e3eef",
+         "excerpt": "Inlet is down to 44."
+        }
+       ],
+       "assertedByActorId": "person:slack:U401"
+      },
+      {
+       "type": "observation",
+       "statement": "Still good at lunchtime, 43.",
+       "subjectEntityNames": [
+        "OLT-210"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_0dd79cf8936eecb68544",
+         "excerpt": "Still good at lunchtime, 43."
+        }
+       ],
+       "assertedByActorId": "person:slack:U401"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "OLT-210",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_248fa26d74fdc23cece9",
+         "excerpt": "High temperature alarm on OLT-210 again, inlet 58."
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "fan tray 2",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_dc370318c3c7a6dde547",
+         "excerpt": "Vesa, check fan tray 2, I suspect it stalls when warm."
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:slack:U404",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_248fa26d74fdc23cece9",
+         "excerpt": "High temperature alarm on OLT-210 again, inlet 58."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:slack:U403",
+       "contribution": "advised",
+       "evidence": [
+        {
+         "evidenceId": "ev_dc370318c3c7a6dde547",
+         "excerpt": "Vesa, check fan tray 2, I suspect it stalls when warm."
+        }
+       ],
+       "firsthand": false
+      },
+      {
+       "personActorId": "person:slack:U401",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_53159a9bf2743b6e3eef",
+         "excerpt": "Fan tray 2 is stalling intermittently, confirmed. Replaced the tray."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:slack:U401",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_53159a9bf2743b6e3eef",
+         "excerpt": "Inlet is down to 44."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:slack:U401",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_0dd79cf8936eecb68544",
+         "excerpt": "Still good at lunchtime, 43."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:OLT-210",
+       "evidenceIds": [
+        "ev_248fa26d74fdc23cece9",
+        "ev_53159a9bf2743b6e3eef",
+        "ev_0dd79cf8936eecb68544"
+       ],
+       "title": "OLT-210 high temperature alarm (inlet 58) resolved by replacing fan tray 2"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_248fa26d74fdc23cece9",
+       "label": "useful",
+       "reason": "Initial problem report"
+      },
+      {
+       "evidenceId": "ev_dc370318c3c7a6dde547",
+       "label": "useful",
+       "reason": "Hypothesis and advice"
+      },
+      {
+       "evidenceId": "ev_53159a9bf2743b6e3eef",
+       "label": "useful",
+       "reason": "Action and outcome"
+      },
+      {
+       "evidenceId": "ev_0dd79cf8936eecb68544",
+       "label": "useful",
+       "reason": "Stable temperature after fix"
+      }
+     ]
+    },
+    "ms": 63860
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|8526a17f804b329de5487a27": {
+   "inputHash": "df7120b42dd6d50e38d57c27",
+   "outputHash": "00a2ce4a25bfa962e67195f6",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "OLT-210 at the Hakkila hub is throwing high temperature alarms, inlet 61 degrees.",
+       "subjectEntityNames": [
+        "OLT-210"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_f37ae715e307babe6497",
+         "excerpt": "Vesa, OLT-210 at the Hakkila hub is throwing high temperature alarms, inlet 61 degrees."
+        }
+       ],
+       "assertedByActorId": "person:teams:leena kuusisto"
+      },
+      {
+       "type": "hypothesis",
+       "statement": "The dust filter on the door is clogging with pollen in spring.",
+       "subjectEntityNames": [
+        "dust filter"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_c227aef950f1f5c002af",
+         "excerpt": "Check the dust filter on the door first. That cabinet type clogs with pollen in spring and then the fans can't pull enough air."
+        }
+       ],
+       "assertedByActorId": "person:teams:raisa turunen"
+      },
+      {
+       "type": "action",
+       "statement": "Swapped the dust filter for a clean one.",
+       "subjectEntityNames": [
+        "dust filter"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_5acf97f320f0c7319432",
+         "excerpt": "Swapped for a clean filter."
+        }
+       ],
+       "assertedByActorId": "person:teams:vesa hakala"
+      },
+      {
+       "type": "outcome",
+       "statement": "Temperature is dropping to 54 degrees.",
+       "subjectEntityNames": [
+        "OLT-210"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_5acf97f320f0c7319432",
+         "excerpt": "Temperature is dropping, 54 now."
+        }
+       ],
+       "assertedByActorId": "person:teams:vesa hakala"
+      },
+      {
+       "type": "outcome",
+       "statement": "Alarm cleared on the NOC side.",
+       "subjectEntityNames": [
+        "OLT-210"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_bcd1f46c9af61ce2a5ee",
+         "excerpt": "I see 47 degrees on the NOC side. Alarm cleared."
+        }
+       ],
+       "assertedByActorId": "person:teams:leena kuusisto"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "OLT-210",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_f37ae715e307babe6497",
+         "excerpt": "OLT-210 at the Hakkila hub"
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "dust filter",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_c227aef950f1f5c002af",
+         "excerpt": "dust filter on the door"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:teams:leena kuusisto",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_f37ae715e307babe6497",
+         "excerpt": "Vesa, OLT-210 at the Hakkila hub is throwing high temperature alarms, inlet 61 degrees."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:teams:raisa turunen",
+       "contribution": "advised",
+       "evidence": [
+        {
+         "evidenceId": "ev_c227aef950f1f5c002af",
+         "excerpt": "Check the dust filter on the door first. That cabinet type clogs with pollen in spring and then the fans can't pull enough air."
+        }
+       ],
+       "firsthand": false
+      },
+      {
+       "personActorId": "person:teams:vesa hakala",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_5acf97f320f0c7319432",
+         "excerpt": "Swapped for a clean filter."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:teams:vesa hakala",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_5acf97f320f0c7319432",
+         "excerpt": "Temperature is dropping, 54 now."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:teams:leena kuusisto",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_bcd1f46c9af61ce2a5ee",
+         "excerpt": "I see 47 degrees on the NOC side. Alarm cleared."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:OLT-210",
+       "evidenceIds": [
+        "ev_f37ae715e307babe6497",
+        "ev_bcd1f46c9af61ce2a5ee"
+       ],
+       "title": "OLT-210 high temperature alarm cleared after filter swap"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_f37ae715e307babe6497",
+       "label": "useful",
+       "reason": "Initial problem report"
+      },
+      {
+       "evidenceId": "ev_c227aef950f1f5c002af",
+       "label": "useful",
+       "reason": "Dust filter clogging hypothesis"
+      },
+      {
+       "evidenceId": "ev_5acf97f320f0c7319432",
+       "label": "useful",
+       "reason": "Action and temperature drop"
+      },
+      {
+       "evidenceId": "ev_bcd1f46c9af61ce2a5ee",
+       "label": "useful",
+       "reason": "Alarm cleared confirmation"
+      }
+     ]
+    },
+    "ms": 58284
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|a8631aa64a1aacc13c158d97": {
+   "inputHash": "34d378f1594bc78bb05e2e8c",
+   "outputHash": "48d8cef6876d913b34c7e113",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "OLT-210 temperature alarm",
+       "subjectEntityNames": [
+        "OLT-210"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_7bc3853ecee023df18c8",
+         "excerpt": "I see it too, OLT-210 temperature alarm."
+        }
+       ],
+       "assertedByActorId": "person:slack:U402"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "OLT-210",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_7bc3853ecee023df18c8",
+         "excerpt": "OLT-210"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:slack:U402",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_7bc3853ecee023df18c8",
+         "excerpt": "I see it too, OLT-210 temperature alarm."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:OLT-210",
+       "evidenceIds": [
+        "ev_7bc3853ecee023df18c8"
+       ],
+       "title": "OLT-210 temperature alarm"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_7bc3853ecee023df18c8",
+       "label": "useful",
+       "reason": "Temperature alarm observed."
+      }
+     ]
+    },
+    "ms": 13932
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|ee3bf687c7ce79192e1748fa": {
+   "inputHash": "60015d14254866ee403525c9",
+   "outputHash": "7e666ec7354d1bd09da12a17",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "In spring, high inlet temperature on the 2015-build outdoor cabinets is usually a clogged dust filter.",
+       "subjectEntityNames": [
+        "2015-build outdoor cabinets"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "In spring, high inlet temperature on the 2015-build outdoor cabinets is usually a clogged dust filter, and replacing the filter brings the temperature down."
+        }
+       ],
+       "assertedByActorId": "person:email:raisa turunen"
+      },
+      {
+       "type": "advice",
+       "statement": "Replace the dust filter to lower the temperature.",
+       "subjectEntityNames": [
+        "dust filter"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "replacing the filter brings the temperature down"
+        }
+       ],
+       "assertedByActorId": "person:email:raisa turunen"
+      },
+      {
+       "type": "hypothesis",
+       "statement": "If the alarm comes back within a few days the filter was not the whole cause.",
+       "subjectEntityNames": [
+        "alarm"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "If the alarm comes back within a few days the filter was not the whole cause: check whether fan tray 2 stalls when warm."
+        }
+       ],
+       "assertedByActorId": "person:email:raisa turunen"
+      },
+      {
+       "type": "advice",
+       "statement": "Check whether fan tray 2 stalls when warm.",
+       "subjectEntityNames": [
+        "fan tray 2"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "check whether fan tray 2 stalls when warm"
+        }
+       ],
+       "assertedByActorId": "person:email:raisa turunen"
+      },
+      {
+       "type": "condition",
+       "statement": "The tray replacement only applies to cabinets with the FT-2 fan tray (2015 and 2016 builds).",
+       "subjectEntityNames": [
+        "FT-2 fan tray"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "The tray replacement only applies to cabinets with the FT-2 fan tray (2015 and 2016 builds)."
+        }
+       ],
+       "assertedByActorId": "person:email:raisa turunen"
+      },
+      {
+       "type": "condition",
+       "statement": "Newer cabinets use FT-3 and should be escalated to me instead of swapping parts.",
+       "subjectEntityNames": [
+        "FT-3"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "Newer cabinets use FT-3 and should be escalated to me instead of swapping parts."
+        }
+       ],
+       "assertedByActorId": "person:email:raisa turunen"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "2015-build outdoor cabinets",
+       "aliases": [
+        "cabinets"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "2015-build outdoor cabinets"
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "dust filter",
+       "aliases": [
+        "filter"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "clogged dust filter"
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "fan tray 2",
+       "aliases": [
+        "fan tray"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "fan tray 2"
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "FT-2 fan tray",
+       "aliases": [
+        "FT-2"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "FT-2 fan tray"
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "FT-3",
+       "aliases": [
+        "fan tray 3"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "FT-3"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:email:raisa turunen",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_e4dcd17a776aa179463c",
+         "excerpt": "In spring, high inlet temperature on the 2015-build outdoor cabinets is usually a clogged dust filter, and replacing the filter brings the temperature down."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:2015-build outdoor cabinets",
+       "evidenceIds": [
+        "ev_e4dcd17a776aa179463c"
+       ],
+       "title": "High inlet temperature in spring"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_e4dcd17a776aa179463c",
+       "label": "useful",
+       "reason": "Temperature guidance for 2015-build cabinets"
+      }
+     ]
+    },
+    "ms": 57248
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  }
+ }
+}

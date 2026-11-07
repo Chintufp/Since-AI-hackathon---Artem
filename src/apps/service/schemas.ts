@@ -96,6 +96,14 @@ export const contactDraftSchema = z.object({
   personEntityId: z.string().min(1),
 });
 
+const slotChoiceSchema = z.object({
+  provider: z.enum(['rules', 'local', 'api']),
+  model: z.string().min(1).max(200).optional(),
+}).strict();
+
+/** A partial ModelSlots: only the slots named are changed. Never carries an API key (POST /models/key does, in memory). */
+export const modelSlotsPatchSchema = z.object({ embed: slotChoiceSchema, extract: slotChoiceSchema, phrase: slotChoiceSchema }).partial().strict();
+
 export const settingsPatchSchema = z.object({
   points: z.boolean(),
   sound: z.boolean(),
@@ -107,7 +115,18 @@ export const settingsPatchSchema = z.object({
   mcp: z.boolean(),
   /** Extension: question selector id (rules | linucb | epsilon-greedy | random | ranker-replay or alias). */
   selectorId: z.string().min(1),
+  /** Model slots (embed / extract / phrase), partial: only the slots named change. */
+  models: modelSlotsPatchSchema,
 }).partial().strict();
+
+/** POST /models/pull: the Ollama tag to download (only ever from a click). */
+export const modelPullSchema = z.object({ model: z.string().trim().min(1).max(200).regex(/^[A-Za-z0-9._:/-]+$/, 'not an Ollama model tag') }).strict();
+/** POST /models/test: one tiny call to the api provider. */
+export const modelTestSchema = z.object({ provider: z.enum(['anthropic', 'gemini']), model: z.string().min(1).max(200).optional() }).strict();
+/** POST /models/key: held in memory only, never persisted. An empty key forgets it. */
+/** POST /models/install takes no fields. */
+export const modelInstallSchema = z.object({}).strict();
+export const modelKeySchema = z.object({ provider: z.enum(['anthropic', 'gemini']), key: z.string().max(400) }).strict();
 
 export const demoResetSchema = z.object({ seed: z.enum(['elisa', 'synthetic', 'empty']).optional(), defaultPerson: z.string().min(1).optional() });
 

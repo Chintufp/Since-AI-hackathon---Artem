@@ -1,0 +1,439 @@
+/**
+ * Model lifecycle in the service (BUILD_BRIEF 2.3): detect the machine, read the catalog, show a status chip per slot,
+ * warm local slots at app start (spawning `ollama serve` when it is installed but not running), unload a model after
+ * 30 minutes without a call, unload everything this service loaded on shutdown, download only on an explicit
+ * POST /models/pull, and hold api keys in memory only (never SQLite, data/ or the repo).
+ * Slots on rules or api start nothing: no process, no RAM.
+ */
+import { spawn, type ChildProcess } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import type { CatalogEntry, InstallJobView, ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView, SlotStatusView } from '../../libs/utils/contracts/index.ts';
+import {
+  API_DEFAULT_MODELS, ApiProvider, DEFAULT_KEEP_ALIVE, EmbeddingCache, OllamaProvider, type ApiVendor, type DetectResult, type FetchFn, type ModelProvider,
+} from '../../libs/utils/models/providers/index.ts';
+import { REPO_ROOT } from './paths.ts';
+
+export const DEFAULT_CATALOG_PATH = join(REPO_ROOT, 'data', 'models', 'catalog.json');
+export const IDLE_UNLOAD_MS = 30 * 60 * 1000;
+/** After a slot's model times out, requests skip it for this long (labelled `[fallback:<slot>:cooldown]`), so a stuck model costs one wait, not one per request. */
+export const SLOT_COOLDOWN_MS = 60 * 1000;
+/** Default local model per slot when the choice names none (the catalog's recommended ones). */
+export const DEFAULT_LOCAL_MODELS: Record<ModelSlotName, string> = { embed: 'bge-m3', extract: 'qwen3:4b', phrase: 'qwen3:8b' };
+const SLOTS: ModelSlotName[] = ['embed', 'extract', 'phrase'];
+const SETUP = ['brew install ollama', 'ollama serve', 'ollama pull bge-m3'];
+
+interface CatalogFile {
+  slots: Record<ModelSlotName, Array<Omit<CatalogEntry, 'installed' | 'fromInstalled' | 'availability' | 'label'>>>;
+}
+
+export interface ModelManagerOptions {
+  /** The local provider (default: an OllamaProvider on 127.0.0.1:11434). Tests inject a fake. */
+  local?: ModelProvider;
+  catalogPath?: string;
+  idleMs?: number;
+  /** Starts `ollama serve` (default: spawn it as a child this service owns). */
+  startServer?: () => ChildProcess | undefined;
+  /** fetch for the api provider (tests). */
+  apiFetch?: FetchFn;
+  now?: () => Date;
+  /** Monotonic milliseconds for the slot cooldown (default performance.now(); a liveness timer like the slot timeouts, not data). */
+  monoNow?: () => number;
+  cooldownMs?: number;
+  /** Hosted models are off for this run (KT_NO_API=1, set by demo:judge): keys are refused and an api slot stays unavailable. */
+  noApi?: boolean;
+  /** Installs Ollama (default: `brew install ollama` on macOS when Homebrew exists). Tests inject a fake. */
+  installer?: OllamaInstaller;
+}
+
+export interface OllamaInstaller {
+  /** The brew binary, or undefined when Homebrew is absent (or not macOS). */
+  brewPath(): Promise<string | undefined>;
+  /** Run the install, streaming output lines; resolves on exit 0. */
+  run(brew: string, onLine: (line: string) => void): Promise<void>;
+}
+
+export const NO_HOSTED_EMBED = 'no hosted embedding model; rules used';
+export const NO_API_REASON = 'hosted models are off in this run';
+export const OLLAMA_DOWNLOAD_URL = 'https://ollama.com/download';
+const MAX_LOG_LINES = 200;
+
+export const brewInstaller: OllamaInstaller = {
+  brewPath: async () => (process.platform !== 'darwin' ? undefined : ['/opt/homebrew/bin/brew', '/usr/local/bin/brew'].find((p) => existsSync(p))),
+  run: (brew, onLine) => new Promise<void>((resolve, reject) => {
+    const child = spawn(brew, ['install', 'ollama'], { stdio: ['ignore', 'pipe', 'pipe'] });
+    let rest = '';
+    const feed = (chunk: Buffer): void => {
+      const lines = (rest + chunk.toString('utf8')).split(/\r?\n/);
+      rest = lines.pop() ?? '';
+      for (const l of lines) if (l.trim()) onLine(l);
+    };
+    child.stdout?.on('data', feed);
+    child.stderr?.on('data', feed);
+    child.on('error', reject);
+    child.on('close', (code) => {
+      if (rest.trim()) onLine(rest);
+      if (code === 0) resolve();
+      else reject(new Error(`brew install ollama exited with code ${code}`));
+    });
+  }),
+};
+
+/** 'bge-m3' and 'bge-m3:latest' are the same Ollama model. */
+export const sameModel = (a: string, b: string): boolean => {
+  const n = (x: string) => (x.includes(':') ? x : `${x}:latest`).toLowerCase();
+  return n(a) === n(b);
+};
+
+const gb = (bytes?: number): string => (bytes === undefined ? '' : bytes >= 1e9 ? `${(bytes / 1e9).toFixed(1)} GB` : `${Math.round(bytes / 1e6)} MB`);
+
+interface PullJob extends PullJobView { controller: AbortController }
+
+export class ModelManager {
+  private localProvider: ModelProvider | undefined;
+  readonly cache = new EmbeddingCache();
+  private readonly opts: ModelManagerOptions;
+  private readonly loaded = new Map<string, { embedding: boolean; timer?: ReturnType<typeof setTimeout> }>();
+  private readonly failures = new Map<ModelSlotName, string>();
+  private readonly cooldownUntil = new Map<ModelSlotName, number>();
+  private readonly jobs = new Map<string, PullJob>();
+  private readonly keys: Partial<Record<ApiVendor, string>> = {};
+  private server: ChildProcess | undefined;
+  private warming: Promise<unknown> = Promise.resolve();
+  private jobSeq = 0;
+  private install: InstallJobView = { state: 'idle', brew: false, log: [], downloadUrl: OLLAMA_DOWNLOAD_URL, setup: SETUP };
+  private lastDetect: DetectResult | undefined;
+
+  constructor(opts: ModelManagerOptions = {}) {
+    this.opts = opts;
+    this.localProvider = opts.local;
+  }
+
+  /** The local provider, built on first use: with every slot on rules nothing is constructed. */
+  get local(): ModelProvider {
+    this.localProvider ??= new OllamaProvider({ onUse: (m, o) => this.touch(m, o?.embedding) });
+    return this.localProvider;
+  }
+
+  private now(): string {
+    return (this.opts.now?.() ?? new Date()).toISOString();
+  }
+
+  // ---- use, idle unload, failures -------------------------------------------------------------
+
+  /** A call reached `model`: (re)start its idle timer. Unloads after 30 minutes without a call. */
+  touch(model: string, embedding?: boolean): void {
+    const prev = this.loaded.get(model);
+    if (prev?.timer) clearTimeout(prev.timer);
+    const timer = setTimeout(() => void this.unload(model), this.opts.idleMs ?? IDLE_UNLOAD_MS);
+    timer.unref?.();
+    this.loaded.set(model, { embedding: embedding ?? prev?.embedding ?? false, timer });
+  }
+
+  /** Models this service loaded and has not unloaded yet. */
+  loadedModels(): string[] {
+    return [...this.loaded.keys()].sort();
+  }
+
+  /** A slot's model failed. A timeout also starts the slot's cooldown; a skip during the cooldown ('cooldown') changes nothing. */
+  recordFailure(slot: ModelSlotName, reason: string, code?: string): void {
+    if (code === 'cooldown') return;
+    this.failures.set(slot, reason);
+    if (code === 'timeout') this.cooldownUntil.set(slot, this.monoNow() + (this.opts.cooldownMs ?? SLOT_COOLDOWN_MS));
+  }
+
+  clearFailure(slot: ModelSlotName): void {
+    this.failures.delete(slot);
+    this.cooldownUntil.delete(slot);
+  }
+
+  /** Why `slot` is skipped right now (its model timed out less than SLOT_COOLDOWN_MS ago), or undefined. */
+  cooling(slot: ModelSlotName): string | undefined {
+    const until = this.cooldownUntil.get(slot);
+    if (until === undefined) return undefined;
+    if (this.monoNow() >= until) { this.cooldownUntil.delete(slot); return undefined; }
+    return `${this.failures.get(slot) ?? 'timed out'}; skipped for ${Math.ceil((until - this.monoNow()) / 1000)} s`;
+  }
+
+  private monoNow(): number {
+    return this.opts.monoNow?.() ?? performance.now();
+  }
+
+  async unload(model: string): Promise<void> {
+    const e = this.loaded.get(model);
+    if (e?.timer) clearTimeout(e.timer);
+    this.loaded.delete(model);
+    try {
+      await this.local.unload(model, { embedding: e?.embedding ?? false });
+    } catch {
+      /* the server may be gone already */
+    }
+  }
+
+  /** On shutdown: unload everything this service loaded, cancel downloads, stop a server this service started. */
+  async shutdown(): Promise<void> {
+    for (const j of this.jobs.values()) if (j.state === 'running') j.controller.abort();
+    await Promise.all(this.loadedModels().map((m) => this.unload(m)));
+    if (this.server && this.server.exitCode === null) this.server.kill('SIGTERM');
+    this.server = undefined;
+  }
+
+  /** Stop timers without calling anything (Engine.close in tests). */
+  dispose(): void {
+    for (const e of this.loaded.values()) if (e.timer) clearTimeout(e.timer);
+    this.loaded.clear();
+    for (const j of this.jobs.values()) if (j.state === 'running') j.controller.abort();
+  }
+
+  // ---- start ----------------------------------------------------------------------------------
+
+  /**
+   * App start: for each slot on local, make sure Ollama is up (start `ollama serve` when installed but not running),
+   * then load the model with one empty request (keep_alive 30m). Slots on rules or api start nothing.
+   * Returns what was warmed; failures go to the slot's status chip and never throw.
+   */
+  warmSlots(slots: ModelSlots): Promise<Array<{ slot: ModelSlotName; model: string; ok: boolean; reason?: string }>> {
+    // Serialized: slot toggles during a slow start wait for the first warm-up instead of spawning more servers.
+    const run = this.warming.then(() => this.warmNow(slots));
+    this.warming = run.catch(() => undefined);
+    return run;
+  }
+
+  private async warmNow(slots: ModelSlots): Promise<Array<{ slot: ModelSlotName; model: string; ok: boolean; reason?: string }>> {
+    const local = SLOTS.filter((s) => slots[s].provider === 'local');
+    if (!local.length) return [];
+    let d = await this.detect();
+    if (!d.running && d.installed) {
+      // One `ollama serve` per service: reuse a child that is still alive.
+      if (!this.server || this.server.exitCode !== null) this.server = (this.opts.startServer ?? defaultStartServer)();
+      for (let i = 0; i < 20 && !d.running; i++) {
+        await new Promise((r) => { const t = setTimeout(r, 500); t.unref?.(); });
+        d = await this.detect();
+      }
+    }
+    const out: Array<{ slot: ModelSlotName; model: string; ok: boolean; reason?: string }> = [];
+    for (const slot of local) {
+      const model = slots[slot].model ?? DEFAULT_LOCAL_MODELS[slot];
+      if (!d.running) {
+        const reason = d.installed ? 'Ollama did not start' : 'Ollama not installed';
+        this.recordFailure(slot, reason);
+        out.push({ slot, model, ok: false, reason });
+        continue;
+      }
+      try {
+        await this.local.warm(model, DEFAULT_KEEP_ALIVE, { embedding: slot === 'embed' });
+        this.touch(model, slot === 'embed');
+        this.clearFailure(slot);
+        out.push({ slot, model, ok: true });
+      } catch (e) {
+        const reason = e instanceof Error ? e.message : String(e);
+        this.recordFailure(slot, reason);
+        out.push({ slot, model, ok: false, reason });
+      }
+    }
+    return out;
+  }
+
+  // ---- detection, catalog, status ---------------------------------------------------------------
+
+  async detect(): Promise<DetectResult> {
+    this.lastDetect = await this.local.detect();
+    return this.lastDetect;
+  }
+
+  catalogFile(): CatalogFile {
+    const path = this.opts.catalogPath ?? DEFAULT_CATALOG_PATH;
+    if (!existsSync(path)) return { slots: { embed: [], extract: [], phrase: [] } };
+    return JSON.parse(readFileSync(path, 'utf8')) as CatalogFile;
+  }
+
+  catalog(d: DetectResult): Record<ModelSlotName, CatalogEntry[]> {
+    const file = this.catalogFile();
+    const ram = d.totalMemBytes;
+    const entry = (base: Omit<CatalogEntry, 'installed' | 'availability' | 'label'>, fromInstalled = false): CatalogEntry => {
+      const installed = d.models.some((m) => sameModel(m.name, base.model));
+      const availability: CatalogEntry['availability'] = installed ? 'ready'
+        : !d.installed && !d.running ? 'ollama-missing'
+          : base.minRamGb !== undefined && ram !== undefined && base.minRamGb * 1e9 > ram ? 'too-large' : 'not-downloaded';
+      const label = availability === 'ready' ? 'installed · ready'
+        : availability === 'ollama-missing' ? 'Ollama not installed · Install'
+          : availability === 'too-large' ? 'too large for this Mac' : `not downloaded${base.sizeBytes ? ` · ${gb(base.sizeBytes)}` : ''} · Download`;
+      return { ...base, installed, ...(fromInstalled ? { fromInstalled: true } : {}), availability, label };
+    };
+    const out = {} as Record<ModelSlotName, CatalogEntry[]>;
+    for (const slot of SLOTS) {
+      const listed = (file.slots[slot] ?? []).map((e) => entry(e));
+      // Installed models not in the catalog are selectable too (embedding models for embed, completion models otherwise).
+      const extra = d.models
+        .filter((m) => !listed.some((e) => sameModel(e.model, m.name)))
+        .filter((m) => (slot === 'embed' ? m.capabilities.includes('embedding') : m.capabilities.includes('completion') && !m.capabilities.includes('embedding')))
+        .map((m) => entry({ model: m.name.replace(/:latest$/, ''), ...(m.sizeBytes !== undefined ? { sizeBytes: m.sizeBytes } : {}), why: 'Already installed on this Mac.' }, true));
+      out[slot] = [...listed, ...extra];
+    }
+    return out;
+  }
+
+  slotStatus(slot: ModelSlotName, choice: ModelSlots[ModelSlotName], d: DetectResult): SlotStatusView {
+    if (choice.provider === 'rules') return { choice, state: 'off', chip: 'off' };
+    const failure = this.failures.get(slot);
+    if (choice.provider === 'api') {
+      if (this.opts.noApi) return { choice, state: 'failed', chip: `failed: ${NO_API_REASON}`, reason: NO_API_REASON };
+      // No hosted embedding model is wired (D-B2-06): the trigram list is used and the route says so.
+      if (slot === 'embed') return { choice, state: 'failed', chip: `failed: ${NO_HOSTED_EMBED}`, reason: NO_HOSTED_EMBED };
+      const model = choice.model ?? API_DEFAULT_MODELS.anthropic;
+      const vendor: ApiVendor = /^gemini/i.test(model) ? 'gemini' : 'anthropic';
+      if (!this.keys[vendor]) return { choice, state: 'failed', chip: `failed: no ${vendor} key`, reason: `no ${vendor} key` };
+      if (failure) return { choice, state: 'failed', chip: `failed: ${failure}`, reason: failure };
+      return { choice, state: 'ready', chip: 'ready' };
+    }
+    const model = choice.model ?? DEFAULT_LOCAL_MODELS[slot];
+    const job = [...this.jobs.values()].reverse().find((j) => sameModel(j.model, model) && j.state === 'running');
+    if (job) return { choice, state: 'downloading', chip: `downloading ${job.percent ?? 0}%`, percent: job.percent ?? 0 };
+    if (failure) return { choice, state: 'failed', chip: `failed: ${failure}`, reason: failure };
+    if (!d.running) {
+      const reason = d.installed ? 'Ollama not running' : 'Ollama not installed';
+      return { choice, state: 'failed', chip: `failed: ${reason}`, reason };
+    }
+    if (!d.models.some((m) => sameModel(m.name, model))) return { choice, state: 'not-downloaded', chip: 'not downloaded' };
+    return { choice, state: 'ready', chip: 'ready' };
+  }
+
+  async view(slots: ModelSlots): Promise<ModelsView> {
+    const d = await this.detect();
+    return {
+      detection: {
+        installed: d.installed, running: d.running,
+        ...(d.version ? { version: d.version } : {}), ...(d.binaryPath ? { binaryPath: d.binaryPath } : {}),
+        ...(d.freeDiskBytes !== undefined ? { freeDiskBytes: d.freeDiskBytes } : {}), ...(d.totalMemBytes !== undefined ? { totalMemBytes: d.totalMemBytes } : {}),
+        ...(d.note ? { note: d.note } : {}),
+        installedModels: d.models.map((m) => ({ name: m.name, ...(m.sizeBytes !== undefined ? { sizeBytes: m.sizeBytes } : {}), capabilities: m.capabilities })),
+        setup: SETUP,
+      },
+      catalog: this.catalog(d),
+      slots: { embed: this.slotStatus('embed', slots.embed, d), extract: this.slotStatus('extract', slots.extract, d), phrase: this.slotStatus('phrase', slots.phrase, d) },
+      apiKeys: { anthropic: !!this.keys.anthropic, gemini: !!this.keys.gemini },
+    };
+  }
+
+  // ---- downloads --------------------------------------------------------------------------------
+
+  /** Start `ollama pull <model>`; one running job per model (a second click returns the same job). */
+  startPull(model: string): PullJobView {
+    const running = [...this.jobs.values()].find((j) => sameModel(j.model, model) && j.state === 'running');
+    if (running) return publicJob(running);
+    const job: PullJob = { jobId: `pull-${++this.jobSeq}`, model, state: 'running', status: 'starting', startedAt: this.now(), controller: new AbortController() };
+    this.jobs.set(job.jobId, job);
+    this.local.pull(model, (p) => {
+      job.status = p.status;
+      if (p.percent !== undefined) job.percent = p.percent;
+      if (p.completed !== undefined) job.completedBytes = p.completed;
+      if (p.total !== undefined) job.totalBytes = p.total;
+    }, { signal: job.controller.signal }).then(() => {
+      job.state = 'done';
+      job.percent = 100;
+      job.status = 'success';
+      job.finishedAt = this.now();
+      for (const s of SLOTS) if (this.failures.get(s)?.includes(model)) this.clearFailure(s);
+    }, (e: unknown) => {
+      job.state = 'failed';
+      job.error = e instanceof Error ? e.message : String(e);
+      job.finishedAt = this.now();
+    });
+    return publicJob(job);
+  }
+
+  pullJob(id: string): PullJobView | undefined {
+    const j = this.jobs.get(id);
+    return j ? publicJob(j) : undefined;
+  }
+
+  // ---- installing Ollama (only ever from a click) ------------------------------------------------------
+
+  installJob(): InstallJobView {
+    return { ...this.install, log: [...this.install.log] };
+  }
+
+  /**
+   * POST /models/install: `brew install ollama` with its output kept for the panel; afterwards `ollama serve` is
+   * started as a child this service owns (stopped on shutdown). Without Homebrew the job is 'unavailable' and the
+   * panel offers the download page and the commands to copy. A second click while it runs returns the same job.
+   */
+  async startInstall(): Promise<InstallJobView> {
+    if (this.install.state === 'running') return this.installJob();
+    const inst = this.opts.installer ?? brewInstaller;
+    const brew = await inst.brewPath();
+    if (!brew) {
+      this.install = { state: 'unavailable', brew: false, log: [], downloadUrl: OLLAMA_DOWNLOAD_URL, setup: SETUP, error: 'Homebrew was not found' };
+      return this.installJob();
+    }
+    this.install = { state: 'running', brew: true, log: [`$ ${brew} install ollama`], downloadUrl: OLLAMA_DOWNLOAD_URL, setup: SETUP, startedAt: this.now() };
+    const job = this.install;
+    const push = (line: string): void => {
+      job.log.push(line);
+      if (job.log.length > MAX_LOG_LINES) job.log.splice(0, job.log.length - MAX_LOG_LINES);
+    };
+    void inst.run(brew, push).then(() => {
+      job.state = 'done';
+      job.finishedAt = this.now();
+      push('Ollama installed; starting ollama serve.');
+      if (!this.server) this.server = (this.opts.startServer ?? defaultStartServer)();
+    }, (e: unknown) => {
+      job.state = 'failed';
+      job.error = e instanceof Error ? e.message : String(e);
+      job.finishedAt = this.now();
+    });
+    return this.installJob();
+  }
+
+  // ---- api keys (memory only) ---------------------------------------------------------------------
+
+  /** True when hosted models are off for this run (demo:judge). */
+  get noApi(): boolean {
+    return !!this.opts.noApi;
+  }
+
+  setKey(vendor: ApiVendor, key: string): { provider: ApiVendor; present: boolean } {
+    if (this.opts.noApi) return { provider: vendor, present: false };
+    const k = key.trim();
+    if (k) this.keys[vendor] = k;
+    else delete this.keys[vendor];
+    return { provider: vendor, present: !!this.keys[vendor] };
+  }
+
+  hasKey(vendor: ApiVendor): boolean {
+    return !!this.keys[vendor];
+  }
+
+  /** The api provider, enabled only when at least one key is held. Undefined otherwise. */
+  api(): ApiProvider | undefined {
+    if (this.opts.noApi) return undefined;
+    if (!this.keys.anthropic && !this.keys.gemini) return undefined;
+    return new ApiProvider({ enabled: true, keys: { ...this.keys }, ...(this.opts.apiFetch ? { fetch: this.opts.apiFetch } : {}) });
+  }
+
+  async testKey(vendor: ApiVendor, model?: string): Promise<ModelTestResult> {
+    const p = this.api();
+    if (!p || !this.keys[vendor]) return { ok: false, provider: vendor, error: `no ${vendor} key` };
+    try {
+      const r = await p.test(model ?? API_DEFAULT_MODELS[vendor]);
+      return { ok: true, provider: vendor, model: r.model };
+    } catch (e) {
+      return { ok: false, provider: vendor, error: e instanceof Error ? e.message : String(e) };
+    }
+  }
+}
+
+function publicJob(j: PullJob): PullJobView {
+  const { controller: _c, ...view } = j;
+  return { ...view };
+}
+
+function defaultStartServer(): ChildProcess | undefined {
+  try {
+    const child = spawn('ollama', ['serve'], { stdio: 'ignore' });
+    child.on('error', () => {});
+    return child;
+  } catch {
+    return undefined;
+  }
+}

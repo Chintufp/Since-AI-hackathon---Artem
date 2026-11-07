@@ -79,7 +79,16 @@ export function questionView(store: KnowledgeStore, q: QuestionRecord, viewer: P
     deferred: q.status === 'deferred',
     ...(q.deliverAfter && q.status === 'queued' ? { deliverAfter: q.deliverAfter } : {}),
     ...(q.candidate.answerType === 'free-text' ? { answerType: 'free-text' as const } : {}),
+    ...wording(q.candidate),
   };
+}
+
+/** "worded by local model qwen3:8b" when the phrase slot's accepted wording is shown (BUILD_BRIEF 2.3, honesty on screen). */
+function wording(c: QuestionRecord['candidate']): Pick<QuestionView, 'wordedBy' | 'templateText'> {
+  if (c.phrasing?.by !== 'model') return {};
+  const v = c.generatedBy.version;
+  const model = v.includes(':') ? v.slice(v.indexOf(':') + 1) : v;
+  return { wordedBy: `worded by ${c.generatedBy.route === 'api' ? 'hosted' : 'local'} model ${model}`, ...(c.templateText ? { templateText: c.templateText } : {}) };
 }
 
 /** The requester's result: access-filtered by the principal the investigation was started with. */

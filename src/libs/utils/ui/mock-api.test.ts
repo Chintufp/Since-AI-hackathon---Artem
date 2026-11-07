@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMockApi, mockPrincipal } from './mock-api.ts';
+import { createMockApi, createMockFetch, MOCK_BASE_URL, mockPrincipal } from './mock-api.ts';
+import { createApiClient } from './api-client.ts';
 import type { TimelineKind } from '../contracts/views.ts';
 
 const KINDS: TimelineKind[] = ['problem', 'step', 'reported', 'verified', 'unknown'];
@@ -130,4 +131,57 @@ test('B1: the mock serves GET /context with time positions and validAt at the as
   assert.equal(v.assertions[0]!.validFrom.iso, undefined);
   assert.equal(v.assertions[1]!.validAt, false, 'the dated note is not valid before its own time');
   await assert.rejects(api.context({ entity: 'nope' }));
+});
+
+test('the mock implements the B2 model routes and merges a partial models patch per slot', async () => {
+  const api = createMockApi();
+  const s = await api.putSettings({ models: { embed: { provider: 'local', model: 'bge-m3' } } });
+  assert.deepEqual(s.models, { embed: { provider: 'local', model: 'bge-m3' }, extract: { provider: 'rules' }, phrase: { provider: 'rules' } });
+  let v = await api.models();
+  assert.equal(v.slots.embed.chip, 'not downloaded');
+  assert.equal(v.slots.extract.chip, 'off');
+  const job = await api.pullModel('bge-m3');
+  assert.equal((await api.pullJob(job.jobId)).state, 'done');
+  v = await api.models();
+  assert.equal(v.slots.embed.chip, 'ready');
+  assert.equal((await api.testModelKey('anthropic')).ok, false);
+  assert.deepEqual(await api.setModelKey('anthropic', 'k'), { provider: 'anthropic', present: true });
+  assert.equal((await api.testModelKey('anthropic')).ok, true);
+});
+
+test('the mock Models view has sizes, a recommended model, a too-large entry and an install route with a log', async () => {
+  const api = createMockApi();
+  const v = await api.models();
+  const embed = v.catalog.embed.find((e) => e.recommended)!;
+  assert.equal(embed.model, 'bge-m3');
+  assert.ok(embed.sizeBytes && embed.why);
+  const big = v.catalog.phrase.find((e) => e.availability === 'too-large')!;
+  assert.equal(big.label, 'too large for this Mac');
+  assert.ok(big.minRamGb! * 1e9 > v.detection.totalMemBytes!);
+  assert.equal((await api.installJob()).state, 'idle');
+  const j = await api.installOllama();
+  assert.equal(j.state, 'done');
+  assert.ok(j.log.length > 0);
+  assert.deepEqual(j.setup, ['brew install ollama', 'ollama serve', 'ollama pull bge-m3']);
+});
+
+test('the mock matches the service: GET /settings carries the slots, api chips check the model\'s own vendor, and a busy scenario shows downloading and failed chips', async () => {
+  const api = createMockApi();
+  assert.deepEqual((await api.getSettings()).models, { embed: { provider: 'rules' }, extract: { provider: 'rules' }, phrase: { provider: 'rules' } });
+  await api.setModelKey('anthropic', 'k');
+  await api.putSettings({ models: { phrase: { provider: 'api', model: 'gemini-2.5-flash-lite' }, extract: { provider: 'api', model: 'claude-haiku-5-5' }, embed: { provider: 'api' } } });
+  const v = await api.models();
+  assert.equal(v.slots.phrase.chip, 'failed: no gemini key');
+  assert.equal(v.slots.extract.chip, 'ready');
+  assert.equal(v.slots.embed.chip, 'failed: no hosted embedding model; rules used');
+
+  const fetch = createMockFetch({ models: 'busy' });
+  const busy = createApiClient({ baseUrl: MOCK_BASE_URL, fetch, kind: 'mock' });
+  const b = await busy.models();
+  assert.equal(b.slots.embed.chip, 'downloading 42%');
+  assert.equal(b.slots.embed.state, 'downloading');
+  assert.equal(b.slots.phrase.chip, 'failed: phrase: no answer within 20000 ms');
+  assert.equal(b.slots.extract.chip, 'failed: no gemini key');
+  fetch.setModelsScenario('default');
+  assert.deepEqual(Object.values((await busy.models()).slots).map((x) => x.chip), ['off', 'off', 'off']);
 });

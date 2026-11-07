@@ -44,6 +44,34 @@ export interface ListOptions {
   orderBy?: { field: string; direction?: 'asc' | 'desc' };
 }
 
+export type EmbeddingKind = 'evidence' | 'claim' | 'case';
+
+/** One stored vector (r_embedding). Not a JSON record type: vectors are float32 blobs. */
+export interface EmbeddingRow {
+  /** `${kind}:${model}:${refId}` */
+  id: string;
+  kind: EmbeddingKind;
+  /** Evidence id, claim id or case id. */
+  refId: string;
+  model: string;
+  dims: number;
+  /** sha256 hex of the embedded text; an unchanged hash skips the rewrite. */
+  textHash: string;
+  vector: Float32Array;
+  createdSeq: number;
+}
+
+export interface EmbeddingTable {
+  /** Write unless a row with the same (kind, refId, model) has this textHash already. */
+  upsert(row: { kind: EmbeddingKind; refId: string; model: string; textHash: string; vector: Float32Array }): 'written' | 'unchanged';
+  get(kind: EmbeddingKind, refId: string, model: string): EmbeddingRow | undefined;
+  list(kind: EmbeddingKind, model: string): EmbeddingRow[];
+  /** Remove every model's row for one record; returns how many went. */
+  deleteRef(kind: EmbeddingKind, refId: string): number;
+  count(model?: string): number;
+  clear(): void;
+}
+
 /**
  * Storage boundary. The only implementation tonight is SQLite (node:sqlite);
  * the interface stays small so PostgreSQL could replace it.
@@ -59,7 +87,9 @@ export interface KnowledgeStore {
   searchText(types: Array<'evidence' | 'claim' | 'case'>, query: string, limit?: number): Array<{ type: RecordType; id: string; score: number }>;
   /** Run fn atomically. */
   transaction<R>(fn: () => R): R;
-  /** Remove every record (demo reset). */
+  /** Remove every record (demo reset), embeddings included. */
   clear(): void;
+  /** Vector rows (SQLite store and the in-memory test store). Callers check for presence. */
+  readonly embeddings?: EmbeddingTable;
   close(): void;
 }

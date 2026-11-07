@@ -1,0 +1,279 @@
+/**
+ * The phrase slot (BUILD_BRIEF 2.1, 2.4): a model words the one question a gap asks. It wraps the template generator;
+ * the gap, the recipients, the consequences, the dedup key and every gate stay the template's. Only `text` may change,
+ * and only when the model's sentence passes `validatePhrase`; otherwise the template wording is used and the candidate
+ * says why. The model sees only the gap, the case facts the requester may see and the asset.
+ */
+import type { InvestigationState, QuestionCandidate, QuestionGenerator, RouteInfo } from '../contracts/index.ts';
+import { loadCaseFacts, startedBy } from '../investigation/index.ts';
+import { evidenceGate } from '../retrieval/access.ts';
+import { fallbackRoute, SLOT_TIMEOUT_MS, withFallback, type ModelProvider } from '../models/providers/index.ts';
+import { withEvaluative, type PhraseFacts, type TemplateQuestionGenerator } from './generator-templates.ts';
+import type { QuestionContext } from './context.ts';
+
+export const PHRASE_VERSION = 'ollama-phrase@1';
+export const API_PHRASE_VERSION = 'api-phrase@1';
+export const MAX_PHRASE_CHARS = 160;
+export const YES_NO_OPENERS = ['Is', 'Are', 'Was', 'Were', 'Does', 'Did', 'Has', 'Have', 'Can', 'Could', 'Should'];
+
+/** Stems of action words: a phrased question may use one only when the input uses the same stem. */
+const ACTION_STEMS = [
+  'replac', 'swap', 'reboot', 'restart', 'reset', 'reseat', 'power', 'cycl', 'roll', 'revert', 'upgrad', 'downgrad', 'updat', 'install', 'clean',
+  'clear', 'bounc', 'patch', 'flash', 'repair', 'rewir', 'recabl', 'tighten', 'reconfig', 'configur', 'disabl', 'enabl', 'shut', 'unplug', 'plug',
+  'remov', 'chang', 'adjust', 'fix', 'renew', 'reload', 'reinstall', 'rerout', 'splic', 'measur', 'inspect', 'check',
+];
+const STOP = new Set(['the', 'and', 'for', 'with', 'this', 'that', 'there', 'here', 'from', 'than', 'unit', 'was', 'were', 'are', 'has', 'have', 'had', 'its', 'not', 'any', 'all', 'one', 'also', 'into', 'onto', 'after', 'before', 'right', 'earlier', 'case']);
+
+const words = (s: string): string[] => s.match(/[\p{L}\p{N}][\p{L}\p{N}'-]*/gu) ?? [];
+const lower = (s: string): string => s.toLowerCase();
+/** Asset-like ids ("TRN-301", "rtr-117"). */
+const ID_RE = /\b[A-Za-z]{2,6}-\d{1,6}\b/g;
+const numbersIn = (s: string): string[] => (s.replace(ID_RE, ' ').match(/\d+(?:[.,:]\d+)*/g) ?? []);
+const significant = (s: string): string[] => words(lower(s)).filter((w) => w.length >= 3 && !STOP.has(w) && !/^\d/.test(w));
+const stemOf = (w: string): string | undefined => ACTION_STEMS.find((st) => lower(w).startsWith(st));
+
+/**
+ * Words a phrasing may use without finding them in the input (D-B2-56): grammar and a few verbs of plain question
+ * wording. Every other word of the phrasing must match a word of the input (same stem, see `sameWord`).
+ */
+const GLUE = new Set([
+  'a', 'an', 'the', 'and', 'or', 'but', 'so', 'if', 'as', 'at', 'by', 'for', 'from', 'in', 'into', 'of', 'on', 'onto', 'to', 'with', 'about', 'after',
+  'before', 'since', 'than', 'then', 'that', 'this', 'these', 'those', 'there', 'here', 'it', 'its', 'it\'s', 'they', 'them', 'their', 'you', 'your', 'we',
+  'our', 'he', 'she', 'his', 'her', 'who', 'what', 'which', 'when', 'where', 'how', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'do', 'does', 'did',
+  'has', 'have', 'had', 'can', 'could', 'should', 'would', 'will', 'may', 'might', 'any', 'some', 'all', 'also', 'still', 'already', 'same', 'such',
+  'other', 'another', 'just', 'really', 'actually', 'right', 'up', 'out', 'back', 'come', 'came', 'get', 'got', 'go', 'went', 'see', 'seen', 'saw',
+  'look', 'looks', 'seem', 'seems', 'know', 'known', 'far', 'remember', 'sure', 'kind', 'type', 'like', 'one', 'ones', 'case', 'unit', 'units', 'yes',
+]);
+/** Words that turn a question around; one may appear only when the template has it, or the template's yes/no would land on the wrong branch. */
+const NEGATION_RE = /\b(?:not|no|never|none|nothing|nobody|neither|nor|without|cannot)\b|n['\u2019]t\b/gi;
+/** Spelled-out numbers: as digits, a number must come from the input; spelled out, it must too. */
+const NUMBER_WORDS = new Set([
+  'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen',
+  'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety', 'hundred', 'thousand', 'million', 'dozen',
+  'first', 'second', 'third', 'fourth', 'fifth', 'once', 'twice', 'half', 'double', 'single',
+]);
+const stem = (w: string): string => lower(w).replace(/['\u2019]s$/, '').replace(/(?:ing|ed|es|s|ly)$/, '');
+/** Same word up to an English ending: equal stems, a shared five-letter start, or a stem of 3+ letters that starts the other. */
+function sameWord(a: string, b: string): boolean {
+  const x = stem(a), y = stem(b);
+  if (x === y) return true;
+  if (x.length >= 5 && y.length >= 5 && x.slice(0, 5) === y.slice(0, 5)) return true;
+  const [s, l] = x.length <= y.length ? [x, y] : [y, x];
+  return s.length >= 3 && l.startsWith(s);
+}
+
+export interface PhraseCheck {
+  asset: string;
+  /** missing questions: the condition label the question must name. */
+  conditionLabel?: string;
+  /** outcome questions: the action noun and the case label it must name instead of a condition label. */
+  actionNoun?: string;
+  caseLabel?: string;
+  /** Everything the model was given: a phrased question may use only tokens found here. */
+  inputText: string;
+  /** The template's wording, when there is one: the phrasing must name the label with the words the template uses. */
+  templateText?: string;
+}
+
+export type PhraseVerdict = { ok: true } | { ok: false; reason: string };
+
+/**
+ * The text names `label`: every asset-like id in it (that the template names, when there is a template); otherwise its significant words (compared by their first four
+ * letters). With a template, the words the template itself uses for the label are required (a phrasing must name the
+ * condition at least as well as the template); without one, at least half of them.
+ */
+function names(text: string, label: string, template?: string): boolean {
+  const t = lower(text);
+  const ids = label.match(ID_RE) ?? [];
+  if (ids.length) return ids.filter((id) => !template || lower(template).includes(lower(id))).every((id) => t.includes(lower(id)));
+  const sig = [...new Set(significant(label).map((w) => w.slice(0, 4)))];
+  if (sig.length === 0) return t.includes(lower(label.trim()));
+  const have = new Set(words(t).map((w) => w.slice(0, 4)));
+  const inTemplate = template ? new Set(words(lower(template)).map((w) => w.slice(0, 4))) : undefined;
+  const required = inTemplate ? sig.filter((w) => inTemplate.has(w)) : [];
+  if (required.length) return required.every((w) => have.has(w));
+  return sig.filter((w) => have.has(w)).length >= Math.ceil(sig.length / 2);
+}
+
+/**
+ * The phrase validator (also used by B7's kt_propose_question): one sentence ending '?', under 160 characters, a
+ * yes/no opening, naming the asset and the condition label (outcome questions: the action noun and the case label),
+ * and no entity, number or action absent from the input (numbers inside the asset id and input values are allowed).
+ * No negation the template lacks, no spelled-out number the input lacks, and every word that is not grammar
+ * (`GLUE`) must match a word of the input, lowercase names and verbs included (D-B2-56).
+ */
+export function validatePhrase(text: string, check: PhraseCheck): PhraseVerdict {
+  const t = text.trim();
+  if (!t) return { ok: false, reason: 'empty' };
+  if (t.length >= MAX_PHRASE_CHARS) return { ok: false, reason: `${t.length} characters (limit ${MAX_PHRASE_CHARS - 1})` };
+  if (/\n/.test(t)) return { ok: false, reason: 'more than one line' };
+  if (!t.endsWith('?')) return { ok: false, reason: 'does not end with a question mark' };
+  if (t.slice(0, -1).includes('?') || /[.!;]\s+\S/.test(t)) return { ok: false, reason: 'more than one sentence' };
+  if (/[{}]|\bundefined\b|\bnull\b|\s{2,}|\(\s*\)|\s[?.,]/.test(t)) return { ok: false, reason: 'malformed text' };
+  const first = words(t)[0] ?? '';
+  if (!YES_NO_OPENERS.includes(first)) return { ok: false, reason: `"${first}" does not open a yes/no question` };
+  const tpl = check.templateText;
+  if (check.asset && check.asset !== 'this asset' && !names(t, check.asset, tpl)) return { ok: false, reason: `does not name ${check.asset}` };
+  if (check.conditionLabel && !names(t, check.conditionLabel, tpl)) return { ok: false, reason: `does not name the condition "${check.conditionLabel}"` };
+  if (check.actionNoun && !names(t, check.actionNoun, tpl)) return { ok: false, reason: `does not name the action "${check.actionNoun}"` };
+  if (check.caseLabel && !check.conditionLabel && !names(t, check.caseLabel, tpl)) return { ok: false, reason: `does not name the case "${check.caseLabel}"` };
+
+  const input = `${check.inputText} ${check.asset} ${check.conditionLabel ?? ''} ${check.actionNoun ?? ''} ${check.caseLabel ?? ''}`;
+  const inputWords = new Set(words(lower(input)));
+  const inputIds = new Set((input.match(ID_RE) ?? []).map(lower));
+  const inputNums = new Set(numbersIn(input));
+  for (const id of t.match(ID_RE) ?? []) if (!inputIds.has(lower(id))) return { ok: false, reason: `introduces ${id}` };
+  for (const n of numbersIn(t)) if (!inputNums.has(n)) return { ok: false, reason: `introduces the number ${n}` };
+  const ws = words(t);
+  for (let i = 1; i < ws.length; i++) {
+    const w = ws[i]!;
+    if (/^\p{Lu}/u.test(w) && !/\d/.test(w) && !inputWords.has(lower(w))) return { ok: false, reason: `introduces "${w}"` };
+  }
+  const inputStems = new Set([...inputWords].map(stemOf).filter((s): s is string => !!s));
+  for (const w of ws) {
+    const st = stemOf(w);
+    if (st && !inputStems.has(st)) return { ok: false, reason: `introduces the action "${w}"` };
+  }
+  // A negation turns the question around while the template's consequences stay: only as many as the template has.
+  const negs = (x: string): string[] => (x.match(NEGATION_RE) ?? []).map(lower);
+  const tplNegs = tpl !== undefined ? negs(tpl) : negs(check.inputText);
+  const neg = negs(t).find((n) => !tplNegs.includes(n));
+  if (neg || negs(t).length > tplNegs.length) return { ok: false, reason: `adds the negation "${neg ?? negs(t)[0]}"` };
+  // Every other word must come from the input: lowercase names, places, parts and actions too.
+  const pool = [...inputWords];
+  for (const w of ws.slice(1)) {
+    const lw = lower(w);
+    if (/\d/.test(lw) || /n['\u2019]t$/.test(lw)) continue;
+    if (NUMBER_WORDS.has(lw)) { if (!inputWords.has(lw)) return { ok: false, reason: `introduces the number "${w}"` }; continue; }
+    if (GLUE.has(lw) || negs(lw).length) continue;
+    if (!pool.some((p) => sameWord(lw, p))) return { ok: false, reason: stemOf(lw) ? `introduces the action "${w}"` : `introduces "${w}"` };
+  }
+  return { ok: true };
+}
+
+export interface PhrasedGeneratorOptions {
+  inner: TemplateQuestionGenerator;
+  ctx: QuestionContext;
+  provider: Pick<ModelProvider, 'kind' | 'generateJson'>;
+  model: string;
+  route?: RouteInfo;
+  /** The phrase budget of this generator's life (one request): every generate() shares it; default the slot's 20 s. */
+  timeoutMs?: number;
+  onFailure?: (reason: string, code?: string) => void;
+  /** A reason to skip the model now (the slot is cooling down after a timeout); the template wording stays, labelled 'cooldown'. */
+  skip?: () => string | undefined;
+  /** Monotonic milliseconds (tests); default performance.now(). */
+  monoNow?: () => number;
+}
+
+const PHRASE_SCHEMA = { type: 'object', properties: { question: { type: 'string' } }, required: ['question'], additionalProperties: false } as const;
+
+export function phraseRoute(kind: 'local' | 'api', model: string): RouteInfo {
+  return kind === 'api' ? { route: 'api', version: `${API_PHRASE_VERSION}:${model}` } : { route: 'local', version: `${PHRASE_VERSION}:${model}` };
+}
+
+/** The phrase prompt: gap, visible case facts, asset, and the template sentence to reword. */
+export function buildPhrasePrompt(f: PhraseFacts, caseFacts: string): string {
+  return [
+    'Reword one question to a field engineer so it reads naturally. Output JSON {"question": "..."} only.',
+    'Rules: one sentence, a yes/no question starting with Is, Are, Was, Were, Does, Did, Has, Have, Can, Could or Should, under 150 characters.',
+    `It must name ${f.asset}${f.conditionLabel ? ` and "${f.conditionLabel}"` : ''}${f.actionNoun ? ` and ${f.actionNoun} on ${f.caseLabel}` : ''}.`,
+    'Use only names, numbers and actions that appear below. Never add a person, a part, a date or an action.',
+    '',
+    `Gap: ${f.gapDescription}`,
+    `What the answer changes: ${f.whatAnswerChanges}`,
+    `Asset: ${f.asset}`,
+    `Earlier case: ${f.caseLabel}`,
+    caseFacts ? `What the asker may see of that case:\n${caseFacts}` : '',
+    `Question to reword: ${f.templateText}`,
+  ].filter((l) => l !== '').join('\n');
+}
+
+/**
+ * Only quick yes/no questions of the investigation kinds are phrased. B1's standing kinds (missing-symptom asks for
+ * free text, pairing names two cases) keep the template wording, so the validator's yes/no rules never meet them.
+ */
+function phraseable(candidate: QuestionCandidate, facts: PhraseFacts): boolean {
+  return candidate.kind === 'quick' && candidate.answerType !== 'free-text' && (facts.kind === 'missing' || facts.kind === 'outcome');
+}
+
+/**
+ * Wraps the template generator. For each quick candidate, asks the phrase model for one sentence; accepts it only
+ * through `validatePhrase`; on a rejection, an error or the 20 s deadline the template text stays and the candidate
+ * says so. `generatedBy` becomes the phrase route only when the model's sentence was accepted.
+ */
+export class PhrasedQuestionGenerator implements QuestionGenerator {
+  private readonly o: PhrasedGeneratorOptions;
+  private readonly modelRoute: RouteInfo;
+  private last: RouteInfo;
+  private spentMs = 0;
+
+  constructor(o: PhrasedGeneratorOptions) {
+    this.o = o;
+    this.modelRoute = o.route ?? phraseRoute(o.provider.kind, o.model);
+    this.last = o.inner.route;
+  }
+
+  /** The route of the last generate(): the phrase route when any wording was accepted, else the templates (marked when the model failed). */
+  get route(): RouteInfo {
+    return this.last;
+  }
+
+  async generate(state: InvestigationState, maxCandidates: number): Promise<QuestionCandidate[]> {
+    const detailed = await this.o.inner.generateDetailed(state, maxCandidates);
+    // One phrase budget per request (D-B2-57): a second generate() gets what the first left, and a cooling slot is skipped.
+    const mono = this.o.monoNow ?? (() => performance.now());
+    const budget = (this.o.timeoutMs ?? SLOT_TIMEOUT_MS.phrase) - this.spentMs;
+    const skip = this.o.skip?.() ?? (budget <= 0 ? 'the request used up its phrase budget' : undefined);
+    if (skip) {
+      this.last = fallbackRoute(this.o.inner.route, 'phrase', 'cooldown');
+      return withEvaluative(this.o.ctx, detailed.map(({ candidate, facts }) => !phraseable(candidate, facts) ? candidate : { ...candidate, phrasing: { by: 'template' as const, reason: `phrase model skipped: ${skip}` } }));
+    }
+    const t0 = mono();
+    const requester = startedBy(state);
+    const gate = requester ? evidenceGate(this.o.ctx.store, requester) : undefined;
+    let accepted = 0;
+    let failure: string | undefined;
+    const out = await Promise.all(detailed.map(async ({ candidate, facts }) => {
+      if (!phraseable(candidate, facts)) return candidate;
+      const caseFacts = this.visibleFacts(facts.caseId, state.id, gate);
+      const prompt = buildPhrasePrompt(facts, caseFacts);
+      const r = await withFallback('phrase',
+        async () => {
+          const raw = await this.o.provider.generateJson(this.o.model, prompt, PHRASE_SCHEMA as unknown as Record<string, unknown>, { timeoutMs: budget });
+          const q = (raw as { question?: unknown } | null)?.question;
+          if (typeof q !== 'string') throw new Error('no question in the model output');
+          return q.replace(/\s+/g, ' ').trim();
+        },
+        () => undefined,
+        { route: this.modelRoute, rulesRoute: this.o.inner.route, timeoutMs: budget, onFailure: (_s, reason, code) => { failure = code; this.o.onFailure?.(reason, code); } });
+      if (r.value === undefined) return { ...candidate, phrasing: { by: 'template' as const, reason: `phrase model failed: ${r.fallback?.reason ?? 'unknown'}` } };
+      const verdict = validatePhrase(r.value, {
+        asset: facts.asset, ...(facts.conditionLabel ? { conditionLabel: facts.conditionLabel } : {}),
+        ...(facts.actionNoun ? { actionNoun: facts.actionNoun, caseLabel: facts.caseLabel } : {}),
+        inputText: [facts.gapDescription, facts.whatAnswerChanges, facts.caseLabel, caseFacts, facts.templateText, facts.problemText].join('\n'), templateText: facts.templateText,
+      });
+      if (!verdict.ok) return { ...candidate, phrasing: { by: 'template' as const, reason: `model wording rejected: ${verdict.reason}` } };
+      // The model returned the template's own sentence: nothing was worded by it, so the card must not say so.
+      if (r.value.toLowerCase() === candidate.text.replace(/\s+/g, ' ').trim().toLowerCase()) return { ...candidate, phrasing: { by: 'template' as const, reason: 'the model kept the template wording' } };
+      accepted++;
+      return { ...candidate, text: r.value, templateText: candidate.text, generatedBy: { route: this.modelRoute.route, version: this.modelRoute.version }, phrasing: { by: 'model' as const } };
+    }));
+    this.spentMs += mono() - t0;
+    this.last = accepted ? this.modelRoute : failure ? fallbackRoute(this.o.inner.route, 'phrase', failure) : this.o.inner.route;
+    return withEvaluative(this.o.ctx, out);
+  }
+
+  /** The case facts the requester may see, as short lines: conditions, causes, advice, attempts, outcomes. */
+  private visibleFacts(caseId: string, investigationId: string, gate: ReturnType<typeof evidenceGate> | undefined): string {
+    const f = loadCaseFacts(this.o.ctx.store, caseId, investigationId, this.o.ctx.settings, gate);
+    const lines = [
+      ...(f.case?.conditions ?? []).map((c) => `condition: ${c.label ?? c.key}${c.value !== undefined && !(c.label ?? '').includes(String(c.value)) ? ` = ${String(c.value)}` : ''}`),
+      ...f.hypothesisClaims.map((c) => `possible cause: ${c.statement}`),
+      ...f.adviceClaims.map((c) => `advice: ${c.statement}`),
+      ...f.attempts.map((a) => `attempt: ${a.action}${a.performedBy ? ` by ${a.performedBy.displayName}` : ''}`),
+      ...f.outcomes.map((o) => `outcome: ${o.result}`),
+    ];
+    return [...new Set(lines)].slice(0, 16).join('\n');
+  }
+}

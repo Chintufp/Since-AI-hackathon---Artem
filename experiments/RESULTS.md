@@ -454,6 +454,176 @@ Daily limit {1,3,5} x cooldown {0,30} minutes. Family arm: train families, probl
 - demo: confusion (seed 1) TP 24 FP 7 FN 0 TN 1; predicted useful 31/32; beats the majority class by 1 example(s) of 32. n=32, positives 24, accuracy 0.781/0.781/0.781 (seeds 1/2/3), majority 0.750, precision 0.774/0.774/0.774, recall 1.000/1.000/1.000
 - train: confusion (seed 1) TP 51 FP 0 FN 0 TN 15; predicted useful 51/66; beats the majority class by 15 example(s) of 66. n=66, positives 51, accuracy 1.000/1.000/1.000 (seeds 1/2/3), majority 0.773, precision 1.000/1.000/1.000, recall 1.000/1.000/1.000
 
+## E08 - retrieval with a local embedding model (bge-m3)
+
+**Hypothesis.** A local embedding model (bge-m3) finds the relevant case by meaning: the fusion with bge-m3 in place of the trigram list keeps recall@3 and the lookalike rejection of the shipped hybrid on the hash-locked splits, and finds the judge's paraphrased problem that the lexical lists miss.
+
+Same cases and access filters; only the retriever changes. The embedding arms replay bge-m3 vectors recorded once from the local Ollama (`data/replays/e08-bge-m3/`, hash-checked per text). The decision split is validation; demo and train are reported for context. **The test split is not reopened.**
+
+**validation**
+
+| metric | lexical-bm25 | local-trigram | embed-bge-m3 | hybrid-rrf | hybrid+embed-bge-m3 |
+| --- | --- | --- | --- | --- | --- |
+| recall@1 | 0.556 (5/9) | 0.556 (5/9) | 0.556 (5/9) | 0.556 (5/9) | 0.556 (5/9) |
+| recall@3 | 0.778 (7/9) | 0.778 (7/9) | 0.778 (7/9) | 0.778 (7/9) | 0.778 (7/9) |
+| accessible recall@3 | 0.875 (7/8) | 0.875 (7/8) | 0.875 (7/8) | 0.875 (7/8) | 0.875 (7/8) |
+| precision@3 | 0.583 (7/12) | 0.583 (7/12) | 0.583 (7/12) | 0.583 (7/12) | 0.583 (7/12) |
+| lookalike top-1 rate (lower is better) | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) |
+| lookalike rejection rate | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) |
+| recommendation kind accuracy | 0.500 (3/6) | 0.500 (3/6) | 0.500 (3/6) | 0.500 (3/6) | 0.500 (3/6) |
+| embedding fallbacks (count) | n/a | n/a | 0 | n/a | 0 |
+
+**train**
+
+| metric | lexical-bm25 | local-trigram | embed-bge-m3 | hybrid-rrf | hybrid+embed-bge-m3 |
+| --- | --- | --- | --- | --- | --- |
+| recall@1 | 0.667 (12/18) | 0.667 (12/18) | 0.667 (12/18) | 0.667 (12/18) | 0.667 (12/18) |
+| recall@3 | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) |
+| accessible recall@3 | 0.941 (16/17) | 0.941 (16/17) | 0.941 (16/17) | 0.941 (16/17) | 0.941 (16/17) |
+| precision@3 | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) |
+| lookalike top-1 rate (lower is better) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) |
+| lookalike rejection rate | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) |
+| recommendation kind accuracy | 0.250 (3/12) | 0.250 (3/12) | 0.250 (3/12) | 0.250 (3/12) | 0.250 (3/12) |
+| embedding fallbacks (count) | n/a | n/a | 0 | n/a | 0 |
+
+**demo**
+
+| metric | lexical-bm25 | local-trigram | embed-bge-m3 | hybrid-rrf | hybrid+embed-bge-m3 |
+| --- | --- | --- | --- | --- | --- |
+| recall@1 | 0.625 (5/8) | 0.750 (6/8) | 0.750 (6/8) | 0.625 (5/8) | 0.625 (5/8) |
+| recall@3 | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) |
+| accessible recall@3 | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) |
+| precision@3 | 0.667 (8/12) | 0.667 (8/12) | 0.667 (8/12) | 0.667 (8/12) | 0.667 (8/12) |
+| lookalike top-1 rate (lower is better) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) |
+| lookalike rejection rate | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) |
+| recommendation kind accuracy | 0.167 (1/6) | 0.167 (1/6) | 0.167 (1/6) | 0.167 (1/6) | 0.167 (1/6) |
+| embedding fallbacks (count) | n/a | n/a | 0 | n/a | 0 |
+
+**Paraphrase probe on the demo store** (rank of the first case on the target asset among the top 8; `-` = not found). The Elisa files are absent in this checkout, so the target is TRN-117 of optic-forwarding-a, the stand-in for TRN-042.
+
+| paraphrase (target TRN-117) | parsed conditions | lexical-bm25 | local-trigram | embed-bge-m3 | hybrid-rrf | hybrid+embed-bge-m3 |
+| --- | --- | --- | --- | --- | --- | --- |
+| "green light, nothing flowing" | none | - | 5 | 1 | 5 | 1 |
+| "The lamp on the box is green, yet no data gets through to the customer." | none | 3 | 3 | 1 | 3 | 1 |
+| "Everything on the unit looks healthy, but the customer is still getting nothing." | none | 1 | 2 | 3 | 1 | 1 |
+
+**Frozen criterion.** On validation: hybrid+embed recall@3 >= hybrid-rrf recall@3 AND hybrid+embed lookalike-top-1 rate <= hybrid-rrf's -> embed=local may be offered as the opt-in embed slot for the demo; else the embed slot stays rules by default and the result is reported as is. (The default is rules either way; nothing is enabled silently.)
+
+**Outcome.** validation recall@3 hybrid+embed 0.778 (7/9) vs hybrid 0.778 (7/9) -> met; lookalike-top-1 hybrid+embed 0.500 (1/2) vs hybrid 0.500 (1/2) -> met. Paraphrase probe (rank of the target case, - = not in the top 8): "green light, nothing flowing" -> TRN-117 at lexical-bm25 -, local-trigram 5, embed-bge-m3 1, hybrid-rrf 5, hybrid+embed-bge-m3 1; "The lamp on the box is green, yet no data gets through to the customer." -> TRN-117 at lexical-bm25 3, local-trigram 3, embed-bge-m3 1, hybrid-rrf 3, hybrid+embed-bge-m3 1; "Everything on the unit looks healthy, but the customer is still getting nothing." -> TRN-117 at lexical-bm25 1, local-trigram 2, embed-bge-m3 3, hybrid-rrf 1, hybrid+embed-bge-m3 1.
+
+**Shipped choice.** embed=local (bge-m3) is offered as the opt-in embed slot; the default stays rules (hybrid-rrf).
+
+## E09 - extraction with a local schema-constrained model
+
+**Hypothesis.** A local schema-constrained model (qwen3:4b, four few-shot examples, evidence-substring validator) recovers claims the rules extractor misses on the E01 families, and the union commit (rules first, model-only claims labelled with the model's route) raises claim recall without lowering precision or merging cases falsely.
+
+**What the arms are.** `rules-extractor@current` is the real import path (measured). The model arms replay the raw JSON the local model returned per thread (`data/replays/e09-<model>/`, one recording pass, hash-checked on model + prompt + schema + seed; route `replay`): scored directly (E01 converter), committed alone through `commitProposal`, and committed as the union POST /import makes with extract=local (rules first, model-only claims labelled). Train and validation separately, as E01.
+
+Model: `qwen3:4b`.
+
+**train**
+
+| metric | rules-extractor@current | ollama-extract qwen3:4b (direct) | ollama-extract qwen3:4b→commit | rules ∪ qwen3:4b (union commit) |
+| --- | --- | --- | --- | --- |
+| claim precision | 0.552 (32/58) | 0.459 (17/37) | 0.459 (17/37) | 0.440 (33/75) |
+| claim recall | 0.681 (32/47) | 0.362 (17/47) | 0.362 (17/47) | 0.702 (33/47) |
+| action recall | 0.727 (8/11) | 0.727 (8/11) | 0.727 (8/11) | 0.818 (9/11) |
+| outcome recall | 1.000 (9/9) | 0.222 (2/9) | 0.222 (2/9) | 1.000 (9/9) |
+| condition recall | 0.500 (3/6) | 0.000 (0/6) | 0.000 (0/6) | 0.500 (3/6) |
+| entity recall | 0.538 (7/13) | 0.462 (6/13) | 0.462 (6/13) | 0.538 (7/13) |
+| false merge rate | 0.000 (0/7) | 0.000 (0/13) | 0.125 (1/8) | 0.000 (0/7) |
+| false split rate | 0.000 (0/7) | 0.571 (4/7) | 0.286 (2/7) | 0.000 (0/7) |
+| attempt performer error | 0.000 (0/7) | n/a | 0.000 (0/2) | 0.000 (0/7) |
+| outcome reporter error | 0.438 (7/16) | n/a | 0.750 (3/4) | 0.412 (7/17) |
+| claims (count) | 75 | 46 | 46 | 97 |
+| attempts (count) | 9 | 0 | 2 | 9 |
+| outcomes (count) | 16 | 0 | 4 | 17 |
+| threads with unusable model output | n/a | 0 | n/a | n/a |
+| validator drops | n/a | 17 | n/a | n/a |
+| model-only claims committed in the union | n/a | n/a | n/a | 22 |
+| union imports that fell back to rules | n/a | n/a | n/a | 0 |
+
+**validation**
+
+| metric | rules-extractor@current | ollama-extract qwen3:4b (direct) | ollama-extract qwen3:4b→commit | rules ∪ qwen3:4b (union commit) |
+| --- | --- | --- | --- | --- |
+| claim precision | 0.412 (14/34) | 0.429 (6/14) | 0.429 (6/14) | 0.333 (14/42) |
+| claim recall | 0.636 (14/22) | 0.273 (6/22) | 0.273 (6/22) | 0.636 (14/22) |
+| action recall | 1.000 (5/5) | 0.600 (3/5) | 0.600 (3/5) | 1.000 (5/5) |
+| outcome recall | 0.750 (3/4) | 0.000 (0/4) | 0.000 (0/4) | 0.750 (3/4) |
+| condition recall | 1.000 (1/1) | 0.000 (0/1) | 0.000 (0/1) | 1.000 (1/1) |
+| entity recall | 0.500 (3/6) | 0.500 (3/6) | 0.500 (3/6) | 0.500 (3/6) |
+| false merge rate | 0.250 (1/4) | 0.000 (0/8) | 0.200 (1/5) | 0.250 (1/4) |
+| false split rate | 0.000 (0/5) | 0.200 (1/5) | 0.200 (1/5) | 0.000 (0/5) |
+| attempt performer error | 0.000 (0/5) | n/a | n/a | 0.000 (0/5) |
+| outcome reporter error | 0.286 (2/7) | n/a | 1.000 (1/1) | 0.375 (3/8) |
+| claims (count) | 40 | 20 | 20 | 51 |
+| attempts (count) | 5 | 0 | 0 | 5 |
+| outcomes (count) | 7 | 0 | 1 | 8 |
+| threads with unusable model output | n/a | 0 | n/a | n/a |
+| validator drops | n/a | 11 | n/a | n/a |
+| model-only claims committed in the union | n/a | n/a | n/a | 11 |
+| union imports that fell back to rules | n/a | n/a | n/a | 0 |
+
+**What the model found that the rules missed.** 2 truth claims matched by the model arm and missed by the rules (1 of them still counted through the union). Examples:
+
+- config-rollback-private (advice): "Do not roll back N5 units, apply the v7.1 patch that fixes the voice range typo"
+- cabling-pinch (action): "Seppo re-dressed the cabinet cabling and fitted a cable guard at the door edge"
+
+**What the validator dropped.** claim:excerpt-does-not-support 14, claim:excerpt-not-in-evidence 1, claim:unknown-evidence 4, entity:excerpt-not-in-evidence 1, link:person-not-author 2, link:excerpt-not-in-evidence 2, link:unknown-evidence 3, entity:excerpt-does-not-support 1 (list in `results/e09-extraction-model/validator-dropped.json`).
+
+**Latency.** 24 recorded calls, mean 36.5 s, max 86.4 s; 4/24 calls alone exceed the extract slot's 60 s per-import budget; summed per import (one family = one import) 6/6 imports exceed it (bgp-firmware-flaps 153 s, fan-temperature 193 s, config-rollback-private 127 s, cabling-pinch 148 s, weak-mains-psu 131 s, bgp-linecard-private 124 s), so with the live budget those imports fall back to rules.
+
+**Frozen criterion.** Report all four arms side by side per split; no winner is declared (as E01). The rules extractor remains the default extract route regardless of the result; extract=local stays opt-in. List the truth claims the model recovered and the rules missed, and every item the validator dropped.
+
+**Outcome.** train: claim recall rules 0.681 (32/47), direct 0.362 (17/47), commit 0.362 (17/47), union 0.702 (33/47); precision rules 0.552 (32/58), direct 0.459 (17/37), commit 0.459 (17/37), union 0.440 (33/75); false merges rules 0.000 (0/7), direct 0.000 (0/13), commit 0.125 (1/8), union 0.000 (0/7). validation: claim recall rules 0.636 (14/22), direct 0.273 (6/22), commit 0.273 (6/22), union 0.636 (14/22); precision rules 0.412 (14/34), direct 0.429 (6/14), commit 0.429 (6/14), union 0.333 (14/42); false merges rules 0.250 (1/4), direct 0.000 (0/8), commit 0.200 (1/5), union 0.250 (1/4). The model recovered 2 truth claims the rules missed (direct), 1 through the union; 0 threads gave no usable output; the validator dropped 28 items (claim:excerpt-does-not-support 14, claim:excerpt-not-in-evidence 1, claim:unknown-evidence 4, entity:excerpt-not-in-evidence 1, link:person-not-author 2, link:excerpt-not-in-evidence 2, link:unknown-evidence 3, entity:excerpt-does-not-support 1). Recorded latency 24 calls, mean 36.5 s, 4/24 over 60 s.
+
+**Shipped choice.** The rules extractor stays the default extract route; extract=local stays opt-in and commits only as a labelled union.
+
+## E10 - the store metric and the bandit it rewards
+
+**Hypothesis.** A simulated day of questions answered by simulated colleagues raises the store metric (completeness x correctness, BUILD_BRIEF 5.1-5.2) of the demo store, and the LinUCB selector rewarded by the measured delta of that metric minus burden (5.4) gains at least as much per question asked as the rules selector on the same store and the same day.
+
+Simulated: a fresh demo store per run (demo:reset --synthetic), the demo:play day (10 h; train and validation sources arrive, simulated engineers investigate, simulated colleagues answer from a seeded model) driven in-process against the real service. The coordinator measures completeness x correctness of the touched case before and after each answer and rewards the selector with the delta minus burden. Same day for both selectors; 3 seeds.
+
+| metric | rules@store-metric | linucb@store-metric |
+| --- | --- | --- |
+| questions asked (sum over 3 seeds, one simulated day each) | 9 | 9 |
+| answered | 0.556 (5/9) | 0.667 (6/9) |
+| demo cases (before) | 5 | 5 |
+| completeness before | 0.45 | 0.45 |
+| completeness after (same cases) | 0.45 | 0.45 |
+| correctness before | 0.0167 | 0.0167 |
+| correctness after (same cases) | 0.0167 | 0.0167 |
+| supported claims before | 0.017 (3/180) | 0.017 (3/180) |
+| supported claims after (same cases) | 0.017 (3/180) | 0.017 (3/180) |
+| same-case gain (points, mean per seed) | 0 | 0 |
+| questions per point (same cases) | n/a | n/a |
+| measured per-answer deltas (points, sum) | -6.77 | -13.54 |
+| positive per-answer deltas | 0 | 0 |
+| rewards measured | 5 | 6 |
+| mean reward | -0.0215 | -0.0259 |
+| questions per measured point | n/a | n/a |
+
+**Per seed**
+
+| selector | seed | asked | answered | cases before -> after (all) | product before -> after (same cases) | measured delta sum (points) | mean reward | touched cases with no supported claim |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| rules | 1 | 3 | 2 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | -0.01 | 1 |
+| rules | 2 | 3 | 3 | 5 -> 17 | 0.0075 -> 0.0075 | -6.77 | -0.0292 | 2 |
+| rules | 3 | 3 | 0 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | null | 0 |
+| linucb | 1 | 3 | 2 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | 0 | 1 |
+| linucb | 2 | 3 | 3 | 5 -> 17 | 0.0075 -> 0.0075 | -6.77 | -0.0292 | 2 |
+| linucb | 3 | 3 | 1 | 5 -> 17 | 0.0075 -> 0.0075 | -6.77 | -0.0677 | 1 |
+
+**Where the negative deltas come from (probe of seed 2, D-B2-51).** Every non-zero measured delta (-6.77 points) is a "no" answer to an applicability question (missing|unit.model: does the earlier unit share the current unit's model). The coordinator writes it as a contradict update on the case's claim, and store-health counts any contradict update on a claim still cited by a standing recommendation as a contradicted claim, so that case's correctness goes negative. Under the brief's 5.2 wording that is a contradicted claim still cited; the coordinator's own note says the historical claim is unchanged. The metric is left as the brief words it; the reading is open.
+
+**Frozen criterion.** Bandit vs rules: LinUCB is reported as better only if its mean same-case gain per question asked is higher than the rules selector's on at least 2 of 3 seeds; otherwise the rules selector stays the default (it is the default either way until a judge-visible reason exists).
+
+**Outcome.** rules: completeness 0.45 -> 0.45, correctness 0.0167 -> 0.0167 (same 5 cases, mean of 3 seeds); gain 0 points for 9 questions asked over 3 simulated days (one per seed) (n/a questions per point); answered 0.556 (5/9); mean reward -0.0215; measured per-answer deltas sum to -6.77 points (0/5 positive). linucb: completeness 0.45 -> 0.45, correctness 0.0167 -> 0.0167 (same 5 cases, mean of 3 seeds); gain 0 points for 9 questions asked over 3 simulated days (one per seed) (n/a questions per point); answered 0.667 (6/9); mean reward -0.0259; measured per-answer deltas sum to -13.54 points (0/6 positive). LinUCB gains more per question on 0/3 seeds.
+
+**Shipped choice.** The rules selector stays the default; LinUCB did not gain more per question on 2 of 3 seeds.
+
 ## Test split: one-shot confirmation of the E02 and E04 choices
 
 The test families were scored once, at the very end, with the criteria frozen before any scored run. Nothing was tuned afterwards. Recorded separately as `results/e02-test/` and `results/e04-test/`.

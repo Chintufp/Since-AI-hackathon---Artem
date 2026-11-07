@@ -10,6 +10,8 @@ import {
 } from '../investigation/index.ts';
 import { ANSWER_DIFFERS_FROM_CASE, ANSWER_MATCHES_CASE, foldYearToAge } from '../retrieval/conditions.ts';
 import { routeInfo, uniqueRoutes } from '../models/routes.ts';
+
+import { healthProductOrNull, STORE_METRIC_METHOD, storeHealth } from '../memory/store-health.ts';
 import { actionKey, SUPPORT_LEVEL } from '../policies/features.ts';
 import type { QuestionContext } from './context.ts';
 import { evaluateEligibility, PERMANENT_VIOLATIONS } from './eligibility.ts';
@@ -25,6 +27,8 @@ export interface CoordinatorDeps {
   assessor: Assessor;
   directory?: PersonDirectory;
   clock?: () => Date;
+  /** Called after the selector learned from a measured reward (the service persists live LinUCB state here). */
+  onSelectorUpdated?: (selector: Selector) => void;
 }
 
 export interface RequestResult {
@@ -45,6 +49,9 @@ export interface AnswerResult {
 }
 
 const ACTIVE = new Set(['queued', 'delivered']);
+/** Burden weights (BUILD_BRIEF 5.3): per extra question asked today, per other open question, inside quiet hours. */
+export const BURDEN = { askedToday: 0.02, open: 0.02, quiet: 0.05 };
+const round4 = (x: number): number => Math.round(x * 10_000) / 10_000;
 const actorOf = (p: Principal): ActorRef => ({ id: p.id, displayName: p.displayName });
 
 /** Request/answer/lifecycle coordinator for the clarification loop. Hard eligibility is applied here, before selection. */
@@ -327,6 +334,10 @@ export class QuestionCoordinator {
     const gap = state.gaps.find((g) => g.id === q.candidate.gapId);
     const now = this.now().toISOString();
     const answerId = stableId('ans', questionId);
+    // BUILD_BRIEF 5.4: the store metric of the touched cases before the answer is stored, and the recipient's burden now.
+    const touched = parsed ? [parsed.caseId] : q.candidate.scope.caseId ? [q.candidate.scope.caseId] : [];
+    const before = this.measure(touched);
+    const burden = this.burden(q);
     const evText = `Answer "${value}" to: ${q.candidate.text}${text ? ` Note: ${text}` : ''} (answered by ${principal.displayName})`;
     const env = this.evidenceFor(state, principal, 'answer:desktop', answerId, evText, parsed?.caseId, { questionId, value });
     const evRef = { evidenceId: env.id, excerpt: evText.slice(0, 120) };
@@ -367,15 +378,80 @@ export class QuestionCoordinator {
     const ev = this.store.get('evaluation', q.decisionId) as (EvaluationRecord & { id: string }) | undefined;
     if (ev) this.store.put('evaluation', { ...ev, response: { value, latencyMs: Math.max(0, Date.parse(now) - Date.parse(q.deliveredAt ?? q.createdAt)) }, missingFeedback: false });
 
-    const before = state.recommendation;
+    const recBefore = state.recommendation;
     state = await this.rebuild(state.id);
-    const recommendationChanged = before.kind !== state.recommendation.kind || before.text !== state.recommendation.text;
+    const recommendationChanged = recBefore.kind !== state.recommendation.kind || recBefore.text !== state.recommendation.text;
+    // The rebuilt investigation is stored before measuring, so the retrieval weight sees it.
+    this.store.put('investigation', state);
+    const after = this.measure(touched);
+    // Unmeasurable before or after: no reward, the benefit stays null and the selector learns nothing (never a 0).
+    const reward = before === null || after === null ? undefined
+      : this.learn(q.decisionId, updated.id, { method: STORE_METRIC_METHOD, cases: touched, before, after, delta: round4(after - before), burden, value: round4(after - before - burden), at: now });
     const g = state.gaps.find((x) => x.id === q.candidate.gapId);
     if (g?.status === 'resolved' && g.resolvedBy) g.resolvedBy = { ...g.resolvedBy, answerId };
     this.setLoop(state, 'answered', recommendationChanged ? this.d.settings.loopReasons.answered : this.d.settings.loopReasons.answeredNoChange);
     this.store.put('investigation', state);
     const cancelled = await this.cancelObsolete(state.id);
-    return { answer, question: updated, state: this.load(state.id), cancelled, recommendationChanged };
+    const question = reward ? (this.store.get('question', updated.id) ?? updated) : updated;
+    return { answer, question, state: this.load(state.id), cancelled, recommendationChanged };
+  }
+
+  // ---- reward (BUILD_BRIEF 5.4) ----------------------------------------------------------------------
+
+  /** completeness x correctness of `caseIds`, measured from the store at the engine clock; null when it cannot be measured (no case, no case claim). */
+  measure(caseIds: string[]): number | null {
+    if (!caseIds.length) return null;
+    return healthProductOrNull(storeHealth(this.store, undefined, { now: this.now(), caseIds, distinguishingKeys: this.d.settings.distinguishingKeys, outcomeKey: OUTCOME_KEY }));
+  }
+
+  /**
+   * The recipient's burden when answering: questions delivered to them today and their other open questions, plus
+   * a quiet-hours term when the settings carry quiet hours (B1) and it is inside them.
+   */
+  private burden(q: QuestionRecord): number {
+    const b = computeBudget(this.store, q.personEntityId, this.d.settings, this.now(), [q.id]);
+    // Integration (D-INT-06): B1's quiet hours are local wall-clock hours in their time zone, so the term uses B1's inQuiet.
+    const quiet = this.d.settings.coordinator.quietHours;
+    const quietNow = !!quiet && inQuiet(this.now(), quiet);
+    return round4(BURDEN.askedToday * b.askedToday + BURDEN.open * b.openQuestionIds.length + (quietNow ? BURDEN.quiet : 0));
+  }
+
+  /** Write the measured benefit on the evaluation and the question, then let the selector learn from it. */
+  private learn(decisionId: string, questionId: string, reward: NonNullable<QuestionRecord['reward']>, previousValue?: number): QuestionRecord['reward'] {
+    const ev = this.store.get('evaluation', decisionId) as (EvaluationRecord & { id: string }) | undefined;
+    const q = this.store.get('question', questionId);
+    if (!ev || !q) return undefined;
+    const next = this.store.put('evaluation', { ...ev, assessedBenefit: { value: reward.value, method: STORE_METRIC_METHOD } });
+    this.store.put('question', { ...q, reward });
+    // A re-measurement corrects what the selector learned; it is not a second observation of the decision.
+    const sel = this.d.selector;
+    const apply = previousValue === undefined ? (sel.update ? () => sel.update!([next]) : undefined) : (sel.correct ? () => sel.correct!(next, previousValue) : undefined);
+    if (apply) {
+      try {
+        apply();
+        this.d.onSelectorUpdated?.(this.d.selector);
+      } catch {
+        // A selector that cannot learn from this record never breaks an answer.
+      }
+    }
+    return reward;
+  }
+
+  /**
+   * After an outcome report lands, re-measure the cases of this investigation's answered outcome questions and update
+   * the same evaluation record; the selector applies only the change (`Selector.correct`), never a second observation. Returns the questions updated.
+   */
+  rewardOutcome(investigationId: string): QuestionRecord[] {
+    const out: QuestionRecord[] = [];
+    for (const q of questionsForInvestigation(this.store, investigationId)) {
+      if (q.status !== 'answered' || !q.reward || parseGapId(q.candidate.gapId)?.kind !== 'outcome') continue;
+      const after = this.measure(q.reward.cases);
+      if (after === null || after === q.reward.after) continue;
+      const delta = round4(after - q.reward.before);
+      this.learn(q.decisionId, q.id, { ...q.reward, after, delta, value: round4(delta - q.reward.burden), outcomeAt: this.now().toISOString() }, q.reward.value);
+      out.push(this.store.get('question', q.id)!);
+    }
+    return out;
   }
 
   /**

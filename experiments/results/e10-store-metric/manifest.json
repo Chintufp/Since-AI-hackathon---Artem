@@ -1,0 +1,61 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ and people.json of the demo, train and validation families (demo seeded by demo:reset --synthetic, train and validation arriving during the day as demo:play sends them)",
+    "incoming problem text and observations (asked by simulated engineers)",
+    "data/fixtures/dev-family-01"
+  ],
+  "route": "rules",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T17:09:21.171Z",
+  "id": "e10-store-metric",
+  "hypothesis": "A simulated day of questions answered by simulated colleagues raises the store metric (completeness x correctness, BUILD_BRIEF 5.1-5.2) of the demo store, and the LinUCB selector rewarded by the measured delta of that metric minus burden (5.4) gains at least as much per question asked as the rules selector on the same store and the same day.",
+  "splits": [
+    "demo"
+  ],
+  "variants": [
+    {
+      "id": "rules@store-metric",
+      "description": "rules selector (the fixed prior); the coordinator still writes the measured reward",
+      "route": "rules"
+    },
+    {
+      "id": "linucb@store-metric",
+      "description": "LinUCB (alpha 0.5, fresh per seed), updated live after every answer with the store-metric reward",
+      "route": "rules"
+    }
+  ],
+  "config": {
+    "store": "Engine on :memory:, demo:reset --synthetic (the Elisa files are absent here), clock frozen at 2026-11-09T07:00Z and moved only by the simulated day",
+    "day": "simulation/schedule.ts planDay (10 h, seeded) + simulation/runner.ts runDay against the real service through createDispatcher (in-process, no socket); simulated colleagues answer from a seeded model, never from answer keys; no judge prompts",
+    "reward": "QuestionCoordinator.answer: delta of completeness x correctness of the touched case before and after the answer, minus burden (0.02 per question asked today, 0.02 per other open question); selector.update after each answer (store-metric-delta@1)",
+    "metric": "memory/store-health.ts storeHealth over every case (no principal); completenessUnweighted is compared before/after because the weighted mean needs retrievals, which only exist after the day",
+    "questionsPerPoint": "questions asked / (100 x the gain in completenessUnweighted x correctness over the cases that existed before the day); null when there is no gain",
+    "linucbState": "linucbStatePath false (nothing written to data/local)",
+    "familiesSha256": "885928361d0f3da7"
+  },
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "metrics": [
+    "store.completeness.before",
+    "store.completeness.after",
+    "store.correctness.before",
+    "store.correctness.after",
+    "store.product.sameCases.gain",
+    "questions.asked",
+    "questions.answered",
+    "questions.perPointGained",
+    "reward.mean"
+  ],
+  "acceptanceCriteria": [
+    "Report before/after per seed and the mean over 3 seeds, with every denominator (cases, case claims, questions).",
+    "Bandit vs rules: LinUCB is reported as better only if its mean same-case gain per question asked is higher than the rules selector's on at least 2 of 3 seeds; otherwise the rules selector stays the default (it is the default either way until a judge-visible reason exists)."
+  ],
+  "stopRule": "deterministic per seed; 3 seeds; none"
+}

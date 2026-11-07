@@ -1,3 +1,4 @@
+import type { ModelSlots } from './models.ts';
 import type { ActorRef, Condition, Iso } from './common.ts';
 import type { Lasting, OutcomeResult } from './memory.ts';
 import type { EligibleAction } from './questions.ts';
@@ -103,6 +104,8 @@ export interface UserSettings {
   provider: 'local';
   model: string;
   mcp: boolean;
+  /** Model slots (embed / extract / phrase). Absent means every slot on rules. Never holds an API key. */
+  models?: ModelSlots;
 }
 
 export const defaultUserSettings: UserSettings = {

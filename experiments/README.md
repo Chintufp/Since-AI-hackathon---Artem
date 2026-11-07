@@ -14,9 +14,11 @@ Runner skeleton and result conventions for the experiment queue in the technical
 | E05 | Question generation pool size {1,2,4} (template generator) | **done** (a freer structured generator was not built) |
 | E06 | Recipient eligibility: direct-only vs question-dependent | **done** |
 | E07 | Coordinator budgets {1,3,5} x cooldown {0,30} | **done** (family arm and simulator budget layer) |
-| E08 | Prompted LLM vs adapted small transformer outcome assessor | conditional, not run |
-| E09 | Next-choice policy vs sequential RL on multi-step scenarios | conditional, not run |
-| E10 | Optional evaluative preferences and alternate reward/feature designs | conditional, not run |
+| E08 | Retrieval: bge-m3 embeddings vs trigram vs BM25 vs hybrid fusion vs hybrid+embed (demo/train/validation), plus the paraphrased judge problem | **done** (`results/e08-retrieval-embed`, vectors replayed from `data/replays/e08-bge-m3/`; test split not reopened) |
+| E09 | Extraction: local schema-constrained model vs rules on the E01 families, direct, committed alone and through the union commit | **done** with qwen3:4b, the brief's model (`results/e09-extraction-model`, `data/replays/e09-qwen3-4b/`) |
+| E10 | Store metric before/after a simulated day; LinUCB vs rules with the store-metric reward, 3 seeds | **done** (`results/e10-store-metric`; simulated, in-process) |
+
+The earlier placeholder meanings of E08-E10 (outcome-assessor fine-tune, sequential RL, evaluative preferences) were replaced by BUILD_BRIEF 4 B2's definitions.
 
 Read `RESULTS.md` (generated from `results/`) for tables, outcomes against the frozen criteria, failure examples and what the results do not show.
 
@@ -24,8 +26,9 @@ Read `RESULTS.md` (generated from `results/`) for tables, outcomes against the f
 
 ```
 node experiments/run.ts                 list experiments
-node experiments/run.ts all             E00, E01, E02, E04, E03, E05, E06, E07, usefulness, then the report (about 3 s; test split closed)
-node experiments/run.ts e00|e01|e02|e03|e04|e05|e06|e07|usefulness
+node experiments/run.ts all             E00, E01, E02, E04, E03, E05, E06, E07, usefulness, E08, E09, E10, then the report (test split closed)
+node experiments/run.ts e00|e01|e02|e03|e04|e05|e06|e07|usefulness|e08|e09|e10
+node experiments/run.ts e08|e09 --record [--model <m>]   record the model outputs ONCE from the local Ollama (the guard lets 127.0.0.1:11434 through, nothing else); every other run replays them offline
 node experiments/run.ts e00-reference   evaluator sanity references (hand-built from truth; not a system)
 node experiments/run.ts test-final      one-shot test-split confirmation of the E02/E04 choices (refuses to run again)
 node experiments/run.ts report          regenerate RESULTS.md
@@ -42,6 +45,7 @@ node --test 'experiments/**/*.test.ts'  harness, frozen decision rules, simulato
 | `config.ts` | Organization configuration (observability policy for E06), frozen before scoring. |
 | `e01-convert.ts`, `runners-e01.ts`, `e01.test.ts` | E01: replay-id -> stored-evidence mapping, recorded proposals -> `SystemKnowledge` (direct) or a committable proposal, the three-variant runner, tests. The arm is one recorded Claude Sonnet subagent, never the small GPT and never an application route. |
 | `runners-core.ts`, `runners-learning.ts` | E00/E02/E04/test-final and E03/E05/E06/E07/usefulness runners. |
+| `runners-models.ts`, `replay-models.ts`, `models.test.ts` | E08/E09/E10. `replay-models.ts` records model outputs once (`--record`) and replays them hash-checked through `models/replay.ts`; E10 drives the real service in-process (`createDispatcher`, no socket) through the simulated-day machinery (`src/libs/utils/simulation`). |
 | `report.ts` | Generates `RESULTS.md`. |
 
 ## Results convention

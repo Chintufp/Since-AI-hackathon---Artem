@@ -1,0 +1,115 @@
+[
+  {
+    "text": "green light, nothing flowing",
+    "parsedConditions": [],
+    "target": "TRN-117",
+    "ranks": {
+      "lexical-bm25": null,
+      "local-trigram": 5,
+      "embed-bge-m3": 1,
+      "hybrid-rrf": 5,
+      "hybrid+embed-bge-m3": 1
+    },
+    "top3": {
+      "lexical-bm25": [],
+      "local-trigram": [
+        "RBS-310 · flapping DC low alarms",
+        "RTR-203 · BGP flapping after firmware update",
+        "RBS-310 · dropping off coming back"
+      ],
+      "embed-bge-m3": [
+        "TRN-117 · no traffic after SFP change",
+        "RBS-310 · dropping off coming back",
+        "RTR-117 · BGP flapping after firmware update"
+      ],
+      "hybrid-rrf": [
+        "RBS-310 · flapping DC low alarms",
+        "RTR-203 · BGP flapping after firmware update",
+        "RBS-310 · dropping off coming back"
+      ],
+      "hybrid+embed-bge-m3": [
+        "TRN-117 · no traffic after SFP change",
+        "RBS-310 · dropping off coming back",
+        "RTR-117 · BGP flapping after firmware update"
+      ]
+    }
+  },
+  {
+    "text": "The lamp on the box is green, yet no data gets through to the customer.",
+    "parsedConditions": [],
+    "target": "TRN-117",
+    "ranks": {
+      "lexical-bm25": 3,
+      "local-trigram": 3,
+      "embed-bge-m3": 1,
+      "hybrid-rrf": 3,
+      "hybrid+embed-bge-m3": 1
+    },
+    "top3": {
+      "lexical-bm25": [
+        "RTR-117 · BGP flapping after firmware update",
+        "RBS-310 · dropping off coming back",
+        "TRN-117 · no traffic after SFP change"
+      ],
+      "local-trigram": [
+        "RTR-117 · BGP flapping after firmware update",
+        "RBS-310 · dropping off coming back",
+        "TRN-117 · no traffic after SFP change"
+      ],
+      "embed-bge-m3": [
+        "TRN-117 · no traffic after SFP change",
+        "RBS-310 · dropping off coming back",
+        "RTR-117 · BGP flapping after firmware update"
+      ],
+      "hybrid-rrf": [
+        "RTR-117 · BGP flapping after firmware update",
+        "RBS-310 · dropping off coming back",
+        "TRN-117 · no traffic after SFP change"
+      ],
+      "hybrid+embed-bge-m3": [
+        "TRN-117 · no traffic after SFP change",
+        "RTR-117 · BGP flapping after firmware update",
+        "RBS-310 · dropping off coming back"
+      ]
+    }
+  },
+  {
+    "text": "Everything on the unit looks healthy, but the customer is still getting nothing.",
+    "parsedConditions": [],
+    "target": "TRN-117",
+    "ranks": {
+      "lexical-bm25": 1,
+      "local-trigram": 2,
+      "embed-bge-m3": 3,
+      "hybrid-rrf": 1,
+      "hybrid+embed-bge-m3": 1
+    },
+    "top3": {
+      "lexical-bm25": [
+        "TRN-117 · no traffic after SFP change",
+        "RTR-117 · BGP flapping after firmware update",
+        "RTR-203 · BGP flapping after firmware update"
+      ],
+      "local-trigram": [
+        "RBS-310 · flapping DC low alarms",
+        "TRN-117 · no traffic after SFP change",
+        "RBS-310 · dropping off coming back"
+      ],
+      "embed-bge-m3": [
+        "RBS-310 · dropping off coming back",
+        "RTR-117 · BGP flapping after firmware update",
+        "TRN-117 · no traffic after SFP change"
+      ],
+      "hybrid-rrf": [
+        "TRN-117 · no traffic after SFP change",
+        "RTR-117 · BGP flapping after firmware update",
+        "RBS-310 · dropping off coming back"
+      ],
+      "hybrid+embed-bge-m3": [
+        "TRN-117 · no traffic after SFP change",
+        "RTR-117 · BGP flapping after firmware update",
+        "RBS-310 · dropping off coming back"
+      ]
+    }
+  }
+]

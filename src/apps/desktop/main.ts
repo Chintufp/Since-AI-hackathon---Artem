@@ -7,16 +7,17 @@
  * flags.ts reach the renderer as query params, and the shell (tray away/back, global shortcut, power events,
  * right-click menu, click-through resets) is built by createShell() in window.ts.
  */
-import { app, BrowserWindow, Menu, session } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, safeStorage, session } from 'electron';
 import { spawn } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { getPriority, setPriority } from 'node:os';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/service.ts';
 import { allowServiceCors, createCompanionWindow, createShell, handleMouseIgnore } from './window.ts';
 import type { Shell } from './window.ts';
-import { appMenuTemplate, columnIgnoredEnv, flagsFromEnv, flagsToQuery, restoreDefaultPriority } from './flags.ts';
+import { appMenuTemplate, columnIgnoredEnv, flagsFromEnv, flagsToQuery, IPC, restoreDefaultPriority } from './flags.ts';
+import { createKeychain, KEY_FILE, parseKeyPayload, sendKeyToService, type Keychain } from './keychain.ts';
 
 const OPEN_ON_LAUNCH = false;
 const HEALTH_TIMEOUT_MS = 10000;
@@ -69,6 +70,44 @@ async function ensureService(): Promise<boolean> {
   return false;
 }
 
+/**
+ * B2: api keys. Encrypted with safeStorage into appData/<app name>/model-keys.json (never the repo or data/, also under demo:judge), handed to the
+ * service in memory on save and after the service is up. Only the validated `{vendor, key}` crosses the IPC.
+ */
+function keychain(): Keychain {
+  // appData/<app name> is the default userData; demo:judge's --user-data-dir (under the repo's data/) does not move it.
+  const dir = join(app.getPath('appData'), app.getName());
+  const file = join(dir, KEY_FILE);
+  return createKeychain(safeStorage, {
+    read: () => (existsSync(file) ? readFileSync(file, 'utf8') : undefined),
+    write: (text) => { mkdirSync(dir, { recursive: true }); writeFileSync(file, text, { mode: 0o600 }); },
+  });
+}
+
+function handleKeys(): void {
+  ipcMain.handle(IPC.keySave, async (_event, payload: unknown) => {
+    const p = parseKeyPayload(payload);
+    if (!p) throw new Error('invalid key payload');
+    const { stored } = p.key ? keychain().save(p.vendor, p.key) : keychain().forget(p.vendor);
+    if (mock) return { present: !!p.key, stored };
+    const r = await sendKeyToService(serviceUrl, p.vendor, p.key);
+    return { present: r.present, stored };
+  });
+}
+
+/** A freshly started service holds no key: give it the stored ones (memory only on its side). */
+async function restoreKeys(): Promise<void> {
+  // demo:judge (KT_NO_API=1): hosted models stay off, so no stored key reaches the service.
+  if (process.env.KT_NO_API === '1') return;
+  for (const { vendor, key } of keychain().load()) {
+    try {
+      await sendKeyToService(serviceUrl, vendor, key);
+    } catch {
+      console.error(`[desktop] could not hand the ${vendor} key to the service`);
+    }
+  }
+}
+
 async function resetDemo(): Promise<void> {
   if (mock) return;
   try {
@@ -97,9 +136,10 @@ else {
     }
     // desktop (shell-08): no default menu (Cmd+W would close the only window and quit, Cmd+R reload mid-state).
     Menu.setApplicationMenu(Menu.buildFromTemplate(appMenuTemplate(process.platform === 'darwin')));
+    handleKeys();
     if (!mock) {
       allowServiceCors(session.defaultSession, serviceUrl);
-      void ensureService();
+      void ensureService().then((up) => (up ? restoreKeys() : undefined));
     }
     const query: Record<string, string> = flagsToQuery(flags);
     if (mock) query.mock = '1';

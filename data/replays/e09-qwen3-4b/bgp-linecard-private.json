@@ -1,0 +1,498 @@
+{
+ "id": "generations",
+ "entries": {
+  "qwen3:4b|8d7385cc065dc1e898fab246": {
+   "inputHash": "8528105d6af187795222deed",
+   "outputHash": "2e866fbd9e2f133a3e4e77d6",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "After the 11.2 upgrade the BGP sessions and the LC-2 line card ports were flapping.",
+       "subjectEntityNames": [
+        "BGP sessions",
+        "LC-2 line card ports"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_d678dea1e8922e8b6af4",
+         "excerpt": "After the 11.2 upgrade the BGP sessions and the LC-2 line card ports were flapping."
+        }
+       ],
+       "assertedByActorId": "person:email:ville laakso"
+      },
+      {
+       "type": "action",
+       "statement": "Patch 11.2.1 was installed by Pasi without a reload.",
+       "subjectEntityNames": [
+        "Patch 11.2.1"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_d678dea1e8922e8b6af4",
+         "excerpt": "Patch 11.2.1 was installed by Pasi without a reload"
+        }
+       ],
+       "assertedByActorId": "person:email:ville laakso"
+      },
+      {
+       "type": "outcome",
+       "statement": "The BGP sessions have been clean for two hours.",
+       "subjectEntityNames": [
+        "BGP sessions"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_d678dea1e8922e8b6af4",
+         "excerpt": "Pasi reports the sessions have been clean for two hours."
+        }
+       ],
+       "assertedByActorId": "person:email:ville laakso"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "BGP sessions",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_d678dea1e8922e8b6af4",
+         "excerpt": "After the 11.2 upgrade the BGP sessions and the LC-2 line card ports were flapping."
+        }
+       ]
+      },
+      {
+       "type": "asset",
+       "name": "LC-2 line card ports",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_d678dea1e8922e8b6af4",
+         "excerpt": "After the 11.2 upgrade the BGP sessions and the LC-2 line card ports were flapping."
+        }
+       ]
+      },
+      {
+       "type": "asset",
+       "name": "Patch 11.2.1",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_d678dea1e8922e8b6af4",
+         "excerpt": "Patch 11.2.1 was installed by Pasi without a reload"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:email:ville laakso",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_d678dea1e8922e8b6af4",
+         "excerpt": "After the 11.2 upgrade the BGP sessions and the LC-2 line card ports were flapping."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:email:ville laakso",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_d678dea1e8922e8b6af4",
+         "excerpt": "Pasi reports the sessions have been clean for two hours."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:BGP sessions",
+       "evidenceIds": [
+        "ev_d678dea1e8922e8b6af4"
+       ],
+       "title": "BGP sessions flapping after 11.2 upgrade"
+      },
+      {
+       "key": "asset:LC-2 line card ports",
+       "evidenceIds": [
+        "ev_d678dea1e8922e8b6af4"
+       ],
+       "title": "LC-2 line card ports flapping after 11.2 upgrade"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_d678dea1e8922e8b6af4",
+       "label": "useful",
+       "reason": "Problem description and resolution status."
+      }
+     ]
+    },
+    "ms": 30559
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|9ed9203c71d2b65dcbdcc5b5": {
+   "inputHash": "068494d6d6fbd22e852225c4",
+   "outputHash": "3183d9a3a1019c51a287e23c",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "Ville, PE-05 BGP sessions to both upstreams are flapping since the 11.2 firmware upgrade at 13:50. The line card ports are logging link flaps too.",
+       "subjectEntityNames": [
+        "PE-05",
+        "line card ports"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_b50068f35e20c3834c69",
+         "excerpt": "Ville, PE-05 BGP sessions to both upstreams are flapping since the 11.2 firmware upgrade at 13:50. The line card ports are logging link flaps too."
+        }
+       ],
+       "assertedByActorId": "person:teams:anssi heikura"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "PE-05",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_b50068f35e20c3834c69",
+         "excerpt": "PE-05 BGP sessions"
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "line card ports",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_b50068f35e20c3834c69",
+         "excerpt": "The line card ports are logging link flaps too."
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:teams:anssi heikura",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_b50068f35e20c3834c69",
+         "excerpt": "Ville, PE-05 BGP sessions to both upstreams are flapping since the 11.2 firmware upgrade at 13:50. The line card ports are logging link flaps too."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:PE-05",
+       "evidenceIds": [
+        "ev_b50068f35e20c3834c69"
+       ],
+       "title": "PE-05 BGP sessions flapping since 11.2 firmware upgrade"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_b50068f35e20c3834c69",
+       "label": "useful",
+       "reason": "Initial problem report"
+      }
+     ]
+    },
+    "ms": 20238
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|d05bb65af793bd0291e75acc": {
+   "inputHash": "3c29e0947473e2039f9a197b",
+   "outputHash": "4cf8b379d9ff522f9f75c280",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "PE-05 BGP is going down and up repeatedly since the upgrade.",
+       "subjectEntityNames": [
+        "PE-05"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_69d3ce70abf7a1cc5268",
+         "excerpt": "PE-05 BGP is going down and up repeatedly since the upgrade, I have opened a ticket."
+        }
+       ],
+       "assertedByActorId": "person:slack:U806"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "PE-05",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_69d3ce70abf7a1cc5268",
+         "excerpt": "PE-05 BGP"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:slack:U806",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_69d3ce70abf7a1cc5268",
+         "excerpt": "PE-05 BGP is going down and up repeatedly since the upgrade"
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:PE-05",
+       "evidenceIds": [
+        "ev_69d3ce70abf7a1cc5268"
+       ],
+       "title": "PE-05 BGP down and up repeatedly since upgrade"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_69d3ce70abf7a1cc5268",
+       "label": "useful",
+       "reason": "Symptom of BGP instability after upgrade."
+      }
+     ]
+    },
+    "ms": 14050
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|da59aabc57ef99fcec3c9482": {
+   "inputHash": "7bde0da8f21b5f74e00d7b67",
+   "outputHash": "f8e21f8255cf94244a5ba4e3",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "PE-09 is flapping after 11.2 but it has LC-3, so 11.1.1 should not be the answer.",
+       "subjectEntityNames": [
+        "PE-09"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_1c274327e45048361e04",
+         "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default."
+        }
+       ],
+       "assertedByActorId": "person:slack:U801"
+      },
+      {
+       "type": "action",
+       "statement": "I installed 11.2.1 on PE-09.",
+       "subjectEntityNames": [
+        "11.2.1"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_6458e2e0ddced6234d72",
+         "excerpt": "I installed 11.2.1 on PE-09 anyway. No change."
+        }
+       ],
+       "assertedByActorId": "person:slack:U802"
+      },
+      {
+       "type": "observation",
+       "statement": "Vendor workaround: set the BFD interval to 300 ms on the affected sessions and it holds.",
+       "subjectEntityNames": [
+        "BFD"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_12bac89aebea13d9ee36",
+         "excerpt": "Vendor workaround: set the BFD interval to 300 ms on the affected sessions and it holds."
+        }
+       ],
+       "assertedByActorId": "person:slack:U801"
+      },
+      {
+       "type": "action",
+       "statement": "BFD interval raised on PE-09.",
+       "subjectEntityNames": [
+        "BFD"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_599987303fcdcdf322fc",
+         "excerpt": "BFD interval raised on PE-09, the sessions are stable."
+        }
+       ],
+       "assertedByActorId": "person:slack:U802"
+      },
+      {
+       "type": "outcome",
+       "statement": "The sessions are stable after the BFD interval raise.",
+       "subjectEntityNames": [
+        "PE-09"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_599987303fcdcdf3322fc",
+         "excerpt": "BFD interval raised on PE-09, the sessions are stable."
+        }
+       ],
+       "assertedByActorId": "person:slack:U802"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "PE-09",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_1c274327e45048361e04",
+         "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer."
+        }
+       ]
+      },
+      {
+       "type": "software",
+       "name": "11.2.1",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_6458e2e0ddced6234d72",
+         "excerpt": "I installed 11.2.1 on PE-09 anyway."
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "BFD",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_12bac89aebea13d9ee36",
+         "excerpt": "set the BFD interval to 300 ms on the affected sessions"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:slack:U801",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_1c274327e45048361e04",
+         "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:slack:U802",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_6458e2e0ddced6234d72",
+         "excerpt": "I installed 11.2.1 on PE-09 anyway."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:slack:U801",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_12bac89aebea13d9ee36",
+         "excerpt": "Vendor workaround: set the BFD interval to 300 ms on the affected sessions and it holds."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:slack:U802",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_599987303fcdcdf322fc",
+         "excerpt": "BFD interval raised on PE-09, the sessions are stable."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:slack:U802",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_599987303fcdcdf322fc",
+         "excerpt": "BFD interval raised on PE-09, the sessions are stable."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:PE-09",
+       "evidenceIds": [
+        "ev_1c274327e45048361e04",
+        "ev_6458e2e0ddced6234d72",
+        "ev_12bac89aebea13d9ee36",
+        "ev_599987303fcdcdf322fc"
+       ],
+       "title": "PE-09 flapping after 11.2.1 installation"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_1c274327e45048361e04",
+       "label": "useful",
+       "reason": "Initial problem description"
+      },
+      {
+       "evidenceId": "ev_6458e2e0ddced6234d72",
+       "label": "useful",
+       "reason": "Action taken and no change"
+      },
+      {
+       "evidenceId": "ev_12bac89aebea13d9ee36",
+       "label": "useful",
+       "reason": "Vendor workaround"
+      },
+      {
+       "evidenceId": "ev_599987303fcdcdf322fc",
+       "label": "useful",
+       "reason": "Stable sessions after action"
+      }
+     ]
+    },
+    "ms": 58833
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  }
+ }
+}

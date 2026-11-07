@@ -1,4 +1,36 @@
-import type { KnowledgeStore, ListOptions, RecordType, RecordTypes } from '../../contracts/index.ts';
+import type { EmbeddingKind, EmbeddingRow, EmbeddingTable, KnowledgeStore, ListOptions, RecordType, RecordTypes } from '../../contracts/index.ts';
+
+/** Map-backed mirror of the SQLite r_embedding table (same keys and 'unchanged' rule), so embed=local works on this store too. */
+export class InMemoryEmbeddings implements EmbeddingTable {
+  private rows = new Map<string, EmbeddingRow>();
+  private seq = 0;
+  private key = (kind: EmbeddingKind, refId: string, model: string): string => `${kind}:${model}:${refId}`;
+  upsert(row: { kind: EmbeddingKind; refId: string; model: string; textHash: string; vector: Float32Array }): 'written' | 'unchanged' {
+    const id = this.key(row.kind, row.refId, row.model);
+    const prev = this.rows.get(id);
+    if (prev?.textHash === row.textHash) return 'unchanged';
+    this.rows.set(id, { id, kind: row.kind, refId: row.refId, model: row.model, dims: row.vector.length, textHash: row.textHash, vector: Float32Array.from(row.vector), createdSeq: prev?.createdSeq ?? ++this.seq });
+    return 'written';
+  }
+  get(kind: EmbeddingKind, refId: string, model: string): EmbeddingRow | undefined {
+    const r = this.rows.get(this.key(kind, refId, model));
+    return r ? { ...r, vector: Float32Array.from(r.vector) } : undefined;
+  }
+  list(kind: EmbeddingKind, model: string): EmbeddingRow[] {
+    return [...this.rows.values()].filter((r) => r.kind === kind && r.model === model).sort((a, b) => a.createdSeq - b.createdSeq).map((r) => ({ ...r, vector: Float32Array.from(r.vector) }));
+  }
+  deleteRef(kind: EmbeddingKind, refId: string): number {
+    let n = 0;
+    for (const [id, r] of this.rows) if (r.kind === kind && r.refId === refId) { this.rows.delete(id); n++; }
+    return n;
+  }
+  count(model?: string): number {
+    return model === undefined ? this.rows.size : [...this.rows.values()].filter((r) => r.model === model).length;
+  }
+  clear(): void {
+    this.rows.clear();
+  }
+}
 
 const WORD = /[\p{L}\p{N}]+/gu;
 const terms = (s: string): string[] => (s.toLowerCase().match(WORD) ?? []).filter((t) => t.length > 1);
@@ -11,6 +43,7 @@ const terms = (s: string): string[] => (s.toLowerCase().match(WORD) ?? []).filte
  */
 export class InMemoryStore implements KnowledgeStore {
   private tables = new Map<RecordType, Map<string, unknown>>();
+  readonly embeddings: EmbeddingTable = new InMemoryEmbeddings();
 
   private table(type: RecordType): Map<string, unknown> {
     let t = this.tables.get(type);
@@ -102,6 +135,7 @@ export class InMemoryStore implements KnowledgeStore {
 
   clear(): void {
     this.tables.clear();
+    this.embeddings.clear();
   }
 
   close(): void {}

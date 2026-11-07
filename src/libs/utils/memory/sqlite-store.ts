@@ -1,5 +1,5 @@
 import { DatabaseSync } from 'node:sqlite';
-import type { KnowledgeStore, ListOptions, RecordType, RecordTypes } from '../contracts/index.ts';
+import type { EmbeddingKind, EmbeddingRow, EmbeddingTable, KnowledgeStore, ListOptions, RecordType, RecordTypes } from '../contracts/index.ts';
 
 export interface StoreOptions {
   /** Force the lexical fallback even when FTS5 exists (used to test both paths). */
@@ -9,6 +9,63 @@ export interface StoreOptions {
 export interface SqliteKnowledgeStore extends KnowledgeStore {
   /** 'fts5' when FTS5 was available at open, else 'term-overlap' (fraction of query terms found). */
   readonly searchMode: 'fts5' | 'term-overlap';
+  readonly embeddings: EmbeddingTable;
+}
+
+const EMBEDDING_KINDS: EmbeddingKind[] = ['evidence', 'claim', 'case'];
+
+/** r_embedding: beside the r_* JSON tables, not one of them (vectors are float32 blobs). Its own created_seq counter. */
+function embeddingTable(db: DatabaseSync): EmbeddingTable {
+  db.exec(`CREATE TABLE IF NOT EXISTS r_embedding (
+    id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL CHECK (kind IN ('evidence','claim','case')),
+    refId TEXT NOT NULL, model TEXT NOT NULL, dims INTEGER NOT NULL, textHash TEXT NOT NULL,
+    vector BLOB NOT NULL, created_seq INTEGER NOT NULL)`);
+  db.exec('CREATE INDEX IF NOT EXISTS r_embedding_kind_model ON r_embedding(kind, model)');
+  db.exec('CREATE INDEX IF NOT EXISTS r_embedding_ref ON r_embedding(kind, refId)');
+  let seq = (db.prepare('SELECT COALESCE(MAX(created_seq),0) AS m FROM r_embedding').get() as { m: number }).m;
+  const idOf = (kind: string, model: string, refId: string) => `${kind}:${model}:${refId}`;
+  type Raw = { id: string; kind: EmbeddingKind; refId: string; model: string; dims: number; textHash: string; vector: Uint8Array; created_seq: number };
+  const toRow = (r: Raw): EmbeddingRow => {
+    // Copy into an aligned buffer: a blob's byteOffset need not be a multiple of 4.
+    const bytes = new Uint8Array(r.vector);
+    return { id: r.id, kind: r.kind, refId: r.refId, model: r.model, dims: r.dims, textHash: r.textHash, vector: new Float32Array(bytes.buffer, 0, r.dims), createdSeq: r.created_seq };
+  };
+  const sel = db.prepare('SELECT * FROM r_embedding WHERE id = ?');
+  const hashOf = db.prepare('SELECT textHash, created_seq FROM r_embedding WHERE id = ?');
+  const ins = db.prepare(`INSERT INTO r_embedding(id, kind, refId, model, dims, textHash, vector, created_seq) VALUES (?,?,?,?,?,?,?,?)
+    ON CONFLICT(id) DO UPDATE SET dims = excluded.dims, textHash = excluded.textHash, vector = excluded.vector`);
+  const byKindModel = db.prepare('SELECT * FROM r_embedding WHERE kind = ? AND model = ? ORDER BY created_seq');
+  const delRef = db.prepare('DELETE FROM r_embedding WHERE kind = ? AND refId = ?');
+  return {
+    upsert(row) {
+      if (!EMBEDDING_KINDS.includes(row.kind)) throw new Error(`unknown embedding kind: ${row.kind}`);
+      const id = idOf(row.kind, row.model, row.refId);
+      const prev = hashOf.get(id) as { textHash: string; created_seq: number } | undefined;
+      if (prev && prev.textHash === row.textHash) return 'unchanged';
+      const v = row.vector;
+      ins.run(id, row.kind, row.refId, row.model, v.length, row.textHash, new Uint8Array(v.buffer, v.byteOffset, v.byteLength), prev ? prev.created_seq : ++seq);
+      return 'written';
+    },
+    get(kind, refId, model) {
+      const r = sel.get(idOf(kind, model, refId)) as Raw | undefined;
+      return r ? toRow(r) : undefined;
+    },
+    list(kind, model) {
+      return (byKindModel.all(kind, model) as Raw[]).map(toRow);
+    },
+    deleteRef(kind, refId) {
+      return Number(delRef.run(kind, refId).changes);
+    },
+    count(model) {
+      const r = (model === undefined ? db.prepare('SELECT COUNT(*) AS c FROM r_embedding').get() : db.prepare('SELECT COUNT(*) AS c FROM r_embedding WHERE model = ?').get(model)) as { c: number };
+      return r.c;
+    },
+    clear() {
+      db.exec('DELETE FROM r_embedding');
+      seq = 0;
+    },
+  };
 }
 
 const RECORD_TYPES: RecordType[] = [
@@ -79,6 +136,8 @@ export function openStore(path: string | ':memory:', options: StoreOptions = {})
     seq = Math.max(seq, row.m);
   }
 
+  const embeddings = embeddingTable(db);
+
   const stmts = new Map<string, ReturnType<DatabaseSync['prepare']>>();
   const prep = (sql: string) => {
     let s = stmts.get(sql);
@@ -126,6 +185,7 @@ export function openStore(path: string | ':memory:', options: StoreOptions = {})
 
   const store: SqliteKnowledgeStore = {
     searchMode: fts ? 'fts5' : 'term-overlap',
+    embeddings,
     put,
     putMany(type, records) {
       return store.transaction(() => {
@@ -206,6 +266,7 @@ export function openStore(path: string | ':memory:', options: StoreOptions = {})
       for (const t of RECORD_TYPES) db.exec(`DELETE FROM ${tableOf(t)}`);
       db.exec('DELETE FROM search_docs');
       if (fts) db.exec('DELETE FROM search_fts');
+      embeddings.clear();
       seq = 0;
     },
     close() {

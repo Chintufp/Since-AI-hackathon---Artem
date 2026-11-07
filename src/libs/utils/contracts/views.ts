@@ -15,6 +15,8 @@ export interface TimelineNode {
   evidence: EvidenceRef[];
   who?: string;
   when?: string;
+  /** Model provenance of the statements behind this node, e.g. "proposed by local model qwen3:4b, committed by rules". Absent when rules produced all of them. */
+  provenance?: string[];
 }
 
 export interface CaseView {
@@ -48,6 +50,10 @@ export interface QuestionView {
   answerType?: 'yes-no' | 'yes-no-unknown' | 'free-text';
   /** Evaluative: the two compared candidates. */
   compare?: [{ id: string; text: string }, { id: string; text: string }];
+  /** B2: "worded by local model qwen3:8b" when the phrase slot's wording is shown; absent for template wording. */
+  wordedBy?: string;
+  /** B2: the template's wording when a model's wording is shown. */
+  templateText?: string;
 }
 
 export interface PersonView {

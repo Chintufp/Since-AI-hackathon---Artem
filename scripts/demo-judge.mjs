@@ -65,11 +65,26 @@ const healthy = async () => {
   }
 };
 
+// Hosted models are never part of the judge demo (BUILD_BRIEF 2.2): the service and the desktop get KT_NO_API=1.
+process.env.KT_NO_API = '1';
+
 if (await healthy()) {
   log(`a service is already running on ${url}; using it (it will not be stopped at the end)`);
   if (!values['no-reset']) {
     await fetch(url + '/demo/reset', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
     log('demo data reset');
+  }
+  // That service was not started with KT_NO_API: move any slot left on a hosted model back to rules.
+  try {
+    const s = await (await fetch(url + '/settings')).json();
+    const hosted = Object.entries(s.models ?? {}).filter(([, c]) => c && c.provider === 'api').map(([slot]) => slot);
+    if (hosted.length) {
+      const models = Object.fromEntries(hosted.map((slot) => [slot, { provider: 'rules' }]));
+      await fetch(url + '/settings', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ models }) });
+      log(`hosted model slots set back to rules for the judge demo: ${hosted.join(', ')}`);
+    }
+  } catch {
+    log('could not read the running service\'s model slots; check Settings -> Models before the demo');
   }
 } else {
   if (!values['no-reset']) {

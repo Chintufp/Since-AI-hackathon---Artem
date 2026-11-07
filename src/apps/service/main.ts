@@ -42,6 +42,10 @@ const engine = new Engine({
   ...(values['org-policy'] === 'none' || values['standing-gaps'] === 'off' ? {} : { standingGaps: defaultStandingGaps }),
   // The simulated activity stream (scripts/demo-play.ts) writes this file; the service only reads it.
   ...(process.env.KT_ACTIVITY_LOG ? { activityLogPath: process.env.KT_ACTIVITY_LOG } : {}),
+  // Background model work (embedding refresh, warming a slot switched to local). With every slot on rules it does nothing.
+  autoModels: process.env.KT_AUTO_MODELS !== '0',
+  // demo:judge sets KT_NO_API=1: hosted models stay off whatever the stored slot choices say (BUILD_BRIEF 2.2).
+  ...(process.env.KT_NO_API === '1' ? { modelManager: { noApi: true } } : {}),
 });
 if (values.seed) {
   const r = await engine.resetDemo(values.seed as 'elisa' | 'synthetic' | 'empty');
@@ -49,6 +53,13 @@ if (values.seed) {
 }
 const http = await startHttp({ engine, port, host: values.host });
 process.stdout.write(`Knowledge Twin service listening on ${http.url} (db: ${engine.dbPath})\n`);
+// App start: warm every slot set to local (start `ollama serve` if needed); rules/api slots start nothing.
+if (process.env.KT_AUTO_MODELS !== '0') {
+  void engine.models.warmSlots(engine.modelSlots()).then((r) => {
+    for (const w of r) process.stderr.write(`model ${w.slot}=${w.model}: ${w.ok ? 'warm' : `failed: ${w.reason}`}\n`);
+    if (r.some((w) => w.slot === 'embed' && w.ok)) void engine.refreshEmbeddings();
+  });
+}
 
 let closing = false;
 const shutdown = async (signal: string): Promise<void> => {
@@ -56,6 +67,8 @@ const shutdown = async (signal: string): Promise<void> => {
   closing = true;
   process.stderr.write(`${signal}: shutting down\n`);
   await http.close();
+  // Unload every model this service loaded (keep_alive 0) and stop an `ollama serve` it started, then exit.
+  await Promise.race([engine.models.shutdown(), new Promise((r) => setTimeout(r, 3000))]);
   engine.close();
   process.exit(0);
 };

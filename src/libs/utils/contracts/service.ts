@@ -11,6 +11,7 @@ import type { Answer, ContactDraft, PreferenceFeedback, QuestionRecord } from '.
 import type { OutcomeReport, ParticipationBalance, ParticipationOptIn, ParticipationRating, UserSettings } from './outcomes.ts';
 import type { PeopleDirectory } from './scenarios.ts';
 import type { CaseView, ContextAssertionsView, PersonView, QuestionView, ReceiptView, ResultView } from './views.ts';
+import type { ModelSlotName, ModelSlots, SlotChoice } from './models.ts';
 
 export const DEFAULT_SERVICE_PORT = 47831;
 
@@ -50,6 +51,12 @@ export interface ImportResponse {
   people: number;
   /** R46: points awarded by this import to people who take part (evidence they authored that became a claim). */
   points?: Array<{ personEntityId: string; points: number }>;
+  /**
+   * B2: present when the extract slot is on a model. `route` is the model's route, or the rules route marked as a
+   * fallback; `modelClaims` counts claims the model alone proposed (committed by rules); `dropped` counts items the
+   * evidence validator removed (an excerpt that is not in the cited message, an unknown message or person).
+   */
+  extraction?: { route: { route: string; version: string }; modelClaims: number; dropped: number; fallback?: string };
 }
 
 export interface InvestigateRequest {
@@ -120,7 +127,8 @@ export interface ApiRoutes {
   /** Visible organization directory (ids, names, roles, groups, availability); never knowledge or answers. */
   'GET /directory': { res: DirectoryEntry[] };
   'GET /settings': { res: UserSettings };
-  'PUT /settings': { req: Partial<UserSettings>; res: UserSettings };
+  /** `models` is partial: only the slots named change. */
+  'PUT /settings': { req: Omit<Partial<UserSettings>, 'models'> & { models?: Partial<ModelSlots> }; res: UserSettings };
   /** R46: rating among the people who take part. `personEntityId` (must be the caller: `principalId` or the settings' current person) fills `me`. */
   'GET /participation/rating': { query: { personEntityId?: string; principalId?: string }; res: ParticipationRating };
   /** Own balance only: `principalId` (or the settings' current person) must resolve to that person (403 otherwise). */
@@ -139,6 +147,101 @@ export interface ApiRoutes {
   'GET /demo/activity': { query: { since?: number; limit?: number }; res: ActivityView };
   /** Standalone local page (text/html) that polls GET /demo/activity, for a browser tab next to the companion. */
   'GET /demo/activity.html': { res: string };
+  /** Settings -> Models: machine detection, the catalog per slot (merged with installed models) and a status chip per slot. */
+  'GET /models': { res: ModelsView };
+  /** Starts `ollama pull` for one model (only ever from a click); progress by polling GET /models/pull/:id. */
+  'POST /models/pull': { req: { model: string }; res: PullJobView };
+  'GET /models/pull/:id': { res: PullJobView };
+  /** One tiny call to the api provider with the key held in memory; reports the model that answered. */
+  'POST /models/test': { req: { provider: 'anthropic' | 'gemini'; model?: string }; res: ModelTestResult };
+  /** Holds an api key in memory only (never SQLite, data/ or the repo). An empty key forgets it. */
+  'POST /models/key': { req: { provider: 'anthropic' | 'gemini'; key: string }; res: { provider: 'anthropic' | 'gemini'; present: boolean } };
+  /** Installs Ollama with Homebrew (macOS; only ever from a click), with a visible log; 'unavailable' plus the download link when Homebrew is absent. */
+  'POST /models/install': { req: Record<string, never>; res: InstallJobView };
+  'GET /models/install': { res: InstallJobView };
+}
+
+/** The Ollama install started from Settings -> Models. */
+export interface InstallJobView {
+  state: 'idle' | 'running' | 'done' | 'failed' | 'unavailable';
+  /** Homebrew was found (the install runs `brew install ollama`). */
+  brew: boolean;
+  /** The last lines of the installer's output. */
+  log: string[];
+  /** Where to download Ollama by hand. */
+  downloadUrl: string;
+  /** The commands to copy instead. */
+  setup: string[];
+  error?: string;
+  startedAt?: string;
+  finishedAt?: string;
+}
+
+/** One row of the model catalog (data/models/catalog.json), or an installed model that is not in it. */
+export interface CatalogEntry {
+  model: string;
+  recommended?: boolean;
+  sizeBytes?: number;
+  dims?: number;
+  contextTokens?: number;
+  minRamGb?: number;
+  why?: string;
+  /** Found in `ollama list`. */
+  installed: boolean;
+  /** Not in the catalog file: listed because it is installed. */
+  fromInstalled?: boolean;
+  /** 'installed · ready' | 'not downloaded · 1.2 GB' | 'Ollama not installed' | 'too large for this Mac' */
+  availability: 'ready' | 'not-downloaded' | 'ollama-missing' | 'too-large';
+  label: string;
+}
+
+export interface SlotStatusView {
+  choice: SlotChoice;
+  /** off · not downloaded · downloading N% · ready · failed: <reason> */
+  state: 'off' | 'not-downloaded' | 'downloading' | 'ready' | 'failed';
+  chip: string;
+  percent?: number;
+  reason?: string;
+}
+
+export interface ModelsView {
+  detection: {
+    installed: boolean;
+    running: boolean;
+    version?: string;
+    binaryPath?: string;
+    freeDiskBytes?: number;
+    totalMemBytes?: number;
+    note?: string;
+    installedModels: Array<{ name: string; sizeBytes?: number; capabilities: string[] }>;
+    /** How to set Ollama up by hand (shown when it is missing). */
+    setup: string[];
+  };
+  catalog: Record<ModelSlotName, CatalogEntry[]>;
+  slots: Record<ModelSlotName, SlotStatusView>;
+  /** Which api vendors have a key in memory (never the key). */
+  apiKeys: { anthropic: boolean; gemini: boolean };
+}
+
+export interface PullJobView {
+  jobId: string;
+  model: string;
+  state: 'running' | 'done' | 'failed';
+  status: string;
+  percent?: number;
+  completedBytes?: number;
+  totalBytes?: number;
+  error?: string;
+  startedAt: string;
+  finishedAt?: string;
+}
+
+export interface ModelTestResult {
+  ok: boolean;
+  provider: 'anthropic' | 'gemini';
+  /** The model that answered (as the provider names it). */
+  model?: string;
+  error?: string;
 }
 
 export interface DemoClockView {

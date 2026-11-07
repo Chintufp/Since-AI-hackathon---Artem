@@ -5,11 +5,11 @@
  * the R28 420 px column); the shell (tray, global shortcut, power events, context menu) lives here too so it
  * can be exercised without booting main.ts.
  */
-import { app, BrowserWindow, globalShortcut, ipcMain, Menu, powerMonitor, screen, Tray } from 'electron';
+import { app, BrowserWindow, globalShortcut, ipcMain, Menu, powerMonitor, screen, shell, Tray } from 'electron';
 import type { IpcMainEvent, Rectangle, Session } from 'electron';
 import { join } from 'node:path';
 import { createTrayIcon } from './tray-icon.ts';
-import { awayEnabled, boundsFor, COLUMN, createReloadGate, flagsFromEnv, IPC, isShellCommand, menuTemplate, normaliseState, sameRect, SHORTCUT_ACCELERATOR, trayTitle } from './flags.ts';
+import { awayEnabled, boundsFor, COLUMN, createReloadGate, flagsFromEnv, IPC, isAllowedExternal, isShellCommand, menuTemplate, normaliseState, sameRect, SHORTCUT_ACCELERATOR, trayTitle } from './flags.ts';
 import type { Area, DesktopFlags, PowerEvent, ShellCommand, ShellState, WindowMode } from './flags.ts';
 
 /**
@@ -152,7 +152,11 @@ export function createCompanionWindow(options: CompanionWindowOptions): BrowserW
   // desktop (shell-13): the preload bridge must never reach another page (a file dropped outside the card would
   // otherwise navigate the window to it); no new windows either.
   win.webContents.on('will-navigate', (e) => e.preventDefault());
-  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  // Nothing opens inside the app; the key pages and the Ollama download page (allowlist) open in the system browser.
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (isAllowedExternal(url)) void shell.openExternal(url);
+    return { action: 'deny' };
+  });
   win.on('unresponsive', () => forceClickThrough(win));
   win.on('blur', () => forceClickThrough(win));
   win.on('closed', () => {

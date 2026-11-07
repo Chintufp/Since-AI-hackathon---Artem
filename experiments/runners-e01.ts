@@ -37,7 +37,7 @@ type VariantKey = keyof typeof E01_VARIANTS;
 const KEYS: VariantKey[] = ['rules', 'arm', 'commit'];
 const SPLITS: Array<'train' | 'validation'> = ['train', 'validation'];
 
-const E01_METRICS = [
+export const E01_METRICS = [
   'claims.all.precision', 'claims.all.recall', 'claims.observation.recall', 'claims.hypothesis.recall', 'claims.advice.recall', 'claims.action.recall', 'claims.outcome.recall', 'claims.condition.recall',
   'entities.recall', 'cases.falseMergeRate', 'cases.falseSplitRate', 'attribution.claimPersonErrorRate', 'attribution.firsthandLinkErrorRate', 'attribution.attemptPerformerErrorRate',
   'attribution.attemptPerformedStateErrorRate', 'attribution.outcomeReporterErrorRate', 'copies.overcountRate', 'copies.overcountRate.noLineage', 'usefulness.accuracy',

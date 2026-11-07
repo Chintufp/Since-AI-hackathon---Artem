@@ -1,0 +1,11 @@
+{
+  "experiment": "E09",
+  "hypothesis": "A local schema-constrained model (qwen3:4b, four few-shot examples, evidence-substring validator) recovers claims the rules extractor misses on the E01 families, and the union commit (rules first, model-only claims labelled with the model's route) raises claim recall without lowering precision or merging cases falsely.",
+  "criterion": "Report all four arms side by side per split; no winner is declared (as E01). The rules extractor remains the default extract route regardless of the result; extract=local stays opt-in. List the truth claims the model recovered and the rules missed, and every item the validator dropped.",
+  "outcome": "train: claim recall rules 0.681 (32/47), direct 0.362 (17/47), commit 0.362 (17/47), union 0.702 (33/47); precision rules 0.552 (32/58), direct 0.459 (17/37), commit 0.459 (17/37), union 0.440 (33/75); false merges rules 0.000 (0/7), direct 0.000 (0/13), commit 0.125 (1/8), union 0.000 (0/7). validation: claim recall rules 0.636 (14/22), direct 0.273 (6/22), commit 0.273 (6/22), union 0.636 (14/22); precision rules 0.412 (14/34), direct 0.429 (6/14), commit 0.429 (6/14), union 0.333 (14/42); false merges rules 0.250 (1/4), direct 0.000 (0/8), commit 0.200 (1/5), union 0.250 (1/4). The model recovered 2 truth claims the rules missed (direct), 1 through the union; 0 threads gave no usable output; the validator dropped 28 items (claim:excerpt-does-not-support 14, claim:excerpt-not-in-evidence 1, claim:unknown-evidence 4, entity:excerpt-not-in-evidence 1, link:person-not-author 2, link:excerpt-not-in-evidence 2, link:unknown-evidence 3, entity:excerpt-does-not-support 1). Recorded latency 24 calls, mean 36.5 s, 4/24 over 60 s.",
+  "shipped": "The rules extractor stays the default extract route; extract=local stays opt-in and commits only as a labelled union.",
+  "detail": {
+    "model": "qwen3:4b",
+    "fixtures": "6"
+  }
+}

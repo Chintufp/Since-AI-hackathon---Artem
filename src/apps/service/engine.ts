@@ -2,21 +2,26 @@
  * The engine: one set of typed functions mirroring ApiRoutes. The HTTP server and the MCP server are thin adapters over
  * this class, so permissions, question limits, ids and trace events behave identically for every caller.
  */
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type {
   AccessScope, Answer, ApiRoutes, CaseView, Condition, ConnectionCard, ContactDraft, ContactDraftRequest, CoordinatorSettings, ImportRequest, ImportResponse,
   InvestigateRequest, InvestigationState, KnowledgeStore, ObservationRequest, OutcomeReport, OutcomeRequest, ParticipationBalance, ParticipationOptIn, ParticipationRating, PeopleDirectory,
-  PersonView, PreferenceFeedback, Principal, Problem, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
-import { defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
+  PersonView, PreferenceFeedback, Principal, Problem, QuestionGenerator, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
+import { DEFAULT_MODEL_SLOTS, defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
+import type { InstallJobView, ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView } from '../../libs/utils/contracts/index.ts';
+import { fallbackRoute, vendorOf, type ApiVendor, type ModelProvider } from '../../libs/utils/models/providers/index.ts';
+import { EmbeddingIndex, type IndexReport } from '../../libs/utils/retrieval/index.ts';
+import { caseCard, createLlmExtractor, enrichWithModel, RULES_ROUTE, storeHealth, type EnrichItem, type EnrichReport, type StoreHealth } from '../../libs/utils/memory/index.ts';
+import { DEFAULT_LOCAL_MODELS, ModelManager, NO_API_REASON, type ModelManagerOptions } from './models.ts';
 import { connectionCards } from '../../libs/utils/connectors/index.ts';
 import {
-  defaultInvestigationSettings, investigate, investigationId, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
+  defaultInvestigationSettings, investigate, investigationId, OUTCOME_KEY, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
   type InvestigationSettings, type PersonDirectory,
 } from '../../libs/utils/investigation/index.ts';
 import { buildCaseView, contextAssertions, defaultStandingGapSettings, importFromPath, listCases, openStore, parseAt, recordStandingGaps, resolveContextEntity, type StandingGapSettings } from '../../libs/utils/memory/index.ts';
-import { evaluateEligibility, TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
-import { createSelector, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
+import { evaluateEligibility, PhrasedQuestionGenerator, TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
+import { createSelector, LinUcb, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
 import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
 import { buildPeople } from '../../libs/utils/investigation/index.ts';
 import type { CandidateMatch } from '../../libs/utils/contracts/investigation.ts';
@@ -82,6 +87,21 @@ export interface EngineOptions {
    * service, the MCP server and the demo scripts from org-config) also asks them through the coordinator.
    */
   standingGaps?: Partial<StandingGapSettings> & { ask?: boolean };
+  /** Model slots used when the user has not chosen any (default DEFAULT_MODEL_SLOTS: every slot on rules). */
+  models?: Partial<ModelSlots>;
+  /** The model lifecycle manager, or options for one (tests inject a fake local provider here). */
+  modelManager?: ModelManager | ModelManagerOptions;
+  /**
+   * Background model work without a request: indexing embeddings after imports/answers/outcomes and warming a slot
+   * switched to local. Off by default so tests never reach a model; main.ts turns it on. Requests that need a model
+   * (an investigation with embed=local, GET /models, a pull) work either way.
+   */
+  autoModels?: boolean;
+  /**
+   * Where live LinUCB state is kept between restarts (BUILD_BRIEF 5.4). Default: linucb-live.json next to a file
+   * database (data/local/), none for ':memory:' or a provided store. `false` turns persistence off. Never data/models.
+   */
+  linucbStatePath?: string | false;
 }
 
 export interface ClarificationResult {
@@ -107,12 +127,16 @@ export class Engine {
   private readonly directoryFiles = new Set<string>();
   private readonly inlineDirectories: PeopleDirectory[] = [];
   private readonly demoClock: DemoClock;
+  /** Model slots' lifecycle: detection, catalog, warm/idle/unload, pulls, api keys in memory. */
+  readonly models: ModelManager;
+  private embedQueue: Promise<IndexReport | undefined> = Promise.resolve(undefined);
 
   constructor(opts: EngineOptions = {}) {
     this.opts = opts;
     this.orgId = opts.orgId ?? 'org:local';
     this.demoClock = opts.demoClock ?? createDemoClock();
     this.clock = opts.clock ?? (() => this.demoClock.now());
+    this.models = opts.modelManager instanceof ModelManager ? opts.modelManager : new ModelManager({ now: this.clock, ...(opts.modelManager ?? {}) });
     if (opts.store) {
       this.store = opts.store;
       this.ownsStore = false;
@@ -126,6 +150,7 @@ export class Engine {
   }
 
   close(): void {
+    this.models.dispose();
     if (this.ownsStore) this.store.close();
   }
 
@@ -146,7 +171,13 @@ export class Engine {
   getSettings(): ExtendedSettings {
     const rec = this.store.get('settings', SETTINGS_ID);
     const { id: _id, ...rest } = (rec ?? {}) as Partial<UserSettings> & { id?: string; selectorId?: string };
-    return { ...defaultUserSettings, selectorId: this.opts.coordinator?.selectorId ?? defaultCoordinatorSettings.selectorId, ...rest };
+    const models: ModelSlots = { ...DEFAULT_MODEL_SLOTS, ...(this.opts.models ?? {}), ...(rest.models ?? {}) };
+    return { ...defaultUserSettings, selectorId: this.opts.coordinator?.selectorId ?? defaultCoordinatorSettings.selectorId, ...rest, models };
+  }
+
+  /** The effective model slots (stored choice, else the host's EngineOptions.models, else every slot on rules). */
+  modelSlots(): ModelSlots {
+    return this.getSettings().models ?? DEFAULT_MODEL_SLOTS;
   }
 
   private invSettings(): InvestigationSettings {
@@ -158,6 +189,13 @@ export class Engine {
     });
   }
 
+  /** File holding live LinUCB state, or undefined when persistence is off. */
+  linucbStatePath(): string | undefined {
+    if (this.opts.linucbStatePath === false) return undefined;
+    if (this.opts.linucbStatePath) return this.opts.linucbStatePath;
+    return this.ownsStore && this.dbPath !== ':memory:' ? join(dirname(this.dbPath), 'linucb-live.json') : undefined;
+  }
+
   private selector(id: string): Selector {
     let sel = this.selectors.get(id);
     if (!sel) {
@@ -166,19 +204,99 @@ export class Engine {
       } catch (e) {
         throw badRequest(e instanceof Error ? e.message : String(e));
       }
+      // Live learning survives a restart: the LinUCB state saved after each measured reward is loaded back.
+      const path = sel.id === 'linucb' ? this.linucbStatePath() : undefined;
+      if (path && existsSync(path)) {
+        try {
+          sel = LinUcb.fromArtifact(JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>);
+        } catch {
+          // A state file from another build (feature list changed) or a broken one: start fresh, keep the file for inspection.
+        }
+      }
       this.selectors.set(id, sel);
     }
     return sel;
   }
 
+  /** Saves live LinUCB state after a reward (only LinUCB has state worth keeping; the rules selector is a fixed prior). */
+  private selectorUpdated(sel: Selector): void {
+    const path = sel.id === 'linucb' ? this.linucbStatePath() : undefined;
+    if (!path || !(sel instanceof LinUcb)) return;
+    try {
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, `${JSON.stringify(sel.toModelArtifact({ id: 'linucb-live', dataset: { id: 'live', split: 'live', families: [] } }), null, 2)}\n`);
+    } catch {
+      // Persistence is a convenience; learning in memory continues.
+    }
+  }
+
+  /** The store metric (BUILD_BRIEF 5.1, 5.2) over the cases the principal may see (all cases without one). */
+  storeHealth(principalId?: string): StoreHealth {
+    const p = principalId ? this.principalFor(principalId) : undefined;
+    return storeHealth(this.store, p, { now: this.now(), distinguishingKeys: this.invSettings().distinguishingKeys, outcomeKey: OUTCOME_KEY });
+  }
+
+  /**
+   * The embed slot's index when embed=local and the store keeps vectors: a cheap view over r_embedding with the
+   * engine's cached provider and embedding cache. Undefined otherwise (the trigram list stays).
+   */
+  embeddingIndex(): EmbeddingIndex | undefined {
+    const choice = this.modelSlots().embed;
+    if (choice.provider !== 'local' || !this.store.embeddings) return undefined;
+    return new EmbeddingIndex(this.store, this.models.local, choice.model ?? DEFAULT_LOCAL_MODELS.embed, {
+      cache: this.models.cache, cardText: (id) => caseCard(this.store, id),
+    });
+  }
+
+  /**
+   * Bring r_embedding in line with the store (new evidence, claims, rebuilt case cards; unchanged text is skipped).
+   * Serialized; failures go to the embed slot's status chip. Resolves undefined when embed is not local.
+   */
+  refreshEmbeddings(): Promise<IndexReport | undefined> {
+    this.embedQueue = this.embedQueue.then(async () => {
+      const index = this.embeddingIndex();
+      if (!index) return undefined;
+      try {
+        const r = await index.indexStore();
+        this.models.clearFailure('embed');
+        return r;
+      } catch (e) {
+        this.models.recordFailure('embed', e instanceof Error ? e.message : String(e));
+        return undefined;
+      }
+    });
+    return this.embedQueue;
+  }
+
+  /** Resolves when queued embedding work has finished (tests, demo scripts). */
+  embeddingsIdle(): Promise<IndexReport | undefined> {
+    return this.embedQueue;
+  }
+
+  private afterChange(): void {
+    if (this.opts.autoModels) void this.refreshEmbeddings();
+  }
+
   private wiring() {
     const settings = this.invSettings();
     const directory: PersonDirectory = storeDirectory(this.store);
-    const retriever = new HybridRetriever(this.store, settings);
+    const index = this.embeddingIndex();
+    const retriever = new HybridRetriever(this.store, index
+      ? { ...settings, embedding: { index, onFailure: (reason, code) => this.models.recordFailure('embed', reason, code), skip: () => this.models.cooling('embed') } }
+      : this.modelSlots().embed.provider === 'api' ? { ...settings, embedUnavailable: 'unsupported' } : settings);
     const assessor = new RulesAssessor({ store: this.store, settings });
-    const generator = new TemplateQuestionGenerator({ store: this.store, settings, directory, clock: this.clock });
+    const qctx = { store: this.store, settings, directory, clock: this.clock };
+    const templates = new TemplateQuestionGenerator(qctx);
+    const phrase = this.slotModel('phrase');
+    const generator: QuestionGenerator = !phrase ? templates
+      : 'unavailable' in phrase ? templates
+      : new PhrasedQuestionGenerator({
+        inner: templates, ctx: qctx, provider: phrase.provider, model: phrase.model,
+        onFailure: (reason, code) => this.models.recordFailure('phrase', reason, code), skip: () => this.models.cooling('phrase'),
+      });
+    if (phrase && 'unavailable' in phrase) this.models.recordFailure('phrase', phrase.unavailable);
     const selector = this.selector(settings.coordinator.selectorId);
-    const coordinator = new QuestionCoordinator({ store: this.store, settings, selector, generator, retriever, assessor, directory, clock: this.clock });
+    const coordinator = new QuestionCoordinator({ store: this.store, settings, selector, generator, retriever, assessor, directory, clock: this.clock, onSelectorUpdated: (sel) => this.selectorUpdated(sel) });
     return { settings, directory, retriever, assessor, generator, selector, coordinator };
   }
 
@@ -311,7 +429,60 @@ export class Engine {
     return { ok: true, version: SERVICE_VERSION, store: this.dbPath, routes };
   }
 
-  importData(req: ImportRequest): ImportResponse {
+  /**
+   * The provider and model serving a slot, `{unavailable}` when the slot names a provider that cannot run now (api
+   * without a key), or undefined for rules.
+   */
+  slotModel(slot: ModelSlotName): { provider: ModelProvider; model: string } | { unavailable: string; code: string } | undefined {
+    const choice = this.modelSlots()[slot];
+    if (choice.provider === 'rules') return undefined;
+    if (choice.provider === 'local') return { provider: this.models.local, model: choice.model ?? DEFAULT_LOCAL_MODELS[slot] };
+    const api = this.models.api();
+    const model = choice.model ?? (slot === 'extract' ? 'claude-haiku-5-5' : 'claude-sonnet-5-5');
+    if (!api || !this.models.hasKey(vendorOf(model))) return { unavailable: this.models.noApi ? NO_API_REASON : `no ${vendorOf(model)} key`, code: 'disabled' };
+    return { provider: api, model };
+  }
+
+  /**
+   * POST /import and "Remember this": the rules import, then (extract slot on a model) the model's proposal for the
+   * same threads, validated and committed as a union within the slot's 60 s. On a failure or timeout the import stays
+   * rules-only and the response says so with the fallback route. With extract on rules this is importData exactly.
+   */
+  async importAndEnrich(req: ImportRequest): Promise<ImportResponse> {
+    const sm = this.slotModel('extract');
+    if (!sm) return this.importData(req);
+    let items: EnrichItem[] = [];
+    let scope: AccessScope = { visibility: 'org' };
+    const res = this.importData(req, (it, sc) => { items = it; scope = sc; });
+    let report: EnrichReport;
+    const cooling = 'unavailable' in sm ? undefined : this.models.cooling('extract');
+    if ('unavailable' in sm || cooling) {
+      const why = 'unavailable' in sm ? { reason: sm.unavailable, code: sm.code } : { reason: cooling!, code: 'cooldown' };
+      this.models.recordFailure('extract', why.reason, why.code);
+      report = { route: fallbackRoute(RULES_ROUTE, 'extract', why.code), threads: items.length, modelClaimIds: [], dropped: [], fallback: why };
+    } else {
+      const extractor = createLlmExtractor({ provider: sm.provider, model: sm.model });
+      report = await enrichWithModel(this.store, items, extractor, {
+        orgId: this.orgId, accessScope: scope, now: this.now().toISOString(),
+        onFailure: (reason, code) => this.models.recordFailure('extract', reason, code),
+      });
+      if (!report.fallback) this.models.clearFailure('extract');
+      this.reapplyDirectory();
+    }
+    this.trace(res.batch.id, 'import.enriched', { id: 'system', displayName: 'import' }, {
+      route: report.route, modelClaims: report.modelClaimIds.length, dropped: report.dropped.length, ...(report.fallback ? { fallback: report.fallback.reason } : {}),
+    });
+    // Integration (D-INT-04): model claims can fill or open standing gaps, so they are re-recorded over the union, then asked.
+    if (report.modelClaimIds.length) recordStandingGaps(this.store, { orgId: this.orgId, now: this.now().toISOString(), settings: this.standingSettings() });
+    if (this.opts.standingGaps?.ask) void this.askStanding().catch((e) => this.standingFailed('import', e));
+    this.afterChange();
+    return {
+      ...res,
+      extraction: { route: report.route, modelClaims: report.modelClaimIds.length, dropped: report.dropped.length, ...(report.fallback ? { fallback: report.fallback.reason } : {}) },
+    };
+  }
+
+  importData(req: ImportRequest, onCommitted?: (items: EnrichItem[], scope: AccessScope) => void): ImportResponse {
     if (req.path && !existsSync(req.path)) throw badRequest(`Path does not exist: ${req.path}`);
     const batchesBefore = new Set(this.store.list('importBatch').map((b) => b.id));
     let res: ImportResponse;
@@ -319,7 +490,7 @@ export class Engine {
       res = importFromPath(this.store, {
         format: req.format, ...(req.path ? { path: req.path } : {}), ...(req.payload !== undefined ? { payload: req.payload } : {}),
         ...(req.connectionId ? { connectionId: req.connectionId } : {}), ...(req.accessGroups ? { accessGroups: req.accessGroups } : {}),
-        orgId: this.orgId, now: this.now().toISOString(), standing: this.standingSettings(),
+        orgId: this.orgId, now: this.now().toISOString(), standing: this.standingSettings(), ...(onCommitted ? { onCommitted } : {}),
       });
     } catch (e) {
       throw badRequest(`Import failed: ${e instanceof Error ? e.message : String(e)}`);
@@ -330,7 +501,9 @@ export class Engine {
     // A scenario directory imports several sources, each its own batch; the response's batch id is their combination.
     const points = this.awardEvidence(new Set(this.store.list('importBatch').map((b) => b.id).filter((id) => !batchesBefore.has(id))));
     this.trace(res.batch.id, 'import.completed', { id: 'system', displayName: 'import' }, { format: req.format, counts: res.batch.counts, cases: res.cases, claims: res.claims, people: res.people, ...(points.length ? { points } : {}) });
-    if (this.opts.standingGaps?.ask) void this.askStanding().catch((e) => this.standingFailed('import', e));
+    // Integration (D-INT-04): on the model path the standing gaps are asked after the model's union (importAndEnrich).
+    if (this.opts.standingGaps?.ask && !onCommitted) void this.askStanding().catch((e) => this.standingFailed('import', e));
+    this.afterChange();
     return points.length ? { ...res, points } : res;
   }
 
@@ -554,6 +727,9 @@ export class Engine {
         throw toServiceError(e);
       }
     }
+    // BUILD_BRIEF 5.4: an outcome question's reward is measured again once the outcome lands.
+    w.coordinator.rewardOutcome(state.id);
+    this.afterChange();
     return report;
   }
 
@@ -624,6 +800,7 @@ export class Engine {
       const kind: ParticipationKind = req.value === 'yes' ? 'answer-yes' : req.value === 'no' ? 'answer-no' : 'answer-unknown';
       const points = this.award({ personEntityId: q.personEntityId, contributionEventId: r.answer.id, kind, summary: `Answered a question (${req.value === 'unknown' ? 'not sure' : req.value})`, refId: q.id });
       const receipt = this.receipt(req.value, r.question, r.state, points, r.recommendationChanged);
+      this.afterChange();
       await this.askStanding();
       return { answer: r.answer, receipt, question: r.question };
     } catch (e) {
@@ -804,12 +981,64 @@ export class Engine {
 
   // ---- settings, participation, events ------------------------------------------------------------
 
-  putSettings(patch: Partial<ExtendedSettings>): ExtendedSettings {
+  putSettings(patch: Omit<Partial<ExtendedSettings>, 'models'> & { models?: Partial<ModelSlots> }): ExtendedSettings {
     if (patch.selectorId !== undefined) this.selector(patch.selectorId);
-    const next: ExtendedSettings = { ...this.getSettings(), ...patch };
+    const current = this.getSettings();
+    // A models patch changes only the slots it names.
+    const { models: modelsPatch, ...plain } = patch;
+    const next: ExtendedSettings = { ...current, ...plain, ...(modelsPatch ? { models: { ...(current.models ?? DEFAULT_MODEL_SLOTS), ...modelsPatch } } : {}) };
     this.store.put('settings', { id: SETTINGS_ID, ...next });
     this.trace('settings', 'settings.updated', { id: 'system', displayName: 'settings' }, { keys: Object.keys(patch) });
+    if (modelsPatch) {
+      // A slot leaving a provider forgets that slot's old failure; a slot switched to local is warmed (auto mode only).
+      for (const slot of Object.keys(modelsPatch) as ModelSlotName[]) this.models.clearFailure(slot);
+      if (this.opts.autoModels) {
+        // Only the slots this patch names; the others were warmed (or not) already.
+        const changed: ModelSlots = { ...DEFAULT_MODEL_SLOTS };
+        for (const k of Object.keys(modelsPatch) as ModelSlotName[]) changed[k] = next.models![k];
+        void this.models.warmSlots(changed).then(() => (modelsPatch.embed ? this.refreshEmbeddings() : undefined));
+      }
+    }
     return next;
+  }
+
+  // ---- models (Settings -> Models) -------------------------------------------------------------
+
+  modelsView(): Promise<ModelsView> {
+    return this.models.view(this.modelSlots());
+  }
+
+  /** Only ever called from a click (POST /models/pull). */
+  pullModel(model: string): PullJobView {
+    this.trace('models', 'models.pull', { id: 'system', displayName: 'models' }, { model });
+    return this.models.startPull(model);
+  }
+
+  pullJob(id: string): PullJobView {
+    const j = this.models.pullJob(id);
+    if (!j) throw notFound(`Unknown download ${id}`);
+    return j;
+  }
+
+  /** Only ever called from a click (POST /models/install). */
+  installOllama(): Promise<InstallJobView> {
+    this.trace('models', 'models.install', { id: 'system', displayName: 'models' }, {});
+    return this.models.startInstall();
+  }
+
+  installJob(): InstallJobView {
+    return this.models.installJob();
+  }
+
+  /** Memory only: the key is never stored, traced or returned. */
+  setModelKey(provider: ApiVendor, key: string): { provider: ApiVendor; present: boolean } {
+    const r = this.models.setKey(provider, key);
+    this.trace('models', 'models.key', { id: 'system', displayName: 'models' }, { provider, present: r.present });
+    return r;
+  }
+
+  testModelKey(provider: ApiVendor, model?: string): Promise<ModelTestResult> {
+    return this.models.testKey(provider, model);
   }
 
   /** R46: a person's own balance; the caller (`principalId`, else the settings' current person) must be that person. */

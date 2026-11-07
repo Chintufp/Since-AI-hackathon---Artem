@@ -40,6 +40,26 @@ function statedValue(state: InvestigationState, key: string): string | undefined
   return c?.value === undefined ? undefined : String(c.value);
 }
 
+/** What a candidate was built from: the input of the phrase slot and of its validator. Never stored. */
+export interface PhraseFacts {
+  /** B1's standing kinds ('missing-symptom', 'pairing') are carried but never phrased: they keep the template wording. */
+  kind: 'missing' | 'outcome' | 'missing-symptom' | 'pairing';
+  /** The asset the question names ("TRN-301", "RTR-117 and RTR-118", "this asset"). */
+  asset: string;
+  /** missing: the plain condition label the question asks about. */
+  conditionLabel?: string;
+  /** The cited case's short label. */
+  caseLabel: string;
+  /** outcome: the action noun as the case's evidence mentions it ("the SFP swap"). */
+  actionNoun?: string;
+  caseId: string;
+  gapDescription: string;
+  whatAnswerChanges: string;
+  problemText: string;
+  /** The template's own wording. */
+  templateText: string;
+}
+
 /**
  * Route 'rules' question generator: templates over gaps. Only OPEN CONSEQUENTIAL gaps become questions, and gaps
  * whose condition the requester can observe themselves (the recommendation tells them to check) never do.
@@ -52,13 +72,18 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
   }
 
   async generate(state: InvestigationState, maxCandidates: number): Promise<QuestionCandidate[]> {
+    return withEvaluative(this.ctx, (await this.generateDetailed(state, maxCandidates)).map((x) => x.candidate));
+  }
+
+  /** The factual candidates with the facts each was built from (the phrase slot's input). */
+  async generateDetailed(state: InvestigationState, maxCandidates: number): Promise<Array<{ candidate: QuestionCandidate; facts: PhraseFacts }>> {
     const { store, settings } = this.ctx;
     const entityIds = problemEntityIds(this.ctx, state);
     const names = new Map(store.list('entity').map((e) => [e.id, e.name] as const));
     const known = new Set([...names.values()].map((n) => n.toLowerCase()));
     // Asset-like tokens in the problem text that the directory does not know ("ACC-33"): that is the current asset.
     const unresolved = [...new Set((state.problem.text.match(/\b[A-Za-z]{2,6}-\d{1,6}\b/g) ?? []).filter((t) => !known.has(t.toLowerCase())))];
-    const out: QuestionCandidate[] = [];
+    const out: Array<{ candidate: QuestionCandidate; facts: PhraseFacts }> = [];
     const requester = startedBy(state);
     const gate = requester ? evidenceGate(store, requester) : undefined;
 
@@ -92,6 +117,7 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
 
       let text: string, rationale: string, consequences: { yes: string; no: string }, scope: QuestionCandidate['scope'], dedup: string;
       let extra: Partial<QuestionCandidate> = state.origin === 'standing' ? { origin: 'standing' } : {};
+      let conditionLabel: string | undefined, actionNoun: string | undefined;
       if (p.kind === 'missing-symptom' || p.kind === 'pairing') {
         const evidenceText = loadCaseFacts(store, c.id, state.id, settings, gate ?? undefined).evidenceText;
         const attempt = p.kind === 'missing-symptom'
@@ -145,6 +171,7 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
           : !cond || cond.operator === 'eq' ? settings.questions.conditionTemplates[p.detail] : undefined) ?? 'Is this true for {asset}: {label}?';
         if (!slotsFilled(tpl, vars)) tpl = GENERIC_CONDITION_TEMPLATE;
         if (!label.trim()) continue;
+        conditionLabel = label;
         text = tidy(fill(tpl, vars));
         rationale = `${hyp ? `Hypothesis "${hyp.statement}" from ${caseLabel} applies only if ${label}. ` : ''}${gap.whatAnswerChanges}${cite}`;
         consequences = aboutCase
@@ -166,6 +193,7 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
         const phrase = settings.questions.outcomePhrases[action] ?? 'the problem clear';
         // The action is named only as far as this case's evidence mentions it.
         const noun = casePhrase(action, loadCaseFacts(store, c.id, state.id, settings, gate ?? undefined).evidenceText, settings.phrases).noun;
+        actionNoun = noun;
         text = tidy(`Did ${phrase} right after ${noun} on ${caseLabel}?`);
         rationale = `${gap.description} ${gap.whatAnswerChanges}${cite}`;
         consequences = {
@@ -177,18 +205,29 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
       }
       const recipients = findRecipients(this.ctx, state, gap);
       out.push({
-        ...common, ...extra, id: stableId('qc', state.id, dedup), text, rationale, consequences, scope, dedupKey: dedup,
-        ...(gap.targetClaimId ? { targetClaimId: gap.targetClaimId } : {}),
-        recipientIds: recipients.map((r) => r.personEntityId),
+        candidate: {
+          ...common, ...extra, id: stableId('qc', state.id, dedup), text, rationale, consequences, scope, dedupKey: dedup,
+          ...(gap.targetClaimId ? { targetClaimId: gap.targetClaimId } : {}),
+          recipientIds: recipients.map((r) => r.personEntityId),
+        },
+        facts: {
+          kind: p.kind, asset: assetName, ...(conditionLabel ? { conditionLabel } : {}), caseLabel, ...(actionNoun ? { actionNoun } : {}), caseId: c.id,
+          gapDescription: gap.description, whatAnswerChanges: gap.whatAnswerChanges, problemText: state.problem.text, templateText: text,
+        },
       });
     }
-    const factual = out.slice(0, maxCandidates);
-    if (settings.questions.evaluativePairs && factual.length >= 2) {
-      const [a, b] = factual as [QuestionCandidate, QuestionCandidate];
-      factual.push(evaluativePair(a, b));
-    }
-    return factual;
+    return out.slice(0, maxCandidates);
   }
+}
+
+/** The factual candidates plus, when configured and there are two, the evaluative pair between the first two. */
+export function withEvaluative(ctx: Pick<QuestionContext, 'settings'>, factual: QuestionCandidate[]): QuestionCandidate[] {
+  const out = [...factual];
+  if (ctx.settings.questions.evaluativePairs && out.length >= 2) {
+    const [a, b] = out as [QuestionCandidate, QuestionCandidate];
+    out.push(evaluativePair(a, b));
+  }
+  return out;
 }
 
 /** Optional preference candidate between two factual candidates; yields PreferenceFeedback, never factual evidence. */

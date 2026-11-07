@@ -1,0 +1,89 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ (through the scenario-dir importer)",
+    "people.json",
+    "incoming problem text",
+    "incoming observations",
+    "data/replays/e08-bge-m3/embeddings.json (vectors recorded once from the local Ollama bge-m3; replayed, hash-checked per text)"
+  ],
+  "route": "mixed",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T17:10:32.290Z",
+  "id": "e08-retrieval-embed",
+  "hypothesis": "A local embedding model (bge-m3) finds the relevant case by meaning: the fusion with bge-m3 in place of the trigram list keeps recall@3 and the lookalike rejection of the shipped hybrid on the hash-locked splits, and finds the judge's paraphrased problem that the lexical lists miss.",
+  "splits": [
+    "demo",
+    "train",
+    "validation"
+  ],
+  "variants": [
+    {
+      "id": "lexical-bm25",
+      "description": "BM25 only",
+      "route": "rules"
+    },
+    {
+      "id": "local-trigram",
+      "description": "hashed character-trigram vectors (local, not learned)",
+      "route": "local"
+    },
+    {
+      "id": "embed-bge-m3",
+      "description": "bge-m3 embeddings alone (evidence, claims and case cards; cosine aggregated to the case by max), replayed from data/replays",
+      "route": "replay"
+    },
+    {
+      "id": "hybrid-rrf",
+      "description": "the shipped fusion: BM25 + exact id + local trigram, reciprocal rank fusion",
+      "route": "local"
+    },
+    {
+      "id": "hybrid+embed-bge-m3",
+      "description": "the fusion with the embed slot on: BM25 + exact id + bge-m3 in place of the trigram list (what embed=local runs)",
+      "route": "replay"
+    }
+  ],
+  "config": {
+    "k": 8,
+    "embedModel": "bge-m3",
+    "fixture": "data/replays/e08-bge-m3/embeddings.json",
+    "fixtureSha256": "f9c12a9c4330cd09",
+    "mode": "replay",
+    "index": "evidence text, live claim statements and case cards (memory/case-card.ts), indexed once after the import; brute-force cosine, hits below 0.3 dropped, aggregated to the case by max; the embed list is pruned at 0.75 of its best hit (retrieval/hybrid.ts defaults)",
+    "decisionSplit": "validation",
+    "testSplit": "not opened: the test split was opened once for E02/E04 (results/e02-test, e04-test); E08 stays on demo/train/validation",
+    "lookalikeDefinition": "top-1 candidate case maps to an incident outside key.relatedIncidentKeys, over problems tagged lookalike-different-cause; rejection = 1 - that rate over the same denominator",
+    "paraphraseProbe": {
+      "texts": [
+        "green light, nothing flowing",
+        "The lamp on the box is green, yet no data gets through to the customer.",
+        "Everything on the unit looks healthy, but the customer is still getting nothing."
+      ],
+      "store": "the demo store as demo:reset --synthetic builds it (demo families + dev fixture)",
+      "target": "TRN-042 when the Elisa files are present, else its stand-in TRN-117 (optic-forwarding-a)"
+    }
+  },
+  "seeds": [
+    0
+  ],
+  "metrics": [
+    "@1.linking.recall",
+    "@3.linking.recall",
+    "@3.accessible.linking.recall",
+    "@3.linking.precision",
+    "retrieval.lookalikeTop1Rate",
+    "retrieval.lookalikeRejectionRate",
+    "recommendation.kindAccuracy",
+    "recommendation.falseAdviceRate"
+  ],
+  "acceptanceCriteria": [
+    "On validation: hybrid+embed recall@3 >= hybrid-rrf recall@3 AND hybrid+embed lookalike-top-1 rate <= hybrid-rrf's -> embed=local may be offered as the opt-in embed slot for the demo; else the embed slot stays rules by default and the result is reported as is. (The default is rules either way; nothing is enabled silently.)",
+    "Paraphrase probe: reported per retriever as the rank of the target case (null = not in the top 8); not a pass/fail criterion.",
+    "Any embedding fallback (no recording, mismatch) in replay mode fails the run."
+  ],
+  "stopRule": "deterministic; one recording pass; none"
+}

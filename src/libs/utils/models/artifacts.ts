@@ -22,10 +22,13 @@ export function loadArtifact(id: string, dir: string = defaultModelsDir()): Mode
   return JSON.parse(readFileSync(join(dir, `${safe(id)}.json`), 'utf8')) as ModelArtifact;
 }
 
+/** Files in data/models that are configuration, not learned artifacts. */
+const NOT_ARTIFACTS = new Set(['catalog.json']);
+
 export function listArtifacts(dir: string = defaultModelsDir()): string[] {
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
-    .filter((f) => f.endsWith('.json'))
+    .filter((f) => f.endsWith('.json') && !NOT_ARTIFACTS.has(f))
     .map((f) => f.slice(0, -5))
     .sort();
 }

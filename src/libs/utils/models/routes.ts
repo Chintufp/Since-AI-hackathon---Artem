@@ -19,6 +19,11 @@ export const ROUTE_REGISTRY: Record<string, RouteDescription> = {
   'access-facts': { route: 'rules', version: 'access-facts@1', description: 'B1: access-fact claims bound to the named site, valid at the moment and visible to the requester, returned as a reuse recommendation; names who handles the key when missing or lapsed', learned: false },
   'standing-gaps': { route: 'rules', version: 'standing-gaps@1', description: 'B1: capture-time gaps on cases (missing symptom, outcome after 24 h, candidate pairing of an open problem and an orphan fix on one asset) asked through the same coordinator', learned: false },
   'linucb': { route: 'local', version: 'linucb@1', description: 'LinUCB contextual bandit (pure TS, trained on logged/simulated records)', learned: true },
+  'ollama-embed': { route: 'local', version: 'ollama-embed@1', description: 'Text embeddings from a local Ollama model (embed slot). Pretrained, not trained here.', learned: false },
+  'ollama-extract': { route: 'local', version: 'ollama-extract@1', description: 'Schema-constrained extraction proposal from a local Ollama model (extract slot); committed by rules.', learned: false },
+  'ollama-phrase': { route: 'local', version: 'ollama-phrase@1', description: 'Question wording from a local Ollama model (phrase slot); validated, template fallback.', learned: false },
+  'api-extract': { route: 'api', version: 'api-extract@1', description: 'Extraction proposal from a hosted model (only when configured with a key); committed by rules.', learned: false },
+  'api-phrase': { route: 'api', version: 'api-phrase@1', description: 'Question wording from a hosted model (only when configured with a key); validated, template fallback.', learned: false },
 };
 
 export const routeInfo = (key: keyof typeof ROUTE_REGISTRY | string): RouteInfo => {
@@ -39,11 +44,27 @@ export function blockedProviderCall(provider: string): never {
   throw new NetworkProviderBlockedError(provider);
 }
 
+export interface NetworkGuardOptions {
+  /**
+   * URL origins that may still be fetched, exactly as `new URL(u).origin` prints them (e.g. 'http://127.0.0.1:11434'
+   * for the experiments' explicit --record mode). Everything else, localhost included, stays blocked. Default: none.
+   */
+  allowOrigins?: string[];
+}
+
 /** Replace globalThis.fetch with a thrower (tests/experiments). Returns a restore function. */
-export function installNetworkGuard(): () => void {
+export function installNetworkGuard(opts: NetworkGuardOptions = {}): () => void {
   const g = globalThis as { fetch?: unknown };
-  const original = g.fetch;
-  g.fetch = () => {
+  const original = g.fetch as ((input: unknown, init?: unknown) => unknown) | undefined;
+  const allow = new Set(opts.allowOrigins ?? []);
+  g.fetch = (input: unknown, init?: unknown) => {
+    if (allow.size && original) {
+      let origin: string | undefined;
+      try {
+        origin = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : String((input as { url?: string })?.url ?? '')).origin;
+      } catch { /* not a URL: blocked below */ }
+      if (origin && allow.has(origin)) return original(input, init);
+    }
     throw new NetworkProviderBlockedError('fetch');
   };
   return () => {
@@ -51,7 +72,7 @@ export function installNetworkGuard(): () => void {
   };
 }
 
-const ROUTES: Route[] = ['rules', 'local', 'replay', 'claude-agent-arm'];
+const ROUTES: Route[] = ['rules', 'local', 'replay', 'claude-agent-arm', 'api'];
 
 /** Validates that a RouteInfo is honestly labelled. */
 export function assertRouteInfo(info: RouteInfo): RouteInfo {

@@ -155,6 +155,7 @@ export const IPC = {
   area: 'kt:area', // main → renderer { width, height }
   state: 'kt:state', // renderer → main ShellState
   contextMenu: 'kt:context-menu', // renderer → main (no payload)
+  keySave: 'kt:key-save', // renderer → main (invoke) { vendor, key } → { present, stored } (B2: safeStorage)
 } as const;
 
 /**
@@ -350,3 +351,22 @@ export function menuTemplate(model: MenuModel, actions: MenuActions): MenuItemCo
 
 /** desktop (R34): menu-bar title next to the tray icon: " ?" while he is away with a question waiting. */
 export const trayTitle = (state: ShellState): string => (state.away && state.question ? ' ?' : '');
+
+/**
+ * B2: the only pages the window may open, in the system browser (Settings -> Models: where a key is created, where
+ * Ollama is downloaded). Exact https origin and path prefix; everything else stays denied.
+ */
+export const EXTERNAL_LINKS = ['https://console.anthropic.com/settings/keys', 'https://aistudio.google.com/app/apikey', 'https://ollama.com/download'] as const;
+export function isAllowedExternal(url: string): boolean {
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    return false;
+  }
+  if (u.protocol !== 'https:' || u.username || u.password) return false;
+  return EXTERNAL_LINKS.some((l) => {
+    const a = new URL(l);
+    return u.origin === a.origin && (u.pathname === a.pathname || u.pathname.startsWith(a.pathname + '/'));
+  });
+}

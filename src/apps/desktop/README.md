@@ -41,7 +41,7 @@ Values: `1/true/on/yes`, `0/false/off/no`. Example: `KT_AWAY=0 pnpm desktop`.
 
 ## IPC surface
 
-Preload exposes `window.kt` = `{ serviceUrl, platform, setIgnoreMouse(flag), onShow(cb), flags, onCommand(cb), onPower(cb), onArea(cb), reportState({away, question}), showContextMenu() }`; nothing else. Payloads are validated on both sides.
+Preload exposes `window.kt` = `{ serviceUrl, platform, setIgnoreMouse(flag), onShow(cb), flags, onCommand(cb), onPower(cb), onArea(cb), reportState({away, question}), showContextMenu(), saveModelKey(vendor, key) }`; nothing else. Payloads are validated on both sides.
 
 | Channel | Direction | Payload |
 | --- | --- | --- |
@@ -52,6 +52,7 @@ Preload exposes `window.kt` = `{ serviceUrl, platform, setIgnoreMouse(flag), onS
 | `kt:area` | main → page | `{ width, height }` (window content size; on load, resize, display change) |
 | `kt:state` | page → main | `{ away, question }` |
 | `kt:context-menu` | page → main | none (main pops the menu at the cursor, `Menu.popup({window})`) |
+| `kt:key-save` | page → main (invoke) | `{ vendor: 'anthropic' \| 'gemini', key }` → `{ present, stored }` (B2, `keychain.ts`: encrypted with `safeStorage` into `<userData>/model-keys.json`, handed to the service in memory with `POST /models/key`, and again after each service start; an empty key forgets) |
 
 `renderer.ts` turns these into CustomEvents on `window` so the companion module never imports Electron:
 

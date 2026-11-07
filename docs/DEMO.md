@@ -80,7 +80,7 @@ This is a plain MCP client (no model) starting the same MCP server on the same d
 4. The script moves the clock to **07:30**: the service on port 47831 serves the same database, so its demo clock moves and the companion delivers the question. It prints *Waiting for Erkki Expert's tap in the companion* (or the person named on the `>>> PRESENTER:` line): switch **You** to that person, the badge shows **1**, tap **Yes**.
 5. `kt_clarification_status` → `answered`; `kt_get_context` → **Check the traffic counters before replacing the SFP again.**; `kt_list_gaps` → applicability **applicable**, settled by that answer. The service's clock returns to real time at the end (`--keep-clock` leaves it at 07:30).
 
-Say: *"At three in the morning the agent found the one fact that decides whether the old fix applies, chose who should answer it, and the engine held the question until seven. One tap from Erkki at 07:30 changed the agent's next step. Same limits and access rules as for a person; the agent never gets a channel to Erkki, the question goes through his companion."* Rehearse without the panel: `pnpm demo:agent -- --simulate-tap --outcome` (answers as Erkki through the engine; the recorded run is [mcp-transcript.md](runs/2026-11-07-overnight/demo/mcp-transcript.md)). On a database no service serves, the script restarts the MCP server at 07:30 instead (it delivers on its own clock). `--day` runs the same calls on real time with quiet hours off. Run it after `pnpm demo:reset` or `pnpm demo:judge` (the ids are deterministic: a second run finds the question already answered); Erkki gets the question only if the walkthrough has not asked him yet (see step 3). To let a real agent drive it, see "Your own Claude over MCP" below.
+Say: *"At three in the morning the agent found the one fact that decides whether the old fix applies, chose who should answer it, and the engine held the question until seven. One tap from Erkki at 07:30 changed the agent's next step. Same limits and access rules as for a person; the agent never gets a channel to Erkki, the question goes through his companion."* Rehearse without the panel: `pnpm demo:agent -- --simulate-tap --outcome` (answers as Erkki through the engine; the recorded run is [mcp-transcript.md](runs/2026-11-07-overnight/demo/mcp-transcript.md)). On a database no service serves, the script restarts the MCP server at 07:30 instead (it delivers on its own clock). `--day` runs the same calls on real time with quiet hours off. Run it after `pnpm demo:reset` or `pnpm demo:judge` (the ids are deterministic: a second run finds the question already answered); Erkki gets the question only if the walkthrough has not asked him yet (see step 3). **Run it before the activity stream starts** (demo:judge starts it 240 s after launch) or launch with `pnpm demo:judge -- --no-stream`: the stream moves the same service clock on every tick, so with the stream running the 07:30 move lasts only until its next tick and the delivery and tap are timed on the stream's day; the script says so when it finds the clock already simulated, and then leaves the clock to the stream instead of returning it to real time. To let a real agent drive it, see "Your own Claude over MCP" below.
 
 ### Remember this (30 seconds, no form)
 
@@ -100,10 +100,15 @@ Replaced the SFP on TRN-577, link up, alarms cleared, no traffic, counters zero.
 Heading: **Confirm the unit details (2021 batch) before clearing the forwarding table.** Under it: *Also on record: Erkki
 Expert advised disabling and re-enabling the interface in TRN-042 (qualified, depends on older unit)*. The panel lists only
 the qualified branches, the ones a fact still decides; the API and MCP result also carry Helmi's own TRN-117 case, which
-records no age or batch. One question went out: **Is TRN-577 from the 2021 batch?** (to Erkki, through his Network Expert
-role). Answer it as Erkki: **Yes** makes the forwarding-table clear the recommendation, with the caveat *TRN-042 does not
-apply: older unit there, 2021 batch, answered here.*; **No** makes Helmi's case not apply and Erkki's interface reset the
-recommendation. Say: *"Neither expert is overwritten. The system keeps both, says what decides between them, and asks one
+records no age or batch. One question went out: **Is TRN-577 from the 2021 batch?** On a fresh reset it goes to Erkki,
+through his Network Expert role. **Order matters:** after the 3-minute script Erkki has just answered the TRN-301 question
+(2:05), so he is cooling down and the question goes to **Helmi Virtanen** instead (*Asked Helmi Virtanen because they can
+observe this through their group (transport)*): switch **You** to whoever the status line names, or run this section first
+after `pnpm demo:reset` for the Erkki version. **Yes** makes the forwarding-table clear the recommendation, with the caveat
+*TRN-042 does not apply: older unit there, 2021 batch, answered here.* **No** rules out Helmi's case (*TRN-512 does not
+apply: 2021 batch there, 2021 batch: no, answered here.*) but does not settle Erkki's either: the heading becomes **Confirm
+the unit details (older unit) before disabling and re-enabling the interface.** (*Unknown for this unit: older unit.*) and a
+second question, **Is TRN-577 an older unit?**, goes out at once to another person (Helmi on a fresh reset). Say: *"Neither expert is overwritten. The system keeps both, says what decides between them, and asks one
 person one question to pick the branch."* On a clean clone (no Elisa files) this step is not available: the thread is not
 seeded, so the walkthrough texts above stay as they are; the two-expert story runs in `tests/experts-disagree.test.ts`
 with a synthetic stand-in for Erkki.

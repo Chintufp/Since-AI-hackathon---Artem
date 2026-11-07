@@ -37,4 +37,7 @@ test('the judge demo starts the service with quiet hours off; the agent demo run
   assert.match(agent, /'--quiet-hours', values\.day \? 'off' : 'on'/);
   assert.match(agent, /night: \{ type: 'string', default: '2026-11-08T01:00:00Z' \}/);
   assert.match(agent, /'--clock', clock/);
+  // Review fix: when the activity stream already drives the clock, demo:agent warns and does not reset it to real time.
+  assert.match(agent, /was\.mode === 'simulated'/);
+  assert.match(agent, /if \(was\.mode !== 'simulated'\) movedServiceClock = service;/);
 });

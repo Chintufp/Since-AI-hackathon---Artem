@@ -143,7 +143,7 @@ the simulated night changes). Reverse: `--day` behaviour as the default.
   people, the call's exclusion list only makes it explicit.
 - Tests: `tests/inquiry.test.ts` runs each case on its own service and MCP process (budgets and cooldowns never leak);
   the three-gap batch seeds a third open gap (unit.age) on the basis case and three NOC engineers, because no fixture has
-  three open askable gaps for one problem (the brief allows seeding). 526 tests after B7 (511 before).
+  three open askable gaps for one problem (the brief allows seeding). 530 tests after B7 (511 before; +19, corrected in the integration review: the lane added 19 test declarations).
 
 ## D-B7-13 · An agent's wording is checked more strictly than the phrase model's (review fix)
 Two reviewers showed that B2's validator is a vocabulary filter, which an agent can write against: "Is RTR-203 running

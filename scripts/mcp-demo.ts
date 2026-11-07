@@ -187,9 +187,15 @@ try {
         say(`\nQueued by quiet hours: deliverAfter ${clar.deliverAfter} (${hel(clar.deliverAfter)} Helsinki). Loop: ${clar.loopReason}.`);
         say(`\n--- the clock moves to ${values.morning} (${hel(values.morning)} Helsinki) ---`);
         if (service) {
+          // A running activity stream (demo:play) drives the same clock on every tick; resetting it to real time
+          // afterwards would fight the stream, so the clock is only handed back when it was on real time before.
+          const was = await fetch(`${service}/demo/clock`).then((r) => r.json() as Promise<{ mode?: string }>).catch(() => ({ mode: undefined }));
+          if (was.mode === 'simulated') {
+            say(`Note: the service's clock is already simulated, most likely by the activity stream (demo:play / demo:judge). The stream moves it back on its next tick, so delivery and the tap may be timed on the stream's day. For a clean run, start demo:agent before the stream begins (demo:judge waits --stream-delay, 240 s) or run demo:judge with --no-stream.`);
+          }
           const res = await fetch(`${service}/demo/clock`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ now: values.morning }) });
           if (!res.ok) throw new Error(`POST /demo/clock: ${res.status} ${await res.text()}`);
-          movedServiceClock = service;
+          if (was.mode !== 'simulated') movedServiceClock = service;
           say(`The service on ${service} serves this database: its demo clock is now ${hel(values.morning)}, so the companion delivers ${asked}'s question.`);
         } else {
           say(`No service on port ${values.port} serves ${values.db}: the MCP engine delivers on its own clock, so the MCP server restarts with --clock ${values.morning}.`);

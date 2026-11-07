@@ -13,6 +13,7 @@ export const CONDITION_KEYS = {
   'unit.installed_year': 'Installation year (number)',
   'unit.model': 'Equipment model/family',
   'unit.revision': 'Hardware/controller revision',
+  'unit.batch': 'Production batch year of the unit (e.g. 2021; parsed for 202x only)',
   'software.version': 'Software/firmware version',
   'component.replaced': 'Component recently replaced (e.g. sfp, fan, psu)',
   'action.performed': 'An action that was performed (e.g. interface.reset, reboot, sfp.replace)',

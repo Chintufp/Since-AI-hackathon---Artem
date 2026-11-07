@@ -82,6 +82,8 @@ export interface EngineOptions {
   followupsDir?: string;
   /** B1: follow-ups imported only when Elisa's thread is absent (default data/demo/followups-synthetic). */
   followupsSyntheticDir?: string;
+  /** B5: the generated "experts disagree" thread imported by the demo reset (default data/demo/experts-disagree). */
+  expertsDisagreeDir?: string;
   /**
    * B1: capture-time standing gaps. They are always recorded on import (and on clock moves); `ask: true` (wired by the
    * service, the MCP server and the demo scripts from org-config) also asks them through the coordinator.

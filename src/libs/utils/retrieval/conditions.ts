@@ -35,6 +35,13 @@ export interface AgeFold {
   olderThroughYear: number | null;
   /** Regex sources (case-insensitive) that mark a condition label as hedged. */
   hedgeMarkers?: string[];
+  /**
+   * B5: a production-batch key whose value is a year (e.g. 'unit.batch'). A case whose flat batch year is after
+   * `olderThroughYear` conflicts with a problem that states `ageKey` = `olderValue` (an older unit is not from a later
+   * batch). Conflict only: the batch is never folded into an age, so a problem that says nothing about age still sees
+   * the batch as its own missing key.
+   */
+  batchKey?: string;
 }
 
 /** True when a condition is hedged in its source or only inferred, so it must not drive consequential decisions. */
@@ -136,6 +143,16 @@ export function compareConditions(problemIn: Condition[], caseIn: Condition[], o
     const answers = all.filter(isAnswerMarker);
     return answers.length ? answers : all;
   };
+  // B5: the label of the problem's flat "older unit" when the case records a later batch year (see AgeFold.batchKey).
+  const olderVsLaterBatch = (c: Condition): string | undefined => {
+    const f = opts.ageFold;
+    if (!f?.batchKey || f.olderThroughYear === null || c.key !== f.batchKey || c.operator !== 'eq' || isSoftCondition(c, f.hedgeMarkers)) return undefined;
+    if (caseConditions.some((x) => x.key === f.ageKey)) return undefined;
+    const y = num(c.value);
+    if (y === undefined || y <= f.olderThroughYear) return undefined;
+    const older = (byKey.get(f.ageKey) ?? []).find((p) => p.operator === 'eq' && !isAnswerMarker(p) && same(p.value, f.olderValue));
+    return older ? (older.label ?? 'Older unit') : undefined;
+  };
   for (const c of caseConditions) {
     if (ignored.has(c.key)) continue;
     const ps = problemFor(c.key);
@@ -149,6 +166,8 @@ export function compareConditions(problemIn: Condition[], caseIn: Condition[], o
       out.matching.push(c);
     } else if (conflict) {
       out.conflicting.push({ ...c, label: `${labelOf(c)} (this problem: ${conflict.p.label ?? `${conflict.p.key}=${describe(conflict.p)}`})` });
+    } else if (!ps.length && olderVsLaterBatch(c)) {
+      out.conflicting.push({ ...c, label: `${labelOf(c)} (this problem: ${olderVsLaterBatch(c)})` });
     } else if (!seenMissing.has(c.key)) {
       seenMissing.add(c.key);
       out.missing.push({ key: c.key, label: labelOf(c) });

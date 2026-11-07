@@ -12,7 +12,8 @@ export const DEFAULT_ELISA_DIR = join(REPO_ROOT, 'private', 'Elisa_SinceAI2026',
  *  - every 'demo' split family (sources/ and people.json only; truth.json and incoming.json are never read),
  *  - the developer fixture data/fixtures/dev-family-01 when present,
  *  - the generated dated follow-ups in data/demo/followups (B1) when present, and data/demo/followups-synthetic when
- *    Elisa's thread was not imported.
+ *    Elisa's thread was not imported,
+ *  - the generated experts-disagree thread in data/demo/experts-disagree (B5) when present.
  * seed 'empty' only clears.
  */
 export type DemoResetResult = { ok: true; imported: ImportResponse[]; defaultPersonEntityId?: string };
@@ -66,5 +67,9 @@ export async function resetDemo(engine: Engine, seed: 'elisa' | 'synthetic' | 'e
   // on the synthetic TRN-117 family keeps the before/after-14-Oct story working (DECISIONS-engine.md D-B1-34).
   const synthetic = opts.followupsSyntheticDir ?? join(REPO_ROOT, 'data', 'demo', 'followups-synthetic');
   if (!elisa && existsSync(synthetic)) imported.push(engine.importData({ format: 'scenario-dir', path: synthetic }));
+  // B5: Helmi's generated TRN-512 thread (2021 batch: clear the forwarding table), the second expert of the "experts
+  // disagree" story; see data/demo/experts-disagree/README.md and DECISIONS-disagree.md.
+  const disagree = opts.expertsDisagreeDir ?? join(REPO_ROOT, 'data', 'demo', 'experts-disagree');
+  if (existsSync(disagree)) imported.push(engine.importData({ format: 'scenario-dir', path: disagree }));
   return finish();
 }

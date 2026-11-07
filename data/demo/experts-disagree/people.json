@@ -1,0 +1,33 @@
+{
+  "people": [
+    {
+      "id": "person:directory:aarne-koskela",
+      "name": "Aarne Koskela",
+      "role": "Field Engineer",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:teams:Aarne Koskela",
+        "person:slack:U101",
+        "person:email:aarne.koskela@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:helmi-virtanen",
+      "name": "Helmi Virtanen",
+      "role": "Network Expert",
+      "groups": [
+        "transport",
+        "noc"
+      ],
+      "actorIds": [
+        "person:teams:Helmi Virtanen",
+        "person:slack:U102",
+        "person:email:helmi.virtanen@kalevanet.example"
+      ],
+      "available": true
+    }
+  ]
+}

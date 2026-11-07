@@ -118,8 +118,12 @@ export function commitProposal(store: KnowledgeStore, proposal: ExtractionPropos
     const entityIdsFor = (names: string[]): string[] => [...new Set(names.map((n) => nameToEntity.get(norm(n))?.id).filter((x): x is string => !!x))];
 
     // ---- cases & claims -----------------------------------------------------------------------
+    // A case needs a reported symptom (an observation claim) or an asset entity; an aside without either stays case-less
+    // (its claims and evidence are still kept, just not attached to a case).
+    const hasProblem = (inc: (typeof proposal.incidents)[number]): boolean =>
+      inc.key.startsWith('asset:') || proposal.claims.some((c) => c.type === 'observation' && inc.evidenceIds.includes(c.evidence[0]?.evidenceId ?? ''));
     const incidentOf = new Map<string, (typeof proposal.incidents)[number]>();
-    for (const inc of proposal.incidents) for (const id of inc.evidenceIds) incidentOf.set(id, inc);
+    for (const inc of proposal.incidents) if (hasProblem(inc)) for (const id of inc.evidenceIds) incidentOf.set(id, inc);
     const touchedCases = new Map<string, { key: string; title: string; evidenceIds: Set<string>; asset?: string }>();
     const claimByLinkKey = new Map<string, string>();
     for (const pc of proposal.claims) {

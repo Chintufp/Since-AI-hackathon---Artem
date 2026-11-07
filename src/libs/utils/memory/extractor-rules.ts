@@ -290,7 +290,7 @@ export function extractFromContext(context: ConversationContext, cfg: Extraction
               claims.push({
                 subjectEntityNames: subjects(t), assertedByActorId: author.id, evidence: [r], // the advice it refers to is context (in the statement), not a second source
                 type: 'action', statement, action: [act], order: mi,
-                condition: { key: 'action.performed', operator: 'eq', value: act.name, origin: 'reported', evidence: [r], label: `Performed: ${act.name}` },
+                condition: { key: 'action.performed', operator: 'eq', value: act.name, origin: 'reported', evidence: [r], label: `Performed: ${act.name.replace(/\./g, ' ')}` },
               });
             }
             mark(m.e.id, 'action');
@@ -313,10 +313,11 @@ export function extractFromContext(context: ConversationContext, cfg: Extraction
         }
         // 7. conditions (never from hypothetical/advice sentences, which returned above)
         const parses = condParses(t, config);
-        const hedged = config.hedges.test(t);
         for (const p of parses) {
           if (!p.res) continue;
-          const cond: Condition = { key: p.key, operator: p.res.operator, value: p.res.value, origin: 'reported', evidence: [r], label: hedged ? `${p.res.label} (hedged in source)` : p.res.label };
+          // Hedging is not in the label; it stays in the verbatim statement (the case view flags it). Origin stays 'reported'
+          // because downstream matching treats an 'inferred' origin as not settling a distinguishing condition.
+          const cond: Condition = { key: p.key, operator: p.res.operator, value: p.res.value, origin: 'reported', evidence: [r], label: p.res.label };
           push({ type: 'condition', statement: t, condition: cond });
           addLink(m, 'observed-condition', [r]);
           if (lastCheckAdvice && lastCheckAdvice.authorId !== author.id && localIdx - lastCheckAdvice.msgIdx <= 2) addLink(m, 'performed-check', [r]);

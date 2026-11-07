@@ -83,7 +83,10 @@ test('"I think" on a first-person fact is a hedge, not a hypothesis', () => {
   const p = extractFromContext(chat([['Ann', 'RTR-11 keeps failing.'], ['Bo', 'Which version?'], ['Ann', 'Version 2.3.4, installed around 2018 I think.']]));
   const c = p.claims.find((x) => x.condition?.key === 'unit.installed_year')!;
   assert.equal(c.type, 'condition');
-  assert.match(c.condition!.label!, /hedged/);
+  assert.equal(c.condition!.origin, 'reported');
+  assert.match(c.statement, /I think/);
+  assert.doesNotMatch(c.condition!.label!, /hedged/);
+  assert.equal(c.condition!.label, 'Installed around 2018');
 });
 
 test('core logic contains no demo incident, telecom ids or person names (configuration only)', () => {

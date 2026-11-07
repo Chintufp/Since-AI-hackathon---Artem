@@ -69,7 +69,7 @@ function expectCommonShape(s: KnowledgeStore, spec: { asset: string; chatPath: s
   const green = v.timeline.filter((n) => n.kind === 'reported');
   assert.ok(green.length >= 1);
   assert.match(green[0]!.detail, /unconfirmed/i);
-  assert.match(green[0]!.detail, /timing/);
+  assert.match(green[0]!.detail, /timing/i);
   assert.match(green[0]!.detail, /whether it lasted/);
   assert.equal(v.timeline.at(-1)!.kind, 'reported');
   assert.ok(v.sources.length >= 10 && v.sources.every((x) => x.excerpt.length > 0));

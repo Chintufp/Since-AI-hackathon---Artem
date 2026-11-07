@@ -50,7 +50,7 @@ export interface ExtractionConfig {
   outcomeNoChange: RegExp;
   outcomeWorse: RegExp;
   outcomeRecurred: RegExp;
-  /** Words that mark a statement as hedged (kept in the claim label). */
+  /** Words that mark a statement as hedged (the case view flags hedged conditions from the statement; labels stay plain). */
   hedges: RegExp;
 }
 
@@ -60,7 +60,7 @@ export const defaultConditionParsers: ConditionParser[] = [
   {
     key: 'interface.status',
     pattern: /\b(?:link|interface|port)(?:\s+status)?\s*(?:=|:|is|are|stays|remains)?\s*(up|down)\b/i,
-    build: (m) => ({ operator: 'eq', value: v(m[1]!.toLowerCase()), label: `Interface ${m[1]!.toUpperCase()}` }),
+    build: (m) => ({ operator: 'eq', value: v(m[1]!.toLowerCase()), label: `Interface ${m[1]!.toLowerCase()}` }),
   },
   {
     key: 'optical.level',

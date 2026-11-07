@@ -5,6 +5,7 @@ import { stableId, unknownTime } from '../contracts/index.ts';
 import { compareTime } from '../connectors/time.ts';
 import { linkSetByHuman } from './human.ts';
 import { inferActions, inferOutcome } from './extractor-rules.ts';
+import { caseLabel } from './case-label.ts';
 
 export const isLive = (c: Claim): boolean => c.status === 'provisional' || c.status === 'supported';
 
@@ -184,6 +185,8 @@ export function rebuildCase(store: KnowledgeStore, caseId: string, options: Rebu
 
   const next: Case = {
     ...c,
+    // Short label (asset + few words); the long problem sentence stays in the observation claim.
+    title: caseLabel(store, c, live, order),
     status,
     observationClaimIds: live.filter((x) => x.type === 'observation').map((x) => x.id),
     hypothesisClaimIds: live.filter((x) => x.type === 'hypothesis').map((x) => x.id),

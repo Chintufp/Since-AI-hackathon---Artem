@@ -299,4 +299,14 @@
 /* desktop (Artem 7 Nov): image attachments show a small thumbnail in their chip */
 #kt-panel .rf-chip-thumb { width:28px; height:28px; object-fit:cover; border-radius:4px; background:#e9ecee; flex:0 0 28px; }
 #kt-panel .rf-chip:has(.rf-chip-thumb) { padding:3px 7px 3px 3px; }
+/* desktop (Artem 7 Nov): Connections page, two columns of rounded tiles, nothing connected yet */
+#kt-panel .rf-conn-note { font-size:12px; line-height:1.5; color:#747b82; margin:0 0 14px; }
+#kt-panel .rf-conn-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; max-height:min(330px, calc(var(--kt-vh) - 330px)); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; padding-bottom:4px; }
+#kt-panel .rf-conn { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; aspect-ratio:1.35; border:1px solid #e3e4e5; border-radius:14px; background:#fafbfb; padding:12px; cursor:default; color:#5e676e; }
+#kt-panel .rf-conn:hover { border-color:#d3d7da; }
+#kt-panel .rf-conn-logo { width:34px; height:34px; border-radius:9px; background:var(--c); color:#fff; display:grid; place-items:center; font-size:15px; font-weight:600; letter-spacing:-.02em; opacity:.55; filter:saturate(.7); }
+#kt-panel .rf-conn-name { font-size:12px; line-height:1.3; text-align:center; color:#6b7278; }
+#kt-panel .rf-conn-soon { position:absolute; inset:0; display:grid; place-items:center; border-radius:14px; background:#fffffff2; font-size:12px; color:#4b5258; opacity:0; transition:opacity 120ms ease; pointer-events:none; }
+#kt-panel .rf-conn[data-soon="1"] .rf-conn-soon { opacity:1; }
+#kt-panel .rf-conn:focus-visible { outline:2px solid #8b939a; outline-offset:2px; }
 

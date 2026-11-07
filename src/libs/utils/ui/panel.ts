@@ -28,9 +28,9 @@ import type { QuestionWatch } from './question-watch.ts';
 import { focusOptions, trackModality } from './focus.ts';
 import type { InputModality } from './focus.ts';
 
-export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'receipt' | 'result' | 'people' | 'case' | 'contact' | 'points';
+export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'receipt' | 'result' | 'people' | 'case' | 'contact' | 'points' | 'connections';
 const RESTORABLE: ViewName[] = ['input', 'queue', 'settings'];
-const BACK: Partial<Record<ViewName, ViewName>> = { result: 'input', people: 'result', case: 'people', contact: 'people', points: 'settings' };
+const BACK: Partial<Record<ViewName, ViewName>> = { result: 'input', people: 'result', case: 'people', contact: 'people', points: 'settings', connections: 'settings' };
 
 export interface PanelOptions {
   root: HTMLElement;
@@ -147,6 +147,7 @@ const TEMPLATE = `
      <label class="rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox"></label>
      <label class="rf-setting rf-option"><span>Reduced motion</span><input class="rf-motion" type="checkbox"></label>
      <div class="rf-setting rf-option"><span>Points &amp; rating</span><button class="rf-later" type="button" data-action="points">Open</button></div>
+     <div class="rf-setting rf-option"><span>Connections</span><button class="rf-later" type="button" data-action="connections">Open</button></div>
      <label class="rf-setting rf-option"><span>Sound</span><em class="rf-setting-note">No sounds yet</em><input class="rf-sound" type="checkbox" disabled aria-label="Sound (no sounds yet)"></label>
      <div class="rf-setting rf-option"><span>Demo data</span><button class="rf-later" type="button" data-action="reset-demo">Reset demo</button></div>
      <label class="rf-setting rf-option rf-desktop-companion" hidden><span>Fidgets</span><input class="rf-fidgets" type="checkbox"></label>
@@ -167,6 +168,11 @@ const TEMPLATE = `
      <p class="rf-points-sub">Recent</p><div class="rf-points-events"></div>
      <p class="rf-points-sub">Participants</p><div class="rf-points-list"></div>
     </div>
+   </section>
+   <section class="rf-view rf-panel-content rf-connections-view" data-view="connections" aria-label="Connections" hidden>
+    <h2>Connections</h2><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back"><i data-icon="arrow-left"></i></button>
+    <p class="rf-conn-note">Channels Lumi will read as they are, through Nango. Nothing is connected yet.</p>
+    <div class="rf-conn-grid"><button class="rf-conn" type="button" data-action="conn" data-conn="slack" aria-label="Slack (available soon)"><span class="rf-conn-logo" style="--c:#4A154B">S</span><span class="rf-conn-name">Slack</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="teams" aria-label="Microsoft Teams (available soon)"><span class="rf-conn-logo" style="--c:#4B53BC">T</span><span class="rf-conn-name">Microsoft Teams</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="outlook" aria-label="Outlook mail (available soon)"><span class="rf-conn-logo" style="--c:#0F6CBD">O</span><span class="rf-conn-name">Outlook mail</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="gmail" aria-label="Gmail (available soon)"><span class="rf-conn-logo" style="--c:#C5221F">M</span><span class="rf-conn-name">Gmail</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="jira" aria-label="Jira (available soon)"><span class="rf-conn-logo" style="--c:#0052CC">J</span><span class="rf-conn-name">Jira</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="confluence" aria-label="Confluence (available soon)"><span class="rf-conn-logo" style="--c:#1868DB">C</span><span class="rf-conn-name">Confluence</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="servicenow" aria-label="ServiceNow (available soon)"><span class="rf-conn-logo" style="--c:#032D42">N</span><span class="rf-conn-name">ServiceNow</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="github" aria-label="GitHub (available soon)"><span class="rf-conn-logo" style="--c:#24292F">G</span><span class="rf-conn-name">GitHub</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button></div>
    </section>
    <section class="rf-view rf-result" data-view="result" aria-label="Result" hidden>
     <div class="rf-result-head"><p class="rf-result-title"></p><div class="rf-result-notes"></div><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to writing"><i data-icon="arrow-left"></i></button></div>
@@ -1055,6 +1061,12 @@ export function createPanel(options: PanelOptions): Panel {
       case 'people': peopleFromCase = false; setView('people'); focusFor('people'); return;
       case 'case-people': peopleFromCase = true; setView('people'); focusFor('people'); return;
       case 'points': pointsFrom = state.view === 'receipt' ? 'receipt' : 'settings'; setView('points'); focusFor('points'); return;
+      case 'connections': setView('connections'); focusFor('connections'); return;
+      case 'conn': { // Artem 7 Nov: nothing connects yet; a click shows "Available soon" on that tile for a moment
+        button.dataset.soon = '1';
+        setTimeout(() => { delete button.dataset.soon; }, 1400);
+        return;
+      }
       case 'back': { const to = state.view === 'points' ? pointsFrom : state.view === 'people' && peopleFromCase ? 'case' : BACK[state.view]; if (to) { setView(to); focusFor(to); } return; }
       case 'view-case': {
         const id = button.dataset.caseId!;

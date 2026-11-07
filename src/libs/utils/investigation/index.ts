@@ -1,0 +1,17 @@
+export { investigate, investigationId, startedBy } from './investigate.ts';
+export type { InvestigateDeps, InvestigateInput } from './investigate.ts';
+export { defaultInvestigationSettings, isDiagnosticAction } from './settings.ts';
+export type { InvestigationSettings, ObservabilityPolicy, QuestionTemplateSettings } from './settings.ts';
+export { parseProblemText, DEFAULT_LEXICON } from './problem-parser.ts';
+export type { LexiconRule, ParserOptions, ParsedProblem } from './problem-parser.ts';
+export { RulesAssessor, applicabilityFor } from './assessor.ts';
+export { loadCaseFacts, supportFor, OUTCOME_KEY } from './case-facts.ts';
+export type { CaseFacts, Support } from './case-facts.ts';
+export { recommend } from './recommend.ts';
+export { buildGaps, makeGapId, parseGapId } from './gaps.ts';
+export type { GapKind } from './gaps.ts';
+export { buildPeople } from './people.ts';
+export { computeBudget, budgetViolations, questionsForInvestigation } from './budget.ts';
+export { storeDirectory } from './directory.ts';
+export type { PersonDirectory, DirectoryPerson } from './directory.ts';
+export type { HypothesisDetail } from './types.ts';

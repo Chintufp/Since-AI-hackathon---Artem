@@ -548,7 +548,7 @@ export function createPanel(options: PanelOptions): Panel {
       syncPanelA11y();
       motion.panel(true);
       focusFor(state.view);
-      avatar.play('hello');
+      avatar.refresh(); // v009: opening itself is quiet; a direct click adds the Springy tap, programmatic opens do not
       persist();
       return;
     }
@@ -738,7 +738,7 @@ export function createPanel(options: PanelOptions): Panel {
     if (!button || !root.contains(button)) return;
     const a = button.dataset.action!;
     switch (a) {
-      case 'avatar': state.panelOpen ? closePanel() : openPanel(); return;
+      case 'avatar': state.panelOpen ? closePanel() : openPanel(); avatar.play('click'); return; // v009: the Springy tap on every direct click
       case 'yes': case 'no': case 'unknown': case 'later': case 'dismiss': void respond(a); return;
       case 'input': case 'settings': case 'queue':
         if (a === 'queue') void refreshQuestions();

@@ -1,7 +1,7 @@
-/** Port of compact-core-acts.js (v006): eight core tracks. Frame tables are unchanged. */
+/** Port of compact-core-acts.js (v006, plus the v007 'click' Springy tap): nine core tracks. Frame tables are unchanged. */
 import type { Act, DrawTarget, Kit } from './types.ts';
 
-export type CoreActKey = 'idle3' | 'hello' | 'backflip' | 'half' | 'hop' | 'stretching' | 'peek' | 'entrance';
+export type CoreActKey = 'idle3' | 'click' | 'hello' | 'backflip' | 'half' | 'hop' | 'stretching' | 'peek' | 'entrance';
 
 export function createCompactCoreActs({ kit: k }: { kit: Kit }): Record<CoreActKey, Act> {
   const P = k.palette;
@@ -16,6 +16,14 @@ export function createCompactCoreActs({ kit: k }: { kit: Kit }): Record<CoreActK
       beats: [{ frame: 0, label: 'Rest' }, { frame: 8, label: 'Settle' }, { frame: 16, label: 'Breathe' }],
       render(c, f) {
         scene(c, { shape: f < 8 ? 'neutral' : f < 16 ? 'low' : 'high' });
+      },
+    },
+    click: {
+      label: 'Springy tap', fps: 15, frames: 10, stillFrame: 9,
+      beats: [{ frame: 0, label: 'Notice' }, { frame: 2, label: 'Squash' }, { frame: 4, label: 'Spring' }, { frame: 6, label: 'Rebound' }, { frame: 9, label: 'Settle' }],
+      render(c, f) {
+        const shapes = ['neutral', 'crouch', 'deep', 'crouch', 'stretch', 'neutral', 'stretch', 'neutral', 'neutral', 'neutral'];
+        scene(c, { shape: shapes[f], expression: 'happy' });
       },
     },
     hello: {

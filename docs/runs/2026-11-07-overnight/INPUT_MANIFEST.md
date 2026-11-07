@@ -48,3 +48,16 @@ The runtime reads these from `private/` when present. Committed fixtures under `
 - macOS 26.6.2, Apple M5, 10 cores, 24 GB RAM. Node v26.11.1, npm 11.20.0, pnpm 10.18.2, Python 3.14 (numpy only; no torch), uv available, Xcode CLT present, Google Chrome and Docker installed.
 - Claude runtime: Claude Code (Fable 5.1 orchestrator, Ultracode workflows). Agent tool model options verified from the tool schema: `sonnet`, `opus`, `haiku`, `fable`. Requested "Sonnet workers / Opus 5.5 agents" map to `model: "sonnet"` and `model: "opus"`. Exact runtime IDs are not exposed to me beyond those labels.
 - No ChatGPT/Codex route used. No model API calls from the application or experiment harness.
+
+## Design inputs added on the morning of 7 Nov (ChatGPT lab v007 / v009, user asked for the Springy tap on click)
+
+| Hash | File | Role |
+| --- | --- | --- |
+| 0b6649790901d6ce | design-lab/chatgpt/pixel-motion/v007/modules/compact-core-acts.js | v006 core acts + the click (Springy tap) act |
+| fc87c60df6b5b028 | design-lab/chatgpt/pixel-motion/v007/NOTES.md | Springy tap rationale and checks |
+| 424415c4683aac27 | design-lab/chatgpt/pixel-motion/v007/evidence/poses.json | Measured deep/rebound pose sizes |
+| f5ef59dc9614cfbc | design-lab/chatgpt/ui/v009/app.js | Avatar click plays the Springy tap; open is quiet |
+| 0b6649790901d6ce | design-lab/chatgpt/ui/v009/sources/compact-core-acts.js | Same as pixel-motion v007 core acts |
+| a819524416ec1606 | design-lab/chatgpt/ui/v009/NOTES.md | v009 scope: click reaction only, layout as v008 |
+
+Tracked with `git add -f` like the earlier selected sources; the rest of v007/v009 (frame caches, screenshots) stays untracked.

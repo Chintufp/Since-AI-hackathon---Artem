@@ -12,7 +12,7 @@ import { createCompactStateActs } from './state-acts.ts';
 import { createCompactPropActs } from './prop-acts.ts';
 
 const root = join(import.meta.dirname, '../../../..');
-const ui = join(root, 'design-lab/chatgpt/ui/v008/sources');
+const ui = join(root, 'design-lab/chatgpt/ui/v009/sources'); // v009 sources = pixel-motion v007 modules (v006 + the 'click' Springy tap)
 const pm = join(root, 'design-lab/chatgpt/pixel-motion/v006/modules');
 const have = existsSync(join(ui, 'minimal-kit.js')) && existsSync(join(pm, 'compact-prop-acts.js'));
 
@@ -31,7 +31,7 @@ const recorder = () => {
   };
 };
 
-test('TypeScript port draws exactly what the frozen v008/v006 sources draw', { skip: !have }, () => {
+test('TypeScript port draws exactly what the frozen v009/v007 (+v006 props) sources draw', { skip: !have }, () => {
   const read = (p: string) => readFileSync(p, 'utf8');
   const lib = new Function(
     read(join(ui, 'minimal-kit.js')) + read(join(ui, 'compact-core-acts.js')) + read(join(ui, 'compact-state-acts.js')) + read(join(pm, 'compact-prop-acts.js')) +

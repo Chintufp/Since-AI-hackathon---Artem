@@ -351,3 +351,15 @@ test('launch with a drop surface under reduced motion: still, drop never shown; 
     assert.equal(s.avatar.status().mode, 'hello');
   } finally { s.restore(); mock.timers.reset(); }
 });
+
+test('click (Springy tap, v007): ten frames at 15 fps, deep squash 36x16 and two 32 px rebounds, ends neutral', () => {
+  const act = core.click;
+  assert.equal(act.frames, 10);
+  assert.equal(act.fps, 15);
+  assert.equal(act.stillFrame, 9);
+  const size = (f: number) => { const b = bounds(new Map([...frameCtx(act, f).raster()].filter(([, v]) => v !== kit.palette.shadow))); return { w: b.right - b.left + 1, h: b.bottom - b.top + 1 }; };
+  assert.deepEqual(size(2), { w: 36, h: 16 }, 'deep frame');
+  assert.equal(size(4).h, 32, 'first rebound');
+  assert.equal(size(6).h, 32, 'second rebound');
+  assert.equal(signature(frameCtx(act, 9).raster()), signature(frameCtx(act, 7).raster()));
+});

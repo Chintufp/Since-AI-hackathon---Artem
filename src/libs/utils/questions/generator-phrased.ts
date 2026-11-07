@@ -236,7 +236,7 @@ export class PhrasedQuestionGenerator implements QuestionGenerator {
     let failure: string | undefined;
     const out = await Promise.all(detailed.map(async ({ candidate, facts }) => {
       if (!phraseable(candidate, facts)) return candidate;
-      const caseFacts = this.visibleFacts(facts.caseId, state.id, gate);
+      const caseFacts = visibleCaseFacts(this.o.ctx, facts.caseId, state.id, gate);
       const prompt = buildPhrasePrompt(facts, caseFacts);
       const r = await withFallback('phrase',
         async () => {
@@ -248,11 +248,7 @@ export class PhrasedQuestionGenerator implements QuestionGenerator {
         () => undefined,
         { route: this.modelRoute, rulesRoute: this.o.inner.route, timeoutMs: budget, onFailure: (_s, reason, code) => { failure = code; this.o.onFailure?.(reason, code); } });
       if (r.value === undefined) return { ...candidate, phrasing: { by: 'template' as const, reason: `phrase model failed: ${r.fallback?.reason ?? 'unknown'}` } };
-      const verdict = validatePhrase(r.value, {
-        asset: facts.asset, ...(facts.conditionLabel ? { conditionLabel: facts.conditionLabel } : {}),
-        ...(facts.actionNoun ? { actionNoun: facts.actionNoun, caseLabel: facts.caseLabel } : {}),
-        inputText: [facts.gapDescription, facts.whatAnswerChanges, facts.caseLabel, caseFacts, facts.templateText, facts.problemText].join('\n'), templateText: facts.templateText,
-      });
+      const verdict = validatePhrase(r.value, phraseCheckFor(facts, caseFacts));
       if (!verdict.ok) return { ...candidate, phrasing: { by: 'template' as const, reason: `model wording rejected: ${verdict.reason}` } };
       // The model returned the template's own sentence: nothing was worded by it, so the card must not say so.
       if (r.value.toLowerCase() === candidate.text.replace(/\s+/g, ' ').trim().toLowerCase()) return { ...candidate, phrasing: { by: 'template' as const, reason: 'the model kept the template wording' } };
@@ -263,17 +259,26 @@ export class PhrasedQuestionGenerator implements QuestionGenerator {
     this.last = accepted ? this.modelRoute : failure ? fallbackRoute(this.o.inner.route, 'phrase', failure) : this.o.inner.route;
     return withEvaluative(this.o.ctx, out);
   }
+}
 
-  /** The case facts the requester may see, as short lines: conditions, causes, advice, attempts, outcomes. */
-  private visibleFacts(caseId: string, investigationId: string, gate: ReturnType<typeof evidenceGate> | undefined): string {
-    const f = loadCaseFacts(this.o.ctx.store, caseId, investigationId, this.o.ctx.settings, gate);
-    const lines = [
-      ...(f.case?.conditions ?? []).map((c) => `condition: ${c.label ?? c.key}${c.value !== undefined && !(c.label ?? '').includes(String(c.value)) ? ` = ${String(c.value)}` : ''}`),
-      ...f.hypothesisClaims.map((c) => `possible cause: ${c.statement}`),
-      ...f.adviceClaims.map((c) => `advice: ${c.statement}`),
-      ...f.attempts.map((a) => `attempt: ${a.action}${a.performedBy ? ` by ${a.performedBy.displayName}` : ''}`),
-      ...f.outcomes.map((o) => `outcome: ${o.result}`),
-    ];
-    return [...new Set(lines)].slice(0, 16).join('\n');
-  }
+/** The validator's input for a candidate (B7's kt_propose_question checks an agent's wording with the same input). */
+export function phraseCheckFor(facts: PhraseFacts, caseFacts: string): PhraseCheck {
+  return {
+    asset: facts.asset, ...(facts.conditionLabel ? { conditionLabel: facts.conditionLabel } : {}),
+    ...(facts.actionNoun ? { actionNoun: facts.actionNoun, caseLabel: facts.caseLabel } : {}),
+    inputText: [facts.gapDescription, facts.whatAnswerChanges, facts.caseLabel, caseFacts, facts.templateText, facts.problemText].join('\n'), templateText: facts.templateText,
+  };
+}
+
+/** The case facts the requester may see, as short lines: conditions, causes, advice, attempts, outcomes. */
+export function visibleCaseFacts(ctx: QuestionContext, caseId: string, investigationId: string, gate: ReturnType<typeof evidenceGate> | undefined): string {
+  const f = loadCaseFacts(ctx.store, caseId, investigationId, ctx.settings, gate);
+  const lines = [
+    ...(f.case?.conditions ?? []).map((c) => `condition: ${c.label ?? c.key}${c.value !== undefined && !(c.label ?? '').includes(String(c.value)) ? ` = ${String(c.value)}` : ''}`),
+    ...f.hypothesisClaims.map((c) => `possible cause: ${c.statement}`),
+    ...f.adviceClaims.map((c) => `advice: ${c.statement}`),
+    ...f.attempts.map((a) => `attempt: ${a.action}${a.performedBy ? ` by ${a.performedBy.displayName}` : ''}`),
+    ...f.outcomes.map((o) => `outcome: ${o.result}`),
+  ];
+  return [...new Set(lines)].slice(0, 16).join('\n');
 }

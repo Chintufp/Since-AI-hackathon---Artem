@@ -9,3 +9,6 @@ export type { EligibilityOptions } from './eligibility.ts';
 export { QuestionCoordinator } from './coordinator.ts';
 export type { CoordinatorDeps, RequestResult, AnswerResult, RequestOptions, QuestionPlan, Refusal, WouldAsk, BatchItem } from './coordinator.ts';
 export type { QuestionContext } from './context.ts';
+export { AgentWordedGenerator, acceptedWordings, checkAgentWording, templateFor, AGENT_WORDING_EVENT, AGENT_WORDED_ROUTE } from './agent-wording.ts';
+export type { ProposedWording } from './agent-wording.ts';
+export { phraseCheckFor, visibleCaseFacts } from './generator-phrased.ts';

@@ -74,16 +74,43 @@ export function createMcpServer(engine: Engine, defaultPrincipal: Principal = DE
     });
 
   reg('kt_request_clarification',
-    'Run the clarification loop for an investigation you started: the engine picks at most one question for the person best placed to answer, subject to per-person daily limits, cooldown, open-question and per-investigation caps and access checks. Returns {status: "question-open", questionId} or {status: "deferred"|"exhausted"|"not-needed", reason}. A question is asked of a human, may stay unanswered, and an answer is one person\'s attributed report, not verification. Poll kt_clarification_status.',
-    { investigationId: z.string().min(1), principal: principalArg },
+    'Run the clarification loop for an investigation you started: the engine picks at most one question for the person best placed to answer, subject to per-person daily limits (3), one open question per person, cooldown, at most 3 questions per investigation, access checks and quiet hours (a question raised at night waits, queued, until 07:00). Optional: gapId (from kt_list_gaps) asks about that gap only; preferPersonEntityId (from kt_find_people or kt_list_gaps) asks that person only if they are an eligible recipient for it, otherwise {status: "refused", reason, wouldAsk} names who the engine would ask instead; gapIds (max 3) asks up to three gaps at once, each to its own person, every budget still applying. You never contact a person directly: the question reaches them through their companion. Returns {status: "question-open", questionId} or {status: "deferred"|"exhausted"|"not-needed"|"refused", reason}; batch mode returns questions[] (poll each with kt_clarification_status). An answer is one person\'s attributed report, not verification.',
+    {
+      investigationId: z.string().min(1), principal: principalArg,
+      gapId: z.string().min(1).optional().describe('Ask about this gap only (an id from kt_list_gaps)'),
+      preferPersonEntityId: z.string().min(1).optional().describe('Ask this person (an entity id from kt_find_people or kt_list_gaps) only if every gate allows it'),
+      gapIds: z.array(z.string().min(1)).min(1).max(3).optional().describe('Batch mode: up to 3 gap ids of this investigation, each asked of its own best person'),
+    },
     async (a) => {
-      const r = await engine.requestClarification(asAgent(a.principal, defaultPrincipal), a.investigationId);
+      const r = await engine.requestClarification(asAgent(a.principal, defaultPrincipal), a.investigationId, {
+        ...(a.gapId ? { gapId: a.gapId } : {}), ...(a.preferPersonEntityId ? { preferPersonEntityId: a.preferPersonEntityId } : {}), ...(a.gapIds ? { gapIds: a.gapIds } : {}),
+      });
       return {
         status: r.status, reason: r.reason, investigationId: r.state.id,
-        ...(r.question ? { questionId: r.question.id, questionStatus: r.question.status, text: r.question.candidate.text } : {}),
-        loop: r.state.loop,
+        ...(r.question ? {
+          questionId: r.question.id, questionStatus: r.question.status, text: r.question.candidate.text, gapId: r.question.candidate.gapId, personEntityId: r.question.personEntityId,
+          ...(r.question.status === 'queued' && r.question.deliverAfter ? { deliverAfter: r.question.deliverAfter } : {}),
+          ...(r.question.candidate.phrasing?.by === 'agent' ? { wordedBy: 'the agent' } : {}),
+        } : {}),
+        ...(r.refused ? { refused: r.refused } : {}), ...(r.wouldAsk ? { wouldAsk: r.wouldAsk } : {}), ...(r.questions ? { questions: r.questions } : {}),
+        loop: r.state.loop, ...(r.state.loopReason ? { loopReason: r.state.loopReason } : {}),
       };
     });
+
+  reg('kt_list_gaps',
+    `Every open gap of an investigation you started: what an answer would change, whether it decides applicability (a missing distinguishing condition) or support (an outcome), whether you can check it yourself (then record it with kt_record_observation instead of asking), and who could answer (person entity id, name, role, firsthand or not, because, and whether every gate lets them be asked now, with the gates that stop them). Plus a confidence block for the past case the recommendation rests on: support and applicability as labels with reasons and evidence references, and which open gap would move each. Confidence is never a number: retrieval similarity is not confidence. ${MEANING}`,
+    { investigationId: z.string().min(1), principal: principalArg },
+    (a) => engine.listGaps(asAgent(a.principal, defaultPrincipal), a.investigationId));
+
+  reg('kt_propose_question',
+    'Propose your own wording for the question one gap asks (gapId from kt_list_gaps). Accepted only if it is one yes/no sentence under 160 characters that names the asset and the condition (or the action and the earlier case) and introduces no name, number, part, date or action absent from the gap and the case facts you may see. On acceptance it is used for that gap\'s next question (the person sees "worded by the agent"); otherwise {accepted: false, reasons, usedText} and the template wording is used. Recipients, consequences and every gate stay the engine\'s.',
+    { investigationId: z.string().min(1), gapId: z.string().min(1), text: z.string().min(1).max(400), principal: principalArg },
+    (a) => engine.proposeQuestion(asAgent(a.principal, defaultPrincipal), a.investigationId, a.gapId, a.text));
+
+  reg('kt_store_health',
+    'How full and how correct the remembered knowledge is, over the cases you may see: completeness (six slots per case: symptom, distinguishing conditions, attempt, outcome, lasting, validity; weighted by how often each case was retrieved in the last 30 days) and correctness (claims with independent support minus contradicted claims still cited minus links made without an answer, over case claims), each with its denominators; singletons (cases with at most 2 slots filled); thin pairs; and the open standing gaps (orphan pieces seeking their partner) on those cases, which the engine asks of the person who did the work, within the same budgets and quiet hours. Restricted cases outside your groups are not counted.',
+    { principal: principalArg },
+    (a) => engine.storeHealthView(asAgent(a.principal, defaultPrincipal)));
 
   reg('kt_clarification_status',
     'Status of one clarification question you caused: queued | delivered | answered | deferred | dismissed | cancelled | expired. When answered, includes the value (yes | no | unknown) and who answered. Unknown means no factual update was made; deferred or dismissed means the person did not answer, not that the answer is no.',

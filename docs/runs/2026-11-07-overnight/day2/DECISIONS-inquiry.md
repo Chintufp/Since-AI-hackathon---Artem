@@ -34,3 +34,66 @@ eligibility checks it again). A gap that already has an open question in the inv
 `already-asked`/`duplicate` gates, so nothing is asked twice. After the call the loop line is `question-open` when any
 question opened (a later gap that found nobody does not overwrite it), "Queued until 07:00" when the first one is held.
 Reverse: delete `requestMany`.
+
+## D-B7-04 · Agent wording is a trace event and a generator wrapper; 'agent' joins `phrasing.by`
+
+`kt_propose_question` checks the text with B2's `validatePhrase` and exactly the input the phrase model gets
+(`phraseCheckFor(facts, visibleCaseFacts(...))`, both now exported from `generator-phrased.ts`; the class calls the same
+functions, so the model path is unchanged). Every proposal is traced as `question.proposed` on the investigation
+(`{gapId, text, accepted, reason?, by, at}`); RecordTypes stays closed. `AgentWordedGenerator` wraps the engine's
+generator (templates or the phrase slot) in `wiring()`: for a gap with an accepted wording it re-checks the text against
+the facts of that moment and, if it still passes and differs from the template sentence, replaces `text`, keeps
+`templateText`, sets `generatedBy` to the new route label `agent-worded@1` and `phrasing.by: 'agent'`. The question card
+then says "worded by the agent" (`views.ts wording()`). The agent's wording outranks a model's wording for that gap (the
+agent asked for it). A later rejected proposal does not erase an accepted one. An accepted wording applies to the next
+question for the gap; an already open question keeps its words (the response says so).
+Contract change (named by the brief: the card must say "worded by the agent"): `QuestionCandidate.phrasing.by` widens
+from `'model' | 'template'` to add `'agent'`. The route is `rules` (`Route` stays closed): the words are the agent's, the
+acceptance is the rules validator, and no model of ours runs; the version string and `phrasing.by` say who worded it.
+Reverse: drop the wrapper in `wiring()`; the events then do nothing.
+
+## D-B7-05 · The three new tools are MCP only
+
+`kt_list_gaps`, `kt_propose_question`, `kt_store_health` call engine methods (`listGaps`, `proposeQuestion`,
+`storeHealthView`) and have no HTTP route; their MCP_TOOLS entries say "MCP only". The route count stays 40. Why: four
+items build in parallel and B3 adds routes; the brief asks for the tools, and explicitly for no store-health route. The
+HTTP investigation result already carries the gaps (without recipients). Reverse: add routes mapping to the same methods.
+
+## D-B7-06 · Who can answer a gap, and "askable now"
+
+`kt_list_gaps` lists only open gaps. Recipients come from `findRecipients` (already gated by the requester's evidence
+visibility) for gaps a question is built for (a template candidate exists); `askableNow` is `evaluateEligibility` for
+that person and that candidate (every gate), with the violations in plain words. Quiet hours do not block: a question
+asked at night is held, so the response also says `quietHours: {now, heldUntil}`. A gap the requester can check
+(requester-observable key) or a non-consequential one (lasting) lists nobody and says why (`notAskedBecause`).
+`decides`: missing -> applicability, outcome -> support, non-consequential -> nothing.
+
+## D-B7-07 · Confidence block: labels, reasons, visible evidence, the gaps that move them
+
+For the selected hypothesis (the recommendation's basis case, `basisCaseId`): `support` and `applicability` labels from
+the assessor, reasons split from `Hypothesis.notes` (the applicability reasons are the assessor's fixed phrases:
+"conflict on distinguishing ...", "distinguishing condition not yet known ...", "non-distinguishing conflict ...", "no
+condition of the case ...", "no conflicts; ..."; every other note is about support), evidence refs = the hypothesis basis
+through the requester's evidence gate, `movedByGapIds` = open gaps on that case deciding that label, `settledBy` =
+resolved ones with what resolved them. No number anywhere in the block; a test asserts the tool's JSON has no `score` or
+`cosine` key. `null` when there is no basis case. Reverse: `confidenceView` in `service/inquiry.ts`.
+
+## D-B7-08 · storeHealth for a principal applies the evidence gate
+
+`Engine.storeHealth(who)` takes a person id (as before) or a Principal (agents); for either, the cases are those the
+principal may see by scope and by evidence (`listCases` + `visibleCase`, as the case views do), passed as `caseIds`.
+Before, a person id filtered by case scope only. Without a principal nothing changes (the reward and the experiments call
+the library directly). Slot values of a visible case are still computed from the case's records (only counts leave the
+engine, never content). `storeHealthView` adds the open standing gaps on those cases by kind and the quiet-hours state;
+the agent cannot request standing questions itself (they belong to the system's standing states), the engine asks them.
+Reverse: back to `principalFor` + scope-only in `storeHealth`.
+
+## D-B7-09 · `kt_request_clarification` with a gapId or a preference
+
+A `gapId` must belong to the investigation (404 otherwise). A gap without a question (resolved, requester can check, not
+consequential) returns `not-needed` with the reason and does not touch the loop line (another gap may still need a
+person). The open-question rule stays for single requests: if the investigation already has an open question, that one
+is returned (as before), and the reason says so when it is for another gap or another person. A preference is resolved
+through the directory (an entity id, or an actor id of that person). Refusal reason: the person's gates in plain words
+plus who the engine would ask instead (`wouldAsk {personEntityId, name, because, gapId, text}`), or that nobody else can
+be asked now.

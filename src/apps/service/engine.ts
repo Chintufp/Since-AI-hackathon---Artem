@@ -20,9 +20,12 @@ import {
   type InvestigationSettings, type PersonDirectory,
 } from '../../libs/utils/investigation/index.ts';
 import { buildCaseView, contextAssertions, defaultStandingGapSettings, importFromPath, listCases, openStore, parseAt, recordStandingGaps, resolveContextEntity, type StandingGapSettings } from '../../libs/utils/memory/index.ts';
-import { evaluateEligibility, PhrasedQuestionGenerator, TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
+import {
+  AGENT_WORDING_EVENT, AgentWordedGenerator, checkAgentWording, evaluateEligibility, PhrasedQuestionGenerator, TemplateQuestionGenerator, QuestionCoordinator, templateFor,
+  type BatchItem, type RequestResult,
+} from '../../libs/utils/questions/index.ts';
 import { createSelector, LinUcb, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
-import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
+import { HybridRetriever, canSee, evidenceGate, visibleCase } from '../../libs/utils/retrieval/index.ts';
 import { buildPeople } from '../../libs/utils/investigation/index.ts';
 import type { CandidateMatch } from '../../libs/utils/contracts/investigation.ts';
 import { awardPoints, balanceOf, getOptIn, participates, rating, revokeContribution, setOptIn, type ParticipationKind } from '../../libs/utils/participation/index.ts';
@@ -34,6 +37,8 @@ import { createDemoClock, type DemoClock, type DemoClockStatus } from './demo-cl
 import { DEFAULT_DB_PATH } from './paths.ts';
 import { badRequest, conflict, forbidden, notFound, toServiceError } from './errors.ts';
 import { ACTIVE_QUESTION, personView, polishCaveat, questionView, resultView, type InvestigationResult } from './views.ts';
+import { gapsView, notAskedReason, violationWords, type GapsView } from './inquiry.ts';
+import { inQuiet, nextWindow } from '../../libs/utils/questions/quiet-hours.ts';
 
 export { DEFAULT_DB_PATH, REPO_ROOT } from './paths.ts';
 export const SERVICE_VERSION = '0.1.0';
@@ -108,8 +113,26 @@ export interface ClarificationResult {
   state: InvestigationState;
   /** Open (queued/delivered) question for this investigation, when one exists. */
   question?: QuestionRecord;
-  status: 'question-open' | 'deferred' | 'not-needed' | 'exhausted';
+  /** 'refused' (B7): the preferred person cannot be asked for this gap; nothing was asked. */
+  status: 'question-open' | 'deferred' | 'not-needed' | 'exhausted' | 'refused';
   reason: string;
+  /** B7: on a refusal, who the engine would ask instead (when anyone is eligible now). */
+  wouldAsk?: { personEntityId: string; name: string; because?: string; gapId: string; text: string };
+  /** B7: on a refusal, the preferred person's gates. */
+  refused?: { personEntityId: string; name: string; violations: string[]; why: string[] };
+  /** B7 batch mode: one entry per requested gap, in order. */
+  questions?: Array<{
+    gapId: string; status: 'question-open' | 'deferred' | 'not-needed' | 'exhausted'; reason: string;
+    questionId?: string; questionStatus?: string; personEntityId?: string; name?: string; text?: string; deliverAfter?: string;
+  }>;
+}
+
+/** B7: options of kt_request_clarification. */
+export interface ClarificationOptions {
+  gapId?: string;
+  preferPersonEntityId?: string;
+  /** Batch mode: up to 3 gaps of this investigation, each to its own best person. */
+  gapIds?: string[];
 }
 
 const actorOf = (p: Principal) => ({ id: p.id, displayName: p.displayName });
@@ -230,10 +253,18 @@ export class Engine {
     }
   }
 
-  /** The store metric (BUILD_BRIEF 5.1, 5.2) over the cases the principal may see (all cases without one). */
-  storeHealth(principalId?: string): StoreHealth {
-    const p = principalId ? this.principalFor(principalId) : undefined;
-    return storeHealth(this.store, p, { now: this.now(), distinguishingKeys: this.invSettings().distinguishingKeys, outcomeKey: OUTCOME_KEY });
+  /**
+   * The store metric (BUILD_BRIEF 5.1, 5.2) over the cases the principal may see (all cases without one). B7: a
+   * principal (an agent over MCP) or a person id; the evidence gate applies as for every other read, so an outsider
+   * counts fewer cases.
+   */
+  storeHealth(who?: string | Principal): StoreHealth {
+    const p = who === undefined ? undefined : typeof who === 'string' ? this.principalFor(who) : this.effective(who);
+    const opts = { now: this.now(), distinguishingKeys: this.invSettings().distinguishingKeys, outcomeKey: OUTCOME_KEY };
+    if (!p) return storeHealth(this.store, undefined, opts);
+    const gate = evidenceGate(this.store, p);
+    const caseIds = listCases(this.store, p, this.orgId).filter((c) => !!visibleCase(c, gate)).map((c) => c.id);
+    return storeHealth(this.store, p, { ...opts, caseIds });
   }
 
   /**
@@ -296,7 +327,9 @@ export class Engine {
       });
     if (phrase && 'unavailable' in phrase) this.models.recordFailure('phrase', phrase.unavailable);
     const selector = this.selector(settings.coordinator.selectorId);
-    const coordinator = new QuestionCoordinator({ store: this.store, settings, selector, generator, retriever, assessor, directory, clock: this.clock, onSelectorUpdated: (sel) => this.selectorUpdated(sel) });
+    // B7: an agent's accepted wording (kt_propose_question) replaces the text of that gap's next question.
+    const worded = new AgentWordedGenerator({ inner: generator, templates, ctx: qctx });
+    const coordinator = new QuestionCoordinator({ store: this.store, settings, selector, generator: worded, retriever, assessor, directory, clock: this.clock, onSelectorUpdated: (sel) => this.selectorUpdated(sel) });
     return { settings, directory, retriever, assessor, templates, generator, selector, coordinator };
   }
 
@@ -649,25 +682,169 @@ export class Engine {
     });
   }
 
-  /** Run the clarification loop for an existing investigation. Limits and eligibility are the coordinator's, whoever asks. */
-  async requestClarification(principalIn: Principal, investigationId: string): Promise<ClarificationResult> {
+  /**
+   * Run the clarification loop for an existing investigation. Limits and eligibility are the coordinator's, whoever asks.
+   * B7: `gapId` asks about that gap only; `preferPersonEntityId` asks that person only when they are an eligible
+   * recipient for it, else the call is refused and names who would be asked instead; `gapIds` (max 3) is batch mode.
+   * The agent never reaches a person directly: the question travels through the companion (or the Slack DM) as always.
+   */
+  async requestClarification(principalIn: Principal, investigationId: string, opts: ClarificationOptions = {}): Promise<ClarificationResult> {
     this.deliverDue();
     const principal = this.effective(principalIn);
     const state0 = this.owned(investigationId, principal.id);
     const w = this.wiring();
+    if (opts.gapIds?.length) return this.requestBatch(state0, opts.gapIds, w);
+    const dir = w.directory;
+    const pref = opts.preferPersonEntityId !== undefined ? (dir.resolve(opts.preferPersonEntityId) ?? opts.preferPersonEntityId) : undefined;
+    if (opts.gapId !== undefined) {
+      const gap = state0.gaps.find((g) => g.id === opts.gapId);
+      if (!gap) throw notFound(`Unknown gap ${opts.gapId} in investigation ${investigationId}`);
+      // A gap no question is built for (resolved, the requester can check it, not consequential) asks nobody and leaves
+      // the investigation's loop line alone (another gap may still need a person).
+      if (gap.status !== 'open' || !(await templateFor(w.templates, state0, gap.id))) {
+        return { state: state0, status: 'not-needed', reason: notAskedReason({ store: this.store, settings: w.settings, directory: dir, clock: this.clock }, gap) };
+      }
+    }
     let r: RequestResult;
     try {
-      r = await w.coordinator.request(state0);
+      r = await w.coordinator.request(state0, { ...(opts.gapId ? { gapId: opts.gapId } : {}), ...(pref ? { preferPersonEntityId: pref } : {}) });
     } catch (e) {
       throw toServiceError(e);
     }
     this.sync(r.state);
-    if (r.question) return { state: r.state, question: r.question, status: 'question-open', reason: `Question ${r.question.id} is ${r.question.status}.` };
+    const nameOf = (id: string): string => dir.get(id)?.name ?? id;
+    if (r.refused) {
+      const f = r.refused;
+      const why = f.excluded ? ['already chosen for another gap in this call'] : violationWords(f.violations);
+      const instead = f.wouldAsk ? ` The engine would ask ${nameOf(f.wouldAsk.personEntityId)}${f.wouldAsk.because ? ` (${f.wouldAsk.because})` : ''} instead: pass that preferPersonEntityId, or none.` : ' Nobody else can be asked about it now either.';
+      return {
+        state: r.state, status: 'refused',
+        reason: `${nameOf(f.personEntityId)} cannot be asked about this gap: ${why.join('; ')}.${instead}`,
+        refused: { personEntityId: f.personEntityId, name: nameOf(f.personEntityId), violations: f.violations, why },
+        ...(f.wouldAsk ? { wouldAsk: { personEntityId: f.wouldAsk.personEntityId, name: nameOf(f.wouldAsk.personEntityId), ...(f.wouldAsk.because ? { because: f.wouldAsk.because } : {}), gapId: f.wouldAsk.gapId, text: f.wouldAsk.text } } : {}),
+      };
+    }
+    if (r.question) {
+      const q = r.question;
+      const held = q.status === 'queued' && q.deliverAfter ? ` It is held by quiet hours until ${q.deliverAfter} (${r.state.loopReason ?? 'nobody is woken at night'}).` : '';
+      const other = (opts.gapId && q.candidate.gapId !== opts.gapId) || (pref && q.personEntityId !== pref)
+        ? ' This is the question already open for this investigation (one at a time); cancel it with kt_cancel_clarification to ask another, or use gapIds for several gaps at once.' : '';
+      return { state: r.state, question: q, status: 'question-open', reason: `Question ${q.id} is ${q.status}.${held}${other}` };
+    }
     const violations = [...new Set(r.eligibility.flatMap((e) => e.violations))];
     const why = r.decision?.reason ?? '';
     if (r.state.loop === 'no-question-needed') return { state: r.state, status: 'not-needed', reason: 'No open consequential gap needs a person to answer.' };
     const reason = `${violations.length ? `Blocked by: ${violations.join(', ')}. ` : ''}${why}`.trim() || `Loop status: ${r.state.loop}.`;
     return { state: r.state, status: r.state.loop === 'exhausted' ? 'exhausted' : 'deferred', reason };
+  }
+
+  /** B7 batch mode (D-B7-03): each gap to its own best person, every per-person gate as usual, at most 3 per investigation. */
+  private async requestBatch(state0: InvestigationState, gapIdsIn: string[], w: ReturnType<Engine['wiring']>): Promise<ClarificationResult> {
+    if (gapIdsIn.length > 3) throw badRequest('At most 3 gapIds per call');
+    const ctx = { store: this.store, settings: w.settings, directory: w.directory, clock: this.clock };
+    const nameOf = (id: string): string => w.directory.get(id)?.name ?? id;
+    const gapIds = [...new Set(gapIdsIn)];
+    const items: NonNullable<ClarificationResult['questions']> = [];
+    const askable: string[] = [];
+    for (const id of gapIds) {
+      const gap = state0.gaps.find((g) => g.id === id);
+      if (!gap) throw notFound(`Unknown gap ${id} in investigation ${state0.id}`);
+      if (gap.status !== 'open' || !(await templateFor(w.templates, state0, id))) items.push({ gapId: id, status: 'not-needed', reason: notAskedReason(ctx, gap) });
+      else askable.push(id);
+    }
+    let out: { state: InvestigationState; items: BatchItem[] } = { state: state0, items: [] };
+    try {
+      if (askable.length) out = await w.coordinator.requestMany(state0, askable);
+    } catch (e) {
+      throw toServiceError(e);
+    }
+    this.sync(out.state);
+    for (const it of out.items) {
+      const q = it.result?.question;
+      if (q) {
+        const cur = this.store.get('question', q.id) ?? q;
+        items.push({
+          gapId: it.gapId, status: 'question-open', reason: `Question ${cur.id} is ${cur.status}.`, questionId: cur.id, questionStatus: cur.status,
+          personEntityId: cur.personEntityId, name: nameOf(cur.personEntityId), text: cur.candidate.text,
+          ...(cur.status === 'queued' && cur.deliverAfter ? { deliverAfter: cur.deliverAfter } : {}),
+        });
+      } else if (it.skipped) {
+        items.push({ gapId: it.gapId, status: 'exhausted', reason: 'The investigation already has its 3 questions.' });
+      } else {
+        const v = [...new Set((it.result?.eligibility ?? []).flatMap((e) => e.violations))];
+        items.push({ gapId: it.gapId, status: 'deferred', reason: v.length ? `Nobody eligible: ${violationWords(v).join('; ')}.` : (it.result?.decision?.reason ?? 'Nobody eligible now.') });
+      }
+    }
+    const ordered = gapIds.map((id) => items.find((x) => x.gapId === id)!).filter(Boolean);
+    const opened = ordered.filter((x) => x.status === 'question-open');
+    const status: ClarificationResult['status'] = opened.length ? 'question-open' : ordered.every((x) => x.status === 'exhausted') ? 'exhausted' : ordered.every((x) => x.status === 'not-needed') ? 'not-needed' : 'deferred';
+    const state = this.store.get('investigation', state0.id) ?? out.state;
+    return { state, status, reason: `${opened.length} of ${ordered.length} gaps asked.`, questions: ordered };
+  }
+
+  /** B7: the open gaps of an investigation the principal started, who could answer each, and the confidence labels. */
+  async listGaps(principalIn: Principal, investigationId: string): Promise<GapsView> {
+    this.deliverDue();
+    const principal = this.effective(principalIn);
+    const state = this.owned(investigationId, principal.id);
+    const w = this.wiring();
+    const ctx = { store: this.store, settings: w.settings, directory: w.directory, clock: this.clock };
+    const templates = await w.templates.generateDetailed(state, state.gaps.length + 1);
+    return gapsView(ctx, state, templates, 'support (what history shows) and applicability (whether it fits this case) are labels with reasons and evidence, never a number; a hypothesis is never a verified cause.');
+  }
+
+  /**
+   * B7: the agent's own wording for the question of one gap. Accepted only through the phrase validator (BUILD_BRIEF
+   * 2.4) against the gap, the visible case facts and the asset; remembered as a 'question.proposed' trace event and used
+   * for that gap's next question ("worded by the agent" on the card). Otherwise the template text is used.
+   */
+  async proposeQuestion(principalIn: Principal, investigationId: string, gapId: string, text: string): Promise<{
+    gapId: string; accepted: boolean; text: string; usedText: string | null; templateText?: string; reasons?: string[]; appliesTo: string;
+  }> {
+    const principal = this.effective(principalIn);
+    const state = this.owned(investigationId, principal.id);
+    const gap = state.gaps.find((g) => g.id === gapId);
+    if (!gap) throw notFound(`Unknown gap ${gapId} in investigation ${investigationId}`);
+    const w = this.wiring();
+    const ctx = { store: this.store, settings: w.settings, directory: w.directory, clock: this.clock };
+    const clean = text.replace(/\s+/g, ' ').trim();
+    const t = gap.status === 'open' ? await templateFor(w.templates, state, gapId) : undefined;
+    if (!t) return { gapId, accepted: false, text: clean, usedText: null, reasons: [notAskedReason(ctx, gap)], appliesTo: 'no question is asked for this gap' };
+    const verdict = checkAgentWording(ctx, state, t.facts, clean);
+    this.trace(state.id, AGENT_WORDING_EVENT, { id: principal.id, displayName: principal.displayName }, {
+      gapId, text: clean, accepted: verdict.ok, ...(verdict.ok ? {} : { reason: verdict.reason }), by: principal.id, at: this.now().toISOString(),
+    });
+    const open = questionsForInvestigation(this.store, state.id).find((q) => ACTIVE_QUESTION.has(q.status) && q.candidate.gapId === gapId);
+    const appliesTo = open ? `the next question for this gap (question ${open.id} is already ${open.status} with its own wording)` : 'the next question for this gap';
+    return verdict.ok
+      ? { gapId, accepted: true, text: clean, usedText: clean, templateText: t.candidate.text, appliesTo }
+      : { gapId, accepted: false, text: clean, usedText: t.candidate.text, templateText: t.candidate.text, reasons: [verdict.reason], appliesTo };
+  }
+
+  /**
+   * B7: the store metric for an agent: the cases the principal may see, completeness and correctness with their
+   * denominators, singletons, and the open standing gaps (orphan pieces) on those cases, which the engine asks of their
+   * performers within the same budgets and quiet hours.
+   */
+  storeHealthView(principalIn: Principal): StoreHealth & { standingGaps: { open: number; byKind: Record<string, number> }; quietHours?: { now: boolean; heldUntil?: string } } {
+    const p = this.effective(principalIn);
+    const h = this.storeHealth(p);
+    const visible = new Set(h.cases.map((c) => c.caseId));
+    const byKind: Record<string, number> = {};
+    let open = 0;
+    for (const st of this.store.list('investigation')) {
+      if (st.origin !== 'standing') continue;
+      for (const g of st.gaps) {
+        const parsed = parseGapId(g.id);
+        if (g.status !== 'open' || !parsed || !visible.has(parsed.caseId)) continue;
+        open++;
+        byKind[parsed.kind] = (byKind[parsed.kind] ?? 0) + 1;
+      }
+    }
+    const qh = this.invSettings().coordinator.quietHours;
+    const now = this.now();
+    const quietHours = qh ? (inQuiet(now, qh) ? { now: true, heldUntil: nextWindow(now, qh).toISOString() } : { now: false }) : undefined;
+    return { ...h, standingGaps: { open, byKind }, ...(quietHours ? { quietHours } : {}) };
   }
 
   async recordObservation(req: ObservationRequest): Promise<{ investigation: InvestigationResult }> {

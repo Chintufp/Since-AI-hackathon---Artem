@@ -181,6 +181,10 @@ export interface Pattern {
   distinguishingConditions: Condition[];
   createdBy: { route: string; version: string };
   status: 'candidate' | 'confirmed' | 'rejected';
+  /** B1: the attributed answer that confirmed or rejected the relationship (a pairing is never linked without one). */
+  evidence?: EvidenceRef[];
+  answerId?: string;
+  decidedAt?: Iso;
 }
 
 export interface Procedure {

@@ -10,7 +10,7 @@ export { RulesAssessor, applicabilityFor } from './assessor.ts';
 export { loadCaseFacts, supportFor, OUTCOME_KEY } from './case-facts.ts';
 export type { CaseFacts, Support } from './case-facts.ts';
 export { recommend } from './recommend.ts';
-export { buildGaps, makeGapId, parseGapId } from './gaps.ts';
+export { buildGaps, makeGapId, parseGapId, standingInvestigationId } from './gaps.ts';
 export type { GapKind } from './gaps.ts';
 export { buildPeople } from './people.ts';
 export { computeBudget, budgetViolations, questionsForInvestigation } from './budget.ts';

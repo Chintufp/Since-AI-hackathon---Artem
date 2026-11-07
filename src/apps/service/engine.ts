@@ -14,8 +14,8 @@ import {
   defaultInvestigationSettings, investigate, investigationId, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
   type InvestigationSettings, type PersonDirectory,
 } from '../../libs/utils/investigation/index.ts';
-import { buildCaseView, contextAssertions, importFromPath, listCases, openStore, parseAt, resolveContextEntity } from '../../libs/utils/memory/index.ts';
-import { TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
+import { buildCaseView, contextAssertions, defaultStandingGapSettings, importFromPath, listCases, openStore, parseAt, recordStandingGaps, resolveContextEntity, type StandingGapSettings } from '../../libs/utils/memory/index.ts';
+import { evaluateEligibility, TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
 import { createSelector, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
 import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
 import { awardPoints, balanceOf, getOptIn, participates, rating, revokeContribution, setOptIn, type ParticipationKind } from '../../libs/utils/participation/index.ts';
@@ -73,6 +73,11 @@ export interface EngineOptions {
   fixturesDir?: string;
   /** B1: generated dated follow-ups imported by the demo reset (default data/demo/followups). */
   followupsDir?: string;
+  /**
+   * B1: capture-time standing gaps. They are always recorded on import (and on clock moves); `ask: true` (wired by the
+   * service, the MCP server and the demo scripts from org-config) also asks them through the coordinator.
+   */
+  standingGaps?: Partial<StandingGapSettings> & { ask?: boolean };
 }
 
 export interface ClarificationResult {
@@ -204,6 +209,47 @@ export class Engine {
     this.wiring().coordinator.deliverDue();
   }
 
+  private standingSettings(): StandingGapSettings {
+    const { ask: _ask, ...rest } = this.opts.standingGaps ?? {};
+    return { ...defaultStandingGapSettings, diagnosticActions: this.invSettings().diagnosticActions, ...rest };
+  }
+
+  /**
+   * B1: ask open standing gaps through the same coordinator (recipients, eligibility, budgets, quiet hours). A state is
+   * requested only when some recipient is eligible now, so a busy person leaves no decision records behind; a person with
+   * an open question (an investigation's, or another standing one) is not eligible. Most useful kind first.
+   */
+  async askStanding(): Promise<QuestionRecord[]> {
+    if (!this.opts.standingGaps?.ask) return [];
+    const w = this.wiring();
+    const ctx = { store: this.store, settings: w.settings, directory: w.directory, clock: this.clock };
+    const rank = (st: InvestigationState): number => {
+      const kinds = st.gaps.filter((g) => g.status === 'open').map((g) => parseGapId(g.id)?.kind);
+      return kinds.includes('outcome') ? 0 : kinds.includes('pairing') ? 1 : 2;
+    };
+    const states = this.store.list('investigation').filter((st) => st.origin === 'standing' && st.gaps.some((g) => g.status === 'open'))
+      .sort((a, b) => rank(a) - rank(b) || a.id.localeCompare(b.id));
+    const out: QuestionRecord[] = [];
+    for (const st of states) {
+      if (questionsForInvestigation(this.store, st.id).some((q) => ACTIVE_QUESTION.has(q.status))) continue;
+      const cands = await w.generator.generate(st, w.settings.questions.maxCandidates);
+      if (!cands.some((c) => c.recipientIds.some((pid) => evaluateEligibility(ctx, st, c, pid).eligible))) continue;
+      const r = await w.coordinator.request(st);
+      if (r.question) out.push(r.question);
+    }
+    return out;
+  }
+
+  /**
+   * B1: upkeep at the engine's now: deliver questions whose quiet-hours window has come, re-record standing gaps (a 24 h
+   * outcome gap becomes due as the clock moves) and ask them. Run on clock moves; callable by hosts and tests.
+   */
+  async upkeep(): Promise<QuestionRecord[]> {
+    this.deliverDue();
+    recordStandingGaps(this.store, { orgId: this.orgId, now: this.now().toISOString(), settings: this.standingSettings() });
+    return this.askStanding();
+  }
+
   // ---- trace --------------------------------------------------------------------------------
 
   private trace(traceId: string, type: string, actor: TraceEvent['actor'], data: Record<string, unknown> = {}): TraceEvent {
@@ -262,7 +308,7 @@ export class Engine {
       res = importFromPath(this.store, {
         format: req.format, ...(req.path ? { path: req.path } : {}), ...(req.payload !== undefined ? { payload: req.payload } : {}),
         ...(req.connectionId ? { connectionId: req.connectionId } : {}), ...(req.accessGroups ? { accessGroups: req.accessGroups } : {}),
-        orgId: this.orgId, now: this.now().toISOString(),
+        orgId: this.orgId, now: this.now().toISOString(), standing: this.standingSettings(),
       });
     } catch (e) {
       throw badRequest(`Import failed: ${e instanceof Error ? e.message : String(e)}`);
@@ -273,6 +319,7 @@ export class Engine {
     // A scenario directory imports several sources, each its own batch; the response's batch id is their combination.
     const points = this.awardEvidence(new Set(this.store.list('importBatch').map((b) => b.id).filter((id) => !batchesBefore.has(id))));
     this.trace(res.batch.id, 'import.completed', { id: 'system', displayName: 'import' }, { format: req.format, counts: res.batch.counts, cases: res.cases, claims: res.claims, people: res.people, ...(points.length ? { points } : {}) });
+    if (this.opts.standingGaps?.ask) void this.askStanding().catch(() => undefined);
     return points.length ? { ...res, points } : res;
   }
 
@@ -547,7 +594,9 @@ export class Engine {
       this.sync(r.state);
       const kind: ParticipationKind = req.value === 'yes' ? 'answer-yes' : req.value === 'no' ? 'answer-no' : 'answer-unknown';
       const points = this.award({ personEntityId: q.personEntityId, contributionEventId: r.answer.id, kind, summary: `Answered a question (${req.value === 'unknown' ? 'not sure' : req.value})`, refId: q.id });
-      return { answer: r.answer, receipt: this.receipt(req.value, r.question, r.state, points, r.recommendationChanged), question: r.question };
+      const receipt = this.receipt(req.value, r.question, r.state, points, r.recommendationChanged);
+      await this.askStanding();
+      return { answer: r.answer, receipt, question: r.question };
     } catch (e) {
       throw toServiceError(e);
     }
@@ -559,6 +608,17 @@ export class Engine {
     const gapKind = parseGapId(q.candidate.gapId)?.kind;
     const asked = `"${q.candidate.text.replace(/\s+/g, ' ').trim()}"`;
     const lead = value === 'unknown' ? `You were not sure about ${asked}.` : `You answered ${value} to ${asked}.`;
+    if (state?.origin === 'standing') {
+      // B1: a standing gap changes the case record, never a recommendation.
+      const a = q.answerId ? this.store.get('answer', q.answerId) : undefined;
+      const detail = gapKind === 'missing-symptom'
+        ? (a?.text && value !== 'unknown' ? `You described the problem: "${clip(a.text, 120)}". It is kept as your report on the case.` : 'Nothing was recorded, and you will not be asked this again.')
+        : gapKind === 'pairing'
+        ? value === 'yes' ? `${lead} The two cases are now linked, with your answer as the evidence.`
+          : value === 'no' ? `${lead} The two cases stay separate and will not be suggested together again.` : `${lead} Nothing was linked.`
+        : value === 'unknown' ? `${lead} No outcome was recorded.` : `${lead} The outcome is recorded on the case as your report.`;
+      return { title: gapKind === 'missing-symptom' && value !== 'unknown' ? 'Recorded: your description' : label, detail, canUndo: true, ...(points ? { pointsAwarded: points } : {}) };
+    }
     const effect = value === 'unknown'
       ? 'No new fact was recorded, and you will not be asked this again.'
       : state && value === 'no' && state.recommendation.kind === 'retain-uncertainty' && gapKind === 'missing' ? 'The earlier case does not apply to this unit, so the recommendation stays uncertain.'
@@ -801,7 +861,7 @@ export class Engine {
     try {
       const s = this.demoClock.set(input);
       this.trace('demo', 'demo.clock', { id: 'system', displayName: 'demo' }, { mode: s.mode, now: s.now, rate: s.rate });
-      this.deliverDue();
+      void this.upkeep().catch(() => undefined);
       return s;
     } catch (e) {
       throw badRequest(e instanceof Error ? e.message : String(e));

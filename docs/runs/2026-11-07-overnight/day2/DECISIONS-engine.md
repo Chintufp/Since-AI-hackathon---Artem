@@ -142,3 +142,35 @@ Reverse: remove the quiet branch in `request()`; `deliverDue` is then a no-op.
 
 `Engine.questions()` (the panel's poll) leaves out `queued` questions whose `deliverAfter` is in the future, because the panel treats `queued` as open. `QuestionView` gains the additive `deliverAfter` (only while queued) and `answerType` (only for free text), so the requester's result shows the question queued for 07:00 next to the loop line.
 Reverse: the filter in `Engine.questions()`.
+
+## D-B1-25 · Standing gaps live on a per-case standing investigation state
+
+`memory/standing-gaps.ts recordStandingGaps` (route `standing-gaps@1`) writes, per case with a standing gap, an `InvestigationState` with id `stableId('inv','standing',caseId)`, the additive `origin: 'standing'`, a system requester (`system:standing`, "Knowledge upkeep") whose groups are the case's groups (private cases get no standing gaps), an `investigation.started` event carrying that principal, and gaps in the `makeGapId` format; `GapKind` gains `missing-symptom` and `pairing` so `parseGapId` accepts them. The state is idempotent across passes: a gap keeps its status (resolved, cancelled); an open gap that no longer holds becomes `cancelled`. `importFromPath` runs the pass after the commit only when the request carries `standing` (the Engine always passes it; experiments do not, so E00's stores are unchanged). The Engine also re-runs it on `upkeep()` (clock moves).
+Why: recipients, eligibility, budgets, quiet hours and the selector are investigation-centric; a synthetic state reuses all of them unchanged.
+Reverse: drop `standing` from `Engine.importData`; delete the module.
+
+## D-B1-26 · The three kinds and their clocks
+
+(a) `missing-symptom`: a case with a reported-performed corrective attempt (with a performer) and no live observation claim. (b) `outcome`: such an attempt and no outcome, once `outcomeAfterHours` (24) have passed since the attempt's known time, else since its evidence's `ingestedAt` (DECISION: the capture time is known even when the message time is not; an invented message time would be worse); skipped when an outcome question about the same attempt was already answered anywhere. Advice-only threads (no performed attempt) get no standing outcome gap: nobody is known to have been about to perform it. (c) `pairing`: an orphan fix (a) and an open problem case (a live observation, no outcome, no fix) sharing a non-person entity within `pairingWindowDays` (14) of each other (case start time, else capture time), ranked by time distance, then by trigram cosine of title + statements (`retrieval/vector.ts`; B2's embeddings can replace it), the best partner only; a pair with a confirmed or rejected Pattern is never proposed again. Note that `assignEpisodes` already joins a dated fix to a problem episode on the same asset within 14 days, so in practice pairing finds the pieces episodes keep apart (a problem stated as "again", or the fix arriving first).
+Reverse: `recordStandingGaps`.
+
+## D-B1-27 · Asking: one kind at a time, investigation questions always first
+
+Standing questions go through `coordinator.request` like any other. The generator offers a standing state only its most useful kind that has not been asked yet (outcome, then pairing, then missing symptom), with one template per kind: "Was the port bounce on TRN-061 for the no traffic problem reported this morning?" (yes/no), "Did the problem clear right after the port bounce on TRN-062?" (the existing outcome template), "You bounced the port on TRN-062 this morning. What was the problem: what did you see before that?" (additive `answerType: 'free-text'`). Recipients: only the performer of the fix (firsthand `performed-action` link of that attempt's performer). Eligibility for a pairing also requires that the recipient may see the other case. Candidates carry the additive `origin: 'standing'`; for any non-standing candidate, standing questions are ignored in the budget (open, daily limit, cooldown) and in duplicate checks, so an investigation question always reaches the person; a standing candidate sees every question, so it waits while the person has any open question and for the cooldown after it. `Engine.askStanding()` requests a standing state only when some recipient is eligible now (no decision records pile up for busy people) and runs after imports, after every answer and on `upkeep()`. "When" words ("this morning", "yesterday", "on 6 Nov", "earlier" when unknown) are computed in the quiet-hours time zone when configured, else UTC.
+Reverse: the `askStanding` calls; the `origin` checks in `eligibility.ts`.
+
+## D-B1-28 · The missing symptom is the Later pile
+
+A `missing-symptom` candidate has `pile: 'later'`; delivery puts it straight into `deferred` (previousStatus `queued`) without `deliveredAt`, so it shows under Later in the panel, never interrupts, and does not count against the daily limit or cooldown. Answering it from Later works as for any deferred question (undo to queued, then answer).
+Reverse: the `pile` branch in `deliverNow`.
+
+## D-B1-29 · What a standing answer does (and never does)
+
+No standing answer re-runs an investigation or changes a recommendation. Outcome: an attributed `outcome.result` Observation on the case under the standing investigation id; `loadCaseFacts` overlays outcome observations of the case's standing state for every investigation (attributed, single report). Pairing Yes: a `Pattern` `{status: 'confirmed', caseIds, evidence: [answer evidence ref], answerId, decidedAt, createdBy: standing-gaps@1}` (additive optional fields on Pattern), and the orphan's missing-symptom gap is resolved by it; No: the same Pattern with `status: 'rejected'`, so the pair is never proposed again; nothing is linked without an answer. Missing symptom: the free text (`text`; `value` is not interpreted beyond `unknown` = nothing recorded) becomes an evidence envelope by the answerer appended to `case.evidenceIds` plus a `case.symptom` Observation; no claim is minted (a later extractor pass may propose one). Undo removes the answer, its evidence (also from the case), its observation and its Pattern, and reopens the gap. Receipts speak of the case record ("The two cases are now linked, with your answer as the evidence.").
+Reverse: `answerStanding` / `undoStanding` in the coordinator.
+
+## D-B1-30 · Asking standing gaps is organization configuration
+
+`EngineOptions.standingGaps` (`ask`, `outcomeAfterHours`, `pairingWindowDays`): the library records gaps but asks nothing unless `ask` is true. `org-config.ts defaultStandingGaps = { ask: true, outcomeAfterHours: 24, pairingWindowDays: 14 }` is wired by `main.ts`, `mcp.ts` (`--standing-gaps off` / `KT_STANDING_GAPS=off`, and off with `--org-policy none`) and `scripts/demo-reset.ts`. A demo database reset through those hosts will therefore ask standing questions of the demo people (always behind any investigation question).
+Why: every existing test and the hash-locked experiments keep their question records; a host opts in.
+Reverse: drop `standingGaps` in the hosts.

@@ -6,7 +6,7 @@
 import { parseArgs } from 'node:util';
 import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/index.ts';
 import { Engine } from './engine.ts';
-import { defaultObservabilityPolicy, defaultQuietHours } from './org-config.ts';
+import { defaultObservabilityPolicy, defaultQuietHours, defaultStandingGaps } from './org-config.ts';
 import { DEFAULT_DB_PATH } from './paths.ts';
 import { startHttp } from './http.ts';
 
@@ -16,6 +16,8 @@ const { values } = parseArgs({
     'org-policy': { type: 'string', default: process.env.KT_ORG_POLICY ?? 'default' },
     /** B1: 'default' holds questions created 22:00-07:00 Helsinki time until 07:00; 'off' disables (also off with --org-policy none). */
     'quiet-hours': { type: 'string', default: process.env.KT_QUIET_HOURS ?? 'default' },
+    /** B1: 'default' asks capture-time standing gaps; 'off' only records them (also off with --org-policy none). */
+    'standing-gaps': { type: 'string', default: process.env.KT_STANDING_GAPS ?? 'default' },
     port: { type: 'string', default: String(DEFAULT_SERVICE_PORT) },
     host: { type: 'string', default: '127.0.0.1' },
     db: { type: 'string', default: DEFAULT_DB_PATH },
@@ -37,6 +39,7 @@ const engine = new Engine({
   dbPath: values.db,
   investigation: values['org-policy'] === 'none' ? {} : { observability: defaultObservabilityPolicy },
   ...(values['org-policy'] === 'none' || values['quiet-hours'] === 'off' ? {} : { coordinator: { quietHours: defaultQuietHours } }),
+  ...(values['org-policy'] === 'none' || values['standing-gaps'] === 'off' ? {} : { standingGaps: defaultStandingGaps }),
   // The simulated activity stream (scripts/demo-play.ts) writes this file; the service only reads it.
   ...(process.env.KT_ACTIVITY_LOG ? { activityLogPath: process.env.KT_ACTIVITY_LOG } : {}),
 });

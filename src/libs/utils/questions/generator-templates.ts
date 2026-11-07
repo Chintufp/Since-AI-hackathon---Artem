@@ -5,6 +5,25 @@ import { evidenceGate, visibleCase } from '../retrieval/access.ts';
 import { routeInfo } from '../models/routes.ts';
 import { normalizeKey, type QuestionContext } from './context.ts';
 import { findRecipients, problemEntityIds } from './recipients.ts';
+import { instantOf } from '../memory/validity.ts';
+
+/** B1: standing gaps are asked one kind at a time, most useful first (the missing symptom is the Later pile). */
+const STANDING_PRIORITY = ['outcome', 'pairing', 'missing-symptom'];
+const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** "this morning" / "today" / "yesterday" / "on 6 Nov" relative to now, in `timeZone`; "earlier" when the time is unknown. */
+export function whenPhrase(ms: number | undefined, nowMs: number, timeZone = 'UTC'): string {
+  if (ms === undefined) return 'earlier';
+  const f = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' });
+  const parts = (t: number) => Object.fromEntries(f.formatToParts(new Date(t)).filter((x) => x.type !== 'literal').map((x) => [x.type, Number(x.value)]));
+  const a = parts(ms), n = parts(nowMs);
+  const dayA = Date.UTC(a.year as number, (a.month as number) - 1, a.day as number);
+  const dayN = Date.UTC(n.year as number, (n.month as number) - 1, n.day as number);
+  const diff = Math.round((dayN - dayA) / 86_400_000);
+  if (diff === 0) return (a.hour as number) < 12 ? 'this morning' : 'today';
+  if (diff === 1) return 'yesterday';
+  return `on ${a.day} ${SHORT_MONTHS[(a.month as number) - 1]}`;
+}
 
 const SLOT = /\{(\w+)\}/g;
 const fill = (tpl: string, vars: Record<string, string>): string => tpl.replace(SLOT, (_, k: string) => vars[k] ?? '');
@@ -43,10 +62,21 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
     const requester = startedBy(state);
     const gate = requester ? evidenceGate(store, requester) : undefined;
 
+    // B1: a standing state offers only its most useful kind that has not been asked yet.
+    let standingKind: string | undefined;
+    if (state.origin === 'standing') {
+      const asked = new Set(store.list('question').filter((q) => q.candidate.investigationId === state.id && q.status !== 'cancelled').map((q) => q.candidate.gapId));
+      const open = state.gaps.filter((g) => g.status === 'open' && !asked.has(g.id)).map((g) => parseGapId(g.id)?.kind);
+      standingKind = STANDING_PRIORITY.find((k) => open.includes(k as never));
+      if (!standingKind) return [];
+    }
+    const tz = settings.coordinator.quietHours?.timeZone ?? 'UTC';
     for (const gap of state.gaps) {
       if (gap.status !== 'open' || !gap.consequential) continue;
       const p = parseGapId(gap.id);
       if (!p || p.kind === 'lasting') continue;
+      if (standingKind && p.kind !== standingKind) continue;
+      if (!standingKind && (p.kind === 'missing-symptom' || p.kind === 'pairing')) continue;
       const rawCase = store.get('case', p.caseId);
       // The question is built from what the requester may see of the case (never from evidence hidden from them).
       const c = rawCase && gate ? visibleCase(rawCase, gate) : rawCase;
@@ -61,7 +91,43 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
       const common = { orgId: state.orgId, investigationId: state.id, gapId: gap.id, kind: 'quick' as const, answerType: 'yes-no-unknown' as const, generatedBy: { route: this.route.route, version: this.route.version } };
 
       let text: string, rationale: string, consequences: { yes: string; no: string }, scope: QuestionCandidate['scope'], dedup: string;
-      if (p.kind === 'missing') {
+      let extra: Partial<QuestionCandidate> = state.origin === 'standing' ? { origin: 'standing' } : {};
+      if (p.kind === 'missing-symptom' || p.kind === 'pairing') {
+        const evidenceText = loadCaseFacts(store, c.id, state.id, settings, gate ?? undefined).evidenceText;
+        const attempt = p.kind === 'missing-symptom'
+          ? store.get('attempt', p.detail)
+          : store.list('attempt', { where: { caseId: c.id } }).find((a) => a.performed === 'reported' && !settings.diagnosticActions.includes(a.action));
+        if (!attempt || (gate && !gate.supported(attempt.evidence))) continue;
+        const phrase = casePhrase(attempt.action, evidenceText, settings.phrases);
+        const nowMs = this.ctx.clock().getTime();
+        if (p.kind === 'missing-symptom') {
+          const vars = { past: phrase.past, asset: caseLabel, when: whenPhrase(instantOf(attempt.when), nowMs, tz) };
+          const tpl = 'You {past} on {asset} {when}. What was the problem: what did you see before that?';
+          if (!slotsFilled(tpl, vars)) continue;
+          text = tidy(fill(tpl, vars));
+          rationale = `${gap.description} ${gap.whatAnswerChanges}`;
+          consequences = { yes: 'Your words are kept as your attributed report of the symptom on this case.', no: 'Nothing is recorded; the case keeps an action without a symptom.' };
+          dedup = normalizeKey(`missing-symptom:${c.id}:${attempt.id}`);
+          extra = { ...extra, answerType: 'free-text', pile: 'later' };
+        } else {
+          const rawOther = store.get('case', p.detail);
+          const other = rawOther && gate ? visibleCase(rawOther, gate) : rawOther;
+          if (!other) continue;
+          const obs = store.list('claim', { where: { caseId: other.id } }).find((x) => x.type === 'observation' && (x.status === 'provisional' || x.status === 'supported'));
+          const symptom = (other.title.split('·').slice(1).join('·').trim() || obs?.statement || '').replace(/[.!?]+$/, '');
+          const vars = { noun: phrase.noun, asset: caseLabel, symptom, when: whenPhrase(instantOf(other.startedAt), nowMs, tz) };
+          const tpl = 'Was {noun} on {asset} for the {symptom} problem reported {when}?';
+          if (!slotsFilled(tpl, vars)) continue;
+          text = tidy(fill(tpl, vars));
+          rationale = `${gap.description} ${gap.whatAnswerChanges}`;
+          consequences = {
+            yes: `The two cases are linked (${caseLabel} and ${shortCaseLabel(store, other)}), with your answer as the evidence.`,
+            no: 'The two cases are recorded as distinct and will not be proposed together again.',
+          };
+          dedup = normalizeKey(`pairing:${[c.id, other.id].sort().join('|')}`);
+        }
+        scope = { entityIds: c.entityIds, caseId: c.id };
+      } else if (p.kind === 'missing') {
         if (settings.requesterObservableKeys.includes(p.detail)) continue;
         const cond = c.conditions.find((x) => x.key === p.detail);
         const label = plainLabel(gap.targetCondition?.label ?? p.detail, settings.hedgeMarkers);
@@ -111,7 +177,7 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
       }
       const recipients = findRecipients(this.ctx, state, gap);
       out.push({
-        ...common, id: stableId('qc', state.id, dedup), text, rationale, consequences, scope, dedupKey: dedup,
+        ...common, ...extra, id: stableId('qc', state.id, dedup), text, rationale, consequences, scope, dedupKey: dedup,
         ...(gap.targetClaimId ? { targetClaimId: gap.targetClaimId } : {}),
         recipientIds: recipients.map((r) => r.personEntityId),
       });

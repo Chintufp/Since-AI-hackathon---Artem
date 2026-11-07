@@ -113,4 +113,9 @@ export interface InvestigationState {
   events: TraceEvent[];
   /** Explicit list of routes used, so simulated/replayed stages are visible. */
   routes: RouteInfo[];
+  /**
+   * B1: 'standing' for the per-case state that carries capture-time gaps (missing symptom, outcome after 24 h, pairing).
+   * It is asked through the same coordinator; its requester is a system principal whose groups admit the case.
+   */
+  origin?: 'standing';
 }

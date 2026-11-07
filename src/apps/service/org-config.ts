@@ -35,3 +35,10 @@ export const defaultObservabilityPolicy: ObservabilityPolicy = {
  * defaultCoordinatorSettings (experiments spread those for hash-locked runs, and tests without a fixed clock run at night).
  */
 export const defaultQuietHours: QuietHours = { start: '22:00', end: '07:00', timeZone: 'Europe/Helsinki' };
+
+/**
+ * B1: capture-time standing gaps are asked (outcome 24 h after a fix, pairing of an orphan fix with an open problem on
+ * the same asset within 14 days, a missing symptom in the Later pile). Wired by the hosts like the quiet hours; the
+ * library default records the gaps but asks nothing.
+ */
+export const defaultStandingGaps = { ask: true, outcomeAfterHours: 24, pairingWindowDays: 14 };

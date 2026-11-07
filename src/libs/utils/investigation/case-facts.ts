@@ -3,6 +3,7 @@ import { evidenceGate, gateAt, visibleCase, type EvidenceGate, type PrincipalLik
 import { countsAt } from '../retrieval/corpus.ts';
 import { validAt } from '../memory/validity.ts';
 import { isDiagnosticAction, type InvestigationSettings } from './settings.ts';
+import { standingInvestigationId } from './gaps.ts';
 
 /** Internal key under which an answered/observed outcome is stored as an Observation about a case. */
 export const OUTCOME_KEY = 'outcome.result';
@@ -72,9 +73,10 @@ export function loadCaseFacts(
     ...x, supporting: gate.refs(x.supporting), contradicting: gate.refs(x.contradicting),
     ...(x.condition ? { condition: { ...x.condition, evidence: gate.refs(x.condition.evidence) } } : {}),
   }));
-  const overlay: Observation[] = investigationId
-    ? store.list('observation', { where: { investigationId } }).filter((o) => o.caseId === caseId && o.condition.key === OUTCOME_KEY && (atMs === undefined || Date.parse(o.at) <= atMs))
-    : [];
+  // B1: an outcome answered to a standing gap is attributed evidence about the case itself, so every investigation sees it.
+  const overlayFrom = (inv: string): Observation[] => store.list('observation', { where: { investigationId: inv } })
+    .filter((o) => o.caseId === caseId && o.condition.key === OUTCOME_KEY && (atMs === undefined || Date.parse(o.at) <= atMs));
+  const overlay: Observation[] = [...(investigationId ? overlayFrom(investigationId) : []), ...overlayFrom(standingInvestigationId(caseId))];
 
   const nonDiag = attempts.filter((a) => !isDiagnosticAction(a.action, settings));
   const corrective = [...nonDiag].sort((a, b) => outcomeRank(b, outcomes) - outcomeRank(a, outcomes))[0];

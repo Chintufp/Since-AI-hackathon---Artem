@@ -9,7 +9,7 @@ import {
   type InvestigationSettings, type PersonDirectory,
 } from '../investigation/index.ts';
 import { ANSWER_DIFFERS_FROM_CASE, ANSWER_MATCHES_CASE, foldYearToAge } from '../retrieval/conditions.ts';
-import { uniqueRoutes } from '../models/routes.ts';
+import { routeInfo, uniqueRoutes } from '../models/routes.ts';
 import { actionKey, SUPPORT_LEVEL } from '../policies/features.ts';
 import type { QuestionContext } from './context.ts';
 import { evaluateEligibility, PERMANENT_VIOLATIONS } from './eligibility.ts';
@@ -301,6 +301,7 @@ export class QuestionCoordinator {
     const who = this.ctx.directory.resolve(principal.id);
     if (who !== q.personEntityId) throw new Error(`Principal ${principal.id} is not the recipient of question ${questionId}`);
     let state = this.load(q.candidate.investigationId);
+    if (state.origin === 'standing') return this.answerStanding(q, state, value, principal, text);
     const parsed = parseGapId(q.candidate.gapId);
     const gap = state.gaps.find((g) => g.id === q.candidate.gapId);
     const now = this.now().toISOString();
@@ -354,6 +355,81 @@ export class QuestionCoordinator {
     this.store.put('investigation', state);
     const cancelled = await this.cancelObsolete(state.id);
     return { answer, question: updated, state: this.load(state.id), cancelled, recommendationChanged };
+  }
+
+  /**
+   * B1: an answer to a standing gap. Nothing is re-investigated (a standing state has no problem to rebuild):
+   * - outcome: an attributed outcome Observation on the case (every investigation citing the case sees it);
+   * - pairing: Yes records a confirmed Pattern linking the two cases with the answer as evidence (and the orphan's missing
+   *   symptom is resolved by it); No records a rejected Pattern, so the pair is never proposed again;
+   * - missing-symptom: the free text is stored as attributed evidence on the case (evidence + an Observation).
+   * Unknown records the answer and changes nothing.
+   */
+  private async answerStanding(q: QuestionRecord, state: InvestigationState, value: AnswerValue, principal: Principal, text?: string): Promise<AnswerResult> {
+    const parsed = parseGapId(q.candidate.gapId);
+    const now = this.now().toISOString();
+    const answerId = stableId('ans', q.id);
+    const words = text?.trim();
+    const evText = parsed?.kind === 'missing-symptom' && words
+      ? `Symptom before ${q.candidate.text.replace(/^You\s+/, '').replace(/\.\s.*$/, '')}: ${words} (reported by ${principal.displayName}, answering: ${q.candidate.text})`
+      : `Answer "${value}" to: ${q.candidate.text}${words ? ` Note: ${words}` : ''} (answered by ${principal.displayName})`;
+    const env = this.evidenceFor(state, principal, 'answer:desktop', answerId, evText, parsed?.caseId, { questionId: q.id, value, standing: parsed?.kind ?? 'unknown', ...(parsed?.caseId ? { caseId: parsed.caseId } : {}) });
+    const evRef = { evidenceId: env.id, excerpt: evText.slice(0, 120) };
+    const resolve = new Set<string>();
+    let condition: Condition | undefined;
+    if (parsed?.kind === 'outcome' && value !== 'unknown') {
+      condition = { key: OUTCOME_KEY, operator: 'eq', value: value === 'yes' ? 'recovered' : 'no-change', origin: 'reported', evidence: [evRef], label: `Outcome after ${parsed.detail}: ${value === 'yes' ? 'recovered' : 'no change'} (answered)` };
+      resolve.add(q.candidate.gapId);
+    } else if (parsed?.kind === 'pairing' && value !== 'unknown') {
+      const ids = [parsed.caseId, parsed.detail].sort();
+      const a = this.store.get('case', parsed.caseId), b = this.store.get('case', parsed.detail);
+      this.store.put('pattern', {
+        id: stableId('pattern', 'pairing', ...ids), orgId: state.orgId, title: `${a?.title ?? parsed.caseId} + ${b?.title ?? parsed.detail}`, caseIds: ids,
+        sharedConditions: [], distinguishingConditions: [], createdBy: routeInfo('standing-gaps'), status: value === 'yes' ? 'confirmed' : 'rejected',
+        evidence: [evRef], answerId, decidedAt: now,
+      });
+      resolve.add(q.candidate.gapId);
+      // A confirmed pairing gives the orphan fix its symptom (the other case's), so that gap is settled too.
+      if (value === 'yes') for (const g of state.gaps) if (parseGapId(g.id)?.kind === 'missing-symptom' && g.status === 'open') resolve.add(g.id);
+    } else if (parsed?.kind === 'missing-symptom' && words && value !== 'unknown') {
+      condition = { key: 'case.symptom', operator: 'eq', value: words, origin: 'reported', evidence: [evRef], label: `Symptom: ${words} (answered)` };
+      const c = this.store.get('case', parsed.caseId);
+      if (c && !c.evidenceIds.includes(env.id)) this.store.put('case', { ...c, evidenceIds: [...c.evidenceIds, env.id], updatedAt: now });
+      resolve.add(q.candidate.gapId);
+    }
+    const answer: Answer = { id: answerId, orgId: state.orgId, questionId: q.id, personEntityId: q.personEntityId, value, ...(words ? { text: words } : {}), at: now, claimUpdates: [], evidenceId: env.id };
+    this.store.put('answer', answer);
+    if (condition) this.store.put('observation', { id: stableId('obs', answerId), orgId: state.orgId, investigationId: state.id, ...(parsed ? { caseId: parsed.caseId } : {}), condition, reportedBy: actorOf(principal), at: now });
+    const updated = this.store.put('question', { ...q, status: 'answered', answerId, previousStatus: q.status, updatedAt: now });
+    state.gaps = state.gaps.map((g) => (resolve.has(g.id) ? { ...g, status: 'resolved' as const, resolvedBy: { answerId, evidenceId: env.id } } : g));
+    this.trace(state, 'question.answered', { questionId: q.id, answerId, value, standing: parsed?.kind });
+    const ev = this.store.get('evaluation', q.decisionId) as (EvaluationRecord & { id: string }) | undefined;
+    if (ev) this.store.put('evaluation', { ...ev, response: { value, latencyMs: Math.max(0, Date.parse(now) - Date.parse(q.deliveredAt ?? q.createdAt)) }, missingFeedback: false });
+    this.setLoop(state, 'answered', this.d.settings.loopReasons.answeredNoChange);
+    state.updatedAt = now;
+    this.store.put('investigation', state);
+    const cancelled = await this.cancelObsolete(state.id);
+    return { answer, question: updated, state: this.load(state.id), cancelled, recommendationChanged: false };
+  }
+
+  /** B1: withdraw an answer to a standing gap: the gap reopens, its Pattern, observation and evidence are removed. */
+  private undoStanding(q: QuestionRecord): QuestionRecord {
+    const state = this.load(q.candidate.investigationId);
+    const answerId = q.answerId as string;
+    const a = this.store.get('answer', answerId);
+    for (const p of this.store.list('pattern').filter((x) => x.answerId === answerId)) this.store.delete('pattern', p.id);
+    this.store.delete('answer', answerId);
+    this.store.delete('observation', stableId('obs', answerId));
+    if (a) {
+      this.store.delete('evidence', a.evidenceId);
+      for (const c of this.store.list('case').filter((x) => x.evidenceIds.includes(a.evidenceId))) this.store.put('case', { ...c, evidenceIds: c.evidenceIds.filter((id) => id !== a.evidenceId) });
+    }
+    state.gaps = state.gaps.map((g) => (g.resolvedBy?.answerId === answerId ? (({ resolvedBy: _r, ...rest }) => ({ ...rest, status: 'open' as const }))(g) : g));
+    this.setLoop(state, 'question-open', this.waitingReason(q.personEntityId, state, q.candidate.gapId));
+    this.store.put('investigation', state);
+    const { answerId: _drop, ...rest } = { ...q, status: q.previousStatus as QuestionRecord['status'], updatedAt: this.now().toISOString() };
+    this.store.put('question', rest);
+    return rest;
   }
 
   /** Re-run the assessment with every recorded observation/answer; carries questions, decisions and events over. */
@@ -440,6 +516,7 @@ export class QuestionCoordinator {
       const requester = startedBy(this.load(q.candidate.investigationId));
       if (who.type !== 'agent' && who.id !== requester?.id) throw new Error('Only the requester or an agent can undo a cancellation');
     } else if (this.ctx.directory.resolve(who.id) !== q.personEntityId) throw new Error('Only the recipient can undo');
+    if (q.status === 'answered' && q.answerId && this.store.get('investigation', q.candidate.investigationId)?.origin === 'standing') return this.undoStanding(q);
     if (q.status === 'answered' && q.answerId) {
       const a = this.store.get('answer', q.answerId);
       this.store.delete('answer', q.answerId);

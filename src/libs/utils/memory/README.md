@@ -99,3 +99,7 @@ A verbatim copy of another record (`lineage.copiedFrom`) is never a new statemen
 - Extraction (`extraction-config.ts validityCues`, configuration): fixed-in-version notes are read before access facts and outcomes (never an outcome); an access fact with a code carries `site.access_code` (qualifier barrier/lockbox/...); "every October" lands on the message's nearest preceding access fact; "until <date>" sets a date-only `validity.to`.
 - `context-assertions.ts`: GET /context rows and bindings, access-filtered.
 - `superseded` is not live: the stored case is the now view; a past `at` re-derives from claims valid then (investigation). Decisions: `docs/runs/2026-11-07-overnight/day2/DECISIONS-engine.md`.
+
+## Standing gaps (B1)
+
+`standing-gaps.ts recordStandingGaps(store, {orgId, now, settings})` (route `standing-gaps@1`) runs after the commit when `importFromPath` gets `standing` (the Engine always passes it; experiments do not) and on `Engine.upkeep()`. It records capture-time gaps per case on an `InvestigationState` with `origin: 'standing'` (id `stableId('inv','standing',caseId)`): missing symptom, outcome 24 h after the fix (known time, else `ingestedAt`), pairing with the nearest open problem on the same asset within 14 days (trigram cosine as tie-break). It links nothing; a decided Pattern (confirmed or rejected) is never proposed again.

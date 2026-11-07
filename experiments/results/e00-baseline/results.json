@@ -1,6 +1,6 @@
 {
   "manifestId": "e00-baseline",
-  "finishedAt": "2026-11-07T02:33:19.162Z",
+  "finishedAt": "2026-11-07T14:04:16.691Z",
   "variants": [
     {
       "variantId": "baseline-rules",
@@ -232,14 +232,14 @@
           "denominator": 12
         },
         "access.leakageRate": {
-          "value": 0.021739130434782608,
+          "value": 0.023809523809523808,
           "numerator": 1,
-          "denominator": 46
+          "denominator": 42
         },
         "access.shownRestrictedEvidenceRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 46
+          "denominator": 42
         },
         "retrieval.lookalikeTop1Rate": {
           "value": 0,
@@ -258,8 +258,8 @@
           "denominator": 3
         },
         "efficiency.meanLatencyMs": {
-          "value": 3.594729166666672,
-          "numerator": 21.56837500000003,
+          "value": 4.7251668333333425,
+          "numerator": 28.351001000000053,
           "denominator": 6
         },
         "routing.answerableRoutingRate": {
@@ -306,9 +306,9 @@
         "question.answered": 0,
         "claims.access-fact.ambiguous": 1,
         "claims.access-fact.unknown": 0,
-        "efficiency.p50LatencyMs": 2.141416000000021,
-        "efficiency.p95LatencyMs": 11.557417000000044,
-        "efficiency.maxLatencyMs": 11.557417000000044,
+        "efficiency.p50LatencyMs": 2.8282500000000255,
+        "efficiency.p95LatencyMs": 14.962125999999955,
+        "efficiency.maxLatencyMs": 14.962125999999955,
         "efficiency.samples": 6,
         "efficiency.calls": null,
         "efficiency.tokens": null,
@@ -487,7 +487,7 @@
           "id": "remote-power-access-p2",
           "familyId": "remote-power-access",
           "metric": "recommendation.kindAccuracy",
-          "reason": "kind retain-uncertainty, expected check-first"
+          "reason": "kind none, expected check-first"
         },
         {
           "id": "remote-power-access-p3",
@@ -1205,8 +1205,8 @@
           "denominator": 3
         },
         "efficiency.meanLatencyMs": {
-          "value": 2.8209030833333344,
-          "numerator": 33.85083700000001,
+          "value": 3.7172914999999924,
+          "numerator": 44.60749799999991,
           "denominator": 12
         },
         "routing.answerableRoutingRate": {
@@ -1251,9 +1251,9 @@
         "question.answered": 4,
         "claims.hypothesis.ambiguous": 0,
         "claims.hypothesis.unknown": 0,
-        "efficiency.p50LatencyMs": 1.5734170000000063,
-        "efficiency.p95LatencyMs": 9.471043000000066,
-        "efficiency.maxLatencyMs": 9.471043000000066,
+        "efficiency.p50LatencyMs": 2.0013740000000553,
+        "efficiency.p95LatencyMs": 12.058541999999932,
+        "efficiency.maxLatencyMs": 12.058541999999932,
         "efficiency.samples": 12,
         "efficiency.calls": null,
         "efficiency.tokens": null,
@@ -2269,8 +2269,8 @@
         },
         "question.answeredRate": null,
         "efficiency.meanLatencyMs": {
-          "value": 1.4614236666666518,
-          "numerator": 8.768541999999911,
+          "value": 2.033346999999992,
+          "numerator": 12.200081999999952,
           "denominator": 6
         },
         "routing.answerableRoutingRate": {
@@ -2317,9 +2317,9 @@
         "question.investigationsEvaluated": 6,
         "question.asked": 0,
         "question.answered": 0,
-        "efficiency.p50LatencyMs": 1.4154589999999985,
-        "efficiency.p95LatencyMs": 1.9776669999999967,
-        "efficiency.maxLatencyMs": 1.9776669999999967,
+        "efficiency.p50LatencyMs": 1.8605410000000688,
+        "efficiency.p95LatencyMs": 3.0896250000000123,
+        "efficiency.maxLatencyMs": 3.0896250000000123,
         "efficiency.samples": 6,
         "efficiency.calls": null,
         "efficiency.tokens": null,
@@ -2925,8 +2925,8 @@
     "CHECK PASS idempotent-import:cabling-pinch: evidence/claim/case/entity/link/attempt/outcome 15/17/1/9/15/3/5 -> 15/17/1/9/15/3/5",
     "CHECK PASS idempotent-import:weak-mains-psu: evidence/claim/case/entity/link/attempt/outcome 14/20/2/7/14/2/3 -> 14/20/2/7/14/2/3",
     "CHECK PASS idempotent-import:bgp-linecard-private: evidence/claim/case/entity/link/attempt/outcome 18/20/3/8/18/3/4 -> 18/20/3/8/18/3/4",
-    "CHECK PASS (known limitation) access-leakage:demo: shown sources of incidents the requester's groups exclude (truth-based): 0.022 (1/46) KNOWN LIMITATION (not system-detectable, own-scope check passes): email:f02-access-310@kalevanet.example: e-mail record carries no ACL metadata, so its stored scope is org; only the truth-based metric knows the incident is restricted",
-    "CHECK PASS access-own-scope:demo: shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/46)",
+    "CHECK PASS (known limitation) access-leakage:demo: shown sources of incidents the requester's groups exclude (truth-based): 0.024 (1/42) KNOWN LIMITATION (not system-detectable, own-scope check passes): email:f02-access-310@kalevanet.example: e-mail record carries no ACL metadata, so its stored scope is org; only the truth-based metric knows the incident is restricted",
+    "CHECK PASS access-own-scope:demo: shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/42)",
     "CHECK PASS access-leakage:train: shown sources of incidents the requester's groups exclude (truth-based): 0.000 (0/87)",
     "CHECK PASS access-own-scope:train: shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/89)",
     "CHECK PASS access-leakage:validation: shown sources of incidents the requester's groups exclude (truth-based): 0.000 (0/47)",

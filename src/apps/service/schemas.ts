@@ -30,7 +30,7 @@ const directorySchema = z.object({
 });
 
 export const importSchema = z.object({
-  format: z.enum(['teams-json', 'email-text', 'slack-export', 'scenario-dir']),
+  format: z.enum(['teams-json', 'email-text', 'slack-export', 'slack-live', 'scenario-dir']),
   path: z.string().min(1).optional(),
   payload: z.unknown().optional(),
   connectionId: z.string().optional(),

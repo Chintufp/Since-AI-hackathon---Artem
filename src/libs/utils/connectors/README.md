@@ -24,3 +24,6 @@ Pure adapters that turn a source into `EvidenceEnvelope[]` (contracts/evidence.t
 - Actor ids are provider-namespaced (`person:teams:<normalized name>`); cross-provider identity is resolved later by exact normalized display name only.
 - Email: one message per file; no MIME/HTML/attachments; `Date` parsing needs a year and a clock time.
 - Slack: no user-group or file content, no edits history beyond `edited.ts`, deletions are not modelled. The live fetch path has never been run against a real workspace.
+
+## Live Slack pull (demo, read-only)
+`slack-live-pull.ts`: `checkLiveGuard` (needs `KT_SLACK_LIVE=1`, a token in `KT_SLACK_TOKEN`, a workspace name and a channel), `slackWebClient(token)` (read-method allowlist only), `pullChannelReadOnly(client, {workspace, channel, limit})` (one `auth.test`, stops on a team-name mismatch, then one channel's info, members and history plus `users.list`; returns an export-shaped payload for import format `slack-live`). Used by `scripts/slack-demo.ts --live`; tests in `slack-live-pull.test.ts` with a fake client.

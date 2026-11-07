@@ -31,7 +31,7 @@ export { defaultExtractionConfig } from './extraction-config.ts';
 export { assignEpisodes } from './episodes.ts';
 export type { ExtractionConfig } from './extraction-config.ts';
 
-export type ImportFormat = 'teams-json' | 'email-text' | 'slack-export' | 'scenario-dir' | 'paste';
+export type ImportFormat = 'teams-json' | 'email-text' | 'slack-export' | 'slack-live' | 'scenario-dir' | 'paste';
 
 export interface ImportFromPathRequest {
   format: ImportFormat;
@@ -68,10 +68,11 @@ function importOne(store: KnowledgeStore, format: Exclude<ImportFormat, 'scenari
   } else if (format === 'email-text') {
     envelopes = parseEmailText(typeof source.payload === 'string' ? source.payload : readFileSync(source.path!, 'utf8'), opts);
     description = `Email text ${source.path ?? '(inline)'}`;
-  } else if (format === 'slack-export') {
+  } else if (format === 'slack-export' || format === 'slack-live') {
     const data = (source.payload as SlackExportData | undefined) ?? readSlackExportDir(source.path!);
-    envelopes = parseSlackExport(data, opts);
-    description = `Slack export ${source.path ?? '(inline)'}`;
+    // A live pull is the same export shape read through the read-only live client (connectors/slack-live-pull.ts).
+    envelopes = parseSlackExport(data, format === 'slack-live' ? { ...opts, connectionId: opts.connectionId ?? 'slack-live' } : opts);
+    description = format === 'slack-live' ? 'Slack live (read-only pull of one channel)' : `Slack export ${source.path ?? '(inline)'}`;
   } else {
     envelopes = parsePaste(source.payload as PastePayload, opts);
     description = 'Pasted text';

@@ -31,8 +31,8 @@ export interface DirectoryEntry {
 }
 
 export interface ImportRequest {
-  /** 'teams-json' | 'email-text' | 'slack-export' | 'scenario-dir' */
-  format: 'teams-json' | 'email-text' | 'slack-export' | 'scenario-dir';
+  /** 'teams-json' | 'email-text' | 'slack-export' | 'slack-live' (an export-shaped payload read live, read-only) | 'scenario-dir' */
+  format: 'teams-json' | 'email-text' | 'slack-export' | 'slack-live' | 'scenario-dir';
   /** Absolute path on the service machine (local prototype), or inline payload. */
   path?: string;
   payload?: unknown;

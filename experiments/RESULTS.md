@@ -525,30 +525,30 @@ Model: `qwen3:4b`.
 
 | metric | rules-extractor@current | ollama-extract qwen3:4b (direct) | ollama-extract qwen3:4b→commit | rules ∪ qwen3:4b (union commit) |
 | --- | --- | --- | --- | --- |
-| claim precision | 0.552 (32/58) | 0.450 (18/40) | 0.450 (18/40) | 0.440 (33/75) |
-| claim recall | 0.681 (32/47) | 0.383 (18/47) | 0.383 (18/47) | 0.702 (33/47) |
+| claim precision | 0.552 (32/58) | 0.459 (17/37) | 0.459 (17/37) | 0.440 (33/75) |
+| claim recall | 0.681 (32/47) | 0.362 (17/47) | 0.362 (17/47) | 0.702 (33/47) |
 | action recall | 0.727 (8/11) | 0.727 (8/11) | 0.727 (8/11) | 0.818 (9/11) |
-| outcome recall | 1.000 (9/9) | 0.333 (3/9) | 0.333 (3/9) | 1.000 (9/9) |
+| outcome recall | 1.000 (9/9) | 0.222 (2/9) | 0.222 (2/9) | 1.000 (9/9) |
 | condition recall | 0.500 (3/6) | 0.000 (0/6) | 0.000 (0/6) | 0.500 (3/6) |
 | entity recall | 0.538 (7/13) | 0.462 (6/13) | 0.462 (6/13) | 0.538 (7/13) |
 | false merge rate | 0.000 (0/7) | 0.000 (0/13) | 0.125 (1/8) | 0.000 (0/7) |
 | false split rate | 0.000 (0/7) | 0.571 (4/7) | 0.286 (2/7) | 0.000 (0/7) |
-| attempt performer error | 0.000 (0/7) | n/a | 0.000 (0/3) | 0.000 (0/8) |
-| outcome reporter error | 0.438 (7/16) | n/a | 0.500 (3/6) | 0.412 (7/17) |
-| claims (count) | 75 | 53 | 53 | 98 |
-| attempts (count) | 9 | 0 | 3 | 10 |
-| outcomes (count) | 16 | 0 | 6 | 17 |
+| attempt performer error | 0.000 (0/7) | n/a | 0.000 (0/2) | 0.000 (0/7) |
+| outcome reporter error | 0.438 (7/16) | n/a | 0.750 (3/4) | 0.412 (7/17) |
+| claims (count) | 75 | 46 | 46 | 97 |
+| attempts (count) | 9 | 0 | 2 | 9 |
+| outcomes (count) | 16 | 0 | 4 | 17 |
 | threads with unusable model output | n/a | 0 | n/a | n/a |
-| validator drops | n/a | 9 | n/a | n/a |
-| model-only claims committed in the union | n/a | n/a | n/a | 23 |
+| validator drops | n/a | 17 | n/a | n/a |
+| model-only claims committed in the union | n/a | n/a | n/a | 22 |
 | union imports that fell back to rules | n/a | n/a | n/a | 0 |
 
 **validation**
 
 | metric | rules-extractor@current | ollama-extract qwen3:4b (direct) | ollama-extract qwen3:4b→commit | rules ∪ qwen3:4b (union commit) |
 | --- | --- | --- | --- | --- |
-| claim precision | 0.412 (14/34) | 0.389 (7/18) | 0.389 (7/18) | 0.326 (15/46) |
-| claim recall | 0.636 (14/22) | 0.318 (7/22) | 0.318 (7/22) | 0.682 (15/22) |
+| claim precision | 0.412 (14/34) | 0.429 (6/14) | 0.429 (6/14) | 0.333 (14/42) |
+| claim recall | 0.636 (14/22) | 0.273 (6/22) | 0.273 (6/22) | 0.636 (14/22) |
 | action recall | 1.000 (5/5) | 0.600 (3/5) | 0.600 (3/5) | 1.000 (5/5) |
 | outcome recall | 0.750 (3/4) | 0.000 (0/4) | 0.000 (0/4) | 0.750 (3/4) |
 | condition recall | 1.000 (1/1) | 0.000 (0/1) | 0.000 (0/1) | 1.000 (1/1) |
@@ -556,28 +556,27 @@ Model: `qwen3:4b`.
 | false merge rate | 0.250 (1/4) | 0.000 (0/8) | 0.200 (1/5) | 0.250 (1/4) |
 | false split rate | 0.000 (0/5) | 0.200 (1/5) | 0.200 (1/5) | 0.000 (0/5) |
 | attempt performer error | 0.000 (0/5) | n/a | n/a | 0.000 (0/5) |
-| outcome reporter error | 0.286 (2/7) | n/a | 0.500 (1/2) | 0.333 (3/9) |
-| claims (count) | 40 | 27 | 27 | 57 |
+| outcome reporter error | 0.286 (2/7) | n/a | 1.000 (1/1) | 0.375 (3/8) |
+| claims (count) | 40 | 20 | 20 | 51 |
 | attempts (count) | 5 | 0 | 0 | 5 |
-| outcomes (count) | 7 | 0 | 2 | 9 |
+| outcomes (count) | 7 | 0 | 1 | 8 |
 | threads with unusable model output | n/a | 0 | n/a | n/a |
-| validator drops | n/a | 2 | n/a | n/a |
-| model-only claims committed in the union | n/a | n/a | n/a | 17 |
+| validator drops | n/a | 11 | n/a | n/a |
+| model-only claims committed in the union | n/a | n/a | n/a | 11 |
 | union imports that fell back to rules | n/a | n/a | n/a | 0 |
 
-**What the model found that the rules missed.** 3 truth claims matched by the model arm and missed by the rules (2 of them still counted through the union). Examples:
+**What the model found that the rules missed.** 2 truth claims matched by the model arm and missed by the rules (1 of them still counted through the union). Examples:
 
 - config-rollback-private (advice): "Do not roll back N5 units, apply the v7.1 patch that fixes the voice range typo"
 - cabling-pinch (action): "Seppo re-dressed the cabinet cabling and fitted a cable guard at the door edge"
-- weak-mains-psu (advice): "Swap the PSU and keep an eye on the weak mains at that site"
 
-**What the validator dropped.** claim:excerpt-not-in-evidence 1, claim:unknown-evidence 4, entity:excerpt-not-in-evidence 1, link:excerpt-not-in-evidence 2, link:unknown-evidence 3 (list in `results/e09-extraction-model/validator-dropped.json`).
+**What the validator dropped.** claim:excerpt-does-not-support 14, claim:excerpt-not-in-evidence 1, claim:unknown-evidence 4, entity:excerpt-not-in-evidence 1, link:person-not-author 2, link:excerpt-not-in-evidence 2, link:unknown-evidence 3, entity:excerpt-does-not-support 1 (list in `results/e09-extraction-model/validator-dropped.json`).
 
 **Latency.** 24 recorded calls, mean 36.5 s, max 86.4 s; 4/24 calls alone exceed the extract slot's 60 s per-import budget; summed per import (one family = one import) 6/6 imports exceed it (bgp-firmware-flaps 153 s, fan-temperature 193 s, config-rollback-private 127 s, cabling-pinch 148 s, weak-mains-psu 131 s, bgp-linecard-private 124 s), so with the live budget those imports fall back to rules.
 
 **Frozen criterion.** Report all four arms side by side per split; no winner is declared (as E01). The rules extractor remains the default extract route regardless of the result; extract=local stays opt-in. List the truth claims the model recovered and the rules missed, and every item the validator dropped.
 
-**Outcome.** train: claim recall rules 0.681 (32/47), direct 0.383 (18/47), commit 0.383 (18/47), union 0.702 (33/47); precision rules 0.552 (32/58), direct 0.450 (18/40), commit 0.450 (18/40), union 0.440 (33/75); false merges rules 0.000 (0/7), direct 0.000 (0/13), commit 0.125 (1/8), union 0.000 (0/7). validation: claim recall rules 0.636 (14/22), direct 0.318 (7/22), commit 0.318 (7/22), union 0.682 (15/22); precision rules 0.412 (14/34), direct 0.389 (7/18), commit 0.389 (7/18), union 0.326 (15/46); false merges rules 0.250 (1/4), direct 0.000 (0/8), commit 0.200 (1/5), union 0.250 (1/4). The model recovered 3 truth claims the rules missed (direct), 2 through the union; 0 threads gave no usable output; the validator dropped 11 items (claim:excerpt-not-in-evidence 1, claim:unknown-evidence 4, entity:excerpt-not-in-evidence 1, link:excerpt-not-in-evidence 2, link:unknown-evidence 3). Recorded latency 24 calls, mean 36.5 s, 4/24 over 60 s.
+**Outcome.** train: claim recall rules 0.681 (32/47), direct 0.362 (17/47), commit 0.362 (17/47), union 0.702 (33/47); precision rules 0.552 (32/58), direct 0.459 (17/37), commit 0.459 (17/37), union 0.440 (33/75); false merges rules 0.000 (0/7), direct 0.000 (0/13), commit 0.125 (1/8), union 0.000 (0/7). validation: claim recall rules 0.636 (14/22), direct 0.273 (6/22), commit 0.273 (6/22), union 0.636 (14/22); precision rules 0.412 (14/34), direct 0.429 (6/14), commit 0.429 (6/14), union 0.333 (14/42); false merges rules 0.250 (1/4), direct 0.000 (0/8), commit 0.200 (1/5), union 0.250 (1/4). The model recovered 2 truth claims the rules missed (direct), 1 through the union; 0 threads gave no usable output; the validator dropped 28 items (claim:excerpt-does-not-support 14, claim:excerpt-not-in-evidence 1, claim:unknown-evidence 4, entity:excerpt-not-in-evidence 1, link:person-not-author 2, link:excerpt-not-in-evidence 2, link:unknown-evidence 3, entity:excerpt-does-not-support 1). Recorded latency 24 calls, mean 36.5 s, 4/24 over 60 s.
 
 **Shipped choice.** The rules extractor stays the default extract route; extract=local stays opt-in and commits only as a labelled union.
 

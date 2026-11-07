@@ -4,6 +4,9 @@
  *
  * The model proposes; nothing here writes memory. Every claim, entity and link must cite evidence of this thread with an
  * excerpt that is a substring of that evidence's extraction text, or it is dropped: the model cannot invent evidence.
+ * The excerpt must also carry the item (D-B2-54): at least three words (or the whole message), every id and number of
+ * a claim's statement and condition, half of the statement's content words; an entity's name in its excerpt. Who said
+ * it comes from the cited messages' authors, never from the model alone (D-B2-55).
  * Spans come from where the excerpt sits in the text. `confidence` is informational only.
  *
  * The union with the rules proposal (`unionProposal`) is committed AFTER the rules proposal, re-keyed to the rules
@@ -129,7 +132,7 @@ export function buildExtractionPrompt(context: ConversationContext): string {
 export interface DroppedItem {
   kind: 'claim' | 'entity' | 'link';
   label: string;
-  reason: 'unknown-evidence' | 'excerpt-not-in-evidence' | 'unknown-person';
+  reason: 'unknown-evidence' | 'excerpt-not-in-evidence' | 'excerpt-does-not-support' | 'unknown-person' | 'person-not-author';
 }
 
 export interface ValidatedExtraction {
@@ -154,33 +157,83 @@ export function locateExcerpt(text: string, excerpt: string): { start: number; e
   return m ? { start: m.index, end: m.index + m[0].length, excerpt: m[0] } : undefined;
 }
 
+const WORD_RE = /[\p{L}\p{N}][\p{L}\p{N}'-]*/gu;
+const wordsOf = (s: string): string[] => s.toLowerCase().match(WORD_RE) ?? [];
+/** Asset-like ids ("RTR-117", "SW-210"). */
+const ID_RE = /\b[A-Za-z]{2,6}-\d{1,6}\b/g;
+const idsIn = (s: string): string[] => (s.match(ID_RE) ?? []).map((x) => x.toLowerCase());
+const numbersIn = (s: string): string[] => s.replace(ID_RE, ' ').match(/\d+(?:[.,:]\d+)*/g) ?? [];
+/** Words that carry no content of their own (they never count for or against support). */
+const FUNCTION_WORDS = new Set([
+  'the', 'and', 'for', 'with', 'this', 'that', 'these', 'those', 'there', 'here', 'from', 'than', 'then', 'was', 'were', 'are', 'has', 'have', 'had',
+  'its', 'any', 'all', 'also', 'into', 'onto', 'after', 'before', 'but', 'not', 'our', 'their', 'his', 'her', 'they', 'them', 'you', 'your', 'she',
+  'him', 'who', 'what', 'which', 'when', 'where', 'why', 'how', 'been', 'being', 'will', 'would', 'should', 'could', 'can', 'may', 'might', 'did',
+  'does', 'about', 'again', 'once', 'some', 'very', 'just', 'still', 'only', 'probably', 'maybe', 'perhaps', 'think', 'hedged', 'reportedly',
+]);
+const contentWords = (s: string): string[] => wordsOf(s).filter((w) => w.length >= 3 && !FUNCTION_WORDS.has(w) && !/^\d/.test(w));
+const MIN_EXCERPT_WORDS = 3;
+const squash = (s: string): string => s.toLowerCase().replace(/\s+/g, ' ').trim();
+
+/** An excerpt of at least three words, or the whole message when it is shorter ("Done."). */
+function excerptCarries(text: string, excerpt: string): boolean {
+  const n = wordsOf(excerpt).length;
+  return n >= MIN_EXCERPT_WORDS || n >= wordsOf(text).length;
+}
+
+/**
+ * The cited excerpts support `statement`: every id and number in it appears in them, and at least half of its content
+ * words (compared by their first four letters) do.
+ */
+export function excerptsSupport(statement: string, excerpts: string[]): boolean {
+  const joined = excerpts.join(' \n ');
+  const exIds = new Set(idsIn(joined));
+  if (idsIn(statement).some((id) => !exIds.has(id))) return false;
+  const exNums = new Set(numbersIn(joined));
+  if (numbersIn(statement).some((n) => !exNums.has(n))) return false;
+  const want = [...new Set(contentWords(statement).map((w) => w.slice(0, 4)))];
+  if (!want.length) return true;
+  const have = new Set(wordsOf(joined).map((w) => w.slice(0, 4)));
+  return want.filter((w) => have.has(w)).length * 2 >= want.length;
+}
+
 /** Validate the model's raw output against the schema and the thread. Throws on a schema mismatch (the caller falls back). */
 export function validateExtraction(raw: unknown, context: ConversationContext, route: RouteInfo): ValidatedExtraction {
   const out = extractionOutputSchema.parse(raw);
   const texts = new Map<string, string>(context.evidence.map((e) => [e.id, extractionText(e)]));
+  const authorOf = new Map<string, ActorRef>(context.evidence.map((e) => [e.id, e.author]));
+  const thread = squash([...texts.values()].join('\n'));
   const actors = new Map<string, ActorRef>();
   for (const e of context.evidence) for (const a of [e.author, ...(e.recipients ?? [])]) actors.set(a.id, a);
   const dropped: DroppedItem[] = [];
-  /** Every ref must resolve; one bad ref drops the whole item. */
-  const refs = (list: Array<{ evidenceId: string; excerpt: string }>): EvidenceRef[] | DroppedItem['reason'] => {
+  /** Every ref must resolve; one bad ref drops the whole item. `short` lets a bare name stand as an entity's excerpt. */
+  const refs = (list: Array<{ evidenceId: string; excerpt: string }>, short = false): EvidenceRef[] | DroppedItem['reason'] => {
     const outRefs: EvidenceRef[] = [];
     for (const r of list) {
       const text = texts.get(r.evidenceId);
       if (text === undefined) return 'unknown-evidence';
       const at = locateExcerpt(text, r.excerpt);
       if (!at) return 'excerpt-not-in-evidence';
+      if (!short && !excerptCarries(text, at.excerpt)) return 'excerpt-does-not-support';
       outRefs.push({ evidenceId: r.evidenceId, span: { start: at.start, end: at.end }, excerpt: at.excerpt });
     }
     return outRefs;
   };
+  const citedAuthors = (ev: EvidenceRef[]): string[] => [...new Set(ev.map((r) => authorOf.get(r.evidenceId)?.id).filter((x): x is string => !!x))];
   const claims: ProposedClaim[] = [];
   for (const c of out.claims) {
     const ev = refs(c.evidence);
     if (typeof ev === 'string') { dropped.push({ kind: 'claim', label: c.statement, reason: ev }); continue; }
-    // An asserter that is not in the thread is not invented: the first cited message's author stands in.
-    const asserted = c.assertedByActorId && actors.has(c.assertedByActorId) ? c.assertedByActorId : texts.has(ev[0]!.evidenceId) ? context.evidence.find((e) => e.id === ev[0]!.evidenceId)?.author.id : undefined;
+    const excerpts = ev.map((r) => r.excerpt ?? '');
+    const value = c.condition?.value;
+    const conditionOk = typeof value === 'boolean' || value === undefined || excerptsSupport(String(value), excerpts);
+    if (!excerptsSupport(c.statement, excerpts) || !conditionOk) { dropped.push({ kind: 'claim', label: c.statement, reason: 'excerpt-does-not-support' }); continue; }
+    // Who asserted it is the author of a cited message: the model may pick among them, never anyone else in the thread.
+    const authors = citedAuthors(ev);
+    const asserted = c.assertedByActorId && authors.includes(c.assertedByActorId) ? c.assertedByActorId : authors[0];
     claims.push({
-      type: c.type, statement: c.statement.trim(), subjectEntityNames: [...new Set(c.subjectEntityNames.map((s) => s.trim()).filter(Boolean))],
+      type: c.type, statement: c.statement.trim(),
+      // Subject names the thread never mentions are left out (the claim stays; it does not link to an invented thing).
+      subjectEntityNames: [...new Set(c.subjectEntityNames.map((s) => s.trim()).filter((s) => s && thread.includes(squash(s))))],
       ...(asserted ? { assertedByActorId: asserted } : {}), evidence: ev,
       ...(c.condition ? { condition: { key: c.condition.key, operator: c.condition.operator, ...(c.condition.value !== undefined ? { value: c.condition.value } : {}), origin: 'reported' as const, evidence: ev, ...(c.condition.label ? { label: c.condition.label } : {}) } } : {}),
       ...(c.confidence !== undefined ? { confidence: c.confidence } : {}),
@@ -188,16 +241,25 @@ export function validateExtraction(raw: unknown, context: ConversationContext, r
   }
   const entities: ProposedEntity[] = [];
   for (const e of out.entities) {
-    const ev = refs(e.evidence);
+    const ev = refs(e.evidence, true);
     if (typeof ev === 'string') { dropped.push({ kind: 'entity', label: e.name, reason: ev }); continue; }
-    entities.push({ type: e.type, name: e.name.trim(), aliases: [...new Set(e.aliases.map((a) => a.trim()).filter(Boolean))], evidence: ev });
+    const cited = squash(ev.map((r) => r.excerpt ?? '').join('\n'));
+    if (!cited.includes(squash(e.name))) { dropped.push({ kind: 'entity', label: e.name, reason: 'excerpt-does-not-support' }); continue; }
+    entities.push({ type: e.type, name: e.name.trim(), aliases: [...new Set(e.aliases.map((a) => a.trim()).filter((a) => a && thread.includes(squash(a))))], evidence: ev });
   }
   const links: ProposedLink[] = [];
   for (const l of out.links) {
-    if (!actors.has(l.personActorId)) { dropped.push({ kind: 'link', label: `${l.personActorId} ${l.contribution}`, reason: 'unknown-person' }); continue; }
+    const label = `${l.personActorId} ${l.contribution}`;
+    const person = actors.get(l.personActorId);
+    if (!person) { dropped.push({ kind: 'link', label, reason: 'unknown-person' }); continue; }
     const ev = refs(l.evidence);
-    if (typeof ev === 'string') { dropped.push({ kind: 'link', label: `${l.personActorId} ${l.contribution}`, reason: ev }); continue; }
-    links.push({ personActorId: l.personActorId, contribution: l.contribution, evidence: ev, firsthand: l.firsthand });
+    if (typeof ev === 'string') { dropped.push({ kind: 'link', label, reason: ev }); continue; }
+    // A person is linked by what they wrote; 'mentioned' may instead name them in the cited excerpt.
+    const wrote = citedAuthors(ev).includes(l.personActorId);
+    const first = wordsOf(person.displayName)[0];
+    const named = l.contribution === 'mentioned' && !!first && first.length >= 2 && ev.some((r) => wordsOf(r.excerpt ?? '').includes(first));
+    if (!wrote && !named) { dropped.push({ kind: 'link', label, reason: 'person-not-author' }); continue; }
+    links.push({ personActorId: l.personActorId, contribution: l.contribution, evidence: ev, firsthand: l.firsthand && wrote });
   }
   const ids = new Set(texts.keys());
   return {

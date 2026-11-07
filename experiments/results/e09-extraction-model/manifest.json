@@ -10,7 +10,7 @@
     "maxWallSeconds": 600,
     "networkCalls": 0
   },
-  "startedAt": "2026-11-07T16:40:58.475Z",
+  "startedAt": "2026-11-07T16:57:35.870Z",
   "id": "e09-extraction-model",
   "hypothesis": "A local schema-constrained model (qwen3:4b, four few-shot examples, evidence-substring validator) recovers claims the rules extractor misses on the E01 families, and the union commit (rules first, model-only claims labelled with the model's route) raises claim recall without lowering precision or merging cases falsely.",
   "splits": [

@@ -1,6 +1,6 @@
 {
   "manifestId": "e09-extraction-model",
-  "finishedAt": "2026-11-07T16:40:58.762Z",
+  "finishedAt": "2026-11-07T16:57:36.282Z",
   "variants": [
     {
       "variantId": "rules-extractor@current",
@@ -736,9 +736,9 @@
           "denominator": 3
         },
         "claims.advice.precision": {
-          "value": 0.2,
+          "value": 0.25,
           "numerator": 1,
-          "denominator": 5
+          "denominator": 4
         },
         "claims.advice.recall": {
           "value": 0.14285714285714285,
@@ -756,13 +756,13 @@
           "denominator": 11
         },
         "claims.outcome.precision": {
-          "value": 0.375,
-          "numerator": 3,
-          "denominator": 8
+          "value": 0.3333333333333333,
+          "numerator": 2,
+          "denominator": 6
         },
         "claims.outcome.recall": {
-          "value": 0.3333333333333333,
-          "numerator": 3,
+          "value": 0.2222222222222222,
+          "numerator": 2,
           "denominator": 9
         },
         "claims.condition.precision": {
@@ -776,13 +776,13 @@
           "denominator": 6
         },
         "claims.all.precision": {
-          "value": 0.45,
-          "numerator": 18,
-          "denominator": 40
+          "value": 0.4594594594594595,
+          "numerator": 17,
+          "denominator": 37
         },
         "claims.all.recall": {
-          "value": 0.3829787234042553,
-          "numerator": 18,
+          "value": 0.3617021276595745,
+          "numerator": 17,
           "denominator": 47
         },
         "entities.recall": {
@@ -803,7 +803,7 @@
         "attribution.claimPersonErrorRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 18
+          "denominator": 17
         },
         "attribution.firsthandLinkErrorRate": {
           "value": 0.09090909090909091,
@@ -821,28 +821,28 @@
         "claims.observation.unknown": 0,
         "claims.hypothesis.ambiguous": 1,
         "claims.hypothesis.unknown": 0,
-        "claims.advice.ambiguous": 2,
+        "claims.advice.ambiguous": 1,
         "claims.advice.unknown": 0,
-        "claims.action.ambiguous": 2,
+        "claims.action.ambiguous": 1,
         "claims.action.unknown": 0,
-        "claims.outcome.ambiguous": 2,
+        "claims.outcome.ambiguous": 0,
         "claims.outcome.unknown": 0,
         "claims.condition.ambiguous": 1,
         "claims.condition.unknown": 0,
-        "claims.all.ambiguous": 13,
+        "claims.all.ambiguous": 9,
         "claims.all.unknown": 0,
         "entities.systemNonPerson": 18,
         "entities.extraNonTruth": 12,
         "cases.missingIncidents": 0,
         "attribution.claimPersonUnattributed": 9,
         "e09.families": 4,
-        "e09.claims": 53,
+        "e09.claims": 46,
         "e09.entities": 30,
         "e09.cases": 16,
         "e09.links": 16,
         "e09.attempts": 0,
         "e09.outcomes": 0,
-        "e09.validatorDropped": 9,
+        "e09.validatorDropped": 17,
         "e09.threads": 16,
         "e09.threadsFailed": 0
       },
@@ -914,19 +914,13 @@
           "familyId": "bgp-firmware-flaps"
         },
         {
-          "id": "claim_3a322cae31e36b508ed9",
+          "id": "claim_7f5249048fd1a02e5d36",
           "metric": "claims.precision",
           "reason": "unsupported hypothesis claim: \"The hold timers need to be rolled back to 90 seconds.\"",
           "familyId": "bgp-firmware-flaps"
         },
         {
-          "id": "claim_5b0f7556d18a84c55cfb",
-          "metric": "claims.precision",
-          "reason": "unsupported outcome claim: \"AGG-014 has stable BGP peers after ten minutes.\"",
-          "familyId": "bgp-firmware-flaps"
-        },
-        {
-          "id": "claim_9d8ecdfb733b2cc876cc",
+          "id": "claim_a1765dab64073859e8f5",
           "metric": "claims.precision",
           "reason": "unsupported observation claim: \"Vendor webinar on the 9.5 release is on Tuesday.\"",
           "familyId": "bgp-firmware-flaps"
@@ -1086,11 +1080,17 @@
           "metric": "claims.recall",
           "reason": "missed advice claim: \"Roll ACC-12 back to the v6 template\"",
           "familyId": "config-rollback-private"
+        },
+        {
+          "id": "A#4",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"Jarmo rolled ACC-12 back to v6 and saved it to the startup config\"",
+          "familyId": "config-rollback-private"
         }
       ],
       "failureSlicesByTag": {
         "lookalike-different-cause": {
-          "count": 17,
+          "count": 16,
           "ids": [
             "A#1",
             "A#2",
@@ -1103,16 +1103,15 @@
             "claim_9dd8d3986c7b50fe40eb",
             "claim_30d10d428f5ca66dde41",
             "claim_4a74fd55d72562591f42",
-            "claim_3a322cae31e36b508ed9",
-            "claim_5b0f7556d18a84c55cfb",
-            "claim_9d8ecdfb733b2cc876cc",
+            "claim_7f5249048fd1a02e5d36",
+            "claim_a1765dab64073859e8f5",
             "AGG-044",
             "A",
             "plink_98b65f20153328d8e355"
           ]
         },
         "multi-step": {
-          "count": 32,
+          "count": 30,
           "ids": [
             "A#1",
             "A#2",
@@ -1125,26 +1124,24 @@
             "claim_9dd8d3986c7b50fe40eb",
             "claim_30d10d428f5ca66dde41",
             "claim_4a74fd55d72562591f42",
-            "claim_3a322cae31e36b508ed9",
-            "claim_5b0f7556d18a84c55cfb",
-            "claim_9d8ecdfb733b2cc876cc",
+            "claim_7f5249048fd1a02e5d36",
+            "claim_a1765dab64073859e8f5",
             "AGG-044",
             "A",
             "plink_98b65f20153328d8e355",
             "A#0",
             "A#4",
             "A#7",
-            "claim_348ef49a86345c46b801",
-            "claim_63c581799186a34e8492",
+            "claim_da26b07c63fe784e9f02",
+            "claim_7364ae978774758c7ac1",
             "claim_a5e7c35158b24f059059",
             "claim_e6317354fe5116d74918",
-            "claim_6924941fa59fd496ac9b",
             "HUB-07 uplink patch cord",
             "HUB-09"
           ]
         },
         "recurrence": {
-          "count": 17,
+          "count": 16,
           "ids": [
             "A#1",
             "A#2",
@@ -1157,9 +1154,8 @@
             "claim_9dd8d3986c7b50fe40eb",
             "claim_30d10d428f5ca66dde41",
             "claim_4a74fd55d72562591f42",
-            "claim_3a322cae31e36b508ed9",
-            "claim_5b0f7556d18a84c55cfb",
-            "claim_9d8ecdfb733b2cc876cc",
+            "claim_7f5249048fd1a02e5d36",
+            "claim_a1765dab64073859e8f5",
             "AGG-044",
             "A",
             "plink_98b65f20153328d8e355"
@@ -1179,9 +1175,8 @@
             "claim_9dd8d3986c7b50fe40eb",
             "claim_30d10d428f5ca66dde41",
             "claim_4a74fd55d72562591f42",
-            "claim_3a322cae31e36b508ed9",
-            "claim_5b0f7556d18a84c55cfb",
-            "claim_9d8ecdfb733b2cc876cc",
+            "claim_7f5249048fd1a02e5d36",
+            "claim_a1765dab64073859e8f5",
             "AGG-044",
             "A",
             "plink_98b65f20153328d8e355",
@@ -1201,7 +1196,7 @@
             "B",
             "A#4",
             "B#0",
-            "claim_08d3aa014af9c06552eb",
+            "claim_73d450fddd449fd1e73e",
             "ACC-33",
             "config template v7"
           ]
@@ -1282,7 +1277,7 @@
           ]
         },
         "changed-permissions": {
-          "count": 11,
+          "count": 12,
           "ids": [
             "A#1",
             "A#2",
@@ -1291,14 +1286,15 @@
             "B#0",
             "B#1",
             "B#2",
-            "claim_08d3aa014af9c06552eb",
+            "B#5",
+            "claim_73d450fddd449fd1e73e",
             "ACC-33",
             "config template v7",
             "A"
           ]
         },
         "wrong-recipient-trap": {
-          "count": 11,
+          "count": 12,
           "ids": [
             "A#1",
             "A#2",
@@ -1307,14 +1303,15 @@
             "B#0",
             "B#1",
             "B#2",
-            "claim_08d3aa014af9c06552eb",
+            "B#5",
+            "claim_73d450fddd449fd1e73e",
             "ACC-33",
             "config template v7",
             "A"
           ]
         },
         "copied-retelling": {
-          "count": 11,
+          "count": 12,
           "ids": [
             "A#1",
             "A#2",
@@ -1323,14 +1320,15 @@
             "B#0",
             "B#1",
             "B#2",
-            "claim_08d3aa014af9c06552eb",
+            "B#5",
+            "claim_73d450fddd449fd1e73e",
             "ACC-33",
             "config template v7",
             "A"
           ]
         },
         "useful-no": {
-          "count": 11,
+          "count": 12,
           "ids": [
             "A#1",
             "A#2",
@@ -1339,14 +1337,15 @@
             "B#0",
             "B#1",
             "B#2",
-            "claim_08d3aa014af9c06552eb",
+            "B#5",
+            "claim_73d450fddd449fd1e73e",
             "ACC-33",
             "config template v7",
             "A"
           ]
         },
         "same-incident-continuation": {
-          "count": 15,
+          "count": 14,
           "ids": [
             "A#0",
             "A#1",
@@ -1355,18 +1354,17 @@
             "A#5",
             "A#6",
             "A#7",
-            "claim_348ef49a86345c46b801",
-            "claim_63c581799186a34e8492",
+            "claim_da26b07c63fe784e9f02",
+            "claim_7364ae978774758c7ac1",
             "claim_a5e7c35158b24f059059",
             "claim_e6317354fe5116d74918",
-            "claim_6924941fa59fd496ac9b",
             "HUB-07 uplink patch cord",
             "HUB-09",
             "A"
           ]
         },
         "no-answer": {
-          "count": 15,
+          "count": 14,
           "ids": [
             "A#0",
             "A#1",
@@ -1375,11 +1373,10 @@
             "A#5",
             "A#6",
             "A#7",
-            "claim_348ef49a86345c46b801",
-            "claim_63c581799186a34e8492",
+            "claim_da26b07c63fe784e9f02",
+            "claim_7364ae978774758c7ac1",
             "claim_a5e7c35158b24f059059",
             "claim_e6317354fe5116d74918",
-            "claim_6924941fa59fd496ac9b",
             "HUB-07 uplink patch cord",
             "HUB-09",
             "A"
@@ -1413,9 +1410,9 @@
           "denominator": 3
         },
         "claims.advice.precision": {
-          "value": 0.2,
+          "value": 0.25,
           "numerator": 1,
-          "denominator": 5
+          "denominator": 4
         },
         "claims.advice.recall": {
           "value": 0.14285714285714285,
@@ -1433,13 +1430,13 @@
           "denominator": 11
         },
         "claims.outcome.precision": {
-          "value": 0.375,
-          "numerator": 3,
-          "denominator": 8
+          "value": 0.3333333333333333,
+          "numerator": 2,
+          "denominator": 6
         },
         "claims.outcome.recall": {
-          "value": 0.3333333333333333,
-          "numerator": 3,
+          "value": 0.2222222222222222,
+          "numerator": 2,
           "denominator": 9
         },
         "claims.condition.precision": {
@@ -1453,13 +1450,13 @@
           "denominator": 6
         },
         "claims.all.precision": {
-          "value": 0.45,
-          "numerator": 18,
-          "denominator": 40
+          "value": 0.4594594594594595,
+          "numerator": 17,
+          "denominator": 37
         },
         "claims.all.recall": {
-          "value": 0.3829787234042553,
-          "numerator": 18,
+          "value": 0.3617021276595745,
+          "numerator": 17,
           "denominator": 47
         },
         "entities.recall": {
@@ -1478,29 +1475,29 @@
           "denominator": 7
         },
         "attribution.claimPersonErrorRate": {
-          "value": 0.1111111111111111,
+          "value": 0.11764705882352941,
           "numerator": 2,
-          "denominator": 18
+          "denominator": 17
         },
         "attribution.attemptPerformerErrorRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 3
+          "denominator": 2
         },
         "attribution.attemptPerformedStateErrorRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 3
+          "denominator": 2
         },
         "attribution.attemptsNotInTruthRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 3
+          "denominator": 2
         },
         "attribution.outcomeReporterErrorRate": {
-          "value": 0.5,
+          "value": 0.75,
           "numerator": 3,
-          "denominator": 6
+          "denominator": 4
         },
         "attribution.firsthandLinkErrorRate": null,
         "copies.overcountRate": {
@@ -1514,15 +1511,15 @@
         "claims.observation.unknown": 0,
         "claims.hypothesis.ambiguous": 1,
         "claims.hypothesis.unknown": 0,
-        "claims.advice.ambiguous": 2,
+        "claims.advice.ambiguous": 1,
         "claims.advice.unknown": 0,
-        "claims.action.ambiguous": 2,
+        "claims.action.ambiguous": 1,
         "claims.action.unknown": 0,
-        "claims.outcome.ambiguous": 2,
+        "claims.outcome.ambiguous": 0,
         "claims.outcome.unknown": 0,
         "claims.condition.ambiguous": 1,
         "claims.condition.unknown": 0,
-        "claims.all.ambiguous": 13,
+        "claims.all.ambiguous": 9,
         "claims.all.unknown": 0,
         "entities.systemNonPerson": 18,
         "entities.extraNonTruth": 12,
@@ -1530,12 +1527,12 @@
         "attribution.claimPersonUnattributed": 0,
         "attribution.attemptsNotInTruth": 0,
         "e09.families": 4,
-        "e09.claims": 53,
+        "e09.claims": 46,
         "e09.entities": 40,
         "e09.cases": 11,
         "e09.links": 0,
-        "e09.attempts": 3,
-        "e09.outcomes": 6
+        "e09.attempts": 2,
+        "e09.outcomes": 4
       },
       "failures": [
         {
@@ -1608,12 +1605,6 @@
           "id": "claim_a30df8345557e3d27492",
           "metric": "claims.precision",
           "reason": "unsupported hypothesis claim: \"The hold timers need to be rolled back to 90 seconds.\"",
-          "familyId": "bgp-firmware-flaps"
-        },
-        {
-          "id": "claim_80783cb722f0a6a8db77",
-          "metric": "claims.precision",
-          "reason": "unsupported outcome claim: \"AGG-014 has stable BGP peers after ten minutes.\"",
           "familyId": "bgp-firmware-flaps"
         },
         {
@@ -1777,11 +1768,17 @@
           "metric": "claims.recall",
           "reason": "missed advice claim: \"Roll ACC-12 back to the v6 template\"",
           "familyId": "config-rollback-private"
+        },
+        {
+          "id": "A#4",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"Jarmo rolled ACC-12 back to v6 and saved it to the startup config\"",
+          "familyId": "config-rollback-private"
         }
       ],
       "failureSlicesByTag": {
         "lookalike-different-cause": {
-          "count": 15,
+          "count": 14,
           "ids": [
             "A#1",
             "A#2",
@@ -1795,13 +1792,12 @@
             "claim_2d9a83e7776a878ef682",
             "claim_b262ed7ca5273ad76652",
             "claim_a30df8345557e3d27492",
-            "claim_80783cb722f0a6a8db77",
             "claim_e67cb9aa9a2fd653d316",
             "AGG-044"
           ]
         },
         "multi-step": {
-          "count": 32,
+          "count": 30,
           "ids": [
             "A#1",
             "A#2",
@@ -1815,13 +1811,11 @@
             "claim_2d9a83e7776a878ef682",
             "claim_b262ed7ca5273ad76652",
             "claim_a30df8345557e3d27492",
-            "claim_80783cb722f0a6a8db77",
             "claim_e67cb9aa9a2fd653d316",
             "AGG-044",
             "A#0",
             "A#4",
             "A#7",
-            "claim_5585dc49e04f5eb98e31",
             "claim_5886155d40bb6cdd3cc4",
             "claim_e586a6f4c390b18a91d2",
             "claim_50c4dd8bc5a462aa9759",
@@ -1834,7 +1828,7 @@
           ]
         },
         "recurrence": {
-          "count": 15,
+          "count": 14,
           "ids": [
             "A#1",
             "A#2",
@@ -1848,7 +1842,6 @@
             "claim_2d9a83e7776a878ef682",
             "claim_b262ed7ca5273ad76652",
             "claim_a30df8345557e3d27492",
-            "claim_80783cb722f0a6a8db77",
             "claim_e67cb9aa9a2fd653d316",
             "AGG-044"
           ]
@@ -1868,7 +1861,6 @@
             "claim_2d9a83e7776a878ef682",
             "claim_b262ed7ca5273ad76652",
             "claim_a30df8345557e3d27492",
-            "claim_80783cb722f0a6a8db77",
             "claim_e67cb9aa9a2fd653d316",
             "AGG-044",
             "B#5",
@@ -1978,7 +1970,7 @@
           ]
         },
         "changed-permissions": {
-          "count": 12,
+          "count": 13,
           "ids": [
             "A#1",
             "A#2",
@@ -1987,6 +1979,7 @@
             "B#0",
             "B#1",
             "B#2",
+            "B#5",
             "claim_d999968fe21f684a546e",
             "ACC-33",
             "config template v7",
@@ -1995,7 +1988,7 @@
           ]
         },
         "wrong-recipient-trap": {
-          "count": 12,
+          "count": 13,
           "ids": [
             "A#1",
             "A#2",
@@ -2004,6 +1997,7 @@
             "B#0",
             "B#1",
             "B#2",
+            "B#5",
             "claim_d999968fe21f684a546e",
             "ACC-33",
             "config template v7",
@@ -2012,7 +2006,7 @@
           ]
         },
         "copied-retelling": {
-          "count": 12,
+          "count": 13,
           "ids": [
             "A#1",
             "A#2",
@@ -2021,6 +2015,7 @@
             "B#0",
             "B#1",
             "B#2",
+            "B#5",
             "claim_d999968fe21f684a546e",
             "ACC-33",
             "config template v7",
@@ -2029,7 +2024,7 @@
           ]
         },
         "useful-no": {
-          "count": 12,
+          "count": 13,
           "ids": [
             "A#1",
             "A#2",
@@ -2038,6 +2033,7 @@
             "B#0",
             "B#1",
             "B#2",
+            "B#5",
             "claim_d999968fe21f684a546e",
             "ACC-33",
             "config template v7",
@@ -2046,7 +2042,7 @@
           ]
         },
         "same-incident-continuation": {
-          "count": 17,
+          "count": 16,
           "ids": [
             "A#0",
             "A#1",
@@ -2055,7 +2051,6 @@
             "A#5",
             "A#6",
             "A#7",
-            "claim_5585dc49e04f5eb98e31",
             "claim_5886155d40bb6cdd3cc4",
             "claim_e586a6f4c390b18a91d2",
             "claim_50c4dd8bc5a462aa9759",
@@ -2068,7 +2063,7 @@
           ]
         },
         "no-answer": {
-          "count": 17,
+          "count": 16,
           "ids": [
             "A#0",
             "A#1",
@@ -2077,7 +2072,6 @@
             "A#5",
             "A#6",
             "A#7",
-            "claim_5585dc49e04f5eb98e31",
             "claim_5886155d40bb6cdd3cc4",
             "claim_e586a6f4c390b18a91d2",
             "claim_50c4dd8bc5a462aa9759",
@@ -2191,17 +2185,17 @@
         "attribution.attemptPerformerErrorRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 8
+          "denominator": 7
         },
         "attribution.attemptPerformedStateErrorRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 8
+          "denominator": 7
         },
         "attribution.attemptsNotInTruthRate": {
-          "value": 0.2,
+          "value": 0.2222222222222222,
           "numerator": 2,
-          "denominator": 10
+          "denominator": 9
         },
         "attribution.outcomeReporterErrorRate": {
           "value": 0.4117647058823529,
@@ -2226,7 +2220,7 @@
         "claims.hypothesis.unknown": 0,
         "claims.advice.ambiguous": 2,
         "claims.advice.unknown": 0,
-        "claims.action.ambiguous": 3,
+        "claims.action.ambiguous": 2,
         "claims.action.unknown": 0,
         "claims.outcome.ambiguous": 2,
         "claims.outcome.unknown": 0,
@@ -2234,7 +2228,7 @@
         "claims.condition.unknown": 0,
         "claims.other.ambiguous": 0,
         "claims.other.unknown": 5,
-        "claims.all.ambiguous": 18,
+        "claims.all.ambiguous": 17,
         "claims.all.unknown": 5,
         "entities.systemNonPerson": 20,
         "entities.extraNonTruth": 13,
@@ -2242,13 +2236,13 @@
         "attribution.claimPersonUnattributed": 0,
         "attribution.attemptsNotInTruth": 2,
         "e09.families": 4,
-        "e09.claims": 98,
+        "e09.claims": 97,
         "e09.entities": 42,
         "e09.cases": 10,
         "e09.links": 65,
-        "e09.attempts": 10,
+        "e09.attempts": 9,
         "e09.outcomes": 17,
-        "e09.modelOnlyClaimsCommitted": 23,
+        "e09.modelOnlyClaimsCommitted": 22,
         "e09.importsFellBack": 0
       },
       "failures": [
@@ -3483,9 +3477,9 @@
       "split": "validation",
       "metrics": {
         "claims.observation.precision": {
-          "value": 0.5,
+          "value": 0.6,
           "numerator": 3,
-          "denominator": 6
+          "denominator": 5
         },
         "claims.observation.recall": {
           "value": 0.6,
@@ -3495,7 +3489,7 @@
         "claims.hypothesis.precision": {
           "value": 0,
           "numerator": 0,
-          "denominator": 2
+          "denominator": 1
         },
         "claims.hypothesis.recall": {
           "value": 0,
@@ -3503,13 +3497,13 @@
           "denominator": 1
         },
         "claims.advice.precision": {
-          "value": 0.5,
-          "numerator": 1,
-          "denominator": 2
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
         },
         "claims.advice.recall": {
-          "value": 0.3333333333333333,
-          "numerator": 1,
+          "value": 0,
+          "numerator": 0,
           "denominator": 3
         },
         "claims.action.precision": {
@@ -3535,7 +3529,7 @@
         "claims.condition.precision": {
           "value": 0,
           "numerator": 0,
-          "denominator": 4
+          "denominator": 3
         },
         "claims.condition.recall": {
           "value": 0,
@@ -3549,13 +3543,13 @@
           "denominator": 3
         },
         "claims.all.precision": {
-          "value": 0.3888888888888889,
-          "numerator": 7,
-          "denominator": 18
+          "value": 0.42857142857142855,
+          "numerator": 6,
+          "denominator": 14
         },
         "claims.all.recall": {
-          "value": 0.3181818181818182,
-          "numerator": 7,
+          "value": 0.2727272727272727,
+          "numerator": 6,
           "denominator": 22
         },
         "entities.recall": {
@@ -3576,7 +3570,7 @@
         "attribution.claimPersonErrorRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 7
+          "denominator": 6
         },
         "attribution.firsthandLinkErrorRate": {
           "value": 0,
@@ -3598,26 +3592,26 @@
         "claims.advice.unknown": 0,
         "claims.action.ambiguous": 2,
         "claims.action.unknown": 0,
-        "claims.outcome.ambiguous": 2,
+        "claims.outcome.ambiguous": 0,
         "claims.outcome.unknown": 0,
-        "claims.condition.ambiguous": 3,
+        "claims.condition.ambiguous": 2,
         "claims.condition.unknown": 0,
         "claims.access-fact.ambiguous": 0,
         "claims.access-fact.unknown": 0,
-        "claims.all.ambiguous": 9,
+        "claims.all.ambiguous": 6,
         "claims.all.unknown": 0,
-        "entities.systemNonPerson": 14,
-        "entities.extraNonTruth": 11,
+        "entities.systemNonPerson": 13,
+        "entities.extraNonTruth": 10,
         "cases.missingIncidents": 0,
-        "attribution.claimPersonUnattributed": 4,
+        "attribution.claimPersonUnattributed": 3,
         "e09.families": 2,
-        "e09.claims": 27,
-        "e09.entities": 21,
+        "e09.claims": 20,
+        "e09.entities": 20,
         "e09.cases": 9,
         "e09.links": 10,
         "e09.attempts": 0,
         "e09.outcomes": 0,
-        "e09.validatorDropped": 2,
+        "e09.validatorDropped": 11,
         "e09.threads": 8,
         "e09.threadsFailed": 0
       },
@@ -3626,6 +3620,12 @@
           "id": "A#1",
           "metric": "claims.recall",
           "reason": "missed observation claim: \"The 48 V PSU at MW-77 shows about 3 volts peak to peak ripple\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Swap the PSU and keep an eye on the weak mains at that site\"",
           "familyId": "weak-mains-psu"
         },
         {
@@ -3683,37 +3683,25 @@
           "familyId": "weak-mains-psu"
         },
         {
-          "id": "claim_c5cfeeb07ab86d0e487a",
-          "metric": "claims.precision",
-          "reason": "unsupported condition claim: \"In the period from 1 December to 30 April, take the snowmobile from the Lampela \"",
-          "familyId": "weak-mains-psu"
-        },
-        {
-          "id": "claim_4443cfec7bbf712012e8",
+          "id": "claim_6d60eb93e5abfa1d9400",
           "metric": "claims.precision",
           "reason": "unsupported condition claim: \"The cabin key is in the lockbox by the door, code 3290.\"",
           "familyId": "weak-mains-psu"
         },
         {
-          "id": "claim_27357aac958d5c48a790",
+          "id": "claim_2111049086be45398ecf",
           "metric": "claims.precision",
           "reason": "unsupported hypothesis claim: \"The mains logger shows sags to 185 V in the evenings when the neighbouring sawmi\"",
           "familyId": "weak-mains-psu"
         },
         {
-          "id": "claim_48ed05adb854c09ddd73",
+          "id": "claim_712a6899d47115183acf",
           "metric": "claims.precision",
           "reason": "unsupported advice claim: \"Replace the battery string and monitor the mains.\"",
           "familyId": "weak-mains-psu"
         },
         {
-          "id": "claim_9d3c19eba6e73c4e09f6",
-          "metric": "claims.precision",
-          "reason": "unsupported hypothesis claim: \"The long-haul hop towards the Salmijärvi tower is the issue.\"",
-          "familyId": "weak-mains-psu"
-        },
-        {
-          "id": "claim_99c57088d1f18115cfaf",
+          "id": "claim_621c8344df21fc669182",
           "metric": "claims.precision",
           "reason": "unsupported observation claim: \"Annual leave plans are due on Friday.\"",
           "familyId": "weak-mains-psu"
@@ -3779,13 +3767,7 @@
           "familyId": "bgp-linecard-private"
         },
         {
-          "id": "claim_7cf75c2835a0ac99a7d4",
-          "metric": "claims.precision",
-          "reason": "unsupported observation claim: \"PE-09 is flapping after 11.2 but it has LC-3, so 11.1.1 should not be the answer\"",
-          "familyId": "bgp-linecard-private"
-        },
-        {
-          "id": "claim_fd1778faacf42b73bc8f",
+          "id": "claim_8d6b9f40b1ff8b862895",
           "metric": "claims.precision",
           "reason": "unsupported observation claim: \"PE-05 BGP is going down and up repeatedly since the upgrade.\"",
           "familyId": "bgp-linecard-private"
@@ -3805,9 +3787,10 @@
       ],
       "failureSlicesByTag": {
         "temporary-recovery": {
-          "count": 18,
+          "count": 17,
           "ids": [
             "A#1",
+            "A#2",
             "A#3",
             "A#4",
             "B#1",
@@ -3817,20 +3800,19 @@
             "C#2",
             "claim_9d6dc980217cafe78494",
             "claim_ac1a57a3e813eb51ac52",
-            "claim_c5cfeeb07ab86d0e487a",
-            "claim_4443cfec7bbf712012e8",
-            "claim_27357aac958d5c48a790",
-            "claim_48ed05adb854c09ddd73",
-            "claim_9d3c19eba6e73c4e09f6",
-            "claim_99c57088d1f18115cfaf",
+            "claim_6d60eb93e5abfa1d9400",
+            "claim_2111049086be45398ecf",
+            "claim_712a6899d47115183acf",
+            "claim_621c8344df21fc669182",
             "MW-77 48V PSU",
             "MW-77 battery string"
           ]
         },
         "recurrence": {
-          "count": 18,
+          "count": 17,
           "ids": [
             "A#1",
+            "A#2",
             "A#3",
             "A#4",
             "B#1",
@@ -3840,20 +3822,19 @@
             "C#2",
             "claim_9d6dc980217cafe78494",
             "claim_ac1a57a3e813eb51ac52",
-            "claim_c5cfeeb07ab86d0e487a",
-            "claim_4443cfec7bbf712012e8",
-            "claim_27357aac958d5c48a790",
-            "claim_48ed05adb854c09ddd73",
-            "claim_9d3c19eba6e73c4e09f6",
-            "claim_99c57088d1f18115cfaf",
+            "claim_6d60eb93e5abfa1d9400",
+            "claim_2111049086be45398ecf",
+            "claim_712a6899d47115183acf",
+            "claim_621c8344df21fc669182",
             "MW-77 48V PSU",
             "MW-77 battery string"
           ]
         },
         "access-fact": {
-          "count": 18,
+          "count": 17,
           "ids": [
             "A#1",
+            "A#2",
             "A#3",
             "A#4",
             "B#1",
@@ -3863,20 +3844,19 @@
             "C#2",
             "claim_9d6dc980217cafe78494",
             "claim_ac1a57a3e813eb51ac52",
-            "claim_c5cfeeb07ab86d0e487a",
-            "claim_4443cfec7bbf712012e8",
-            "claim_27357aac958d5c48a790",
-            "claim_48ed05adb854c09ddd73",
-            "claim_9d3c19eba6e73c4e09f6",
-            "claim_99c57088d1f18115cfaf",
+            "claim_6d60eb93e5abfa1d9400",
+            "claim_2111049086be45398ecf",
+            "claim_712a6899d47115183acf",
+            "claim_621c8344df21fc669182",
             "MW-77 48V PSU",
             "MW-77 battery string"
           ]
         },
         "no-question-needed": {
-          "count": 18,
+          "count": 17,
           "ids": [
             "A#1",
+            "A#2",
             "A#3",
             "A#4",
             "B#1",
@@ -3886,18 +3866,16 @@
             "C#2",
             "claim_9d6dc980217cafe78494",
             "claim_ac1a57a3e813eb51ac52",
-            "claim_c5cfeeb07ab86d0e487a",
-            "claim_4443cfec7bbf712012e8",
-            "claim_27357aac958d5c48a790",
-            "claim_48ed05adb854c09ddd73",
-            "claim_9d3c19eba6e73c4e09f6",
-            "claim_99c57088d1f18115cfaf",
+            "claim_6d60eb93e5abfa1d9400",
+            "claim_2111049086be45398ecf",
+            "claim_712a6899d47115183acf",
+            "claim_621c8344df21fc669182",
             "MW-77 48V PSU",
             "MW-77 battery string"
           ]
         },
         "lookalike-different-cause": {
-          "count": 12,
+          "count": 11,
           "ids": [
             "A#1",
             "A#2",
@@ -3907,14 +3885,13 @@
             "B#2",
             "B#4",
             "claim_dec0f353f7f5e7ba0111",
-            "claim_7cf75c2835a0ac99a7d4",
-            "claim_fd1778faacf42b73bc8f",
+            "claim_8d6b9f40b1ff8b862895",
             "PE-12",
             "A"
           ]
         },
         "useful-no": {
-          "count": 12,
+          "count": 11,
           "ids": [
             "A#1",
             "A#2",
@@ -3924,14 +3901,13 @@
             "B#2",
             "B#4",
             "claim_dec0f353f7f5e7ba0111",
-            "claim_7cf75c2835a0ac99a7d4",
-            "claim_fd1778faacf42b73bc8f",
+            "claim_8d6b9f40b1ff8b862895",
             "PE-12",
             "A"
           ]
         },
         "changed-permissions": {
-          "count": 12,
+          "count": 11,
           "ids": [
             "A#1",
             "A#2",
@@ -3941,14 +3917,13 @@
             "B#2",
             "B#4",
             "claim_dec0f353f7f5e7ba0111",
-            "claim_7cf75c2835a0ac99a7d4",
-            "claim_fd1778faacf42b73bc8f",
+            "claim_8d6b9f40b1ff8b862895",
             "PE-12",
             "A"
           ]
         },
         "duplicate-report": {
-          "count": 12,
+          "count": 11,
           "ids": [
             "A#1",
             "A#2",
@@ -3958,14 +3933,13 @@
             "B#2",
             "B#4",
             "claim_dec0f353f7f5e7ba0111",
-            "claim_7cf75c2835a0ac99a7d4",
-            "claim_fd1778faacf42b73bc8f",
+            "claim_8d6b9f40b1ff8b862895",
             "PE-12",
             "A"
           ]
         },
         "copied-retelling": {
-          "count": 12,
+          "count": 11,
           "ids": [
             "A#1",
             "A#2",
@@ -3975,8 +3949,7 @@
             "B#2",
             "B#4",
             "claim_dec0f353f7f5e7ba0111",
-            "claim_7cf75c2835a0ac99a7d4",
-            "claim_fd1778faacf42b73bc8f",
+            "claim_8d6b9f40b1ff8b862895",
             "PE-12",
             "A"
           ]
@@ -3989,9 +3962,9 @@
       "split": "validation",
       "metrics": {
         "claims.observation.precision": {
-          "value": 0.5,
+          "value": 0.6,
           "numerator": 3,
-          "denominator": 6
+          "denominator": 5
         },
         "claims.observation.recall": {
           "value": 0.6,
@@ -4001,7 +3974,7 @@
         "claims.hypothesis.precision": {
           "value": 0,
           "numerator": 0,
-          "denominator": 2
+          "denominator": 1
         },
         "claims.hypothesis.recall": {
           "value": 0,
@@ -4009,13 +3982,13 @@
           "denominator": 1
         },
         "claims.advice.precision": {
-          "value": 0.5,
-          "numerator": 1,
-          "denominator": 2
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
         },
         "claims.advice.recall": {
-          "value": 0.3333333333333333,
-          "numerator": 1,
+          "value": 0,
+          "numerator": 0,
           "denominator": 3
         },
         "claims.action.precision": {
@@ -4041,7 +4014,7 @@
         "claims.condition.precision": {
           "value": 0,
           "numerator": 0,
-          "denominator": 4
+          "denominator": 3
         },
         "claims.condition.recall": {
           "value": 0,
@@ -4055,13 +4028,13 @@
           "denominator": 3
         },
         "claims.all.precision": {
-          "value": 0.3888888888888889,
-          "numerator": 7,
-          "denominator": 18
+          "value": 0.42857142857142855,
+          "numerator": 6,
+          "denominator": 14
         },
         "claims.all.recall": {
-          "value": 0.3181818181818182,
-          "numerator": 7,
+          "value": 0.2727272727272727,
+          "numerator": 6,
           "denominator": 22
         },
         "entities.recall": {
@@ -4080,17 +4053,17 @@
           "denominator": 5
         },
         "attribution.claimPersonErrorRate": {
-          "value": 0.14285714285714285,
+          "value": 0.16666666666666666,
           "numerator": 1,
-          "denominator": 7
+          "denominator": 6
         },
         "attribution.attemptPerformerErrorRate": null,
         "attribution.attemptPerformedStateErrorRate": null,
         "attribution.attemptsNotInTruthRate": null,
         "attribution.outcomeReporterErrorRate": {
-          "value": 0.5,
+          "value": 1,
           "numerator": 1,
-          "denominator": 2
+          "denominator": 1
         },
         "attribution.firsthandLinkErrorRate": null,
         "copies.overcountRate": {
@@ -4108,32 +4081,38 @@
         "claims.advice.unknown": 0,
         "claims.action.ambiguous": 2,
         "claims.action.unknown": 0,
-        "claims.outcome.ambiguous": 2,
+        "claims.outcome.ambiguous": 0,
         "claims.outcome.unknown": 0,
-        "claims.condition.ambiguous": 3,
+        "claims.condition.ambiguous": 2,
         "claims.condition.unknown": 0,
         "claims.access-fact.ambiguous": 0,
         "claims.access-fact.unknown": 0,
-        "claims.all.ambiguous": 9,
+        "claims.all.ambiguous": 6,
         "claims.all.unknown": 0,
-        "entities.systemNonPerson": 14,
-        "entities.extraNonTruth": 11,
+        "entities.systemNonPerson": 13,
+        "entities.extraNonTruth": 10,
         "cases.missingIncidents": 0,
         "attribution.claimPersonUnattributed": 0,
         "attribution.attemptsNotInTruth": 0,
         "e09.families": 2,
-        "e09.claims": 27,
-        "e09.entities": 26,
+        "e09.claims": 20,
+        "e09.entities": 25,
         "e09.cases": 6,
         "e09.links": 0,
         "e09.attempts": 0,
-        "e09.outcomes": 2
+        "e09.outcomes": 1
       },
       "failures": [
         {
           "id": "A#1",
           "metric": "claims.recall",
           "reason": "missed observation claim: \"The 48 V PSU at MW-77 shows about 3 volts peak to peak ripple\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Swap the PSU and keep an eye on the weak mains at that site\"",
           "familyId": "weak-mains-psu"
         },
         {
@@ -4191,12 +4170,6 @@
           "familyId": "weak-mains-psu"
         },
         {
-          "id": "claim_52c4dccac9695c2a86fd",
-          "metric": "claims.precision",
-          "reason": "unsupported condition claim: \"In the period from 1 December to 30 April, take the snowmobile from the Lampela \"",
-          "familyId": "weak-mains-psu"
-        },
-        {
           "id": "claim_1c8be9d94a2eb2b2d4d1",
           "metric": "claims.precision",
           "reason": "unsupported condition claim: \"The cabin key is in the lockbox by the door, code 3290.\"",
@@ -4212,12 +4185,6 @@
           "id": "claim_cc8324d6255ef7ba290c",
           "metric": "claims.precision",
           "reason": "unsupported advice claim: \"Replace the battery string and monitor the mains.\"",
-          "familyId": "weak-mains-psu"
-        },
-        {
-          "id": "claim_d6f94ce41dc4a263bfe8",
-          "metric": "claims.precision",
-          "reason": "unsupported hypothesis claim: \"The long-haul hop towards the Salmijärvi tower is the issue.\"",
           "familyId": "weak-mains-psu"
         },
         {
@@ -4293,12 +4260,6 @@
           "familyId": "bgp-linecard-private"
         },
         {
-          "id": "claim_16f73aaa06e62b45c253",
-          "metric": "claims.precision",
-          "reason": "unsupported observation claim: \"PE-09 is flapping after 11.2 but it has LC-3, so 11.1.1 should not be the answer\"",
-          "familyId": "bgp-linecard-private"
-        },
-        {
           "id": "claim_2f3671a90072ecf42c55",
           "metric": "claims.precision",
           "reason": "unsupported observation claim: \"PE-05 BGP is going down and up repeatedly since the upgrade.\"",
@@ -4331,9 +4292,10 @@
       ],
       "failureSlicesByTag": {
         "temporary-recovery": {
-          "count": 19,
+          "count": 18,
           "ids": [
             "A#1",
+            "A#2",
             "A#3",
             "A#4",
             "B#1",
@@ -4343,11 +4305,9 @@
             "C#2",
             "claim_f72fa8d1e8081c635c96",
             "claim_aac02e4ad5cfedbd4c17",
-            "claim_52c4dccac9695c2a86fd",
             "claim_1c8be9d94a2eb2b2d4d1",
             "claim_6fe7e27af832b8d04b8e",
             "claim_cc8324d6255ef7ba290c",
-            "claim_d6f94ce41dc4a263bfe8",
             "claim_690c61c1687607aeeadc",
             "MW-77 48V PSU",
             "MW-77 battery string",
@@ -4355,9 +4315,10 @@
           ]
         },
         "recurrence": {
-          "count": 19,
+          "count": 18,
           "ids": [
             "A#1",
+            "A#2",
             "A#3",
             "A#4",
             "B#1",
@@ -4367,11 +4328,9 @@
             "C#2",
             "claim_f72fa8d1e8081c635c96",
             "claim_aac02e4ad5cfedbd4c17",
-            "claim_52c4dccac9695c2a86fd",
             "claim_1c8be9d94a2eb2b2d4d1",
             "claim_6fe7e27af832b8d04b8e",
             "claim_cc8324d6255ef7ba290c",
-            "claim_d6f94ce41dc4a263bfe8",
             "claim_690c61c1687607aeeadc",
             "MW-77 48V PSU",
             "MW-77 battery string",
@@ -4379,9 +4338,10 @@
           ]
         },
         "access-fact": {
-          "count": 19,
+          "count": 18,
           "ids": [
             "A#1",
+            "A#2",
             "A#3",
             "A#4",
             "B#1",
@@ -4391,11 +4351,9 @@
             "C#2",
             "claim_f72fa8d1e8081c635c96",
             "claim_aac02e4ad5cfedbd4c17",
-            "claim_52c4dccac9695c2a86fd",
             "claim_1c8be9d94a2eb2b2d4d1",
             "claim_6fe7e27af832b8d04b8e",
             "claim_cc8324d6255ef7ba290c",
-            "claim_d6f94ce41dc4a263bfe8",
             "claim_690c61c1687607aeeadc",
             "MW-77 48V PSU",
             "MW-77 battery string",
@@ -4403,9 +4361,10 @@
           ]
         },
         "no-question-needed": {
-          "count": 19,
+          "count": 18,
           "ids": [
             "A#1",
+            "A#2",
             "A#3",
             "A#4",
             "B#1",
@@ -4415,11 +4374,9 @@
             "C#2",
             "claim_f72fa8d1e8081c635c96",
             "claim_aac02e4ad5cfedbd4c17",
-            "claim_52c4dccac9695c2a86fd",
             "claim_1c8be9d94a2eb2b2d4d1",
             "claim_6fe7e27af832b8d04b8e",
             "claim_cc8324d6255ef7ba290c",
-            "claim_d6f94ce41dc4a263bfe8",
             "claim_690c61c1687607aeeadc",
             "MW-77 48V PSU",
             "MW-77 battery string",
@@ -4427,7 +4384,7 @@
           ]
         },
         "lookalike-different-cause": {
-          "count": 14,
+          "count": 13,
           "ids": [
             "A#1",
             "A#2",
@@ -4437,7 +4394,6 @@
             "B#2",
             "B#4",
             "claim_2dbf007b75d404f592d7",
-            "claim_16f73aaa06e62b45c253",
             "claim_2f3671a90072ecf42c55",
             "PE-12",
             "A",
@@ -4446,7 +4402,7 @@
           ]
         },
         "useful-no": {
-          "count": 14,
+          "count": 13,
           "ids": [
             "A#1",
             "A#2",
@@ -4456,7 +4412,6 @@
             "B#2",
             "B#4",
             "claim_2dbf007b75d404f592d7",
-            "claim_16f73aaa06e62b45c253",
             "claim_2f3671a90072ecf42c55",
             "PE-12",
             "A",
@@ -4465,7 +4420,7 @@
           ]
         },
         "changed-permissions": {
-          "count": 14,
+          "count": 13,
           "ids": [
             "A#1",
             "A#2",
@@ -4475,7 +4430,6 @@
             "B#2",
             "B#4",
             "claim_2dbf007b75d404f592d7",
-            "claim_16f73aaa06e62b45c253",
             "claim_2f3671a90072ecf42c55",
             "PE-12",
             "A",
@@ -4484,7 +4438,7 @@
           ]
         },
         "duplicate-report": {
-          "count": 14,
+          "count": 13,
           "ids": [
             "A#1",
             "A#2",
@@ -4494,7 +4448,6 @@
             "B#2",
             "B#4",
             "claim_2dbf007b75d404f592d7",
-            "claim_16f73aaa06e62b45c253",
             "claim_2f3671a90072ecf42c55",
             "PE-12",
             "A",
@@ -4503,7 +4456,7 @@
           ]
         },
         "copied-retelling": {
-          "count": 14,
+          "count": 13,
           "ids": [
             "A#1",
             "A#2",
@@ -4513,7 +4466,6 @@
             "B#2",
             "B#4",
             "claim_2dbf007b75d404f592d7",
-            "claim_16f73aaa06e62b45c253",
             "claim_2f3671a90072ecf42c55",
             "PE-12",
             "A",
@@ -4529,9 +4481,9 @@
       "split": "validation",
       "metrics": {
         "claims.observation.precision": {
-          "value": 0.3333333333333333,
+          "value": 0.375,
           "numerator": 3,
-          "denominator": 9
+          "denominator": 8
         },
         "claims.observation.recall": {
           "value": 0.6,
@@ -4541,7 +4493,7 @@
         "claims.hypothesis.precision": {
           "value": 0,
           "numerator": 0,
-          "denominator": 3
+          "denominator": 2
         },
         "claims.hypothesis.recall": {
           "value": 0,
@@ -4549,13 +4501,13 @@
           "denominator": 1
         },
         "claims.advice.precision": {
-          "value": 0.2222222222222222,
-          "numerator": 2,
-          "denominator": 9
+          "value": 0.125,
+          "numerator": 1,
+          "denominator": 8
         },
         "claims.advice.recall": {
-          "value": 0.6666666666666666,
-          "numerator": 2,
+          "value": 0.3333333333333333,
+          "numerator": 1,
           "denominator": 3
         },
         "claims.action.precision": {
@@ -4579,9 +4531,9 @@
           "denominator": 4
         },
         "claims.condition.precision": {
-          "value": 0.1111111111111111,
+          "value": 0.125,
           "numerator": 1,
-          "denominator": 9
+          "denominator": 8
         },
         "claims.condition.recall": {
           "value": 1,
@@ -4601,13 +4553,13 @@
         "claims.other.precision": null,
         "claims.other.recall": null,
         "claims.all.precision": {
-          "value": 0.32608695652173914,
-          "numerator": 15,
-          "denominator": 46
+          "value": 0.3333333333333333,
+          "numerator": 14,
+          "denominator": 42
         },
         "claims.all.recall": {
-          "value": 0.6818181818181818,
-          "numerator": 15,
+          "value": 0.6363636363636364,
+          "numerator": 14,
           "denominator": 22
         },
         "entities.recall": {
@@ -4626,9 +4578,9 @@
           "denominator": 5
         },
         "attribution.claimPersonErrorRate": {
-          "value": 0.06666666666666667,
+          "value": 0.07142857142857142,
           "numerator": 1,
-          "denominator": 15
+          "denominator": 14
         },
         "attribution.attemptPerformerErrorRate": {
           "value": 0,
@@ -4646,9 +4598,9 @@
           "denominator": 5
         },
         "attribution.outcomeReporterErrorRate": {
-          "value": 0.3333333333333333,
+          "value": 0.375,
           "numerator": 3,
-          "denominator": 9
+          "denominator": 8
         },
         "attribution.firsthandLinkErrorRate": {
           "value": 0.0967741935483871,
@@ -4670,29 +4622,29 @@
         "claims.advice.unknown": 0,
         "claims.action.ambiguous": 0,
         "claims.action.unknown": 0,
-        "claims.outcome.ambiguous": 3,
+        "claims.outcome.ambiguous": 2,
         "claims.outcome.unknown": 0,
-        "claims.condition.ambiguous": 3,
+        "claims.condition.ambiguous": 2,
         "claims.condition.unknown": 0,
         "claims.access-fact.ambiguous": 0,
         "claims.access-fact.unknown": 0,
         "claims.other.ambiguous": 0,
         "claims.other.unknown": 1,
-        "claims.all.ambiguous": 10,
+        "claims.all.ambiguous": 8,
         "claims.all.unknown": 1,
-        "entities.systemNonPerson": 14,
-        "entities.extraNonTruth": 11,
+        "entities.systemNonPerson": 13,
+        "entities.extraNonTruth": 10,
         "cases.missingIncidents": 0,
         "attribution.claimPersonUnattributed": 0,
         "attribution.attemptsNotInTruth": 0,
         "e09.families": 2,
-        "e09.claims": 57,
-        "e09.entities": 26,
+        "e09.claims": 51,
+        "e09.entities": 25,
         "e09.cases": 6,
         "e09.links": 32,
         "e09.attempts": 5,
-        "e09.outcomes": 9,
-        "e09.modelOnlyClaimsCommitted": 17,
+        "e09.outcomes": 8,
+        "e09.modelOnlyClaimsCommitted": 11,
         "e09.importsFellBack": 0
       },
       "failures": [
@@ -4700,6 +4652,12 @@
           "id": "A#1",
           "metric": "claims.recall",
           "reason": "missed observation claim: \"The 48 V PSU at MW-77 shows about 3 volts peak to peak ripple\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Swap the PSU and keep an eye on the weak mains at that site\"",
           "familyId": "weak-mains-psu"
         },
         {
@@ -4793,12 +4751,6 @@
           "familyId": "weak-mains-psu"
         },
         {
-          "id": "claim_b62f6481566456bcbcb0",
-          "metric": "claims.precision",
-          "reason": "unsupported condition claim: \"In the period from 1 December to 30 April, take the snowmobile from the Lampela \"",
-          "familyId": "weak-mains-psu"
-        },
-        {
           "id": "claim_ff0b359b88684115d000",
           "metric": "claims.precision",
           "reason": "unsupported condition claim: \"The cabin key is in the lockbox by the door, code 3290.\"",
@@ -4814,12 +4766,6 @@
           "id": "claim_86b5392bb93a337921f5",
           "metric": "claims.precision",
           "reason": "unsupported advice claim: \"Replace the battery string and monitor the mains.\"",
-          "familyId": "weak-mains-psu"
-        },
-        {
-          "id": "claim_578d52c9167549023b33",
-          "metric": "claims.precision",
-          "reason": "unsupported hypothesis claim: \"The long-haul hop towards the Salmijärvi tower is the issue.\"",
           "familyId": "weak-mains-psu"
         },
         {
@@ -4935,13 +4881,20 @@
           "metric": "claims.precision",
           "reason": "unsupported observation claim: \"PE-05 BGP is going down and up repeatedly since the upgrade, I have opened a tic\"",
           "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "claim_046102ffbc2b612c1fc9",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"The coffee machine on floor 2 is broken again, use the one in the lobby.\"",
+          "familyId": "bgp-linecard-private"
         }
       ],
       "failureSlicesByTag": {
         "temporary-recovery": {
-          "count": 28,
+          "count": 27,
           "ids": [
             "A#1",
+            "A#2",
             "B#1",
             "C#0",
             "C#2",
@@ -4957,11 +4910,9 @@
             "claim_606bc1946e61c8fc669f",
             "claim_cfcfda293bbe6cbfc6f0",
             "claim_e129401e7dd7a0527c97",
-            "claim_b62f6481566456bcbcb0",
             "claim_ff0b359b88684115d000",
             "claim_cb49211a8e385ea3e430",
             "claim_86b5392bb93a337921f5",
-            "claim_578d52c9167549023b33",
             "claim_4ed1b4553295860b0a98",
             "MW-77 48V PSU",
             "MW-77 battery string",
@@ -4972,9 +4923,10 @@
           ]
         },
         "recurrence": {
-          "count": 28,
+          "count": 27,
           "ids": [
             "A#1",
+            "A#2",
             "B#1",
             "C#0",
             "C#2",
@@ -4990,11 +4942,9 @@
             "claim_606bc1946e61c8fc669f",
             "claim_cfcfda293bbe6cbfc6f0",
             "claim_e129401e7dd7a0527c97",
-            "claim_b62f6481566456bcbcb0",
             "claim_ff0b359b88684115d000",
             "claim_cb49211a8e385ea3e430",
             "claim_86b5392bb93a337921f5",
-            "claim_578d52c9167549023b33",
             "claim_4ed1b4553295860b0a98",
             "MW-77 48V PSU",
             "MW-77 battery string",
@@ -5005,9 +4955,10 @@
           ]
         },
         "access-fact": {
-          "count": 28,
+          "count": 27,
           "ids": [
             "A#1",
+            "A#2",
             "B#1",
             "C#0",
             "C#2",
@@ -5023,11 +4974,9 @@
             "claim_606bc1946e61c8fc669f",
             "claim_cfcfda293bbe6cbfc6f0",
             "claim_e129401e7dd7a0527c97",
-            "claim_b62f6481566456bcbcb0",
             "claim_ff0b359b88684115d000",
             "claim_cb49211a8e385ea3e430",
             "claim_86b5392bb93a337921f5",
-            "claim_578d52c9167549023b33",
             "claim_4ed1b4553295860b0a98",
             "MW-77 48V PSU",
             "MW-77 battery string",
@@ -5038,9 +4987,10 @@
           ]
         },
         "no-question-needed": {
-          "count": 28,
+          "count": 27,
           "ids": [
             "A#1",
+            "A#2",
             "B#1",
             "C#0",
             "C#2",
@@ -5056,11 +5006,9 @@
             "claim_606bc1946e61c8fc669f",
             "claim_cfcfda293bbe6cbfc6f0",
             "claim_e129401e7dd7a0527c97",
-            "claim_b62f6481566456bcbcb0",
             "claim_ff0b359b88684115d000",
             "claim_cb49211a8e385ea3e430",
             "claim_86b5392bb93a337921f5",
-            "claim_578d52c9167549023b33",
             "claim_4ed1b4553295860b0a98",
             "MW-77 48V PSU",
             "MW-77 battery string",
@@ -5071,7 +5019,7 @@
           ]
         },
         "lookalike-different-cause": {
-          "count": 21,
+          "count": 20,
           "ids": [
             "A#2",
             "A#4",
@@ -5088,7 +5036,6 @@
             "claim_046102ffbc2b612c1fc9",
             "claim_0013fbeb4ae62b02bad3",
             "claim_ab0e6a4ac222df499375",
-            "claim_abc3f81e24919a8bf555",
             "PE-12",
             "claim_36799fdf9ff0a5098f9d",
             "outcome_410e34b3abadbb7d71b6",
@@ -5097,7 +5044,7 @@
           ]
         },
         "useful-no": {
-          "count": 21,
+          "count": 20,
           "ids": [
             "A#2",
             "A#4",
@@ -5114,7 +5061,6 @@
             "claim_046102ffbc2b612c1fc9",
             "claim_0013fbeb4ae62b02bad3",
             "claim_ab0e6a4ac222df499375",
-            "claim_abc3f81e24919a8bf555",
             "PE-12",
             "claim_36799fdf9ff0a5098f9d",
             "outcome_410e34b3abadbb7d71b6",
@@ -5123,7 +5069,7 @@
           ]
         },
         "changed-permissions": {
-          "count": 21,
+          "count": 20,
           "ids": [
             "A#2",
             "A#4",
@@ -5140,7 +5086,6 @@
             "claim_046102ffbc2b612c1fc9",
             "claim_0013fbeb4ae62b02bad3",
             "claim_ab0e6a4ac222df499375",
-            "claim_abc3f81e24919a8bf555",
             "PE-12",
             "claim_36799fdf9ff0a5098f9d",
             "outcome_410e34b3abadbb7d71b6",
@@ -5149,7 +5094,7 @@
           ]
         },
         "duplicate-report": {
-          "count": 21,
+          "count": 20,
           "ids": [
             "A#2",
             "A#4",
@@ -5166,7 +5111,6 @@
             "claim_046102ffbc2b612c1fc9",
             "claim_0013fbeb4ae62b02bad3",
             "claim_ab0e6a4ac222df499375",
-            "claim_abc3f81e24919a8bf555",
             "PE-12",
             "claim_36799fdf9ff0a5098f9d",
             "outcome_410e34b3abadbb7d71b6",
@@ -5175,7 +5119,7 @@
           ]
         },
         "copied-retelling": {
-          "count": 21,
+          "count": 20,
           "ids": [
             "A#2",
             "A#4",
@@ -5192,7 +5136,6 @@
             "claim_046102ffbc2b612c1fc9",
             "claim_0013fbeb4ae62b02bad3",
             "claim_ab0e6a4ac222df499375",
-            "claim_abc3f81e24919a8bf555",
             "PE-12",
             "claim_36799fdf9ff0a5098f9d",
             "outcome_410e34b3abadbb7d71b6",

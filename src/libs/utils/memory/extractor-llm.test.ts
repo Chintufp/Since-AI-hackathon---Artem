@@ -148,3 +148,57 @@ test('extractor-llm: a failing or slow model leaves the rules import as it was a
   assert.match(j.route.version, /\[fallback:extract:error\]/);
   assert.equal(JSON.stringify(s.list('claim')), before);
 });
+
+test('extractor-llm: an excerpt must carry the item (no one-letter spans, ids and numbers in the excerpt, entity names in their excerpt)', () => {
+  const s = openStore(':memory:');
+  const ctx = importRules(s)[0]!.ctx;
+  const first = byText(ctx.evidence, /keep flapping/);
+  const version = byText(ctx.evidence, /Version 4\.2\.1/);
+  const v = validateExtraction({
+    claims: [
+      { type: 'advice', statement: 'Replace the chassis of TRN-999; Erkki confirmed it fixes the problem.', subjectEntityNames: ['TRN-999'], evidence: [{ evidenceId: first.id, excerpt: 'e' }] },
+      { type: 'advice', statement: 'Replace the chassis of TRN-999 tonight.', subjectEntityNames: ['RTR-117'], evidence: [{ evidenceId: first.id, excerpt: 'BGP sessions on edge router RTR-117 keep flapping' }] },
+      { type: 'condition', statement: 'Firmware version 4.3.0 was installed.', subjectEntityNames: ['RTR-117'], evidence: [{ evidenceId: version.id, excerpt: 'Version 4.2.1, installed around 10:30' }] },
+      { type: 'condition', statement: 'Firmware 4.2.1 installed.', subjectEntityNames: ['RTR-117'], evidence: [{ evidenceId: version.id, excerpt: 'Version 4.2.1, installed around 10:30' }], condition: { key: 'unit.age', operator: 'eq', value: 'older (2014)' } },
+      { type: 'observation', statement: 'BGP sessions on RTR-117 keep flapping.', subjectEntityNames: ['RTR-117', 'TRN-999', 'core switch'], evidence: [{ evidenceId: first.id, excerpt: 'BGP sessions on edge router RTR-117 keep flapping' }] },
+    ],
+    entities: [
+      { type: 'asset', name: 'TRN-999', aliases: [], evidence: [{ evidenceId: first.id, excerpt: 'e' }] },
+      { type: 'asset', name: 'TRN-999', aliases: [], evidence: [{ evidenceId: first.id, excerpt: 'BGP sessions on edge router' }] },
+      { type: 'asset', name: 'RTR-117', aliases: ['edge router RTR-117', 'the big box'], evidence: [{ evidenceId: first.id, excerpt: 'RTR-117' }] },
+    ],
+    links: [{ personActorId: first.author.id, contribution: 'reported-problem', evidence: [{ evidenceId: first.id, excerpt: 'e' }], firsthand: true }],
+    incidents: [], usefulness: [],
+  }, ctx, { route: 'local', version: 'ollama-extract@1:fake' });
+  assert.deepEqual(v.dropped.map((d) => `${d.kind}:${d.reason}`), [
+    'claim:excerpt-does-not-support', 'claim:excerpt-does-not-support', 'claim:excerpt-does-not-support', 'claim:excerpt-does-not-support',
+    'entity:excerpt-does-not-support', 'entity:excerpt-does-not-support', 'link:excerpt-does-not-support',
+  ]);
+  assert.deepEqual(v.proposal.claims.map((c) => c.statement), ['BGP sessions on RTR-117 keep flapping.']);
+  // subject names the thread never mentions are left out; the claim keeps the real one
+  assert.deepEqual(v.proposal.claims[0]!.subjectEntityNames, ['RTR-117']);
+  assert.deepEqual(v.proposal.entities.map((e) => [e.name, e.aliases]), [['RTR-117', ['edge router RTR-117']]]);
+  assert.ok(!JSON.stringify(v.proposal).includes('TRN-999'));
+});
+
+test('extractor-llm: who said it is the author of the cited message, not anyone the model names', () => {
+  const s = openStore(':memory:');
+  const ctx = importRules(s)[0]!.ctx;
+  const first = byText(ctx.evidence, /keep flapping/);
+  const olli = ctx.evidence.find((e) => e.author.id !== first.author.id)!.author;
+  const v = validateExtraction({
+    claims: [{ type: 'observation', statement: 'BGP sessions on RTR-117 keep flapping.', subjectEntityNames: ['RTR-117'], assertedByActorId: olli.id, evidence: [{ evidenceId: first.id, excerpt: 'BGP sessions on edge router RTR-117 keep flapping' }] }],
+    entities: [],
+    links: [
+      { personActorId: olli.id, contribution: 'reported-problem', evidence: [{ evidenceId: first.id, excerpt: 'BGP sessions on edge router RTR-117 keep flapping' }], firsthand: true },
+      { personActorId: olli.id, contribution: 'mentioned', evidence: [{ evidenceId: first.id, excerpt: 'Hi Olli, BGP sessions' }], firsthand: true },
+      { personActorId: first.author.id, contribution: 'reported-problem', evidence: [{ evidenceId: first.id, excerpt: 'BGP sessions on edge router RTR-117 keep flapping' }], firsthand: true },
+    ],
+    incidents: [], usefulness: [],
+  }, ctx, { route: 'local', version: 'ollama-extract@1:fake' });
+  assert.equal(v.proposal.claims[0]!.assertedByActorId, first.author.id);
+  assert.deepEqual(v.dropped.map((d) => `${d.kind}:${d.reason}`), ['link:person-not-author']);
+  assert.deepEqual(v.proposal.links.map((l) => [l.personActorId, l.contribution, l.firsthand]), [
+    [olli.id, 'mentioned', false], [first.author.id, 'reported-problem', true],
+  ]);
+});

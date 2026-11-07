@@ -15,7 +15,7 @@ Runner skeleton and result conventions for the experiment queue in the technical
 | E06 | Recipient eligibility: direct-only vs question-dependent | **done** |
 | E07 | Coordinator budgets {1,3,5} x cooldown {0,30} | **done** (family arm and simulator budget layer) |
 | E08 | Retrieval: bge-m3 embeddings vs trigram vs BM25 vs hybrid fusion vs hybrid+embed (demo/train/validation), plus the paraphrased judge problem | **done** (`results/e08-retrieval-embed`, vectors replayed from `data/replays/e08-bge-m3/`; test split not reopened) |
-| E09 | Extraction: local schema-constrained model vs rules on the E01 families, direct, committed alone and through the union commit | **done** with qwen3:8b (`results/e09-extraction-model`, `data/replays/e09-qwen3-8b/`); qwen3:4b, the brief's model, was not installed |
+| E09 | Extraction: local schema-constrained model vs rules on the E01 families, direct, committed alone and through the union commit | **done** with qwen3:4b, the brief's model (`results/e09-extraction-model`, `data/replays/e09-qwen3-4b/`) |
 | E10 | Store metric before/after a simulated day; LinUCB vs rules with the store-metric reward, 3 seeds | **done** (`results/e10-store-metric`; simulated, in-process) |
 
 The earlier placeholder meanings of E08-E10 (outcome-assessor fine-tune, sequential RL, evaluative preferences) were replaced by BUILD_BRIEF 4 B2's definitions.

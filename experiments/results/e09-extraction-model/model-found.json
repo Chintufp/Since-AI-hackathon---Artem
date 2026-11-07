@@ -14,13 +14,6 @@
       "id": "A#10",
       "type": "action",
       "statement": "Seppo re-dressed the cabinet cabling and fitted a cable guard at the door edge"
-    },
-    {
-      "split": "validation",
-      "familyId": "weak-mains-psu",
-      "id": "A#2",
-      "type": "advice",
-      "statement": "Swap the PSU and keep an eye on the weak mains at that site"
     }
   ],
   "union": [
@@ -30,13 +23,6 @@
       "id": "A#10",
       "type": "action",
       "statement": "Seppo re-dressed the cabinet cabling and fitted a cable guard at the door edge"
-    },
-    {
-      "split": "validation",
-      "familyId": "weak-mains-psu",
-      "id": "A#2",
-      "type": "advice",
-      "statement": "Swap the PSU and keep an eye on the weak mains at that site"
     }
   ],
   "modelOnlyClaimsCommitted": [
@@ -117,11 +103,6 @@
     },
     {
       "familyId": "config-rollback-private",
-      "statement": "Rolled back to v6 on ACC-30.",
-      "type": "action"
-    },
-    {
-      "familyId": "config-rollback-private",
       "statement": "v6 has no profile for the N5 port layout.",
       "type": "hypothesis"
     },
@@ -167,17 +148,7 @@
     },
     {
       "familyId": "weak-mains-psu",
-      "statement": "The key to the forest road gate must be called at least 24 hours before the visit.",
-      "type": "condition"
-    },
-    {
-      "familyId": "weak-mains-psu",
       "statement": "From 1 December to 30 April the forest road is not ploughed beyond the gate.",
-      "type": "condition"
-    },
-    {
-      "familyId": "weak-mains-psu",
-      "statement": "In the period from 1 December to 30 April, take the snowmobile from the Lampela cabin.",
       "type": "condition"
     },
     {
@@ -202,21 +173,6 @@
     },
     {
       "familyId": "weak-mains-psu",
-      "statement": "The battery string replacement resolved the input voltage issue.",
-      "type": "outcome"
-    },
-    {
-      "familyId": "weak-mains-psu",
-      "statement": "The long-haul hop towards the Salmijärvi tower is the issue.",
-      "type": "hypothesis"
-    },
-    {
-      "familyId": "weak-mains-psu",
-      "statement": "Swap the PSU. But the mains at that site is weak, so keep an eye on it.",
-      "type": "advice"
-    },
-    {
-      "familyId": "weak-mains-psu",
       "statement": "Annual leave plans are due on Friday.",
       "type": "observation"
     },
@@ -229,11 +185,6 @@
       "familyId": "bgp-linecard-private",
       "statement": "The BGP sessions have been clean for two hours.",
       "type": "outcome"
-    },
-    {
-      "familyId": "bgp-linecard-private",
-      "statement": "PE-09 is flapping after 11.2 but it has LC-3, so 11.1.1 should not be the answer.",
-      "type": "observation"
     },
     {
       "familyId": "bgp-linecard-private",

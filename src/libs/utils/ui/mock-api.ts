@@ -13,6 +13,7 @@ import type { ModelSlotName } from '../contracts/models.ts';
 import type { CatalogEntry, InstallJobView, ModelsView, PullJobView, SlotStatusView } from '../contracts/service.ts';
 import type { ParticipationEvent, ParticipationOptIn, ParticipationRating, UserSettings } from '../contracts/outcomes.ts';
 import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
+import { detectPasteKind, parsePastedThread } from '../connectors/paste-thread.ts';
 import { createApiClient, parseRoute } from './api-client.ts';
 import type { ApiClient, FetchLike, ReqOf, ResOf, RouteKey } from './api-client.ts';
 
@@ -66,6 +67,8 @@ interface MockState {
   install: InstallJobView;
   /** Slot failures, as the service's status chip shows them ('busy' scenario). */
   failures: Partial<Record<ModelSlotName, string>>;
+  /** B4: texts already captured through "Remember this" (a second paste is 'already known'). */
+  pasted: Set<string>;
 }
 
 /**
@@ -142,7 +145,7 @@ function mockRating(s: MockState): ParticipationRating {
 function freshState(): MockState {
   const records = new Map<string, QuestionRecord>();
   SEED_QUESTIONS.forEach((q, i) => records.set(q.id, record(q, 'queued', i)));
-  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS(), installed: ['qwen3:8b'], pulls: new Map(), keys: { anthropic: false, gemini: false }, install: { ...MOCK_INSTALL }, failures: {} };
+  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS(), installed: ['qwen3:8b'], pulls: new Map(), keys: { anthropic: false, gemini: false }, install: { ...MOCK_INSTALL }, failures: {}, pasted: new Set() };
 }
 
 function record(q: SeedQuestion, status: QuestionStatus, i: number): QuestionRecord {
@@ -212,6 +215,31 @@ function makeHandlers(s: MockState): Handlers {
       return CASE;
     },
     'GET /cases': () => [CASE],
+    // B4 "Remember this": the same sniffing as the service, a made-up case per asset token, nothing stored for real.
+    'POST /import': ({ body }) => {
+      if (body.format !== 'paste') throw new MockHttpError(400, 'The mock imports pasted text only');
+      const p = body.payload as string | { text?: string } | undefined;
+      const text = typeof p === 'string' ? p : p?.text ?? '';
+      const kind = detectPasteKind(text);
+      if (kind === 'empty') throw new MockHttpError(400, 'paste needs payload text (a string or {text}) that is not blank');
+      const thread = kind === 'thread' ? parsePastedThread(text) : null;
+      const messages = thread?.messages ?? [{ author: 'Unknown author', text }];
+      const already = s.pasted.has(text);
+      s.pasted.add(text);
+      const assets = [...new Set(text.match(/\b[A-Z]{2,6}-\d{1,6}\b/g) ?? [])];
+      const people = thread ? [...new Set(messages.map((m) => m.author))] : [];
+      const times = thread ? messages.map((m) => (m as { time?: string }).time).filter((t): t is string => !!t) : [];
+      const n = messages.length;
+      const cases = assets.length ? [{ id: `case:mock:paste:${assets[0]}`, title: `${assets[0]} · pasted ${kind === 'thread' ? 'thread' : 'note'}` }] : [];
+      return {
+        batch: {
+          id: `batch:mock:${++s.counter}`, orgId: ORG, connectionId: 'paste:desktop', startedAt: NOW(), finishedAt: NOW(), sourceDescription: kind === 'thread' ? 'Pasted thread' : 'Pasted text',
+          counts: { seen: n, inserted: already ? 0 : n, unchangedDuplicates: already ? n : 0, revised: 0, copies: 0 },
+        },
+        cases: cases.length, claims: already ? 0 : n * 2, entities: assets.length, people: people.length,
+        captured: { cases, entities: assets, people, ...(times[0] ? { from: times[0] } : {}), ...(times.length > 1 && times.at(-1) !== times[0] ? { to: times.at(-1)! } : {}), dateKnown: false, alreadyKnown: already },
+      };
+    },
     'POST /investigate': ({ body }) => {
       const id = `inv:mock:${++s.counter}`;
       const question = viewOf(s.records.get(SEED_QUESTIONS[0]!.id)!);

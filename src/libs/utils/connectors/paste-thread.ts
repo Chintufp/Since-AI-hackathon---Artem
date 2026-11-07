@@ -1,4 +1,4 @@
-import { parseEmailHeaders } from './email-text.ts';
+import { parseEmailHeaders } from './email-headers.ts';
 import type { TeamsExport } from './teams-json.ts';
 
 /**

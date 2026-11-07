@@ -185,3 +185,20 @@ test('the mock matches the service: GET /settings carries the slots, api chips c
   fetch.setModelsScenario('default');
   assert.deepEqual(Object.values((await busy.models()).slots).map((x) => x.chip), ['off', 'off', 'off']);
 });
+
+test('B4: the mock serves POST /import for "Remember this": a pasted thread is captured once, a blank paste is a 400', async () => {
+  const api = createMockApi();
+  const text = '[09:14] Aarne Koskela: Changed the SFP on TRN-117, link up, no traffic.\n[09:16] Helmi Virtanen: Reset the interface on both ends.';
+  const r = await api.call('POST /import', { body: { format: 'paste', payload: text } });
+  assert.equal(r.cases, 1);
+  assert.deepEqual(r.captured?.entities, ['TRN-117']);
+  assert.deepEqual(r.captured?.people, ['Aarne Koskela', 'Helmi Virtanen']);
+  assert.equal(r.captured?.from, '09:14');
+  assert.equal(r.captured?.to, '09:16');
+  assert.equal(r.captured?.dateKnown, false);
+  assert.equal(r.captured?.alreadyKnown, false);
+  const again = await api.call('POST /import', { body: { format: 'paste', payload: { text } } });
+  assert.equal(again.captured?.alreadyKnown, true);
+  assert.equal(again.batch.counts.inserted, 0);
+  await assert.rejects(api.call('POST /import', { body: { format: 'paste', payload: '  ' } }), (e: { status?: number }) => e.status === 400);
+});

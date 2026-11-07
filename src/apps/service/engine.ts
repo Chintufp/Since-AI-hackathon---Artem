@@ -580,6 +580,11 @@ export class Engine {
     const principal = this.effective(req.principal);
     let q = this.mustQuestion(questionId);
     this.recipientCheck(q, principal);
+    // B1 review: a free-text question (standing missing symptom) needs words; a bare Yes/No would use up the gap and
+    // record nothing. 'unknown' (Not sure) is still accepted and records nothing, as for any question.
+    if (q.candidate.answerType === 'free-text' && req.value !== 'unknown' && !req.text?.trim()) {
+      throw badRequest('This question asks for your own words: write what you saw, or answer Not sure');
+    }
     if (q.status === 'deferred') q = (await this.undo(questionId, { principal })).question;
     if (q.status === 'answered' && q.answerId) {
       const prev = this.store.get('answer', q.answerId);

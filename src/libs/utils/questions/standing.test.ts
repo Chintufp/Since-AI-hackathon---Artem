@@ -89,6 +89,10 @@ test('missing symptom: a fix with no symptom and no partner -> a free-text quest
   const later = e.questions({ personEntityId: q.personEntityId });
   assert.ok(later.some((v) => v.questionId === q.id && v.deferred && v.answerType === 'free-text'));
 
+  // A bare Yes/No (no words) is refused and leaves the question where it was (Later), so the gap is not used up.
+  await assert.rejects(e.answer(q.id, { principal: person(e, 'Veikko Field'), value: 'yes' }), /own words/);
+  await assert.rejects(e.answer(q.id, { principal: person(e, 'Veikko Field'), value: 'no', text: '  ' }), /own words/);
+  assert.equal(e.store.get('question', q.id)!.status, 'deferred');
   const r = await e.answer(q.id, { principal: person(e, 'Veikko Field'), value: 'yes', text: 'Alarm said no traffic, link was up' });
   assert.equal(r.receipt.title, 'Recorded: your description');
   const c = caseOf(e, 'TRN-062', true);

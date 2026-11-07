@@ -127,6 +127,7 @@ const TEMPLATE = `
     <div class="rf-question">
      <p class="rf-case"></p><button class="rf-tool rf-close" type="button" data-action="queue" aria-label="Back to questions"><i data-icon="arrow-left"></i></button>
      <h2></h2>
+     <textarea class="rf-free-text" aria-label="Your answer in your own words" placeholder="What did you see?" hidden></textarea>
      <div class="rf-responses"><button class="rf-answer" type="button" data-action="yes">Yes</button><button class="rf-answer" type="button" data-action="no">No</button></div>
      <div class="rf-secondary-responses"><button class="rf-later" type="button" data-action="unknown">Not sure</button><button class="rf-later" type="button" data-action="later">Later</button><span class="rf-spacer"></span><button class="rf-later" type="button" data-action="dismiss">Dismiss</button></div>
     </div>
@@ -367,6 +368,13 @@ export function createPanel(options: PanelOptions): Panel {
     $('.rf-question h2').textContent = q?.text ?? 'No open question';
     $('.rf-question .rf-case').textContent = q ? q.caseLabel + (q.deferred ? ' · later' : '') : '';
     root.querySelectorAll<HTMLButtonElement>('.rf-answer[data-action], .rf-secondary-responses .rf-later').forEach((b) => (b.disabled = !q));
+    // B1 review: a free-text question (a standing missing symptom) takes words; Yes becomes Send and No goes away.
+    const free = q?.answerType === 'free-text';
+    const box = $<HTMLTextAreaElement>('.rf-free-text');
+    if (box.hidden !== !free) box.value = '';
+    box.hidden = !free;
+    $<HTMLButtonElement>('.rf-responses [data-action="yes"]').textContent = free ? 'Send' : 'Yes';
+    $<HTMLButtonElement>('.rf-responses [data-action="no"]').hidden = free;
     const h = $('.rf-history');
     h.replaceChildren();
     if (!q) return;
@@ -812,11 +820,15 @@ export function createPanel(options: PanelOptions): Panel {
   async function respond(value: 'yes' | 'no' | 'unknown' | 'later' | 'dismiss'): Promise<void> {
     const q = activeQuestion();
     if (!q || state.busy) return;
+    const box = $<HTMLTextAreaElement>('.rf-free-text');
+    const words = q.answerType === 'free-text' ? box.value.trim() : '';
+    if (q.answerType === 'free-text' && (value === 'yes' || value === 'no') && !words) { box.focus(); return; }
     state.busy = true;
     state.expanded = false;
     try {
       const p = principal();
-      const res = value === 'later' ? await api.defer(q.questionId, p) : value === 'dismiss' ? await api.dismiss(q.questionId, p) : await api.answer(q.questionId, { principal: p, value });
+      const res = value === 'later' ? await api.defer(q.questionId, p) : value === 'dismiss' ? await api.dismiss(q.questionId, p) : await api.answer(q.questionId, { principal: p, value, ...(words && value !== 'unknown' ? { text: words } : {}) });
+      if (words) box.value = '';
       state.busy = false;
       const rc = res.receipt;
       attention?.record(value === 'later' ? 'deferred' : value === 'dismiss' ? 'dismissed' : 'answered', q.questionId);

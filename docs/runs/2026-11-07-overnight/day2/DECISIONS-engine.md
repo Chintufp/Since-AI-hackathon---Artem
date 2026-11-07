@@ -202,3 +202,8 @@ Reverse: delete the directory and the `!elisa` import in demo.ts.
 
 `pnpm demo:judge` passes `--quiet-hours off` to main.ts (its own `--quiet-hours default` restores the org-config window) and `pnpm demo:agent` passes it to mcp.ts. The walkthrough runs on real time, so a judge at 23:30 Helsinki would otherwise see the TRN-301 question held until 07:00 and an empty inbox for Erkki. `pnpm service`, `pnpm desktop` and the MCP server keep the org-config default (on). DEMO.md troubleshooting names `KT_QUIET_HOURS=off` and how to show quiet hours on purpose with `POST /demo/clock`. The simulated stream sets its own daytime clock, so it is unaffected. Test: tests/service-main.test.ts guards both scripts' flags.
 Reverse: drop the flag from the two scripts.
+
+## D-B1-36 · Free-text questions take words, and a bare Yes/No is refused
+
+The panel shows a text box for `answerType: 'free-text'` (the standing missing-symptom question): Yes becomes **Send** and No is hidden; Send with an empty box focuses the box and sends nothing. `Engine.answer` refuses (400) a yes/no answer to a free-text question without words, before anything moves, so the question stays in Later and the gap stays open; Not sure is still accepted. Test: standing.test.ts (missing symptom). The panel change is typechecked but not checked visually in the desktop app.
+Reverse: the guard in `Engine.answer`; the `.rf-free-text` box in panel.ts/styles.css.

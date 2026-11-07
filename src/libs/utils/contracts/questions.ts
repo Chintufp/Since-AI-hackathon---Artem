@@ -102,7 +102,11 @@ export interface QuestionRecord {
    * touched cases before the answer was stored and after the rebuild (again after an outcome lands, for outcome
    * questions); `value` = delta - burden is what the selector learned from.
    */
-  reward?: { method: string; cases: string[]; before: number; after: number; delta: number; burden: number; value: number; at: Iso; outcomeAt?: Iso };
+  reward?: {
+    method: string; cases: string[]; before: number; after: number; delta: number; burden: number; value: number; at: Iso; outcomeAt?: Iso;
+    /** The two scores of the touched cases before and after (brief 5.4: their product is what before/after measure). */
+    scores?: { completenessBefore: number; completenessAfter: number; correctnessBefore: number | null; correctnessAfter: number | null };
+  };
 }
 
 export interface ClaimUpdate {

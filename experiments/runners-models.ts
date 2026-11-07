@@ -527,6 +527,9 @@ export interface E10Arm {
   rewards: number[];
   /** Measured delta of completeness x correctness of the touched case, one per rewarded answer (before the burden). */
   deltas: number[];
+  /** The two scores' measured deltas of the touched case, one per rewarded answer (D-B2-66: shown beside the product). */
+  completenessDeltas: number[];
+  correctnessDeltas: number[];
   /** Touched cases whose product was 0 before the answer because no claim of the case was supported yet. */
   zeroCorrectnessTouches: number;
   selectorUpdates: number;
@@ -553,6 +556,9 @@ export async function runE10Arm(selector: 'rules' | 'linucb', seed: number, hour
     const questions = engine.store.list('question');
     const rewards = questions.flatMap((q) => (q.reward ? [q.reward.value] : []));
     const deltas = questions.flatMap((q) => (q.reward ? [q.reward.delta] : []));
+    const scored = questions.flatMap((q) => (q.reward?.scores ? [q.reward.scores] : []));
+    const completenessDeltas = scored.map((x) => r4(x.completenessAfter - x.completenessBefore));
+    const correctnessDeltas = scored.map((x) => r4((x.correctnessAfter ?? 0) - (x.correctnessBefore ?? 0)));
     const touched = [...new Set(questions.flatMap((q) => q.reward?.cases ?? []))];
     const touchedHealth = touched.length ? health(clock.now(), touched) : undefined;
     const zeroCorrectnessTouches = touchedHealth ? touchedHealth.cases.filter((c) => {
@@ -560,7 +566,7 @@ export async function runE10Arm(selector: 'rules' | 'linucb', seed: number, hour
       return claims.length > 0 && claims.every((cl) => cl.status !== 'supported');
     }).length : 0;
     const selectorUpdates = engine.store.list('evaluation').filter((e) => e.assessedBenefit && e.assessedBenefit.method === 'store-metric-delta@1').length;
-    return { selector, seed, before, after, afterSameCases, summary, rewards, deltas, zeroCorrectnessTouches, selectorUpdates };
+    return { selector, seed, before, after, afterSameCases, summary, rewards, deltas, completenessDeltas, correctnessDeltas, zeroCorrectnessTouches, selectorUpdates };
   } finally {
     engine.close();
   }
@@ -583,7 +589,8 @@ export async function runE10(seeds = [1, 2, 3]): Promise<void> {
     config: {
       store: 'Engine on :memory:, demo:reset --synthetic (the Elisa files are absent here), clock frozen at 2026-11-09T07:00Z and moved only by the simulated day',
       day: 'simulation/schedule.ts planDay (10 h, seeded) + simulation/runner.ts runDay against the real service through createDispatcher (in-process, no socket); simulated colleagues answer from a seeded model, never from answer keys; no judge prompts',
-      reward: 'QuestionCoordinator.answer: delta of completeness x correctness of the touched case before and after the answer, minus burden (0.02 per question asked today, 0.02 per other open question); selector.update after each answer (store-metric-delta@1)',
+      reward: 'QuestionCoordinator.answer: delta of completeness x correctness of the touched case before and after the answer, minus burden (0.02 per question asked today, 0.02 per other open question); selector.update after each answer (store-metric-delta@1); an applicability answer is not a source for or against the case\'s claims (D-B2-66)',
+      ranking: 'rules selector: value / cost among the pairs that pass the gate (D-B2-67)',
       metric: 'memory/store-health.ts storeHealth over every case (no principal); completenessUnweighted is compared before/after because the weighted mean needs retrievals, which only exist after the day',
       questionsPerPoint: 'questions asked / (100 x the gain in completenessUnweighted x correctness over the cases that existed before the day); null when there is no gain',
       linucbState: 'linucbStatePath false (nothing written to data/local)',
@@ -618,7 +625,8 @@ export async function runE10(seeds = [1, 2, 3]): Promise<void> {
         caseClaimsBefore: a.before.denominators.caseClaims, supportedBefore: a.before.denominators.supportedClaims, caseClaimsAfterSameCases: a.afterSameCases.denominators.caseClaims, supportedAfterSameCases: a.afterSameCases.denominators.supportedClaims,
         productBefore: r4(product(a.before)), productAfterSameCases: r4(product(a.afterSameCases)), gainPoints: r4(100 * gain),
         asked: a.summary.questionsAsked, answered: a.summary.answered, deferred: a.summary.deferred, dismissed: a.summary.dismissed, unanswered: a.summary.unanswered, investigations: a.summary.investigations,
-        questionsPerPoint: gain > 0 ? r4(a.summary.questionsAsked / (100 * gain)) : null, rewards: a.rewards.length, meanReward: meanOrNull(a.rewards), sumDeltaPoints: r4(100 * a.deltas.reduce((x, y) => x + y, 0)), positiveDeltas: a.deltas.filter((d) => d > 0).length, touchedCasesWithNoSupportedClaim: a.zeroCorrectnessTouches,
+        questionsPerPoint: gain > 0 ? r4(a.summary.questionsAsked / (100 * gain)) : null, rewards: a.rewards.length, meanReward: meanOrNull(a.rewards), sumDeltaPoints: r4(100 * a.deltas.reduce((x, y) => x + y, 0)), positiveDeltas: a.deltas.filter((d) => d > 0).length, negativeDeltas: a.deltas.filter((d) => d < 0).length,
+        sumCompletenessDeltaPoints: r4(100 * a.completenessDeltas.reduce((x, y) => x + y, 0)), positiveCompletenessDeltas: a.completenessDeltas.filter((d) => d > 0).length, sumCorrectnessDeltaPoints: r4(100 * a.correctnessDeltas.reduce((x, y) => x + y, 0)), touchedCasesWithNoSupportedClaim: a.zeroCorrectnessTouches,
         productAfterAll: r4(product(a.after)), selectorUpdates: a.selectorUpdates, errors: a.summary.errors,
         singletonsBefore: a.before.singletons, singletonsAfterSameCases: a.afterSameCases.singletons, thinPairsBefore: a.before.thinPairs, thinPairsAfterSameCases: a.afterSameCases.thinPairs,
       });
@@ -646,6 +654,10 @@ export async function runE10(seeds = [1, 2, 3]): Promise<void> {
         'reward.mean': meanOrNull(rewards),
         'reward.deltaPoints.sum': r4(100 * mine.reduce((n, a) => n + a.deltas.reduce((x, y) => x + y, 0), 0)),
         'reward.deltas.positive': mine.reduce((n, a) => n + a.deltas.filter((d) => d > 0).length, 0),
+        'reward.deltas.negative': mine.reduce((n, a) => n + a.deltas.filter((d) => d < 0).length, 0),
+        'reward.completenessDeltaPoints.sum': r4(100 * mine.reduce((n, a) => n + a.completenessDeltas.reduce((x, y) => x + y, 0), 0)),
+        'reward.completenessDeltas.positive': mine.reduce((n, a) => n + a.completenessDeltas.filter((d) => d > 0).length, 0),
+        'reward.correctnessDeltaPoints.sum': r4(100 * mine.reduce((n, a) => n + a.correctnessDeltas.reduce((x, y) => x + y, 0), 0)),
         'questions.perMeasuredPoint': (() => { const pts = 100 * mine.reduce((n, a) => n + a.deltas.reduce((x, y) => x + y, 0), 0); return pts > 0 ? r4(asked / pts) : null; })(),
       },
       failures: [], failureSlicesByTag: {},
@@ -677,7 +689,8 @@ export async function runE10(seeds = [1, 2, 3]): Promise<void> {
       'Per point = one percentage point of completeness x correctness. questions.perPointGained uses the same-case before/after gain; questions.perMeasuredPoint uses the sum of the per-answer deltas the coordinator measured on the touched cases (QuestionRecord.reward.delta). Either is null when nothing was gained.',
       'The product is multiplicative: a touched case with no supported claim has correctness 0, so an answer that fills a completeness slot there measures a delta of 0 and the reward is the burden alone (touchedCasesWithNoSupportedClaim in per-seed.json).',
       'Each seed starts from a fresh demo store and a fresh selector, so LinUCB learns only within one day; the rules selector is the fixed prior with the same reward written for comparison.',
-      'Where the negative deltas come from (probe of seed 2, D-B2-51): Every non-zero measured delta (-6.77 points) is a "no" answer to an applicability question (missing|unit.model: does the earlier unit share the current unit\'s model). The coordinator writes it as a contradict update on the case\'s claim, and store-health counts any contradict update on a claim still cited by a standing recommendation as a contradicted claim, so that case\'s correctness goes negative. Under the brief\'s 5.2 wording that is a contradicted claim still cited; the coordinator\'s own note says the historical claim is unchanged. The metric is left as the brief words it; the reading is open.',
+      'How an answer is read (D-B2-66, superseding D-B2-51): An answer to an applicability question (missing|unit.model, missing|unit.age: does the earlier unit share the current unit\'s model or age?) fills that key of the case\'s distinguishing slot (Yes records the value, No records it as explicitly not applicable to this unit) and is neither support for nor a contradiction of the case\'s claims; only an answer about the claim itself (an outcome report) is. Before this reading, each No on a claim still cited by a standing recommendation measured -6.77 points. The completeness and correctness deltas of each answer are reported beside the product (QuestionRecord.reward.scores).',
+      'Questions are ranked by value / cost (D-B2-67): expected gain in completeness x correctness x retrieval weight over burden, as the rules selector\'s order among the pairs that pass its gate; LinUCB learns the measured version.',
       'B1 pairing links do not exist yet, so the correctness term "links made without an answer" counts 0 (store-health links hook).',
     ],
   });

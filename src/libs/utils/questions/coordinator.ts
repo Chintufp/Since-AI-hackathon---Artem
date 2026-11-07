@@ -11,8 +11,9 @@ import {
 import { ANSWER_DIFFERS_FROM_CASE, ANSWER_MATCHES_CASE, foldYearToAge } from '../retrieval/conditions.ts';
 import { routeInfo, uniqueRoutes } from '../models/routes.ts';
 
-import { healthProductOrNull, STORE_METRIC_METHOD, storeHealth } from '../memory/store-health.ts';
+import { canonicalKey, expectedGain, healthProductOrNull, retrievalCounts, slotKeys, STORE_METRIC_METHOD, storeHealth } from '../memory/store-health.ts';
 import { actionKey, SUPPORT_LEVEL } from '../policies/features.ts';
+import { BURDEN } from '../policies/value-cost.ts';
 import type { QuestionContext } from './context.ts';
 import { evaluateEligibility, PERMANENT_VIOLATIONS } from './eligibility.ts';
 import { findRecipients, type RecipientReason } from './recipients.ts';
@@ -113,8 +114,8 @@ export interface AnswerResult {
 }
 
 const ACTIVE = new Set(['queued', 'delivered']);
-/** Burden weights (BUILD_BRIEF 5.3): per extra question asked today, per other open question, inside quiet hours. */
-export const BURDEN = { askedToday: 0.02, open: 0.02, quiet: 0.05 };
+/** Burden weights (BUILD_BRIEF 5.3): per extra question asked today, per other open question, inside quiet hours (policies/value-cost.ts). */
+export { BURDEN };
 const round4 = (x: number): number => Math.round(x * 10_000) / 10_000;
 const actorOf = (p: Principal): ActorRef => ({ id: p.id, displayName: p.displayName });
 
@@ -164,7 +165,32 @@ export class QuestionCoordinator {
     return s;
   }
 
-  private features(state: InvestigationState, c: QuestionCandidate, r: RecipientReason | undefined, count: number, personId: string): Record<string, number> {
+  /**
+   * Brief 5.3: what filling a candidate's gap is worth to the store, per candidate (the same for every recipient):
+   * the expected gain in completeness x correctness of the touched case (store-health expectedGain, under the metric's
+   * own reading) and the case's retrieval weight (investigations that retrieved it in the last 30 days, +1 for an
+   * investigation gap because its case is being retrieved right now). Measured from the store at the engine clock.
+   */
+  private gapValue(state: InvestigationState, c: QuestionCandidate, freq: Map<string, number>): { expectedGain: number; retrievalWeight: number } {
+    const parsed = parseGapId(c.gapId);
+    const caseId = parsed?.caseId ?? c.scope.caseId;
+    if (!parsed || !caseId) return { expectedGain: 0, retrievalWeight: 0 };
+    const h = storeHealth(this.store, undefined, { now: this.now(), caseIds: [caseId], distinguishingKeys: this.d.settings.distinguishingKeys, outcomeKey: OUTCOME_KEY });
+    const ch = h.cases[0];
+    const retrievalWeight = (freq.get(caseId) ?? 0) + (state.origin === 'standing' ? 0 : 1);
+    if (!ch) return { expectedGain: 0, retrievalWeight };
+    const gap = state.gaps.find((g) => g.id === c.gapId);
+    const key = canonicalKey(gap?.targetCondition?.key ?? parsed.detail);
+    const target = parsed.kind === 'outcome' ? this.targetClaimFor({ candidate: c } as QuestionRecord, parsed) : undefined;
+    const gain = expectedGain({
+      kind: parsed.kind, completeness: ch.completeness, correctness: h.correctness, caseClaims: h.denominators.caseClaims, slots: ch.slots,
+      distinguishingKeys: slotKeys(this.d.settings.distinguishingKeys).length, keyUnknown: ch.unknownKeys.includes(key),
+      targetSupported: target ? h.supportedClaimIds.includes(target) : true,
+    });
+    return { expectedGain: gain, retrievalWeight };
+  }
+
+  private features(state: InvestigationState, c: QuestionCandidate, r: RecipientReason | undefined, count: number, personId: string, value?: { expectedGain: number; retrievalWeight: number }, quiet = false): Record<string, number> {
     const parsed = parseGapId(c.gapId);
     const gap = state.gaps.find((g) => g.id === c.gapId);
     const hyp = parsed ? state.hypotheses.find((h) => h.id === stableId('hyp', state.id, parsed.caseId)) : undefined;
@@ -183,6 +209,7 @@ export class QuestionCoordinator {
       gapDecidesApplicability: parsed?.kind === 'missing' ? 1 : 0,
       hypothesisSupportLevel: SUPPORT_LEVEL[hyp?.support ?? 'unknown'],
       recency,
+      ...(value ? { expectedGain: value.expectedGain, retrievalWeight: value.retrievalWeight, quietHours: quiet ? 1 : 0 } : {}),
     };
   }
 
@@ -210,20 +237,25 @@ export class QuestionCoordinator {
       recipients.set(c.gapId, recs);
       return recs;
     };
+    const qh = settings.coordinator.quietHours;
+    const quietNow = !!qh && inQuiet(now, qh);
+    // Brief 5.3: retrievals in the last 30 days, the current investigation counted once through gapValue's +1.
+    const freq = retrievalCounts(this.store, now, 30, state.id);
     for (const c of candidates) {
       const recs = recsFor(c);
+      let value: ReturnType<QuestionCoordinator['gapValue']> | undefined;
       for (const pid of c.recipientIds) {
         const e = evaluateEligibility(this.ctx, state, c, pid, { recipients: recs });
         eligibility.push(e);
         if (e.eligible && !excluded.has(pid)) {
           const a = { questionId: c.id, personEntityId: pid };
           eligible.push(a);
-          features[actionKey(a)] = this.features(state, c, recs.find((r) => r.personEntityId === pid), candidates.length, pid);
+          value ??= this.gapValue(state, c, freq);
+          features[actionKey(a)] = this.features(state, c, recs.find((r) => r.personEntityId === pid), candidates.length, pid, value, quietNow);
         }
       }
     }
-    const qh = settings.coordinator.quietHours;
-    const quietUntil = qh && inQuiet(now, qh) ? nextWindow(now, qh).toISOString() : undefined;
+    const quietUntil = qh && quietNow ? nextWindow(now, qh).toISOString() : undefined;
     const guard = (d: PolicyDecision, allowed: EligibleAction[]): PolicyDecision =>
       d.chosen !== 'defer' && !allowed.some((a) => actionKey(a) === actionKey(d.chosen as EligibleAction))
         ? { ...d, chosen: 'defer', reason: `blocked: selector returned an ineligible pair (${actionKey(d.chosen as EligibleAction)}); deferred. ${d.reason}` }
@@ -504,6 +536,7 @@ export class QuestionCoordinator {
     // BUILD_BRIEF 5.4: the store metric of the touched cases before the answer is stored, and the recipient's burden now.
     const touched = parsed ? [parsed.caseId] : q.candidate.scope.caseId ? [q.candidate.scope.caseId] : [];
     const before = this.measure(touched);
+    const scoresBefore = this.scores(touched);
     const burden = this.burden(q);
     const evText = `Answer "${value}" to: ${q.candidate.text}${text ? ` Note: ${text}` : ''} (answered by ${principal.displayName})`;
     const env = this.evidenceFor(state, principal, 'answer:desktop', answerId, evText, parsed?.caseId, { questionId, value });
@@ -551,9 +584,13 @@ export class QuestionCoordinator {
     // The rebuilt investigation is stored before measuring, so the retrieval weight sees it.
     this.store.put('investigation', state);
     const after = this.measure(touched);
+    const scoresAfter = this.scores(touched);
+    const scores = scoresBefore && scoresAfter
+      ? { completenessBefore: scoresBefore.completeness, completenessAfter: scoresAfter.completeness, correctnessBefore: scoresBefore.correctness, correctnessAfter: scoresAfter.correctness }
+      : undefined;
     // Unmeasurable before or after: no reward, the benefit stays null and the selector learns nothing (never a 0).
     const reward = before === null || after === null ? undefined
-      : this.learn(q.decisionId, updated.id, { method: STORE_METRIC_METHOD, cases: touched, before, after, delta: round4(after - before), burden, value: round4(after - before - burden), at: now });
+      : this.learn(q.decisionId, updated.id, { method: STORE_METRIC_METHOD, cases: touched, before, after, delta: round4(after - before), burden, value: round4(after - before - burden), at: now, ...(scores ? { scores } : {}) });
     const g = state.gaps.find((x) => x.id === q.candidate.gapId);
     if (g?.status === 'resolved' && g.resolvedBy) g.resolvedBy = { ...g.resolvedBy, answerId };
     this.setLoop(state, 'answered', recommendationChanged ? this.d.settings.loopReasons.answered : this.d.settings.loopReasons.answeredNoChange);
@@ -569,6 +606,13 @@ export class QuestionCoordinator {
   measure(caseIds: string[]): number | null {
     if (!caseIds.length) return null;
     return healthProductOrNull(storeHealth(this.store, undefined, { now: this.now(), caseIds, distinguishingKeys: this.d.settings.distinguishingKeys, outcomeKey: OUTCOME_KEY }));
+  }
+
+  /** The two scores of `caseIds` (reported beside the product; the reward is the product's change). */
+  private scores(caseIds: string[]): { completeness: number; correctness: number | null } | null {
+    if (!caseIds.length) return null;
+    const h = storeHealth(this.store, undefined, { now: this.now(), caseIds, distinguishingKeys: this.d.settings.distinguishingKeys, outcomeKey: OUTCOME_KEY });
+    return h.cases.length ? { completeness: h.completeness, correctness: h.correctness } : null;
   }
 
   /**
@@ -615,7 +659,9 @@ export class QuestionCoordinator {
       const after = this.measure(q.reward.cases);
       if (after === null || after === q.reward.after) continue;
       const delta = round4(after - q.reward.before);
-      this.learn(q.decisionId, q.id, { ...q.reward, after, delta, value: round4(delta - q.reward.burden), outcomeAt: this.now().toISOString() }, q.reward.value);
+      const now = this.scores(q.reward.cases);
+      const scores = q.reward.scores && now ? { ...q.reward.scores, completenessAfter: now.completeness, correctnessAfter: now.correctness } : q.reward.scores;
+      this.learn(q.decisionId, q.id, { ...q.reward, after, delta, value: round4(delta - q.reward.burden), outcomeAt: this.now().toISOString(), ...(scores ? { scores } : {}) }, q.reward.value);
       out.push(this.store.get('question', q.id)!);
     }
     return out;

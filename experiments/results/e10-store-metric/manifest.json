@@ -10,7 +10,7 @@
     "maxWallSeconds": 600,
     "networkCalls": 0
   },
-  "startedAt": "2026-11-07T17:09:21.171Z",
+  "startedAt": "2026-11-07T22:46:37.523Z",
   "id": "e10-store-metric",
   "hypothesis": "A simulated day of questions answered by simulated colleagues raises the store metric (completeness x correctness, BUILD_BRIEF 5.1-5.2) of the demo store, and the LinUCB selector rewarded by the measured delta of that metric minus burden (5.4) gains at least as much per question asked as the rules selector on the same store and the same day.",
   "splits": [
@@ -31,7 +31,8 @@
   "config": {
     "store": "Engine on :memory:, demo:reset --synthetic (the Elisa files are absent here), clock frozen at 2026-11-09T07:00Z and moved only by the simulated day",
     "day": "simulation/schedule.ts planDay (10 h, seeded) + simulation/runner.ts runDay against the real service through createDispatcher (in-process, no socket); simulated colleagues answer from a seeded model, never from answer keys; no judge prompts",
-    "reward": "QuestionCoordinator.answer: delta of completeness x correctness of the touched case before and after the answer, minus burden (0.02 per question asked today, 0.02 per other open question); selector.update after each answer (store-metric-delta@1)",
+    "reward": "QuestionCoordinator.answer: delta of completeness x correctness of the touched case before and after the answer, minus burden (0.02 per question asked today, 0.02 per other open question); selector.update after each answer (store-metric-delta@1); an applicability answer is not a source for or against the case's claims (D-B2-66)",
+    "ranking": "rules selector: value / cost among the pairs that pass the gate (D-B2-67)",
     "metric": "memory/store-health.ts storeHealth over every case (no principal); completenessUnweighted is compared before/after because the weighted mean needs retrievals, which only exist after the day",
     "questionsPerPoint": "questions asked / (100 x the gain in completenessUnweighted x correctness over the cases that existed before the day); null when there is no gain",
     "linucbState": "linucbStatePath false (nothing written to data/local)",

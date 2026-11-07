@@ -599,28 +599,32 @@ Simulated: a fresh demo store per run (demo:reset --synthetic), the demo:play da
 | supported claims after (same cases) | 0.017 (3/180) | 0.017 (3/180) |
 | same-case gain (points, mean per seed) | 0 | 0 |
 | questions per point (same cases) | n/a | n/a |
-| measured per-answer deltas (points, sum) | -6.77 | -13.54 |
+| measured per-answer deltas (points, sum) | 0 | 0 |
 | positive per-answer deltas | 0 | 0 |
+| negative per-answer deltas | 0 | 0 |
+| measured per-answer completeness deltas (points, sum) | 12.49 | 16.66 |
+| answers that raised completeness | 3 | 4 |
+| measured per-answer correctness deltas (points, sum) | 0 | 0 |
 | rewards measured | 5 | 6 |
-| mean reward | -0.0215 | -0.0259 |
+| mean reward | -0.008 | -0.0033 |
 | questions per measured point | n/a | n/a |
 
 **Per seed**
 
-| selector | seed | asked | answered | cases before -> after (all) | product before -> after (same cases) | measured delta sum (points) | mean reward | touched cases with no supported claim |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| rules | 1 | 3 | 2 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | -0.01 | 1 |
-| rules | 2 | 3 | 3 | 5 -> 17 | 0.0075 -> 0.0075 | -6.77 | -0.0292 | 2 |
-| rules | 3 | 3 | 0 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | null | 0 |
-| linucb | 1 | 3 | 2 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | 0 | 1 |
-| linucb | 2 | 3 | 3 | 5 -> 17 | 0.0075 -> 0.0075 | -6.77 | -0.0292 | 2 |
-| linucb | 3 | 3 | 1 | 5 -> 17 | 0.0075 -> 0.0075 | -6.77 | -0.0677 | 1 |
+| selector | seed | asked | answered | cases before -> after (all) | product before -> after (same cases) | measured delta sum (points) | completeness delta sum (points) | correctness delta sum (points) | mean reward | touched cases with no supported claim |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| rules | 1 | 3 | 2 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | 4.16 | 0 | -0.01 | 1 |
+| rules | 2 | 3 | 3 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | 8.33 | 0 | -0.0067 | 2 |
+| rules | 3 | 3 | 0 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | 0 | 0 | null | 0 |
+| linucb | 1 | 3 | 2 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | 4.16 | 0 | 0 | 1 |
+| linucb | 2 | 3 | 3 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | 8.33 | 0 | -0.0067 | 2 |
+| linucb | 3 | 3 | 1 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | 4.17 | 0 | 0 | 1 |
 
-**Where the negative deltas come from (probe of seed 2, D-B2-51).** Every non-zero measured delta (-6.77 points) is a "no" answer to an applicability question (missing|unit.model: does the earlier unit share the current unit's model). The coordinator writes it as a contradict update on the case's claim, and store-health counts any contradict update on a claim still cited by a standing recommendation as a contradicted claim, so that case's correctness goes negative. Under the brief's 5.2 wording that is a contradicted claim still cited; the coordinator's own note says the historical claim is unchanged. The metric is left as the brief words it; the reading is open.
+**How an answer is read (D-B2-66, superseding D-B2-51).** An answer to an applicability question (missing|unit.model, missing|unit.age: does the earlier unit share the current unit's model or age?) fills that key of the case's distinguishing slot (Yes records the value, No records it as explicitly not applicable to this unit) and is neither support for nor a contradiction of the case's claims; only an answer about the claim itself (an outcome report) is. Before this reading, each No on a claim still cited by a standing recommendation measured -6.77 points. The completeness and correctness deltas of each answer are reported beside the product (QuestionRecord.reward.scores).
 
 **Frozen criterion.** Bandit vs rules: LinUCB is reported as better only if its mean same-case gain per question asked is higher than the rules selector's on at least 2 of 3 seeds; otherwise the rules selector stays the default (it is the default either way until a judge-visible reason exists).
 
-**Outcome.** rules: completeness 0.45 -> 0.45, correctness 0.0167 -> 0.0167 (same 5 cases, mean of 3 seeds); gain 0 points for 9 questions asked over 3 simulated days (one per seed) (n/a questions per point); answered 0.556 (5/9); mean reward -0.0215; measured per-answer deltas sum to -6.77 points (0/5 positive). linucb: completeness 0.45 -> 0.45, correctness 0.0167 -> 0.0167 (same 5 cases, mean of 3 seeds); gain 0 points for 9 questions asked over 3 simulated days (one per seed) (n/a questions per point); answered 0.667 (6/9); mean reward -0.0259; measured per-answer deltas sum to -13.54 points (0/6 positive). LinUCB gains more per question on 0/3 seeds.
+**Outcome.** rules: completeness 0.45 -> 0.45, correctness 0.0167 -> 0.0167 (same 5 cases, mean of 3 seeds); gain 0 points for 9 questions asked over 3 simulated days (one per seed) (n/a questions per point); answered 0.556 (5/9); mean reward -0.008; measured per-answer deltas sum to 0 points (0/5 positive). linucb: completeness 0.45 -> 0.45, correctness 0.0167 -> 0.0167 (same 5 cases, mean of 3 seeds); gain 0 points for 9 questions asked over 3 simulated days (one per seed) (n/a questions per point); answered 0.667 (6/9); mean reward -0.0033; measured per-answer deltas sum to 0 points (0/6 positive). LinUCB gains more per question on 0/3 seeds.
 
 **Shipped choice.** The rules selector stays the default; LinUCB did not gain more per question on 2 of 3 seeds.
 

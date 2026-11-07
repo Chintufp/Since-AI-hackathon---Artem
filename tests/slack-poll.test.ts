@@ -61,24 +61,27 @@ test('a delivered question is DM\'d once; a colleague\'s 👍 is ignored; the re
     const qid = before.question.questionId as string;
     const q = svc.engine.store.get('question', qid)!;
     assert.equal(q.status, 'delivered');
-    assert.ok(svc.engine.store.get('entity', q.personEntityId)!.actorIds!.includes('person:slack:U03'), 'the recipient is Slack user U03');
-    assert.ok(before.recommendation.caveats.some((c: string) => /software version 4\.2\.1/.test(c)));
+    // Value / cost (D-B2-67): on RTR-203 the coordinator first asks whether the earlier step on RTR-117 cleared the
+    // problem; Hanna Mäkelä (Slack U01) is placed to answer it.
+    assert.match(before.question.text, /Did the problem clear right after the earlier step on RTR-117\?/);
+    assert.ok(svc.engine.store.get('entity', q.personEntityId)!.actorIds!.includes('person:slack:U01'), 'the recipient is Slack user U01');
+    assert.match(before.recommendation.text, /no reported recovery/);
 
     await poller.pollOnce();
     await poller.pollOnce();
     assert.equal(slack.dms.length, 1, 'DM\'d exactly once');
-    assert.equal(slack.dms[0]!.user, 'U03');
+    assert.equal(slack.dms[0]!.user, 'U01');
     assert.ok(slack.dms[0]!.text.startsWith(before.question.text));
     assert.match(slack.dms[0]!.text, /React 👍 yes · 👎 no · 🤷 not sure$/);
 
-    slack.react('U01', '+1'); // someone else, not the recipient
+    slack.react('U03', '+1'); // someone else, not the recipient
     const ignored = await poller.pollOnce();
     assert.deepEqual(ignored.answered, []);
     assert.equal(svc.engine.store.get('question', qid)!.status, 'delivered');
 
-    slack.react('U03', '+1');
+    slack.react('U01', '+1');
     const r = await poller.pollOnce();
-    assert.deepEqual(r.answered, [{ questionId: qid, slackUserId: 'U03', value: 'yes' }]);
+    assert.deepEqual(r.answered, [{ questionId: qid, slackUserId: 'U01', value: 'yes' }]);
     const stored = svc.engine.store.get('question', qid)!;
     assert.equal(stored.status, 'answered');
     const answer = svc.engine.store.get('answer', stored.answerId!)!;
@@ -87,10 +90,10 @@ test('a delivered question is DM\'d once; a colleague\'s 👍 is ignored; the re
 
     const after = await svc.call('POST', '/investigate', { text: PROBLEM, principal: requester });
     assert.notDeepEqual(after.recommendation, before.recommendation, 'the requester\'s next recommendation changed');
-    assert.ok(!after.recommendation.caveats.some((c: string) => /software version 4\.2\.1/.test(c)), 'the answered fact is no longer unknown');
+    assert.doesNotMatch(after.recommendation.text, /no reported recovery/, 'the answered fact is no longer unknown');
 
     // A flipped reaction after the answer is ignored.
-    slack.react('U03', '-1', (d) => d === slack.dms[0]);
+    slack.react('U01', '-1', (d) => d === slack.dms[0]);
     await poller.pollOnce();
     assert.equal(svc.engine.store.get('answer', svc.engine.store.get('question', qid)!.answerId!)!.value, 'yes');
   } finally {
@@ -106,7 +109,7 @@ test('🤷 from the recipient records no fact: the requester\'s recommendation s
     const qid = before.question.questionId as string;
     const obsBefore = svc.engine.store.list('observation').length;
     await poller.pollOnce();
-    slack.react('U03', 'shrug');
+    slack.react('U01', 'shrug');
     const r = await poller.pollOnce();
     assert.deepEqual(r.answered.map((a) => a.value), ['unknown']);
     assert.equal(svc.engine.store.get('question', qid)!.status, 'answered');

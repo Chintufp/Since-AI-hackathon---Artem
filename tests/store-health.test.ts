@@ -9,7 +9,7 @@ import { Engine } from '../src/apps/service/engine.ts';
 import { RulesSelector } from '../src/libs/utils/policies/index.ts';
 import { buildSyntheticStore, SYMPTOM_TEXT } from '../src/libs/utils/models/testing/fixtures.ts';
 import { makeHarness } from '../src/libs/utils/questions/testing/harness.ts';
-import { storeHealth } from '../src/libs/utils/memory/index.ts';
+import { expectedGain, storeHealth } from '../src/libs/utils/memory/index.ts';
 import { openStore } from '../src/libs/utils/memory/index.ts';
 import { DEV_FIXTURE } from './support.ts';
 
@@ -206,6 +206,133 @@ test('§5.2 through the engine (D-B6-29): a confirmed case link without an answe
     const d = after.denominators;
     assert.equal(after.correctness, Math.round(((d.supportedClaims - d.contradictedCited - 1) / d.caseClaims) * 10_000) / 10_000);
     assert.ok(after.correctness! < before.correctness!);
+  } finally {
+    e.close();
+  }
+});
+
+// ---- D-B2-66: an applicability answer scopes the case; only an answer about the claim itself counts for correctness ----
+
+const B2 = `Asset-B2: ${SYMPTOM_TEXT}`;
+const REF = 'case_ref_reset';
+const health = (store: Parameters<typeof storeHealth>[0], caseIds = [REF]) => storeHealth(store, undefined, { now: NOW, caseIds });
+
+test('D-B2-66: a "No" to an applicability question is not a contradiction; the lookalike stops being cited for this unit and correctness does not fall', async () => {
+  const h = makeHarness(buildSyntheticStore());
+  const st = await h.start('p_app_no', B2);
+  const req = await h.coordinator.request(st);
+  assert.match(req.question!.candidate.gapId, /\|missing\|case_ref_reset\|unit\.age$/);
+  const before = health(h.store);
+  const person = h.store.get('entity', req.question!.personEntityId)!;
+  const a = await h.coordinator.answer(req.question!.id, 'no', { id: person.id, displayName: person.name, groups: ['noc', 'field'], type: 'human' });
+  // The coordinator still records the scoped-down applicability on the claim (its own note: the claim is unchanged) ...
+  assert.equal(a.answer.claimUpdates[0]?.change, 'contradict');
+  // ... the case is not cited for this unit any more ...
+  assert.equal(a.state.hypotheses.find((x) => x.sourceClaimIds.includes('cl_c1_hyp'))?.applicability, 'inapplicable');
+  // ... and the store metric does not read it as a contradicted claim.
+  const after = health(h.store);
+  assert.equal(after.denominators.contradictedCited, 0);
+  assert.equal(after.correctness, before.correctness);
+  assert.ok(after.cases[0]!.slots.distinguishing >= before.cases[0]!.slots.distinguishing);
+  assert.ok(a.question.reward!.delta >= 0, `delta ${a.question.reward!.delta} is never negative for an applicability No`);
+});
+
+test('D-B2-66: a "Yes" to an applicability question records the value but is not a second source for the case\'s claims', async () => {
+  const h = makeHarness(buildSyntheticStore());
+  const st = await h.start('p_app_yes', B2);
+  const req = await h.coordinator.request(st);
+  const before = health(h.store);
+  const person = h.store.get('entity', req.question!.personEntityId)!;
+  const a = await h.coordinator.answer(req.question!.id, 'yes', { id: person.id, displayName: person.name, groups: ['noc', 'field'], type: 'human' });
+  assert.equal(a.answer.claimUpdates[0]?.change, 'support');
+  assert.ok(h.store.list('observation').some((o) => o.caseId === REF && o.condition.key === 'unit.age'), 'the answer is recorded on the case');
+  const after = health(h.store);
+  assert.equal(after.denominators.supportedClaims, before.denominators.supportedClaims);
+  assert.equal(after.cases[0]!.slots.distinguishing, before.cases[0]!.slots.distinguishing, 'unit.age was already recorded on the case');
+});
+
+test('D-B2-66: the same contradicting answer counts against correctness when it is about the claim (an outcome) and a recommendation still cites the claim', async () => {
+  const h = makeHarness(buildSyntheticStore());
+  // A1 is the reference case's own unit: its investigation cites cl_c1_hyp with a standing recommendation.
+  const a1 = await h.start('p_a1', `Asset-A1: ${SYMPTOM_TEXT}`);
+  h.store.put('investigation', a1);
+  assert.ok(!['none', 'retain-uncertainty'].includes(a1.recommendation.kind));
+  assert.ok(a1.hypotheses.some((x) => x.applicability !== 'inapplicable' && x.sourceClaimIds.includes('cl_c1_hyp')));
+  const st = await h.start('p_app_no2', B2);
+  const req = await h.coordinator.request(st);
+  const person = h.store.get('entity', req.question!.personEntityId)!;
+  const res = await h.coordinator.answer(req.question!.id, 'no', { id: person.id, displayName: person.name, groups: ['noc', 'field'], type: 'human' });
+  // Aim the contradiction at the claim A1's recommendation cites, so only the reading differs below.
+  h.store.put('answer', { ...res.answer, claimUpdates: res.answer.claimUpdates.map((u) => ({ ...u, claimId: 'cl_c1_hyp' })) });
+  const applicability = health(h.store);
+  assert.equal(applicability.denominators.contradictedCited, 0, 'an applicability No while A1 still cites the claim: not a contradiction');
+  // Read the very same answer as an outcome report ("did it recover?" No): now it contradicts a cited claim.
+  const q = h.store.get('question', req.question!.id)!;
+  h.store.put('question', { ...q, candidate: { ...q.candidate, gapId: q.candidate.gapId.replace('|missing|', '|outcome|').replace(/unit\.age$/, 'at_c1_reset') } });
+  const outcome = health(h.store);
+  assert.equal(outcome.denominators.contradictedCited, 1);
+  assert.ok(outcome.correctness! < applicability.correctness!);
+});
+
+test('D-B2-66: an explicit "not applicable" answer fills the distinguishing slot for a key the case never recorded (brief 5.1)', () => {
+  const store = buildSyntheticStore();
+  const before = health(store);
+  store.put('observation', {
+    id: 'obs:test:model', orgId: store.get('case', REF)!.orgId, investigationId: 'inv:test', caseId: REF, at: NOW.toISOString(), reportedBy: { id: 'actor:test', displayName: 'Test' },
+    condition: { key: 'unit.model', operator: 'eq', value: '__answer:differs-from-case', origin: 'reported', evidence: [], label: 'model: no (answered)' },
+  });
+  const after = health(store);
+  assert.equal(after.cases[0]!.slots.distinguishing, before.cases[0]!.slots.distinguishing + 0.25);
+  assert.ok(after.cases[0]!.completeness > before.cases[0]!.completeness);
+});
+
+test('D-B2-66: on the demo store a useful answer measures a positive delta, and neither answer to the question measures a negative one', async () => {
+  const deltas: Record<string, number> = {};
+  for (const value of ['yes', 'no'] as const) {
+    const e = new Engine({ dbPath: ':memory:', clock: () => NOW, linucbStatePath: false, elisaDir: join(DEV_FIXTURE, '__no-elisa__') });
+    try {
+      const reset = await e.resetDemo('synthetic');
+      const d = e.directory().find((x) => x.personEntityId === reset.defaultPersonEntityId)!;
+      const r = await e.investigate({ text: PROBLEM, principal: { id: d.personEntityId, displayName: d.name, groups: d.groups, type: 'human' } });
+      assert.ok(r.question, 'the demo store opens a question');
+      const q = e.store.get('question', r.question.questionId)!;
+      const person = e.store.get('entity', q.personEntityId)!;
+      const a = await e.answer(q.id, { principal: { id: person.id, displayName: person.name, groups: [], type: 'human' }, value });
+      deltas[value] = a.question.reward!.delta;
+    } finally {
+      e.close();
+    }
+  }
+  assert.ok(deltas.yes! > 0, `yes: ${deltas.yes}`);
+  assert.ok(deltas.no! >= 0, `no: ${deltas.no}`);
+});
+
+// ---- D-B2-67: brief 5.3 value / cost through the coordinator ----
+
+test('D-B2-67: the coordinator measures each candidate\'s expected gain and retrieval weight; on RTR-203 the outcome question outranks the applicability one', async () => {
+  const e = engine();
+  try {
+    const text = 'BGP sessions flapping on RTR-203 after the firmware update';
+    const r = await e.investigate({ text, principal: REQ });
+    assert.ok(r.question);
+    const d = e.store.get('decision', r.state.decisionIds.at(-1)!)!;
+    assert.equal(d.eligible.length >= 2, true, 'two candidates (software version, outcome) are eligible');
+    const f = d.features!;
+    assert.match(e.store.get('question', r.question.questionId)!.candidate.gapId, /\|outcome\|/);
+    // the outcome report would make the unsupported advice claim supported: gain = c x 1/n on RTR-117
+    const h = storeHealth(e.store, undefined, { now: NOW, caseIds: [e.store.get('question', r.question.questionId)!.candidate.scope.caseId!] });
+    assert.ok(f.expectedGain! > 0);
+    const c = h.cases[0]!;
+    assert.equal(f.expectedGain, expectedGain({ kind: 'outcome', completeness: c.completeness, correctness: h.correctness, caseClaims: h.denominators.caseClaims, slots: c.slots, distinguishingKeys: 4, targetSupported: false }));
+    assert.equal(f.retrievalWeight, 1, 'the case is being retrieved right now (+1); no earlier retrieval');
+    assert.equal(f.quietHours, 0);
+    assert.match(d.reason, /value\/cost/);
+    // A second requester asks about RTR-117's lookalike: the case was retrieved once before, so its weight is 2.
+    const other: Principal = { id: 'person:test:req3', displayName: 'Oona Other', groups: ['noc'], type: 'human' };
+    const r2 = await e.investigate({ text: 'BGP flaps after firmware upgrade on edge router RTR-300 unit', principal: other });
+    const d2 = e.store.get('decision', r2.state.decisionIds.at(-1)!)!;
+    assert.ok(d2.features, 'a pair was chosen for the second problem');
+    assert.equal(d2.features.retrievalWeight, 2);
   } finally {
     e.close();
   }

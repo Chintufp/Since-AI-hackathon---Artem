@@ -7,3 +7,4 @@ export { RankerReplaySelector, rankerInput, rankerInputHash } from './ranker-rep
 export type { RecordedRanking } from './ranker-replay.ts';
 export { createSelector, SELECTOR_IDS } from './registry.ts';
 export type { SelectorId, SelectorOptions } from './registry.ts';
+export { BURDEN, burdenOf, questionCost, questionValue, valuePerCost } from './value-cost.ts';

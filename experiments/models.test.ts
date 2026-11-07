@@ -136,6 +136,21 @@ test('E10 arm: a simulated day runs in-process against the real service under th
   }
 });
 
+test('E10 (D-B2-66): on seed 2 no answer measures a negative delta; the applicability answers raise completeness of the touched cases and leave correctness alone', async () => {
+  const restore = installNetworkGuard();
+  try {
+    const a = await runE10Arm('rules', 2);
+    assert.equal(a.summary.errors, 0);
+    assert.equal(a.deltas.length, 3);
+    assert.ok(a.deltas.every((d) => d >= 0), `deltas ${a.deltas.join(', ')}`);
+    assert.equal(a.completenessDeltas.length, a.deltas.length);
+    assert.ok(a.completenessDeltas.some((d) => d > 0), `completeness deltas ${a.completenessDeltas.join(', ')}`);
+    assert.ok(a.correctnessDeltas.every((d) => d === 0));
+  } finally {
+    restore();
+  }
+});
+
 test('E08 paraphrase probe: every retriever ranks the demo store and the target is the TRN-117 stand-in without the Elisa files', async () => {
   const rows = await paraphraseProbe({ embedder: fakeEmbedder, model: 'fake-embed' }, E08_VARIANTS('fake-embed'));
   assert.equal(rows.length, PARAPHRASES.length);

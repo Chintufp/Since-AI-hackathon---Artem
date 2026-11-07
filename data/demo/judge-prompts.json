@@ -23,19 +23,25 @@
       "text": "TRN-117: replaced the SFP again this morning, link up, alarms cleared, counters zero. Not sure which unit generation this is.",
       "requester": "Helmi Virtanen",
       "targets": ["Aarne Koskela"],
-      "note": "Firsthand people on TRN-117 are asked before role-based observers; with Helmi asking, Aarne is the one left"
+      "note": "Firsthand people on TRN-117 are asked before role-based observers; with Helmi asking, Aarne is the one left. With Elisa's files the B5 thread makes the question 'Is TRN-117 from the 2021 batch?' (TRN-117's own 2019 batch is not parsed; DECISIONS-disagree D-B5-17)"
     },
     {
       "text": "TRN-117: replaced the SFP again this morning, link up, alarms cleared, counters zero. Not sure which unit generation this is.",
       "requester": "Marja Niemi",
       "targets": ["Helmi Virtanen"],
-      "note": "Same problem asked by a NOC engineer: Helmi (performed the SFP replacement) is picked first"
+      "note": "Same problem asked by a NOC engineer: Helmi (performed the SFP replacement) is picked first; same question text as above"
     },
     {
       "text": "RTR-203 BGP sessions flapping after the firmware update, hold timers look default. Roll back like RTR-117?",
       "requester": "Tapio Lehto",
       "targets": ["*"],
       "note": "Developer fixture lookalike"
+    },
+    {
+      "text": "Replaced the SFP on TRN-577, link up, alarms cleared, no traffic, counters zero. Not sure which batch this unit is from.",
+      "requester": "Liisa Mäkelä",
+      "targets": ["Erkki Expert"],
+      "note": "B5 experts disagree: Helmi's TRN-512 (2021 batch: clear the forwarding table) and Erkki's TRN-042 (older units: reset the interface) are both qualified; one question 'Is TRN-577 from the 2021 batch?' picks the branch (data/demo/experts-disagree, seeded with Elisa's files only; on a clean clone nobody is asked)"
     },
     {
       "text": "TRN-508: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.",

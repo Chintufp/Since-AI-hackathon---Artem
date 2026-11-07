@@ -1,5 +1,6 @@
 /** Renderer-safe view models. The service builds these; the UI renders them; no secrets inside. */
 import type { EvidenceRef, Iso } from './common.ts';
+import type { AlternativeHypothesis } from './investigation.ts';
 import type { ClaimStatus, ClaimType } from './memory.ts';
 
 export type TimelineKind = 'problem' | 'step' | 'reported' | 'verified' | 'unknown';
@@ -105,6 +106,11 @@ export interface ResultView {
   caseView?: CaseView;
   /** B3: provenance strip under the recommendation, gated for the requester (absent when nothing is visible). */
   provenance?: ProvenanceView;
+  /**
+   * B5: other related hypotheses, each with its expert ("Also on record: Helmi Virtanen advised clearing the forwarding
+   * table in TRN-512 (qualified, depends on 2021 batch)"). Only cases the viewer may see.
+   */
+  alternatives?: AlternativeHypothesis[];
 }
 
 export interface ReceiptView {

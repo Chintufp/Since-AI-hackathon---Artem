@@ -235,8 +235,10 @@ function applyBounds(plan: Plan, s: RecommendSettings, problem: Condition[]): Pl
       },
     };
   }
+  // B5 (D-B5-05): above a ruled-out case (retain-uncertainty, rank 2) and below every usable plan: a superseded fix names
+  // who to ask, which says more than "don't reuse" a less similar case that does not apply (that one stays a caveat).
   return {
-    ...plan, rank: 1,
+    ...plan, rank: 2.5,
     rec: {
       kind: 'none', basis, applicability: 'unsupported', actionClass: 'none', caveats,
       text: clampText(`No supported response yet; the fix from ${label} was superseded for this version.`, P.maxTextLength),

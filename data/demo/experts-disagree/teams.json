@@ -1,0 +1,52 @@
+{
+  "channel": "teams-experts-disagree",
+  "note": "Generated, synthetic thread (day-2 B5 build). Not from Elisa. Names reuse the synthetic optic-forwarding-a directory. Times only; no date was given. See README.md.",
+  "participants": [
+    { "name": "Aarne Koskela", "role": "Field Engineer" },
+    { "name": "Helmi Virtanen", "role": "Network Expert" }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "13:02",
+      "author": "Aarne Koskela",
+      "role": "Field Engineer",
+      "text": "Helmi, I'm at the TRN-512 site. Replaced the SFP on the transmission node.\nLink is up and alarms cleared, but the traffic counters are still at zero."
+    },
+    {
+      "seq": 2,
+      "time": "13:04",
+      "author": "Helmi Virtanen",
+      "role": "Network Expert",
+      "text": "Which batch is it?"
+    },
+    {
+      "seq": 3,
+      "time": "13:05",
+      "author": "Aarne Koskela",
+      "role": "Field Engineer",
+      "text": "It is the 2021 batch."
+    },
+    {
+      "seq": 4,
+      "time": "13:07",
+      "author": "Helmi Virtanen",
+      "role": "Network Expert",
+      "text": "On the 2021 batch the interface reset does not help. Clear the forwarding table on the node instead."
+    },
+    {
+      "seq": 5,
+      "time": "13:11",
+      "author": "Aarne Koskela",
+      "role": "Field Engineer",
+      "text": "Cleared the forwarding table."
+    },
+    {
+      "seq": 6,
+      "time": "13:12",
+      "author": "Aarne Koskela",
+      "role": "Field Engineer",
+      "text": "Traffic is back."
+    }
+  ]
+}

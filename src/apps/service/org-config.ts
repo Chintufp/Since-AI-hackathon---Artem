@@ -13,7 +13,7 @@ import type { ObservabilityPolicy } from '../../libs/utils/investigation/setting
  */
 export const DEFAULT_MODEL_SLOTS: ModelSlots = CONTRACT_DEFAULT_SLOTS;
 
-const EQUIPMENT_FACTS = ['unit.age', 'unit.model', 'unit.revision', 'software.version', 'config.changed'];
+const EQUIPMENT_FACTS = ['unit.age', 'unit.model', 'unit.revision', 'software.version', 'config.changed', 'unit.batch'];
 const SITE_FACTS = ['site.access', 'power.state', 'temperature.state'];
 
 /** Who may be asked about which kind of fact when nobody has firsthand history for the asset. */

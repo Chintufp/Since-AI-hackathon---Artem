@@ -88,7 +88,7 @@ export function defaultInvestigationSettings(over: Partial<InvestigationSettings
   return {
     k: 8,
     relativeScoreFloor: 0.3,
-    distinguishingKeys: ['unit.age', 'unit.model', 'unit.revision', 'software.version'],
+    distinguishingKeys: ['unit.age', 'unit.model', 'unit.revision', 'software.version', 'unit.batch'],
     ignoredKeys: ['site.id', 'site.region', 'site.access', 'time.since_change', 'unit.installed_year'],
     historyKeys: ['action.performed', 'component.replaced'],
     requesterObservableKeys: ['interface.status', 'optical.level', 'traffic.counters', 'traffic.state', 'alarms.state', 'power.state', 'temperature.state', 'bgp.session'],
@@ -102,6 +102,7 @@ export function defaultInvestigationSettings(over: Partial<InvestigationSettings
         'unit.revision': 'Is {asset} on revision {value}?',
         'unit.installed_year': 'Was {asset} installed in {value}?',
         'software.version': 'Is {asset} running software version {value}?',
+        'unit.batch': 'Is {asset} from the {value} batch?',
       },
       problemStatedTemplates: { 'unit.model': 'Is {case_label} {a_problem_value}?' },
       outcomePhrases: { 'interface.reset': 'traffic return' },
@@ -109,7 +110,7 @@ export function defaultInvestigationSettings(over: Partial<InvestigationSettings
       evaluativePairs: false,
     },
     phrases: DEFAULT_PHRASES,
-    ageFold: { yearKey: 'unit.installed_year', ageKey: 'unit.age', olderValue: 'older', olderThroughYear: 2019, hedgeMarkers: ['hedged in source'] },
+    ageFold: { yearKey: 'unit.installed_year', ageKey: 'unit.age', olderValue: 'older', olderThroughYear: 2019, hedgeMarkers: ['hedged in source'], batchKey: 'unit.batch' },
     problemStated: {
       'unit.model': { missing: "Earlier unit's model is {value}", match: "Earlier unit's model is {value} (confirmed)", conflict: 'Another model (this problem: {label})' },
     },

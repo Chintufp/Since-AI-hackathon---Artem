@@ -42,7 +42,7 @@ At site now. Replaced the SFP on TRN-088, an older unit from 2018. Link is up, a
 You see the result card:
 
 - Heading: **Check the traffic counters before replacing the SFP again.**
-- Caveat: *Reported once; cause and lasting effect not verified.*
+- Caveats: *Reported once; cause and lasting effect not verified.* and *TRN-512 does not apply: 2021 batch there, older unit here.* (Helmi's 2021-batch case, see "Experts disagree" below, is ruled out by the stated age).
 - Next: *If the interface is up and counters stay at zero, disabling and re-enabling the interface reportedly restored traffic in TRN-042 (older unit).*
 - Below it the basis case **TRN-042 · no traffic after SFP change** as a timeline: Reported problem (red) → Reported conditions → Possible cause → Suggested checks → Attempted counter check → Attempted interface reset (yellow) → Reported outcome (green).
 - A row **People with relevant experience · 4** and a line *Existing evidence and your own observations settle the next step* (no one is asked: Veikko stated the unit age himself).
@@ -59,11 +59,11 @@ Say: *"This is Erkki's rule, reused on a unit Erkki has never seen. It is phrase
 TRN-301: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.
 ```
 
-Result heading: **Confirm the unit details (older unit) before disabling and re-enabling the interface.** Caveats: *Reported once; cause and lasting effect not verified.* and *Unknown for this unit: older unit.* At the bottom: **Asked a colleague with relevant experience · delivered**. Say: *"The deciding fact is missing and Veikko cannot see it, so one Yes/No question went to Erkki, the network expert. Three questions per person per day, thirty minutes between them, one open at a time."*
+Result heading: **Confirm the unit details (older unit) before disabling and re-enabling the interface.** Caveats: *Reported once; cause and lasting effect not verified.* and *Unknown for this unit: older unit.* Under Next (with Elisa's files): *Also on record: Helmi Virtanen advised clearing the forwarding table in TRN-512 (qualified, depends on 2021 batch)*, the other expert's branch (see "Experts disagree" below). At the bottom: **Asked a colleague with relevant experience · delivered**. Say: *"The deciding fact is missing and Veikko cannot see it, so one Yes/No question went to Erkki, the network expert. Three questions per person per day, thirty minutes between them, one open at a time."*
 
 **2:05 Be Erkki and answer.** Sliders icon → **You** = `Erkki Expert · Network Expert` → back arrow. The questions icon now shows **1**. Click it: **Questions** lists `TRN-042 · no traffic after SFP change — Is TRN-301 an older unit?`. Click the question: the card shows the question, **Yes / No**, *Not sure · Later · Dismiss*, and **Why this question?** (expand it: the hypothesis from TRN-042 applies only if older unit, and what each answer changes). Click **Yes**. Receipt: **Recorded: Yes** — *You answered yes to "Is TRN-301 an older unit?". The recommendation now starts with a check.* with **Undo**.
 
-**2:35 Back to Veikko: the answer was used.** Sliders icon → **You** = Veikko → back arrow → pencil icon → paste the TRN-301 text again (same text, same investigation). Heading is now **Check the traffic counters before replacing the SFP again.** and the status line reads *The answer was used to update the recommendation*. Say: *"Erkki's one tap changed Veikko's next step. A 'No' would have made it 'Don't reuse the fix from TRN-042'; 'Not sure' records nothing and never asks him the same thing again."*
+**2:35 Back to Veikko: the answer was used.** Sliders icon → **You** = Veikko → back arrow → pencil icon → paste the TRN-301 text again (same text, same investigation). Heading is now **Check the traffic counters before replacing the SFP again.** and the status line reads *The answer was used to update the recommendation*; with Elisa's files a caveat adds *TRN-512 does not apply: 2021 batch there, older unit, answered here.* (an older unit is not from the 2021 batch). Say: *"Erkki's one tap changed Veikko's next step. A 'No' would have ruled out TRN-042 and moved to Helmi's 2021-batch branch, asking about the batch next; 'Not sure' records nothing and never asks him the same thing again."* (On a clean clone there is no TRN-512, and a 'No' gives 'Don't reuse the fix from TRN-042'.)
 
 **2:50 The agent path.** In a second terminal:
 
@@ -76,6 +76,32 @@ This is a plain MCP client (no model) starting the same MCP server on the same d
 ### Remember this (30 seconds, no form)
 
 Copy a Teams thread (or an e-mail, or drop a .txt/.eml/.json/.md file on the card or on Lumi) and paste it into the input. The chip *Looks like a conversation · Remember this* appears; click it (or the *Remember this* button next to Send, or Cmd+Shift+Enter). The receipt reads, for the Elisa thread copied as text on an empty store: *Captured: 1 case · 25 claims* / *bound to TRN-042, Veikko Vikkelä, Erkki Expert · 09:14–09:27 (date unknown)*, then Lumi hops. Pasting it again says *Already captured*. On the seeded Elisa store the same paste binds to the existing TRN-042 case (its messages are recorded as copies of the seeded thread). Send still investigates: a problem description is never stored by accident.
+
+## Experts disagree (optional, 1 minute)
+
+Two experts gave different fixes for the same symptoms: Erkki (TRN-042, older units: disable and re-enable the interface)
+and Helmi Virtanen (TRN-512, a generated synthetic thread in `data/demo/experts-disagree`: "on the 2021 batch the interface
+reset does not help, clear the forwarding table"). A demo reset imports Helmi's thread only next to Elisa's TRN-042 (with
+seed `elisa` and Elisa's files in `private/`). As any field engineer (for example **You** = Liisa Mäkelä), paste:
+
+```
+Replaced the SFP on TRN-577, link up, alarms cleared, no traffic, counters zero. Not sure which batch this unit is from.
+```
+
+Heading: **Confirm the unit details (2021 batch) before clearing the forwarding table.** Under it: *Also on record: Erkki
+Expert advised disabling and re-enabling the interface in TRN-042 (qualified, depends on older unit)*. The panel lists only
+the qualified branches, the ones a fact still decides; the API and MCP result also carry Helmi's own TRN-117 case, which
+records no age or batch. One question went out: **Is TRN-577 from the 2021 batch?** (to Erkki, through his Network Expert
+role). Answer it as Erkki: **Yes** makes the forwarding-table clear the recommendation, with the caveat *TRN-042 does not
+apply: older unit there, 2021 batch, answered here.*; **No** makes Helmi's case not apply and Erkki's interface reset the
+recommendation. Say: *"Neither expert is overwritten. The system keeps both, says what decides between them, and asks one
+person one question to pick the branch."* On a clean clone (no Elisa files) this step is not available: the thread is not
+seeded, so the walkthrough texts above stay as they are; the two-expert story runs in `tests/experts-disagree.test.ts`
+with a synthetic stand-in for Erkki.
+
+Known limit: the two TRN-117 judge prompts ask *Is TRN-117 from the 2021 batch?*, although TRN-117's own thread says it is
+from the 2019 batch. Batches before 2020 are not parsed (DECISIONS-disagree.md D-B5-03, D-B5-17); the recipient can answer
+No, which moves the problem to Erkki's older-unit branch.
 
 ## The simulated real-time stream (what the browser tab shows)
 

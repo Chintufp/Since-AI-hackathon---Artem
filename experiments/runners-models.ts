@@ -100,8 +100,8 @@ export interface ProbeRow {
 }
 
 /** The demo store as demo:reset makes it (synthetic: demo families + dev fixture; the Elisa files are absent here). */
-/** Demo reset options that leave out B1's generated follow-ups (directories that do not exist are skipped). */
-export const NO_FOLLOWUPS = { followupsDir: join(DEFAULT_SCENARIOS_DIR, '__no-followups__'), followupsSyntheticDir: join(DEFAULT_SCENARIOS_DIR, '__no-followups__') };
+/** Demo reset options that leave out the generated follow-ups (B1) and the experts-disagree thread (B5); directories that do not exist are skipped. */
+export const NO_FOLLOWUPS = { followupsDir: join(DEFAULT_SCENARIOS_DIR, '__no-followups__'), followupsSyntheticDir: join(DEFAULT_SCENARIOS_DIR, '__no-followups__'), expertsDisagreeDir: join(DEFAULT_SCENARIOS_DIR, '__no-followups__') };
 
 async function demoEngine(start = '2026-11-09T07:00:00.000Z'): Promise<{ engine: Engine; requester: Principal }> {
   const engine = new Engine({

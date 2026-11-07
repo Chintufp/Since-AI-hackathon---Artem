@@ -8,6 +8,7 @@ import { canSee, evidenceGate, gateAt, type EvidenceGate } from '../retrieval/ac
 import { isAnswerMarker } from '../retrieval/conditions.ts';
 import { resolveEntityIds } from '../retrieval/exact.ts';
 import { ACCESS_INTENT_KEY, lookupAccessFacts } from './access-facts.ts';
+import { buildAlternatives } from './alternatives.ts';
 import { loadCaseFacts, OUTCOME_KEY, viewerOfState } from './case-facts.ts';
 import { casePhrase, shortCaseLabel } from './phrases.ts';
 import { storeDirectory, type PersonDirectory } from './directory.ts';
@@ -213,8 +214,10 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
     investigationId: id, candidates: relevant, gate, ...(selected?.candidate.caseId ? { selectedCaseId: selected.candidate.caseId } : {}), entityIds, settings, now,
   });
 
+  // B5: the other related hypotheses, each with its expert (described, never merged or overwritten).
+  const alternatives = access ? [] : buildAlternatives(related, selected, directory, settings, conditions);
   const state: InvestigationState = {
-    ...draft, hypotheses: details.map((d) => d.hypothesis), gaps, recommendation, people,
+    ...draft, hypotheses: details.map((d) => d.hypothesis), gaps, recommendation, people, ...(alternatives.length ? { alternatives } : {}),
     loop: 'no-question-needed', loopReason: settings.loopReasons.noQuestionNeeded,
   };
 

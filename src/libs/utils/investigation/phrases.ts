@@ -55,8 +55,9 @@ export const DEFAULT_PHRASES: PhraseSettings = {
     'device.reboot': { imperative: 'reboot the unit', gerund: 'rebooting the unit', noun: 'the reboot', past: 'rebooted the unit' },
     'power.cycle': { imperative: 'power-cycle the unit', gerund: 'power-cycling the unit', noun: 'the power cycle', past: 'power-cycled the unit' },
     'config.rollback': { imperative: 'roll back the config', gerund: 'rolling back the config', noun: 'the config rollback', past: 'rolled back the config' },
+    'table.clear': { imperative: 'clear the forwarding table', gerund: 'clearing the forwarding table', noun: 'the forwarding table clear', past: 'cleared the forwarding table' },
   },
-  recoveries: { 'interface.reset': 'restored traffic', 'device.reboot': 'restored traffic' },
+  recoveries: { 'interface.reset': 'restored traffic', 'device.reboot': 'restored traffic', 'table.clear': 'restored traffic' },
   conditions: {
     'interface.status=up': 'the interface is up',
     'interface.status=down': 'the interface is down',
@@ -81,6 +82,7 @@ export const DEFAULT_PHRASES: PhraseSettings = {
     'sfp.replace': ['sfp', 'transceiver', 'optic'],
     'device.reboot': ['reboot', 'restart', 'power cycle', 'power-cycle'],
     'power.cycle': ['power cycle', 'power-cycle', 'powercycle', 'cycle the power'],
+    'table.clear': ['forwarding', 'table'],
   },
   unverifiedAction: { imperative: 'repeat the earlier step', gerund: 'repeating the earlier step', noun: 'the earlier step', past: 'did the earlier step' },
   contributionOrder: ['performed-action', 'reported-outcome', 'advised', 'performed-check', 'reported-problem', 'observed-condition', 'mentioned'],

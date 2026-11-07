@@ -31,6 +31,9 @@ export const DEFAULT_LEXICON: LexiconRule[] = [
   { id: 'unit-older', pattern: String.raw`\bold(?:er)?[\s-]+(?:unit|hardware|card|controller|revision|model)\b`, key: 'unit.age', value: 'older', label: 'Older unit' },
   { id: 'unit-newer', pattern: String.raw`\b(?:new|newer|recent)[\s-]+(?:unit|hardware|card|controller|revision|model)\b`, key: 'unit.age', value: 'newer', label: 'Newer unit' },
   { id: 'unit-year', pattern: String.raw`\b(?:old|older|unit|card|hardware|controller|installed|manufactured)(?:\s+(?:in|from|of))?[\s/(,-]*((?:19|20)\d\d)\b`, key: 'unit.installed_year', valueGroup: 1, numeric: true, label: 'Installed in {value}', origin: 'inferred' },
+  // B5: production batch of the 2020s ("the 2021 batch"); same key and value format as the capture-time parser. A negated
+  // or hedged batch ("not sure if it is the 2021 batch", "not the 2021 batch") states nothing (D-B5-16).
+  { id: 'unit-batch', pattern: String.raw`(?<!\b(?:not|whether|if|unsure|maybe|perhaps|might)\b[^.;?\n]{0,25})\b(202\d)\s+batch\b`, key: 'unit.batch', valueGroup: 1, label: '{value} batch' },
   { id: 'component-replaced', pattern: String.raw`\b(?:changed|replaced|swapped)\s+(?:out\s+)?(?:the\s+|a\s+|our\s+)?(sfp|fan|psu|cable|module|card)\b`, key: 'component.replaced', valueGroup: 1, label: 'Component replaced: {value}' },
   { id: 'rebooted', pattern: String.raw`\b(?:re-?booted|restarted)\b`, key: 'action.performed', value: 'device.reboot', label: 'Device rebooted' },
   { id: 'power-cycled', pattern: String.raw`\bpower[\s-]?cycled\b`, key: 'action.performed', value: 'power.cycle', label: 'Power cycled' },

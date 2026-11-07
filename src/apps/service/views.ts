@@ -150,6 +150,7 @@ export function resultView(
     routes: state.routes.map((x) => ({ route: x.route, version: x.version })),
     ...(caseView ? { caseView } : {}),
     ...(provenance ? { provenance } : {}),
+    ...(state.alternatives?.length ? { alternatives: state.alternatives } : {}),
     state,
   };
 }
@@ -176,5 +177,12 @@ export function sanitizeState(store: KnowledgeStore, state: InvestigationState, 
     hypotheses: state.hypotheses.map((h) => ({ ...h, basis: keepRefs(h.basis, gate) })),
     recommendation: { ...state.recommendation, basis: keepRefs(state.recommendation.basis, gate) },
     people: state.people.map((p) => ({ ...p, reasons: p.reasons.map((x) => ({ ...x, evidence: keepRefs(x.evidence, gate) })) })),
+    ...(state.alternatives ? { alternatives: visibleAlternatives(store, state, gate) } : {}),
   };
+}
+
+/** B5: alternatives whose case is among the candidates the viewer may see. */
+function visibleAlternatives(store: KnowledgeStore, state: InvestigationState, gate: EvidenceGate) {
+  const seen = new Set(visibleCandidates(store, state.candidates, gate).map((c) => c.caseId));
+  return (state.alternatives ?? []).filter((a) => seen.has(a.caseId));
 }

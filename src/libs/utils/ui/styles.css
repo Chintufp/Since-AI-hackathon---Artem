@@ -245,6 +245,7 @@
 #kt-panel .rf-result-head { max-height:min(190px, calc(var(--kt-vh) - 470px)); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; }
 #kt-panel .rf-case-path { max-height:min(260px, calc(var(--kt-vh) - 470px)); }
 #kt-panel .rf-result-note + .rf-result-note { margin-top:5px; }
+#kt-panel .rf-result-note.rf-on-record { color:#4f565c; }
 #kt-panel .rf-node-inner p { padding:0; }
 #kt-panel .rf-draft-body { scrollbar-color:#cdd1d4 transparent; }
 /* desktop (R28): launch drop surface, the 44x86 scene column floor-aligned with the avatar canvas; never takes the mouse */

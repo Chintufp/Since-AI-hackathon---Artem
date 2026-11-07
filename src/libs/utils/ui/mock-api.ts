@@ -272,6 +272,12 @@ function makeHandlers(s: MockState): Handlers {
           claimId: 'claim_mock_advice', person: 'Noor Ahmadi', providerLabel: 'Teams', when: '09:22 (date unknown)', sources: 1,
           reportedOnce: true, stillBelievedTrue: true, route: 'rules', text: 'Noor Ahmadi · Teams 09:22 (date unknown) · reported once · still believed true',
         },
+        // B5: another expert's advice on record, shown under the recommendation as "Also on record: ...".
+        alternatives: [{
+          caseId: 'case_mock_alt2', caseLabel: 'PKG-118', hypothesisId: 'hyp_mock_alt2', label: 'reseating the printhead cable', action: 'cable.reseat',
+          expert: { personEntityId: 'person:mock:priya', displayName: 'Priya Nair', role: 'Shift lead' }, support: 'supported', applicability: 'qualified',
+          deciding: 'printhead older than 2019', text: 'Priya Nair advised reseating the printhead cable in PKG-118 (qualified, depends on printhead older than 2019)',
+        }],
       };
       const state: InvestigationState = {
         id, orgId: ORG, createdAt: NOW(), updatedAt: NOW(),

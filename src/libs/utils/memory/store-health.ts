@@ -24,7 +24,10 @@ export interface StoreHealthOptions {
   now: Date;
   /** Keys whose value decides applicability (InvestigationSettings.distinguishingKeys). */
   distinguishingKeys?: string[];
-  /** A key counts as known when one of its aliases is (unit.age is known from an installation year). */
+  /**
+   * A key counts as known when one of its aliases is (unit.age is known from an installation year or a batch). A
+   * distinguishing key that is an alias of another distinguishing key is not counted on its own.
+   */
   keyAliases?: Record<string, string[]>;
   /** Observation key an answered outcome question records (investigation OUTCOME_KEY). */
   outcomeKey?: string;
@@ -71,7 +74,9 @@ export interface StoreHealth {
 }
 
 const DEFAULT_KEYS = ['unit.age', 'unit.model', 'unit.revision', 'software.version'];
-const DEFAULT_ALIASES: Record<string, string[]> = { 'unit.age': ['unit.installed_year'] };
+// B5 (D-B5-06): a production batch, like an installation year, tells the unit's generation, so it counts toward unit.age
+// and is not a slot of its own (a distinguishing key that is another key's alias is left out of the denominator).
+const DEFAULT_ALIASES: Record<string, string[]> = { 'unit.age': ['unit.installed_year', 'unit.batch'] };
 const DAY = 86_400_000;
 const round = (x: number): number => Math.round(x * 10_000) / 10_000;
 
@@ -104,7 +109,8 @@ function caseHealth(store: KnowledgeStore, c: Case, o: Required<Pick<StoreHealth
       || claims.some((x) => x.type === 'condition' && !!x.condition && keys.includes(x.condition.key) && (x.condition.value !== undefined || x.condition.operator === 'absent'))
       || answered.some((x) => keys.includes(x.condition.key));
   };
-  const keys = o.distinguishingKeys;
+  const aliased = new Set(Object.entries(o.keyAliases).filter(([k]) => o.distinguishingKeys.includes(k)).flatMap(([, a]) => a));
+  const keys = o.distinguishingKeys.filter((k) => !aliased.has(k));
   const distinguishing = keys.length ? keys.filter(known).length / keys.length : 1;
 
   const performed = attempts.filter((a) => a.performed === 'reported');

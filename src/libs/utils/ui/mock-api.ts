@@ -64,7 +64,15 @@ interface MockState {
   pulls: Map<string, PullJobView>;
   keys: { anthropic: boolean; gemini: boolean };
   install: InstallJobView;
+  /** Slot failures, as the service's status chip shows them ('busy' scenario). */
+  failures: Partial<Record<ModelSlotName, string>>;
 }
+
+/**
+ * Model states the mock can show (D-B2-62). 'busy': embed on local nomic-embed-text with a download at 42%, phrase on
+ * local qwen3:8b failed after a timeout, extract on a hosted Gemini model without a gemini key (an anthropic key held).
+ */
+export type MockModelsScenario = 'default' | 'busy';
 
 const MOCK_INSTALL: InstallJobView = { state: 'idle', brew: true, log: [], downloadUrl: 'https://ollama.com/download', setup: ['brew install ollama', 'ollama serve', 'ollama pull bge-m3'] };
 
@@ -80,8 +88,17 @@ function mockModels(s: MockState): ModelsView {
   const status = (slot: ModelSlotName): SlotStatusView => {
     const c = slots[slot];
     if (c.provider === 'rules') return { choice: c, state: 'off', chip: 'off' };
-    if (c.provider === 'api') return s.keys.anthropic || s.keys.gemini ? { choice: c, state: 'ready', chip: 'ready' } : { choice: c, state: 'failed', chip: 'failed: no anthropic key', reason: 'no anthropic key' };
+    const failed = (reason: string): SlotStatusView => ({ choice: c, state: 'failed', chip: `failed: ${reason}`, reason });
+    if (c.provider === 'api') {
+      // As the service: no hosted embedding model; otherwise the key of the model's own vendor.
+      if (slot === 'embed') return failed('no hosted embedding model; rules used');
+      const vendor = /^gemini/i.test(c.model ?? '') ? 'gemini' : 'anthropic';
+      return s.keys[vendor] ? (s.failures[slot] ? failed(s.failures[slot]!) : { choice: c, state: 'ready', chip: 'ready' }) : failed(`no ${vendor} key`);
+    }
     const model = c.model ?? { embed: 'bge-m3', extract: 'qwen3:4b', phrase: 'qwen3:8b' }[slot];
+    const job = [...s.pulls.values()].reverse().find((j) => j.model === model && j.state === 'running');
+    if (job) return { choice: c, state: 'downloading', chip: `downloading ${job.percent ?? 0}%`, percent: job.percent ?? 0 };
+    if (s.failures[slot]) return failed(s.failures[slot]!);
     return s.installed.includes(model) ? { choice: c, state: 'ready', chip: 'ready' } : { choice: c, state: 'not-downloaded', chip: 'not downloaded' };
   };
   return {
@@ -125,7 +142,7 @@ function mockRating(s: MockState): ParticipationRating {
 function freshState(): MockState {
   const records = new Map<string, QuestionRecord>();
   SEED_QUESTIONS.forEach((q, i) => records.set(q.id, record(q, 'queued', i)));
-  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS(), installed: ['qwen3:8b'], pulls: new Map(), keys: { anthropic: false, gemini: false }, install: { ...MOCK_INSTALL } };
+  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS(), installed: ['qwen3:8b'], pulls: new Map(), keys: { anthropic: false, gemini: false }, install: { ...MOCK_INSTALL }, failures: {} };
 }
 
 function record(q: SeedQuestion, status: QuestionStatus, i: number): QuestionRecord {
@@ -183,7 +200,8 @@ function makeHandlers(s: MockState): Handlers {
   const optInView = (): ParticipationOptIn => ({ id: 'optin:mock:you', orgId: ORG, personEntityId: ME, participates: s.optIn, since: POINTS_FIXED });
   const h: Handlers = {
     'GET /health': () => ({ ok: true as const, version: 'ui-dev-mock', store: 'memory', routes: Object.keys(h) }),
-    'GET /settings': () => ({ ...s.settings }),
+    // As the service: GET /settings always carries the model slots (rules by default).
+    'GET /settings': () => ({ ...s.settings, models: s.settings.models ?? DEFAULT_MODEL_SLOTS }),
     'PUT /settings': ({ body }) => {
       const { models, ...plain } = body;
       s.settings = { ...s.settings, ...plain, ...(models ? { models: { ...(s.settings.models ?? DEFAULT_MODEL_SLOTS), ...models } } : {}) };
@@ -338,8 +356,21 @@ function makeHandlers(s: MockState): Handlers {
 }
 
 /** A FetchLike that serves the mock routes. Exported for tests and for the renderer's ?mock=1 mode. */
-export function createMockFetch(): FetchLike {
+/** Put the mock's models into a scenario (the screenshot harness and tests); 'default' is the fresh state. */
+function applyModelsScenario(s: MockState, scenario: MockModelsScenario): void {
+  const fresh = freshState();
+  s.installed = fresh.installed; s.pulls = fresh.pulls; s.keys = fresh.keys; s.failures = fresh.failures;
+  s.settings = { ...s.settings, models: { ...DEFAULT_MODEL_SLOTS } };
+  if (scenario !== 'busy') return;
+  s.settings = { ...s.settings, models: { embed: { provider: 'local', model: 'nomic-embed-text' }, extract: { provider: 'api', model: 'gemini-2.5-flash-lite' }, phrase: { provider: 'local', model: 'qwen3:8b' } } };
+  s.pulls.set('pull-mock-busy', { jobId: 'pull-mock-busy', model: 'nomic-embed-text', state: 'running', status: 'pulling 970aa74c0a90', percent: 42, startedAt: NOW() });
+  s.keys = { anthropic: true, gemini: false };
+  s.failures = { phrase: 'phrase: no answer within 20000 ms' };
+}
+
+export function createMockFetch(opts: { models?: MockModelsScenario } = {}): FetchLike & { setModelsScenario(scenario: MockModelsScenario): void } {
   const state = freshState();
+  if (opts.models) applyModelsScenario(state, opts.models);
   const handlers = makeHandlers(state);
   const table = (Object.keys(handlers) as RouteKey[]).map((route) => {
     const { method, path } = parseRoute(route);
@@ -347,7 +378,7 @@ export function createMockFetch(): FetchLike {
     const rx = new RegExp('^' + path.replace(/:([A-Za-z]+)/g, (_m, n: string) => (names.push(n), '([^/]+)')) + '$');
     return { route, method, rx, names };
   });
-  return async (input, init) => {
+  const fetchLike: FetchLike = async (input, init) => {
     const url = new URL(input.replace(/^mock:/, 'http:'));
     const method = init?.method ?? 'GET';
     const hit = table.find((t) => t.method === method && t.rx.test(url.pathname));
@@ -372,6 +403,7 @@ export function createMockFetch(): FetchLike {
       throw e;
     }
   };
+  return Object.assign(fetchLike, { setModelsScenario: (scenario: MockModelsScenario) => applyModelsScenario(state, scenario) });
 }
 
 export function createMockApi(): ApiClient {

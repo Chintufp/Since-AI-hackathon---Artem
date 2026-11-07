@@ -1,6 +1,6 @@
 /** Renderer: composes the v008 panel (ui) with Lumi (motion) against the service API. */
 import { AvatarController } from '../../libs/utils/motion/index.ts';
-import { createApiClient, createMockFetch, createPanel, MOCK_BASE_URL } from '../../libs/utils/ui/index.ts';
+import { createApiClient, createMockFetch, createPanel, MOCK_BASE_URL, type MockModelsScenario } from '../../libs/utils/ui/index.ts';
 import type { Panel } from '../../libs/utils/ui/index.ts';
 import { inRect, nearRects, parseFlags, pinsPress, RENDERER_EVENTS, toHitRect } from './flags.ts';
 import type { Area, DesktopFlags, HitRect, PowerEvent, ShellCommand, ShellState } from './flags.ts';
@@ -23,7 +23,7 @@ interface KtBridge {
 declare global {
   interface Window {
     kt?: KtBridge;
-    __kt?: { panel: Panel; errors: string[]; setFailing(flag: boolean): void };
+    __kt?: { panel: Panel; errors: string[]; setFailing(flag: boolean): void; setModelsScenario(scenario: MockModelsScenario): void };
     /** desktop (R31..R36): the parsed flags, read by the companion module (no Electron import there). */
     __ktFlags?: Readonly<DesktopFlags>;
   }
@@ -188,4 +188,4 @@ window.kt?.onShow(() => {
 });
 measure();
 if (params.get('open') === '1') panel.open();
-if (shots) window.__kt = { panel, errors, setFailing: (flag) => (failing = flag) };
+if (shots) window.__kt = { panel, errors, setFailing: (flag) => (failing = flag), setModelsScenario: (scenario) => mockFetch.setModelsScenario(scenario) };

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  isAllowedExternal,
   appMenuTemplate,
   boundsFor,
   COLUMN_FLAGS,
@@ -236,4 +237,9 @@ test('application menu (shell-08): no Close / Reload / DevTools, Edit kept for t
     const roles = appMenuTemplate(mac).map((i) => i.role);
     for (const banned of ['windowMenu', 'viewMenu', 'fileMenu', 'close', 'reload', 'forceReload', 'toggleDevTools']) assert.ok(!roles.includes(banned as never));
   }
+});
+
+test('external links: only the two key pages and the Ollama download page, over https, open in the browser', () => {
+  for (const ok of ['https://console.anthropic.com/settings/keys', 'https://aistudio.google.com/app/apikey', 'https://ollama.com/download', 'https://ollama.com/download/mac']) assert.equal(isAllowedExternal(ok), true, ok);
+  for (const bad of ['http://ollama.com/download', 'https://ollama.com/downloads-evil', 'https://ollama.com.evil.example/download', 'https://user:pw@ollama.com/download', 'https://console.anthropic.com/', 'javascript:alert(1)', 'file:///etc/passwd', 'not a url']) assert.equal(isAllowedExternal(bad), false, bad);
 });

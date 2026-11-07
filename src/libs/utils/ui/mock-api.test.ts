@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMockApi, mockPrincipal } from './mock-api.ts';
+import { createMockApi, createMockFetch, MOCK_BASE_URL, mockPrincipal } from './mock-api.ts';
+import { createApiClient } from './api-client.ts';
 import type { TimelineKind } from '../contracts/views.ts';
 
 const KINDS: TimelineKind[] = ['problem', 'step', 'reported', 'verified', 'unknown'];
@@ -152,4 +153,25 @@ test('the mock Models view has sizes, a recommended model, a too-large entry and
   assert.equal(j.state, 'done');
   assert.ok(j.log.length > 0);
   assert.deepEqual(j.setup, ['brew install ollama', 'ollama serve', 'ollama pull bge-m3']);
+});
+
+test('the mock matches the service: GET /settings carries the slots, api chips check the model\'s own vendor, and a busy scenario shows downloading and failed chips', async () => {
+  const api = createMockApi();
+  assert.deepEqual((await api.getSettings()).models, { embed: { provider: 'rules' }, extract: { provider: 'rules' }, phrase: { provider: 'rules' } });
+  await api.setModelKey('anthropic', 'k');
+  await api.putSettings({ models: { phrase: { provider: 'api', model: 'gemini-2.5-flash-lite' }, extract: { provider: 'api', model: 'claude-haiku-5-5' }, embed: { provider: 'api' } } });
+  const v = await api.models();
+  assert.equal(v.slots.phrase.chip, 'failed: no gemini key');
+  assert.equal(v.slots.extract.chip, 'ready');
+  assert.equal(v.slots.embed.chip, 'failed: no hosted embedding model; rules used');
+
+  const fetch = createMockFetch({ models: 'busy' });
+  const busy = createApiClient({ baseUrl: MOCK_BASE_URL, fetch, kind: 'mock' });
+  const b = await busy.models();
+  assert.equal(b.slots.embed.chip, 'downloading 42%');
+  assert.equal(b.slots.embed.state, 'downloading');
+  assert.equal(b.slots.phrase.chip, 'failed: phrase: no answer within 20000 ms');
+  assert.equal(b.slots.extract.chip, 'failed: no gemini key');
+  fetch.setModelsScenario('default');
+  assert.deepEqual(Object.values((await busy.models()).slots).map((x) => x.chip), ['off', 'off', 'off']);
 });

@@ -4,7 +4,7 @@ export { createPanelMotion } from './panel-motion.ts';
 export type { PanelMotion, PanelMotionOptions, PanelMotionStatus } from './panel-motion.ts';
 export { createApiClient, ApiError, buildUrl, parseRoute } from './api-client.ts';
 export type { ApiClient, ApiClientOptions, FetchLike, RouteKey } from './api-client.ts';
-export { createMockApi, createMockFetch, MOCK_BASE_URL, mockPrincipal } from './mock-api.ts';
+export { createMockApi, createMockFetch, MOCK_BASE_URL, mockPrincipal, type MockModelsScenario } from './mock-api.ts';
 // desktop (R31..R36): the companion state machine, attention rules and the collapsed question watch.
 export {
   createCompanion, attachCompanion, COMPANION, GEOMETRY, carrierTransform, classifyGesture, nextGaze, pushedSide,

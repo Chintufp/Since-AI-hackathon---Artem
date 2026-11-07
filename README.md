@@ -27,7 +27,7 @@ pnpm demo:reset
 pnpm desktop
 ```
 
-The Elisa TRN-042 example is read from the git-ignored `private/Elisa_SinceAI2026/...` folder when present; a fresh clone without it gets only the synthetic demo families and the dev fixture. `pnpm desktop` builds the renderer, starts the local service on `127.0.0.1:47831` if it is not already running (SQLite at `data/local/knowledge-twin.sqlite`), and opens Snowbally bottom-right. He drops in once and then idles; click him to open the panel. Settings → **You** chooses whose questions you see. `pnpm service` runs the service alone; `pnpm mcp` runs the MCP stdio server (`{"command":"node","args":["src/apps/service/mcp.ts"]}` in a client config). `pnpm test`, `pnpm typecheck`, `node experiments/run.ts all`, `node scripts/screenshot.mjs`.
+The Elisa TRN-042 example is read from the git-ignored `private/Elisa_SinceAI2026/...` folder when present; a fresh clone without it gets only the synthetic demo families and the dev fixture. `pnpm desktop` builds the renderer, starts the local service on `127.0.0.1:47831` if it is not already running (SQLite at `data/local/knowledge-twin.sqlite`), and opens Snowbally bottom-right. He falls in from the top of the screen once, lands with a plop and then idles; click him to open the panel. Settings → **You** chooses whose questions you see. `pnpm service` runs the service alone; `pnpm mcp` runs the MCP stdio server (`{"command":"node","args":["src/apps/service/mcp.ts"]}` in a client config). `pnpm test`, `pnpm typecheck`, `node experiments/run.ts all`, `node scripts/screenshot.mjs`.
 
 ## Documentation
 

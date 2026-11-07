@@ -1,6 +1,6 @@
 # desktop
 
-Electron companion: a frameless, transparent, always-on-top window (`floating`, visible on all workspaces, no shadow, not resizable) at the bottom-right of the primary display with a 12 px margin, 420x680, showing only Snowbally. On launch he plays the drop entrance once, then idles (R05); the panel opens when he is clicked. `OPEN_ON_LAUNCH` in `main.ts` flips that.
+Electron companion: a frameless, transparent, always-on-top window (`floating`, visible on all workspaces, no shadow, not resizable) at the right edge of the primary display with a 12 px margin, 420 px wide and as tall as the work area (minimum 680; the panel is anchored at the bottom, the rest is transparent and click-through), showing only Snowbally. On launch he falls from the top of the screen and lands with the authored entrance (R05/R28), then idles; the panel opens when he is clicked. `OPEN_ON_LAUNCH` in `main.ts` flips that.
 
 ## Files
 
@@ -27,4 +27,4 @@ See `docs/runs/2026-11-07-overnight/screenshots/checks.json` (Electron 45.2.3, m
 
 - Not verified: Windows/Linux, multiple displays/DPR changes while running, the actual macOS menu-bar rendering of the tray icon, hit-test behaviour with a real mouse (clicks were synthesized in-page), launch against the real service (not yet built when this was written).
 - Click-through relies on forwarded mousemove events; macOS only delivers them while the cursor is over the window.
-- The window is a fixed 420x680 (320x680 in the narrow check); very small displays may need a smaller height.
+- The window is 420 px wide (320 in the narrow check) and spans the work-area height; regular screenshots are cropped to the bottom 680 px panel area, entrance frames are full height.

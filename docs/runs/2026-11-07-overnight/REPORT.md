@@ -4,7 +4,7 @@
 
 ## 1. What works (verified tonight, on this Mac)
 
-**Launch.** `pnpm demo:reset` then `pnpm desktop`. The service starts as a child process on 127.0.0.1:47831 with a SQLite file, and Snowbally appears bottom-right, drops in once (the v006 "Drop & settle" act, frames captured in `screenshots/entrance/`), then idles with the three-pose loop. Nothing else opens. Click him to open the panel. Verified from a fresh process: service healthy, Electron running, total CPU below 1% after launch; idle CPU of the collapsed companion 0.18%; open/close transitions never exceeded 10.4 ms per frame on this 120 Hz display; zero console errors across 41 mock-mode states, 18 real-service states and the reduced-motion pass; avatar hitbox identical in every state.
+**Launch.** `pnpm demo:reset` then `pnpm desktop`. The service starts as a child process on 127.0.0.1:47831 with a SQLite file, and Snowbally falls in from the top of the screen (0.9 s, accelerating), lands with the v006 "Drop & settle" impact, spring-back and hello uncropped (R28; frames captured in `screenshots/entrance/`, strips `entrance-strip.png` and `landing-strip.png`), then idles with the three-pose loop. Nothing else opens. Click him to open the panel. Verified from a fresh process: service healthy, Electron running, total CPU below 1% after launch; idle CPU of the collapsed companion 0.18%; open/close transitions never exceeded 10.4 ms per frame on this 120 Hz display; zero console errors across 41 mock-mode states, 18 real-service states and the reduced-motion pass; avatar hitbox identical in every state.
 
 **The complete product path, through one shared service and persistent local state:**
 

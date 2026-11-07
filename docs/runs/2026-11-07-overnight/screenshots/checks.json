@@ -1,22 +1,507 @@
 {
-  "startedAt": "2026-11-07T01:12:15.383Z",
+  "startedAt": "2026-11-07T05:25:10.986Z",
   "electron": "45.2.3",
   "chrome": "156.0.8078.80",
   "node": "24.22.2",
   "platform": "darwin",
   "arch": "arm64",
+  "entrance_420": {
+    "windowHeight": 858,
+    "frames": [
+      {
+        "file": "entrance-00-420.png",
+        "atMs": 12,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -832,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            -158,
+            88,
+            172
+          ],
+          "transform": "translateY(-829.81px)"
+        }
+      },
+      {
+        "file": "entrance-01-420.png",
+        "atMs": 146,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -783,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            -111,
+            88,
+            172
+          ],
+          "transform": "translateY(-783.08px)"
+        }
+      },
+      {
+        "file": "entrance-02-420.png",
+        "atMs": 284,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -705,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            -13,
+            88,
+            172
+          ],
+          "transform": "translateY(-684.86px)"
+        }
+      },
+      {
+        "file": "entrance-03-420.png",
+        "atMs": 420,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -575,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            115,
+            88,
+            172
+          ],
+          "transform": "translateY(-556.7px)"
+        }
+      },
+      {
+        "file": "entrance-04-420.png",
+        "atMs": 556,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -415,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            278,
+            88,
+            172
+          ],
+          "transform": "translateY(-393.68px)"
+        }
+      },
+      {
+        "file": "entrance-05-420.png",
+        "atMs": 701,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -205,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            509,
+            88,
+            172
+          ],
+          "transform": "translateY(-163.06px)"
+        }
+      },
+      {
+        "file": "entrance-06-420.png",
+        "atMs": 842,
+        "mode": "entrance",
+        "frame": 5,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-07-420.png",
+        "atMs": 979,
+        "mode": "entrance",
+        "frame": 7,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-08-420.png",
+        "atMs": 1111,
+        "mode": "entrance",
+        "frame": 9,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-09-420.png",
+        "atMs": 1253,
+        "mode": "entrance",
+        "frame": 11,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-10-420.png",
+        "atMs": 1387,
+        "mode": "entrance",
+        "frame": 13,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-11-420.png",
+        "atMs": 1527,
+        "mode": "entrance",
+        "frame": 16,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-12-420.png",
+        "atMs": 1658,
+        "mode": "entrance",
+        "frame": 18,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-13-420.png",
+        "atMs": 1790,
+        "mode": "entrance",
+        "frame": 20,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-14-420.png",
+        "atMs": 1921,
+        "mode": "entrance",
+        "frame": 22,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            309,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-15-420.png",
+        "atMs": 2055,
+        "mode": "idle3",
+        "frame": 0,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": true,
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-16-420.png",
+        "atMs": 2187,
+        "mode": "idle3",
+        "frame": 0,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": true,
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-17-420.png",
+        "atMs": 2317,
+        "mode": "idle3",
+        "frame": 0,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": true,
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-18-420.png",
+        "atMs": 2453,
+        "mode": "idle3",
+        "frame": 0,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": true,
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-19-420.png",
+        "atMs": 2581,
+        "mode": "idle3",
+        "frame": 8,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          321,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": true,
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "transform": ""
+        }
+      }
+    ]
+  },
   "idleCpu": {
     "windowSeconds": 3,
     "state": "collapsed, idle poses only",
-    "totalPercent": 0.17,
+    "totalPercent": 0.18,
     "perProcess": [
       {
         "type": "Browser",
-        "percent": 0.01
+        "percent": 0
       },
       {
         "type": "GPU",
-        "percent": 0.09
+        "percent": 0.11
       },
       {
         "type": "Utility",
@@ -30,43 +515,46 @@
     ],
     "avatarStatus": {
       "mode": "idle3",
-      "lastFrame": 8,
+      "lastFrame": 0,
       "animating": true,
       "reactionPlaying": false,
       "idleLoop": true,
-      "idlePose": 1,
+      "idlePose": 0,
       "visible": true,
       "reduced": false,
       "questionCue": false,
-      "scale": 4
+      "scale": 4,
+      "falling": false,
+      "dropY": 0,
+      "dropActive": false
     }
   },
   "openFrames_420": {
-    "frames": 94,
-    "maxMs": 10.3,
-    "meanMs": 8.33,
-    "p95Ms": 8.4,
+    "frames": 93,
+    "maxMs": 16.7,
+    "meanMs": 8.42,
+    "p95Ms": 9.3,
     "over20ms": 0
   },
   "avatarModeRightAfterSend_420": "processing",
   "closeFrames_420": {
     "frames": 35,
-    "maxMs": 9.8,
-    "meanMs": 8.34,
-    "p95Ms": 9.6,
+    "maxMs": 9.3,
+    "meanMs": 8.33,
+    "p95Ms": 9.2,
     "over20ms": 0
   },
   "hitbox": {
     "320": {
       "initial": [
         235,
-        596,
+        774,
         64,
         64
       ],
       "final": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -75,37 +563,522 @@
     "420": {
       "initial": [
         321,
-        596,
+        774,
         64,
         64
       ],
       "final": [
         321,
-        596,
+        774,
         64,
         64
       ],
       "allStatesEqual": true
     }
   },
+  "entrance_320": {
+    "windowHeight": 858,
+    "frames": [
+      {
+        "file": "entrance-00-320.png",
+        "atMs": 21,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -830,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            -153,
+            88,
+            172
+          ],
+          "transform": "translateY(-825.46px)"
+        }
+      },
+      {
+        "file": "entrance-01-320.png",
+        "atMs": 155,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -779,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            -98,
+            88,
+            172
+          ],
+          "transform": "translateY(-769.89px)"
+        }
+      },
+      {
+        "file": "entrance-02-320.png",
+        "atMs": 291,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -691,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            -5,
+            88,
+            172
+          ],
+          "transform": "translateY(-677.28px)"
+        }
+      },
+      {
+        "file": "entrance-03-320.png",
+        "atMs": 424,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -566,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            124,
+            88,
+            172
+          ],
+          "transform": "translateY(-547.65px)"
+        }
+      },
+      {
+        "file": "entrance-04-320.png",
+        "atMs": 556,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -404,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            291,
+            88,
+            172
+          ],
+          "transform": "translateY(-380.85px)"
+        }
+      },
+      {
+        "file": "entrance-05-320.png",
+        "atMs": 694,
+        "mode": "entrance",
+        "frame": -1,
+        "falling": true,
+        "dropY": -191,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            495,
+            88,
+            172
+          ],
+          "transform": "translateY(-177.14px)"
+        }
+      },
+      {
+        "file": "entrance-06-320.png",
+        "atMs": 823,
+        "mode": "entrance",
+        "frame": 5,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-07-320.png",
+        "atMs": 960,
+        "mode": "entrance",
+        "frame": 7,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-08-320.png",
+        "atMs": 1090,
+        "mode": "entrance",
+        "frame": 9,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-09-320.png",
+        "atMs": 1219,
+        "mode": "entrance",
+        "frame": 11,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-10-320.png",
+        "atMs": 1350,
+        "mode": "entrance",
+        "frame": 13,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-11-320.png",
+        "atMs": 1480,
+        "mode": "entrance",
+        "frame": 15,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-12-320.png",
+        "atMs": 1613,
+        "mode": "entrance",
+        "frame": 17,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-13-320.png",
+        "atMs": 1749,
+        "mode": "entrance",
+        "frame": 19,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-14-320.png",
+        "atMs": 1879,
+        "mode": "entrance",
+        "frame": 21,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": false,
+          "rect": [
+            223,
+            672,
+            88,
+            172
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-15-320.png",
+        "atMs": 2010,
+        "mode": "idle3",
+        "frame": 0,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": true,
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-16-320.png",
+        "atMs": 2140,
+        "mode": "idle3",
+        "frame": 0,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": true,
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-17-320.png",
+        "atMs": 2273,
+        "mode": "idle3",
+        "frame": 0,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": true,
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-18-320.png",
+        "atMs": 2403,
+        "mode": "idle3",
+        "frame": 0,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": true,
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "transform": ""
+        }
+      },
+      {
+        "file": "entrance-19-320.png",
+        "atMs": 2533,
+        "mode": "idle3",
+        "frame": 8,
+        "falling": false,
+        "dropY": 0,
+        "hitbox": [
+          235,
+          774,
+          64,
+          64
+        ],
+        "drop": {
+          "hidden": true,
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "transform": ""
+        }
+      }
+    ]
+  },
   "openFrames_320": {
-    "frames": 94,
-    "maxMs": 10.4,
-    "meanMs": 8.32,
-    "p95Ms": 9.9,
+    "frames": 93,
+    "maxMs": 11.1,
+    "meanMs": 8.31,
+    "p95Ms": 9.3,
     "over20ms": 0
   },
   "avatarModeRightAfterSend_320": "processing",
   "closeFrames_320": {
     "frames": 36,
-    "maxMs": 10.4,
-    "meanMs": 8.35,
-    "p95Ms": 10.3,
+    "maxMs": 9.3,
+    "meanMs": 8.33,
+    "p95Ms": 9.2,
     "over20ms": 0
   },
   "reducedMotion": {
     "timingsMs": {
-      "nodeExpand": 23,
+      "nodeExpand": 22,
       "people": 24,
       "close": 24
     },
@@ -173,7 +1146,10 @@
         "visible": true,
         "reduced": true,
         "questionCue": false,
-        "scale": 4
+        "scale": 4,
+        "falling": false,
+        "dropY": 0,
+        "dropActive": false
       }
     },
     "nonZeroTimingsIncludeIpcRoundTrip": true
@@ -188,7 +1164,7 @@
       "settleMs": 0,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -202,7 +1178,7 @@
       "settleMs": 0,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -216,7 +1192,7 @@
       "settleMs": 0,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -227,10 +1203,10 @@
       "width": 420,
       "file": "04-result-420.png",
       "view": "result",
-      "settleMs": 808,
+      "settleMs": 811,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -241,10 +1217,10 @@
       "width": 420,
       "file": "05-result-node-expanded-420.png",
       "view": "result",
-      "settleMs": 155,
+      "settleMs": 161,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -255,10 +1231,10 @@
       "width": 420,
       "file": "06-people-420.png",
       "view": "people",
-      "settleMs": 196,
+      "settleMs": 194,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -269,10 +1245,10 @@
       "width": 420,
       "file": "07-contact-draft-420.png",
       "view": "contact",
-      "settleMs": 816,
+      "settleMs": 799,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -283,10 +1259,10 @@
       "width": 420,
       "file": "08-people-back-420.png",
       "view": "people",
-      "settleMs": 190,
+      "settleMs": 192,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -297,10 +1273,10 @@
       "width": 420,
       "file": "09-case-from-people-420.png",
       "view": "case",
-      "settleMs": 191,
+      "settleMs": 190,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -311,10 +1287,10 @@
       "width": 420,
       "file": "10-result-question-card-420.png",
       "view": "question",
-      "settleMs": 1344,
+      "settleMs": 1351,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -325,10 +1301,10 @@
       "width": 420,
       "file": "11-question-context-420.png",
       "view": "question",
-      "settleMs": 232,
+      "settleMs": 227,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -339,10 +1315,10 @@
       "width": 420,
       "file": "12-question-context-node-420.png",
       "view": "question",
-      "settleMs": 160,
+      "settleMs": 162,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -353,10 +1329,10 @@
       "width": 420,
       "file": "13-queue-420.png",
       "view": "queue",
-      "settleMs": 25,
+      "settleMs": 24,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -367,10 +1343,10 @@
       "width": 420,
       "file": "14-settings-420.png",
       "view": "settings",
-      "settleMs": 212,
+      "settleMs": 208,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -384,7 +1360,7 @@
       "settleMs": 0,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -395,10 +1371,10 @@
       "width": 420,
       "file": "16-receipt-undo-420.png",
       "view": "receipt",
-      "settleMs": 571,
+      "settleMs": 562,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -409,10 +1385,10 @@
       "width": 420,
       "file": "17-undo-returns-to-question-420.png",
       "view": "question",
-      "settleMs": 193,
+      "settleMs": 188,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -426,7 +1402,7 @@
       "settleMs": 0,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -440,7 +1416,7 @@
       "settleMs": 0,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -454,7 +1430,7 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -468,7 +1444,7 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -482,7 +1458,7 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -493,10 +1469,10 @@
       "width": 320,
       "file": "23-result-320.png",
       "view": "result",
-      "settleMs": 820,
+      "settleMs": 812,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -507,10 +1483,10 @@
       "width": 320,
       "file": "24-result-node-expanded-320.png",
       "view": "result",
-      "settleMs": 159,
+      "settleMs": 157,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -521,10 +1497,10 @@
       "width": 320,
       "file": "25-people-320.png",
       "view": "people",
-      "settleMs": 196,
+      "settleMs": 189,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -535,10 +1511,10 @@
       "width": 320,
       "file": "26-contact-draft-320.png",
       "view": "contact",
-      "settleMs": 814,
+      "settleMs": 804,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -549,10 +1525,10 @@
       "width": 320,
       "file": "27-people-back-320.png",
       "view": "people",
-      "settleMs": 190,
+      "settleMs": 194,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -563,10 +1539,10 @@
       "width": 320,
       "file": "28-case-from-people-320.png",
       "view": "case",
-      "settleMs": 210,
+      "settleMs": 209,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -577,10 +1553,10 @@
       "width": 320,
       "file": "29-result-question-card-320.png",
       "view": "question",
-      "settleMs": 1367,
+      "settleMs": 1343,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -591,10 +1567,10 @@
       "width": 320,
       "file": "30-question-context-320.png",
       "view": "question",
-      "settleMs": 230,
+      "settleMs": 223,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -605,10 +1581,10 @@
       "width": 320,
       "file": "31-question-context-node-320.png",
       "view": "question",
-      "settleMs": 177,
+      "settleMs": 176,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -619,10 +1595,10 @@
       "width": 320,
       "file": "32-queue-320.png",
       "view": "queue",
-      "settleMs": 25,
+      "settleMs": 24,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -633,10 +1609,10 @@
       "width": 320,
       "file": "33-settings-320.png",
       "view": "settings",
-      "settleMs": 207,
+      "settleMs": 210,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -650,7 +1626,7 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -661,10 +1637,10 @@
       "width": 320,
       "file": "35-receipt-undo-320.png",
       "view": "receipt",
-      "settleMs": 573,
+      "settleMs": 572,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -675,10 +1651,10 @@
       "width": 320,
       "file": "36-undo-returns-to-question-320.png",
       "view": "question",
-      "settleMs": 190,
+      "settleMs": 191,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -692,7 +1668,7 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -706,7 +1682,7 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        596,
+        774,
         64,
         64
       ],
@@ -720,7 +1696,7 @@
       "settleMs": 0,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -731,10 +1707,10 @@
       "width": 420,
       "file": "40-reduced-result-node-420.png",
       "view": "result",
-      "settleMs": 23,
+      "settleMs": 22,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
@@ -748,12 +1724,12 @@
       "settleMs": 24,
       "hitbox": [
         321,
-        596,
+        774,
         64,
         64
       ],
       "reduced": true
     }
   ],
-  "finishedAt": "2026-11-07T01:12:55.025Z"
+  "finishedAt": "2026-11-07T05:25:54.276Z"
 }

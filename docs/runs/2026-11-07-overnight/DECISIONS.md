@@ -104,3 +104,23 @@ The handoff's LLM extraction arm needs an authorized inference route. I ran a Cl
 ## R21 · DECISION — Case timelines are compacted for reading
 
 The raw TRN-042 case had 16 timeline nodes (five separate "Possible cause" fragments, two "Advised against", email duplicates). The case view now merges hypotheses into one node, checks into one node, keeps one node per performed attempt, and puts the preceding change (SFP replacement) under Reported conditions. All claims stay in the store; only the view is compacted.
+
+## R22 · DECISION — A documented default "who can observe what" policy, as organization configuration
+
+Without it, a question such as "Is TRN-301 an older unit?" had nobody eligible (no one has firsthand history for a new asset) and the loop deferred. I added `src/apps/service/org-config.ts`: NOC/transport/core groups and Network Expert / NOC Engineer roles may be asked about equipment facts (age, model, revision, software version, recent config change); field and access roles about site facts. The library default stays empty; the service applies this policy unless started with `--org-policy none` (tests do). On the Elisa demo the question now goes to Erkki as the network expert. **Why:** this is the closed decision that an authorized person who can observe a condition is a suitable recipient; the specific map is a run default for E06 and the demo.
+
+## R23 · DECISION — Extraction was tuned on the train families; validation got contaminated once and was cleaned
+
+The tuning worker added two validation-only words; the reviewer caught it and they were removed, which lowered validation claim recall from 15/22 to 14/22. The report marks validation as "tuned-adjacent" and the test split was never used for tuning. Numbers are in `experiments/RESULTS.md`.
+
+## R24 · DECISION — The test split was opened exactly once
+
+E02 (retrieval) and E04 (assessor) were confirmed on the test families once, before the extractor tuning. Because their validation decisions did not change after tuning, the test split was not re-opened. The test results therefore describe the pre-tuning system; the lock file shows the families untouched.
+
+## R25 · ASSUMPTION — E-mail has no access metadata
+
+An e-mail imported from a text file carries no ACL, so it is stored as organization-visible. One synthetic demo problem (`remote-power-access-p3`) therefore shows an e-mail whose truth says it belonged to a restricted incident. The system cannot detect this; it is listed as a known limitation, not counted as a leak the engine could prevent. Fixing it needs an ACL source for mail.
+
+## R26 · DECISION — Shipped experiment choices (all behind configuration; baseline retained)
+
+E02 hybrid retrieval (tied lexical on validation and test, so hybrid is kept as the configured default while lexical remains available), E04 separate support/applicability (tie; keeps the targets identifiable), E03 rules selector (LinUCB wins only on the simulator; the family arm asked too few questions to test the frozen rule), E05 pool size 1 (uninformative tie), E06 question-dependent eligibility, E07 defaults 3/day and 30 minutes. None is a product decision; U01–U23 stay open as listed in `OPEN_QUESTIONS.md`.

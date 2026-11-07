@@ -25,6 +25,31 @@ test('unit.batch: capture and query parsers agree on key and value for a 202x ba
   assert.equal(parseProblemText('Unit from the 2019 batch.', 'p3').conditions.some((c) => c.key === 'unit.batch'), false);
 });
 
+test('unit.batch: a negated or hedged batch states nothing, in the problem and at capture (D-B5-16)', () => {
+  for (const t of ['TRN-577 no traffic. Not sure if it is the 2021 batch.', 'TRN-577 no traffic, not the 2021 batch.', 'Maybe the 2021 batch.', 'Unsure whether this is the 2021 batch.']) {
+    assert.equal(parseProblemText(t, 'h').conditions.some((c) => c.key === 'unit.batch'), false, t);
+    assert.equal(capture(t), undefined, t);
+  }
+  assert.equal(capture('On the 2021 batch the interface reset does not help.')?.value, '2021', 'a negation after the batch does not count');
+  assert.equal(parseProblemText('TRN-577 no traffic. It is the 2021 batch.', 'p').conditions.find((c) => c.key === 'unit.batch')?.value, '2021');
+});
+
+test('unit.batch: a later batch in the problem (stated or a Yes answer) conflicts with a case that records an older unit (D-B5-13)', async () => {
+  const { ANSWER_MATCHES_CASE, ANSWER_DIFFERS_FROM_CASE } = await import('../retrieval/conditions.ts');
+  const s = defaultInvestigationSettings();
+  const opts = { ageFold: s.ageFold, ignoredKeys: s.ignoredKeys, historyKeys: s.historyKeys };
+  const olderCase = [cond('unit.age', 'older', 'Older unit')];
+  assert.deepEqual(compareConditions([cond('unit.batch', '2022', '2022 batch')], olderCase, opts).conflicting.map((c) => c.label), ['Older unit (this problem: 2022 batch)']);
+  const yes = cond('unit.batch', ANSWER_MATCHES_CASE, '2021 batch: yes (answered)');
+  const r = compareConditions([yes], olderCase, opts);
+  assert.deepEqual(r.conflicting.map((c) => c.label), ['Older unit (this problem: 2021 batch (answered))']);
+  assert.equal(r.missing.length, 0, 'the age is no longer an open gap');
+  // A No, a batch at or before the cutoff, or a stated age leave the ordinary comparison alone.
+  assert.equal(compareConditions([cond('unit.batch', ANSWER_DIFFERS_FROM_CASE, '2021 batch: no (answered)')], olderCase, opts).conflicting.length, 0);
+  assert.equal(compareConditions([cond('unit.batch', '2019', '2019 batch')], olderCase, opts).conflicting.length, 0);
+  assert.equal(compareConditions([cond('unit.batch', '2022', '2022 batch'), cond('unit.age', 'older', 'Older unit')], olderCase, opts).matching.length, 1);
+});
+
 test('unit.batch: distinguishing, asked with its own template, observable by the equipment roles; table.clear has words', () => {
   const s = defaultInvestigationSettings();
   assert.ok(s.distinguishingKeys.includes('unit.batch'));

@@ -221,7 +221,8 @@ export const defaultConditionParsers: ConditionParser[] = [
     // thread asks "Is this one from the 2019 batch?", and answers are per condition key, so a 2019 value there would let
     // one batch answer flip both experts' branches (DECISIONS-disagree.md D-B5-03).
     key: 'unit.batch',
-    pattern: /\b(202\d)\s+batch\b/i,
+    // A negated or hedged batch states nothing (D-B5-16), the same lookbehind as the problem parser's unit-batch rule.
+    pattern: /(?<!\b(?:not|whether|if|unsure|maybe|perhaps|might)\b[^.;?\n]{0,25})\b(202\d)\s+batch\b/i,
     build: (m) => ({ operator: 'eq', value: m[1]!, label: `${m[1]} batch` }),
   },
   {

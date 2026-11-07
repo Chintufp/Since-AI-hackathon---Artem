@@ -39,7 +39,8 @@ export interface AgeFold {
    * B5: a production-batch key whose value is a year (e.g. 'unit.batch'). A case whose flat batch year is after
    * `olderThroughYear` conflicts with a problem that states `ageKey` = `olderValue` (an older unit is not from a later
    * batch). Conflict only: the batch is never folded into an age, so a problem that says nothing about age still sees
-   * the batch as its own missing key.
+   * the batch as its own missing key. The reverse holds too: a later batch in the problem (stated, or a Yes answer about
+   * it) conflicts with a case that records `ageKey` = `olderValue`.
    */
   batchKey?: string;
 }
@@ -153,6 +154,21 @@ export function compareConditions(problemIn: Condition[], caseIn: Condition[], o
     const older = (byKey.get(f.ageKey) ?? []).find((p) => p.operator === 'eq' && !isAnswerMarker(p) && same(p.value, f.olderValue));
     return older ? (older.label ?? 'Older unit') : undefined;
   };
+  // B5 (D-B5-13), the same rule the other way round: the label of the problem's later batch year when the case records an
+  // older unit. The batch is stated flatly in the problem, or a Yes to "Is {asset} from the {value} batch?" whose label
+  // names the case's batch year (the answer marker itself carries no value).
+  const laterBatchVsOlder = (c: Condition): string | undefined => {
+    const f = opts.ageFold;
+    if (!f?.batchKey || f.olderThroughYear === null || c.key !== f.ageKey || c.operator !== 'eq' || !same(c.value, f.olderValue)) return undefined;
+    if (isSoftCondition({ ...c, origin: 'reported' }, f.hedgeMarkers)) return undefined; // a case age folded from a flat year counts
+    for (const p of byKey.get(f.batchKey) ?? []) {
+      if (p.operator !== 'eq' || p.value === ANSWER_DIFFERS_FROM_CASE || isSoftCondition(p, f.hedgeMarkers)) continue;
+      const answered = p.value === ANSWER_MATCHES_CASE;
+      const y = answered ? num(/\b(\d{4})\b/.exec(p.label ?? '')?.[1]) : num(p.value);
+      if (y !== undefined && y > f.olderThroughYear) return answered ? `${y} batch (answered)` : (p.label ?? `${y} batch`);
+    }
+    return undefined;
+  };
   for (const c of caseConditions) {
     if (ignored.has(c.key)) continue;
     const ps = problemFor(c.key);
@@ -166,8 +182,8 @@ export function compareConditions(problemIn: Condition[], caseIn: Condition[], o
       out.matching.push(c);
     } else if (conflict) {
       out.conflicting.push({ ...c, label: `${labelOf(c)} (this problem: ${conflict.p.label ?? `${conflict.p.key}=${describe(conflict.p)}`})` });
-    } else if (!ps.length && olderVsLaterBatch(c)) {
-      out.conflicting.push({ ...c, label: `${labelOf(c)} (this problem: ${olderVsLaterBatch(c)})` });
+    } else if (!ps.length && (olderVsLaterBatch(c) ?? laterBatchVsOlder(c))) {
+      out.conflicting.push({ ...c, label: `${labelOf(c)} (this problem: ${olderVsLaterBatch(c) ?? laterBatchVsOlder(c)})` });
     } else if (!seenMissing.has(c.key)) {
       seenMissing.add(c.key);
       out.missing.push({ key: c.key, label: labelOf(c) });

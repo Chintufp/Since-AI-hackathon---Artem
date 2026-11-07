@@ -13,7 +13,7 @@ export const DEFAULT_ELISA_DIR = join(REPO_ROOT, 'private', 'Elisa_SinceAI2026',
  *  - the developer fixture data/fixtures/dev-family-01 when present,
  *  - the generated dated follow-ups in data/demo/followups (B1) when present, and data/demo/followups-synthetic when
  *    Elisa's thread was not imported,
- *  - the generated experts-disagree thread in data/demo/experts-disagree (B5) when present.
+ *  - the generated experts-disagree thread in data/demo/experts-disagree (B5) when Elisa's thread was imported.
  * seed 'empty' only clears.
  */
 export type DemoResetResult = { ok: true; imported: ImportResponse[]; defaultPersonEntityId?: string };
@@ -68,8 +68,10 @@ export async function resetDemo(engine: Engine, seed: 'elisa' | 'synthetic' | 'e
   const synthetic = opts.followupsSyntheticDir ?? join(REPO_ROOT, 'data', 'demo', 'followups-synthetic');
   if (!elisa && existsSync(synthetic)) imported.push(engine.importData({ format: 'scenario-dir', path: synthetic }));
   // B5: Helmi's generated TRN-512 thread (2021 batch: clear the forwarding table), the second expert of the "experts
-  // disagree" story; see data/demo/experts-disagree/README.md and DECISIONS-disagree.md.
+  // disagree" story; see data/demo/experts-disagree/README.md and DECISIONS-disagree.md. Only next to Elisa's TRN-042
+  // (Erkki, the first expert): on a clean clone the other branch would be Helmi's own TRN-117 and the walkthrough texts
+  // would change (D-B5-13). An explicit `expertsDisagreeDir` seeds it on any seed (tests).
   const disagree = opts.expertsDisagreeDir ?? join(REPO_ROOT, 'data', 'demo', 'experts-disagree');
-  if (existsSync(disagree)) imported.push(engine.importData({ format: 'scenario-dir', path: disagree }));
+  if ((elisa || opts.expertsDisagreeDir !== undefined) && existsSync(disagree)) imported.push(engine.importData({ format: 'scenario-dir', path: disagree }));
   return finish();
 }

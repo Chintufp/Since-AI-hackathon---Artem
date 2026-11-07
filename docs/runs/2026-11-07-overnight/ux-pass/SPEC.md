@@ -50,7 +50,7 @@ Unchanged R28 fall and landing at the home spot (he lands where he will stand; t
 - Horizontal position persists on release as the new home spot (clamped to [14, W−14]). Dragging past a side edge by more than half his body and releasing = deliberate leave to that edge (no velocity fling).
 
 ### Release and landing
-- Release at lift h: ballistic fall with the derived G, `vx` = 0 at touchdown ("sticky snow": no slide). Landing tiers by impact speed: v < 300 px/s → composed 2-frame settle (`crouch`, `low`, 62 ms each); v < 900 px/s → `hop` frames 11–17; otherwise `entrance` frames 5–23 (the full plop with stars). All on `.rf-drop`. Then back to the base mode.
+- Release at lift h: ballistic fall with the derived G, `vx` = 0 at touchdown ("sticky snow": no slide). Landing tiers by impact speed: v < 450 px/s (a drop under ~48 px) → composed 2-frame settle (`crouch`, `low`, 62 ms each); v < 1100 px/s (under ~290 px) → `hop` frames 11–17; otherwise `entrance` frames 5–23 (the full plop with stars). All on `.rf-drop`. Then back to the base mode.
 
 ### Base mode and routing
 - Every one-shot returns to the **base mode**: `processing` loop while the panel is busy, otherwise `idle3` when in, `hold(still)` when away/perched.

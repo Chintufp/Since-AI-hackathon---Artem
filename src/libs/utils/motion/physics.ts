@@ -7,7 +7,11 @@
 /** desktop (R32): the launch fall time (R28); any drop height h then takes 900 * sqrt(h / D0) ms. */
 export const FALL_REFERENCE_MS = 900;
 /** desktop (R32): impact speeds (CSS px/s) that pick the landing: below hop = settle, below entrance = hop, else the full plop. */
-export const LANDING_SPEED_PX_S = { hop: 300, entrance: 900 } as const;
+/**
+ * Landing tiers by impact speed. With the launch-derived G (about 2100 px/s^2 on a 872 px work area) these
+ * correspond to drops of about 48 px (settle below) and 290 px (the full entrance plop above).
+ */
+export const LANDING_SPEED_PX_S = { hop: 450, entrance: 1100 } as const;
 /** desktop (R33): roll speed limit, acceleration (and symmetric braking) and one turn step per 22 px of travel (no-slip). */
 export const ROLL_SPEED_PX_S = 900;
 export const ROLL_ACCEL_PX_S2 = 1600;

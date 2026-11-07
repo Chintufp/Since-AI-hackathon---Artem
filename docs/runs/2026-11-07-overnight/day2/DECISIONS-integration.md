@@ -196,3 +196,38 @@ kt_propose_question, kt_store_health; the three are MCP only); `tests/mcp.test.t
   patch, the file checked out, merged, and the patch applied back uncommitted. His other files were not touched.
 
 Typecheck clean, 601/601 tests.
+
+## D-INT-17 · Review of the four-lane merge: outcome
+
+Two read-only reviews ran on 27efa33. The merge review found no lost behaviour: every line a lane added or deleted is
+in HEAD as many times as the lanes put it there (the one difference is the intended union of the retrieval import in
+engine.ts), no conflict markers, and the test deltas add up (+27, +33, +11, +19 = 659 declarations). The adversarial
+review checked where the lanes meet (store health, unit.batch through the gap tools, one answer flipping both expert
+branches, quiet hours, Remember this, zod schemas against contracts, the 3-minute script) and found no major issue.
+Six minor findings, all confirmed and all fixed:
+
+- **B7 test total** (DECISIONS-inquiry.md): "526 after B7" was +15; the lane added 19. Now 530 (511 + 19). Lane log
+  drift, not a merge loss.
+- **Experts disagree, recipient** (DEMO.md): reproduced on an in-memory elisa service (quiet hours off): after the
+  TRN-301 question is answered by Erkki, the TRN-577 question goes to Helmi Virtanen ("through their group
+  (transport)"), Erkki has none; on a fresh reset it goes to Erkki. DEMO.md now says so and tells the presenter to switch
+  to whoever the status line names, or to run the section first after a reset.
+- **Experts disagree, the No branch** (DEMO.md): reproduced: No gives the qualified "Confirm the unit details (older
+  unit) before disabling and re-enabling the interface." with "Unknown for this unit: older unit." and a second question
+  "Is TRN-577 an older unit?" to Helmi. DEMO.md now describes that instead of "Erkki's reset becomes the recommendation".
+- **Slack connectors outside routes.ts and the guard** (connectors/slack-*.ts): the three clients' default fetch is now
+  `slackNetworkFetch` (new `connectors/slack-net.ts`): route label `slack-web@1` (route `api`, not a model) in
+  ROUTE_REGISTRY, refused with NetworkProviderBlockedError before any request unless KT_SLACK_LIVE=1, and only to
+  https://slack.com; it looks up globalThis.fetch per request, so installNetworkGuard still applies on top. Injected
+  fetches (tests, fake workspace) are unchanged. This corrects D-INT-16's "Slack is not in routes.ts". The MCP process
+  not passing `{noApi: true}` stays a non-defect (keys are in memory only). Test: `slack-net.test.ts` (3).
+- **demo:agent and the stream fight over the clock** (scripts/mcp-demo.ts): the script now reads /demo/clock before
+  moving it; when it is already simulated (the stream drives it) it warns, still moves it to 07:30 for the delivery, and
+  does not reset it to real time afterwards, so the stream keeps its clock. DEMO.md step 5 says to run demo:agent before
+  the stream starts (240 s) or with `demo:judge -- --no-stream`. Test: source assertions in `tests/service-main.test.ts`
+  (the script is not run in tests).
+- **Raw entity id in the first judge row** (simulation/runner.ts): the runner reads /directory before the first
+  refreshJudge (opt-ins still wait for refreshDirectory, so R46 holds). Test: `tests/demo-stream.test.ts` asserts the
+  row reads "You are Jukka Salo in the companion"; it failed on the old runner with "You are ent_06ee…".
+
+Commits d8356c0, 8231903, 00a8ac5. Typecheck clean, 604/604 tests (601 + 3).

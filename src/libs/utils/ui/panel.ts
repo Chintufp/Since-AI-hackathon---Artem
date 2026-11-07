@@ -17,6 +17,8 @@ import type { ModelSlotName, ModelSlots, SlotChoice } from '../contracts/models.
 import type { ContactDraft } from '../contracts/questions.ts';
 import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
 import { ApiError } from './api-client.ts';
+import { detectPasteKind } from '../connectors/paste-thread.ts';
+import type { ImportCaptured } from '../contracts/service.ts';
 import type { ApiClient } from './api-client.ts';
 import { hydrateIcons, iconSvg } from './icons.ts';
 import { createPanelMotion } from './panel-motion.ts';
@@ -140,6 +142,11 @@ export interface Panel {
   destroy(): void;
 }
 
+/** B4: files "Remember this" reads as text; anything else (photos, PDFs) is never read. */
+const TEXT_FILE = /\.(txt|eml|json|md)$/i;
+const MAX_TEXT_BYTES = 1_000_000;
+const isTextFile = (f: File): boolean => TEXT_FILE.test(f.name) || f.type.startsWith('text/') || f.type === 'message/rfc822' || f.type === 'application/json';
+
 interface ReceiptAction {
   label: string;
   run: () => void;
@@ -153,6 +160,7 @@ export const TEMPLATE = `
    <section class="rf-view rf-input" data-view="input" aria-label="Input">
     <textarea class="rf-writing" aria-label="Message to your companion" placeholder="Tell me what happened…"></textarea>
     <div class="rf-attachments" hidden></div><p class="rf-preview-note" hidden></p>
+    <div class="rf-offer" hidden><button class="rf-chip rf-offer-chip" type="button" data-action="remember">Looks like a conversation · Remember this</button></div>
     <input class="rf-files" type="file" multiple aria-label="Attach files">
    </section>
    <section class="rf-view" data-view="question" hidden>
@@ -239,6 +247,7 @@ export const TEMPLATE = `
    <button class="rf-tool" type="button" data-action="queue" aria-label="Open questions"><i data-icon="messages-square"></i><span class="rf-count"></span></button>
    <button class="rf-tool" type="button" data-action="settings" aria-label="Open settings"><i data-icon="sliders-horizontal"></i></button>
    <span class="rf-spacer"></span>
+   <button class="rf-later rf-remember" type="button" data-action="remember" title="Store this text, thread or e-mail as knowledge (nothing is asked)" disabled>Remember this</button>
    <button class="rf-send" type="button" data-action="send" aria-label="Send message" disabled><i data-icon="arrow-up"></i></button>
   </footer>
   </div>
@@ -280,6 +289,7 @@ export function createPanel(options: PanelOptions): Panel {
   };
   const surface = $('.rf-surface'), content = $('.rf-content'), footer = $('.rf-footer'), stage = $('.rf-stage'), win = $('.rf-window');
   const field = $<HTMLTextAreaElement>('.rf-writing'), send = $<HTMLButtonElement>('.rf-send'), reveal = $('.rf-reveal');
+  const rememberBtn = $<HTMLButtonElement>('.rf-remember'), offer = $('.rf-offer');
   const contextButton = $('.rf-context-button'), avatarButton = $('.rf-avatar'), canvas = $<HTMLCanvasElement>('.rf-avatar canvas');
   const views = [...root.querySelectorAll<HTMLElement>('.rf-view')];
   const viewEl = (name: ViewName): HTMLElement => views.find((v) => v.dataset.view === name)!;
@@ -1237,8 +1247,62 @@ export function createPanel(options: PanelOptions): Panel {
       showError(e, () => { setView('input'); void submit(); }, true);
     }
   }
+  /**
+   * B4 "Remember this": the typed or pasted text and every attached text file (read here with File.text(), at most
+   * 1 MB each) go to POST /import as format 'paste', one source each. Photos and other binaries are never read or
+   * sent; they are named in the receipt. A thread is imported with the pasting person's groups when they have any.
+   */
+  async function remember(): Promise<void> {
+    if (state.busy) return;
+    const typed = field.value.trim() ? field.value : '';
+    const texts = attachments.filter((f) => isTextFile(f) && f.size <= MAX_TEXT_BYTES);
+    const skipped = attachments.filter((f) => !texts.includes(f));
+    const notRead = skipped.length ? `Not read (only text files up to 1 MB): ${skipped.map((f) => f.name).join(', ')}` : '';
+    if (!typed && !texts.length) { showReceipt('Nothing to remember', notRead || 'Paste a thread, an e-mail or a note first.', null); return; }
+    setBusy(true);
+    avatar.play('processing', { loop: true });
+    try {
+      const p = principal();
+      const sources: string[] = [];
+      if (typed) sources.push(typed);
+      for (const f of texts) sources.push(await f.text());
+      const got: ImportCaptured[] = [];
+      let claims = 0;
+      for (const text of sources.filter((t) => t.trim())) {
+        const res = await api.call('POST /import', {
+          body: { format: 'paste', payload: { text, ...(hasIdentity() ? { authorName: p.displayName } : {}) }, ...(p.groups.length ? { accessGroups: [...p.groups] } : {}) },
+        });
+        claims += res.claims;
+        if (res.captured) got.push(res.captured);
+      }
+      field.value = '';
+      attachments = skipped;
+      renderAttachments();
+      setBusy(false);
+      state.serviceDown = false;
+      persist();
+      const cases = new Map(got.flatMap((c) => c.cases.map((x) => [x.id, x.title] as const)));
+      const bound = [...new Set(got.flatMap((c) => [...c.entities, ...c.people]))];
+      const from = got.map((c) => c.from).find(Boolean);
+      const end = got.map((c) => c.to ?? c.from).filter(Boolean).at(-1);
+      const range = from ? `${from}${end && end !== from ? '–' + end : ''}${got.some((c) => c.dateKnown) ? '' : ' (date unknown)'}` : got.some((c) => c.dateKnown) ? '' : 'date unknown';
+      const wider = got.some((c) => c.widerAccess) ? 'already visible beyond your groups' : '';
+      const detail = [bound.length ? `bound to ${bound.join(', ')}` : 'no asset or person named', range, wider, notRead].filter(Boolean).join(' · ');
+      if (got.length && got.every((c) => c.alreadyKnown)) showReceipt('Already captured', detail, null);
+      else showReceipt(`Captured: ${cases.size} case${cases.size === 1 ? '' : 's'} · ${claims} claim${claims === 1 ? '' : 's'}`, detail, null);
+      if (companion) react('hop');
+      else avatar.play('result');
+    } catch (e) {
+      showError(e, () => { setView('input'); void remember(); }, true);
+    }
+  }
   function updateSend(): void {
     send.disabled = state.busy || (!field.value.trim() && !attachments.length);
+    rememberBtn.disabled = send.disabled;
+    // B4: offer capture only when the text looks like a conversation or e-mail, or a text file is attached.
+    // Never captured on its own: a problem description is asked about, not stored.
+    const kind = field.value.trim() ? detectPasteKind(field.value) : 'empty';
+    offer.hidden = state.busy || !(kind === 'thread' || kind === 'email' || kind === 'teams-json' || attachments.some(isTextFile));
   }
   function renderAttachments(): void {
     const note = $('.rf-preview-note');
@@ -1367,6 +1431,7 @@ export function createPanel(options: PanelOptions): Panel {
       }
       case 'receipt-action': receiptAction?.run(); return;
       case 'send': void submit(); return;
+      case 'remember': void remember(); return;
       case 'remove-attachment': attachments.splice(Number(button.dataset.index), 1); renderAttachments(); return;
       case 'people': peopleFromCase = false; setView('people'); focusFor('people'); return;
       case 'case-people': peopleFromCase = true; setView('people'); focusFor('people'); return;
@@ -1456,6 +1521,12 @@ export function createPanel(options: PanelOptions): Panel {
   const onKey = (event: KeyboardEvent): void => {
     if (event.key === 'Escape' && state.panelOpen) { event.preventDefault(); closePanel(true, 'keyboard'); }
     // Artem 7 Nov: Enter sends (Shift+Enter keeps a newline); Cmd/Ctrl+Enter still works. Only while typing in the field.
+    // B4: Cmd/Ctrl+Shift+Enter is "Remember this".
+    if (event.key === 'Enter' && event.shiftKey && (event.metaKey || event.ctrlKey) && state.panelOpen && state.view === 'input' && !rememberBtn.disabled) {
+      event.preventDefault();
+      void remember();
+      return;
+    }
     if (event.key === 'Enter' && !event.shiftKey && !event.isComposing && state.panelOpen && state.view === 'input' && document.activeElement === field) {
       event.preventDefault();
       if (!send.disabled) void submit();

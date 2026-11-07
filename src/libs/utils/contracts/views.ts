@@ -71,6 +71,8 @@ export interface QuestionView {
   deferred: boolean;
   /** B1: held by quiet hours until this moment (shown to the requester as "queued for 07:00"). */
   deliverAfter?: string;
+  /** B4: when the question was delivered (ISO); a Slack poller tells a new delivery of a re-created question id by it. */
+  deliveredAt?: string;
   /** B1: 'free-text' asks for the person's own words (standing missing-symptom questions). */
   answerType?: 'yes-no' | 'yes-no-unknown' | 'free-text';
   /** Evaluative: the two compared candidates. */

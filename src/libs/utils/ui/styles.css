@@ -357,3 +357,9 @@
 #kt-panel .rf-cost-line { font-size:12px; color:#343a40; line-height:1.4; }
 #kt-panel .rf-cost-store { font-size:11px; color:#8d959c; line-height:1.4; letter-spacing:.01em; }
 #kt-panel .rf-open-context { display:block; margin:10px auto 2px; }
+/* B4 "Remember this": the footer action and the offer chip shown when the text looks like a conversation. */
+#kt-panel .rf-remember { margin-right:6px; color:#4f565c; }
+#kt-panel .rf-remember:disabled { color:#bbbfc2; }
+#kt-panel .rf-offer { padding:0 24px 7px; display:flex; }
+#kt-panel .rf-offer-chip { border:0; cursor:pointer; color:#3d4348; }
+#kt-panel .rf-offer-chip:hover { background:#eceeef; }

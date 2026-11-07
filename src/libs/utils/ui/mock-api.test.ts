@@ -197,3 +197,24 @@ test('mock (B3): GET /costs answers with the cost line and the store line', asyn
   assert.match(c.line, /asked 3 · answered 2 · 21 s · reused 5 \(3 by people, 2 by agents\)$/);
   assert.match(c.storeHealth!.line, /^Store: 14 cases · completeness 0\.71 → 0\.83 after 5 questions/);
 });
+
+test('B4: the mock serves POST /import for "Remember this": a pasted thread is captured once, a blank paste is a 400', async () => {
+  const api = createMockApi();
+  const text = '[09:14] Aarne Koskela: Changed the SFP on TRN-117, link up, no traffic.\n[09:16] Helmi Virtanen: Reset the interface on both ends.';
+  const r = await api.call('POST /import', { body: { format: 'paste', payload: text } });
+  assert.equal(r.cases, 1);
+  assert.deepEqual(r.captured?.entities, ['TRN-117']);
+  assert.deepEqual(r.captured?.people, ['Aarne Koskela', 'Helmi Virtanen']);
+  assert.equal(r.captured?.from, '09:14');
+  assert.equal(r.captured?.to, '09:16');
+  assert.equal(r.captured?.dateKnown, false);
+  assert.equal(r.captured?.alreadyKnown, false);
+  const again = await api.call('POST /import', { body: { format: 'paste', payload: { text } } });
+  assert.equal(again.captured?.alreadyKnown, true);
+  assert.equal(again.batch.counts.inserted, 0);
+  await assert.rejects(api.call('POST /import', { body: { format: 'paste', payload: '  ' } }), (e: { status?: number }) => e.status === 400);
+  // The service's limits: a paste over 1 MB, a non-text payload or a path is a 400 in the mock too.
+  for (const bad of [{ payload: 'x'.repeat(1_000_001) }, { payload: 42 }, { payload: { notText: 1 } }, { path: '/etc/hosts', payload: 'hi' }]) {
+    await assert.rejects(api.call('POST /import', { body: { format: 'paste', ...bad } }), (e: { status?: number }) => e.status === 400);
+  }
+});

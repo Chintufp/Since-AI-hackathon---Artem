@@ -29,15 +29,23 @@ const directorySchema = z.object({
   })),
 });
 
+const pasteText = z.string().max(1_000_000).refine((t) => t.trim().length > 0, 'text is blank');
+const pasteSchema = z.union([
+  pasteText,
+  z.object({ text: pasteText, attachmentNames: z.array(z.string()).optional(), authorName: z.string().optional() }),
+]);
+
 export const importSchema = z.object({
-  format: z.enum(['teams-json', 'email-text', 'slack-export', 'slack-live', 'scenario-dir']),
+  format: z.enum(['teams-json', 'email-text', 'slack-export', 'slack-live', 'scenario-dir', 'paste']),
   path: z.string().min(1).optional(),
   payload: z.unknown().optional(),
   connectionId: z.string().optional(),
   accessGroups: z.array(z.string()).optional(),
   /** Visible organization directory to apply with an inline payload (a scenario directory's people.json). */
   directory: directorySchema.optional(),
-}).refine((r) => r.path !== undefined || r.payload !== undefined, { message: 'path or payload is required' });
+}).refine((r) => r.path !== undefined || r.payload !== undefined, { message: 'path or payload is required' })
+  // B4: a paste is inline only (no path), and its text must not be blank.
+  .refine((r) => r.format !== 'paste' || (r.path === undefined && pasteSchema.safeParse(r.payload).success), { message: 'paste needs payload text (a string or {text}) that is not blank', path: ['payload'] });
 
 export const investigateSchema = z.object({
   text: z.string().trim().min(1),

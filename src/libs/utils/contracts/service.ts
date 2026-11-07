@@ -32,8 +32,12 @@ export interface DirectoryEntry {
 }
 
 export interface ImportRequest {
-  /** 'teams-json' | 'email-text' | 'slack-export' | 'slack-live' (an export-shaped payload read live, read-only) | 'scenario-dir' */
-  format: 'teams-json' | 'email-text' | 'slack-export' | 'slack-live' | 'scenario-dir';
+  /**
+   * 'teams-json' | 'email-text' | 'slack-export' | 'slack-live' (an export-shaped payload read live, read-only) | 'scenario-dir'
+   * | 'paste' (B4 "Remember this": payload is the pasted text, or {text, attachmentNames?, authorName?}; a chat thread,
+   * an e-mail or a JSON export inside it is recognised and keeps its speakers).
+   */
+  format: 'teams-json' | 'email-text' | 'slack-export' | 'slack-live' | 'scenario-dir' | 'paste';
   /** Absolute path on the service machine (local prototype), or inline payload. */
   path?: string;
   payload?: unknown;
@@ -57,6 +61,27 @@ export interface ImportResponse {
    * evidence validator removed (an excerpt that is not in the cited message, an unknown message or person).
    */
   extraction?: { route: { route: string; version: string }; modelClaims: number; dropped: number; fallback?: string };
+  /**
+   * B4: what a 'paste' import captured, for the receipt line: cases with titles, the entities and people it is bound
+   * to, the first and last stated time (verbatim), whether any date was stated, and whether everything was already known.
+   */
+  captured?: ImportCaptured;
+}
+
+export interface ImportCaptured {
+  cases: Array<{ id: string; title: string }>;
+  entities: string[];
+  people: string[];
+  from?: string;
+  to?: string;
+  dateKnown: boolean;
+  /** Nothing new: every message was already stored (a second paste of the same text). */
+  alreadyKnown: boolean;
+  /**
+   * The paste named access groups, but some of what it holds was already stored with a wider scope (org-wide, or other
+   * groups): a re-paste never narrows what is stored, so the receipt says the content is already visible more widely.
+   */
+  widerAccess?: boolean;
 }
 
 export interface InvestigateRequest {

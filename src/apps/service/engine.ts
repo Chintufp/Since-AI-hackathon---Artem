@@ -19,7 +19,7 @@ import {
   defaultInvestigationSettings, investigate, investigationId, OUTCOME_KEY, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
   type InvestigationSettings, type PersonDirectory,
 } from '../../libs/utils/investigation/index.ts';
-import { buildCaseView, contextAssertions, defaultStandingGapSettings, importFromPath, listCases, openStore, parseAt, recordStandingGaps, resolveContextEntity, type StandingGapSettings } from '../../libs/utils/memory/index.ts';
+import { buildCaseView, contextAssertions, defaultStandingGapSettings, importFromPath, listCases, openStore, parseAt, recordStandingGaps, resolveContextEntity, type ImportFromPathResult, type StandingGapSettings } from '../../libs/utils/memory/index.ts';
 import { evaluateEligibility, PhrasedQuestionGenerator, TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
 import { createSelector, LinUcb, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
 import { HybridRetriever, canSee, earliestDated, evidenceGate } from '../../libs/utils/retrieval/index.ts';
@@ -27,6 +27,7 @@ import { buildPeople } from '../../libs/utils/investigation/index.ts';
 import type { CandidateMatch } from '../../libs/utils/contracts/investigation.ts';
 import { awardPoints, balanceOf, getOptIn, participates, rating, revokeContribution, setOptIn, type ParticipationKind } from '../../libs/utils/participation/index.ts';
 import { applyDirectory } from './directory.ts';
+import { capturedSummary } from './capture.ts';
 import { resetDemo } from './demo.ts';
 import { DEFAULT_ACTIVITY_LOG, readActivity, type ActivityResponse } from './activity.ts';
 import { activityPage } from './activity-page.ts';
@@ -490,17 +491,19 @@ export class Engine {
     if (req.path && !existsSync(req.path)) throw badRequest(`Path does not exist: ${req.path}`);
     const batchesBefore = new Set(this.store.list('importBatch').map((b) => b.id));
     let res: ImportResponse;
+    let ids: ImportFromPathResult['ids'];
     try {
-      res = importFromPath(this.store, {
+      ({ ids, ...res } = importFromPath(this.store, {
         format: req.format, ...(req.path ? { path: req.path } : {}), ...(req.payload !== undefined ? { payload: req.payload } : {}),
         ...(req.connectionId ? { connectionId: req.connectionId } : {}), ...(req.accessGroups ? { accessGroups: req.accessGroups } : {}),
         orgId: this.orgId, now: this.now().toISOString(), standing: this.standingSettings(), ...(onCommitted ? { onCommitted } : {}),
-      });
+      }));
     } catch (e) {
       throw badRequest(`Import failed: ${e instanceof Error ? e.message : String(e)}`);
     }
     if (req.format === 'scenario-dir' && req.path) this.loadDirectoryFile(join(req.path, 'people.json'));
-    if (req.directory) this.inlineDirectories.push(req.directory);
+    // B4: a poller re-sends its people file with each channel import; an equal file is kept once, not appended again.
+    if (req.directory && !this.inlineDirectories.some((d) => JSON.stringify(d) === JSON.stringify(req.directory))) this.inlineDirectories.push(req.directory);
     this.reapplyDirectory();
     // A scenario directory imports several sources, each its own batch; the response's batch id is their combination.
     const points = this.awardEvidence(new Set(this.store.list('importBatch').map((b) => b.id).filter((id) => !batchesBefore.has(id))));
@@ -508,6 +511,7 @@ export class Engine {
     // Integration (D-INT-04): on the model path the standing gaps are asked after the model's union (importAndEnrich).
     if (this.opts.standingGaps?.ask && !onCommitted) void this.askStanding().catch((e) => this.standingFailed('import', e));
     this.afterChange();
+    if (req.format === 'paste' && ids) res = { ...res, captured: capturedSummary(this.store, ids, res.batch, req.accessGroups) };
     return points.length ? { ...res, points } : res;
   }
 
@@ -775,7 +779,9 @@ export class Engine {
 
   questions(query: { personEntityId?: string; status?: string }): QuestionView[] {
     this.deliverDue();
-    const where = query.personEntityId ? { personEntityId: query.personEntityId } : undefined;
+    // B4: a provider identity ('person:slack:U…') or directory id names the same person as on the answer path.
+    const person = query.personEntityId ? (storeDirectory(this.store).resolve(query.personEntityId) ?? query.personEntityId) : undefined;
+    const where = person ? { personEntityId: person } : undefined;
     const wanted = query.status === 'all' ? undefined : query.status ? [query.status] : ['queued', 'delivered', 'deferred'];
     const now = this.now().getTime();
     return this.store.list('question', where ? { where } : {})

@@ -104,3 +104,47 @@ investigation questions. B1's standing answers go through `answerStanding`, whic
 evaluation's response but no `assessedBenefit` and no selector update. Extending the reward to standing answers would be
 new behaviour on neither branch (and D-B2-51 already notes that the metric reads an applicability "no" as a
 contradiction), so it is left for a later decision rather than invented during the merge.
+
+## D-INT-12 · The standing pass after an answer shares the answer's phrase budget (review fix)
+
+Review found that `Engine.answer` awaited `askStanding()`, which built a second wiring, so a second
+`PhrasedQuestionGenerator` with its own 20 s budget, and that its eligibility pre-check called `generate()` on that
+generator: every standing state checked cost a phrase call, plus another when the question was requested. With phrase on
+a slow (not stuck) local model, one POST /questions/:id/answer could wait 20 s in the answer and another 20 s in the
+standing pass, against D-B2-57's one budget per request and the 40 s client timeout. Now `askStanding(w)` takes the
+wiring, `answer` passes its own, and the pre-check uses the plain templates (`wiring().templates`; recipients do not
+depend on the wording), so only the requested question is phrased. Upkeep and imports still build one wiring per pass.
+Measured with a fake local provider: upkeep with two due outcome gaps made 3 phrase calls before, 1 after.
+Reverse: drop the parameter and use `w.generator` in the pre-check.
+
+## Review of the merge (7 Nov): outcome
+
+A reviewer checked the merge file by file (nothing lost from either side, 40 routes, 9 MCP tools, 507 tests green, E10
+reproduces exactly) and raised five minor findings. All five were confirmed against the code and fixed:
+
+1. **E08 results were stale for the merged code.** Confirmed: `node experiments/run.ts e08` on HEAD changed the demo
+   problem remote-power-access-p2 from `retain-uncertainty` / `no-question-needed` to `none` / `deferred` in every
+   variant, and the demo access denominator from 46 to 42 (leakage 1/46 -> 1/42), because of B1's access-facts change
+   (E00 on the run branch already showed `none`). Recall@3, lookalike-top-1 and the paraphrase probe ranks are unchanged.
+   Fixed: E08 re-run and committed, `experiments/RESULTS.md` regenerated with `report`. E00 and E10 were re-run as well
+   and differ only in timings (not committed). D-B2-61's "replay to the same numbers" was true on day2/b2; on the merged
+   code the fixtures still replay (hash-locked) but the demo store they read changed. This also closes the open item in
+   D-INT-08 for E08/E10.
+2. **Service README said 33 routes.** Confirmed (router: 40). Fixed, and the two undocumented routes
+   (`GET /demo/activity`, `GET /demo/activity.html`) got a row.
+3. **README said every answer writes a reward.** Confirmed: standing answers return through `answerStanding` before
+   measure/burden/learn (D-INT-11). The README now says investigation answers only and points to D-INT-11. DECISIONS-models
+   D-B2 text is B2's own record and is left as written; this entry is the correction.
+4. **No test for the quiet-hours burden (D-INT-06).** Confirmed. Added to `questions/quiet-hours.test.ts`: the same answer
+   with and without quiet hours differs by exactly `BURDEN.quiet` at 21:00Z (23:00 EET) and not at all at 05:30Z
+   (07:30 EET, inside 22:00-07:00 only on the UTC clock). A UTC comparison in `burden()` fails it (checked).
+5. **Standing outcome questions go to the phrase model; answer latency.** Partly as stated. The standing outcome question
+   uses the same template as an investigation outcome question ("Did ... right after <action> on <case>?") and carries
+   no computed "when" words; those are only in missing-symptom and pairing questions, which `phraseable()` excludes. So
+   phrasing it is intended and goes through the validator, which requires the action noun. The latency part was real and
+   is fixed by D-INT-12. New `tests/standing-phrase.test.ts`: pairing and missing-symptom never reach the model and keep
+   their wording; a standing outcome reply is accepted or, when it drops the action, rejected to the template; one phrase
+   call per asked question; an answer builds one wiring. The last two fail on the previous engine (checked), the first
+   fails when the guard is widened (checked).
+
+Typecheck clean, 511/511 tests (507 + 4 new).

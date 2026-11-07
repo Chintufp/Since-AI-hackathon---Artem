@@ -200,7 +200,7 @@ const poseKey = (spec: Exclude<PoseSpec, { kind: 'look' }>): string => {
     case 'roll': return `roll:${Number.isFinite(spec.turn) ? ((Math.round(spec.turn) % 8) + 8) % 8 : 0}`;
   }
 };
-const heldKeyOf = (s: HeldSpec): string => [s.shape ?? 'neutral', s.expression ?? 'normal', sign(s.gaze ?? 0), s.view ?? 'front', s.question ?? '-'].join(':');
+const heldKeyOf = (s: HeldSpec): string => [s.shape ?? 'neutral', s.expression ?? 'normal', sign(s.gaze ?? 0), s.view ?? 'front', s.question ?? '-', s.glyphSide ?? 'right'].join(':');
 
 export class AvatarController implements CompanionAvatar {
   private readonly canvas: HTMLCanvasElement;
@@ -213,6 +213,8 @@ export class AvatarController implements CompanionAvatar {
   private readonly kit: Kit;
   private readonly acts: Record<ActKey, Act>;
   private readonly glyph: HTMLCanvasElement;
+  /** desktop (fidelity-10): acts whose body leaves the floor (entrance and the tall acts); no glyph overlay. */
+  private readonly travelling: ReadonlySet<Act>;
   private readonly drop: HTMLCanvasElement | null;
   private readonly dropCtx: CanvasRenderingContext2D | null;
   // desktop (R32): optional floor-shadow strip and its own scratch scene.
@@ -242,11 +244,16 @@ export class AvatarController implements CompanionAvatar {
   private fallDistance: number | null;
   private launchDistance: number | null = null;
   private onDone: (() => void) | null = null;
+  /**
+   * desktop (shell-01): the rAF callback in flight. When the window is hidden (or scrolled out) its
+   * callback would never run, so its own `!canAnimate()` branch is run at once instead: a fall
+   * still reports onStep(0) / onLand / onSettled and a landing still calls its onSettled.
+   */
+  private pending: ((t: number) => void) | null = null;
   private observer: IntersectionObserver | null = null;
   private readonly onVisibility = (): void => {
-    if (this.hidden()) {
-      if (!this.still) this.settle();
-    } else if (!this.animation && !this.idleTimer && !this.still) this.settle();
+    if (this.hidden()) this.interrupt();
+    else if (!this.animation && !this.idleTimer && !this.still) this.settle();
   };
   private dprQuery: MediaQueryList | null = null;
   private readonly onDprChange = (): void => {
@@ -274,6 +281,7 @@ export class AvatarController implements CompanionAvatar {
     const kit = createMinimalKit();
     this.kit = kit;
     this.acts = { ...createCompactCoreActs({ kit }), ...createCompactStateActs({ kit }), ...createCompactPropActs({ kit }) };
+    this.travelling = new Set<Act>([this.acts.entrance, ...[...TALL_ACTS].map((k) => this.acts[k])]);
     // Extract the question glyph from the accepted artwork instead of authoring a new sprite.
     this.glyph = make(QUESTION_GLYPH.w, QUESTION_GLYPH.h);
     this.acts.question.render(this.target, this.acts.question.stillFrame);
@@ -284,9 +292,8 @@ export class AvatarController implements CompanionAvatar {
       this.observer = new IntersectionObserver((entries) => {
         const was = this.visible;
         this.visible = entries[entries.length - 1]?.isIntersecting !== false;
-        if (!this.visible) {
-          if (!this.still) this.settle();
-        } else if (!was && !this.animation && !this.still) this.settle();
+        if (!this.visible) this.interrupt();
+        else if (!was && !this.animation && !this.still) this.settle();
       });
       this.observer.observe(canvas);
     }
@@ -336,6 +343,20 @@ export class AvatarController implements CompanionAvatar {
     if (typeof matchMedia !== 'function') return;
     this.dprQuery = matchMedia(`(resolution: ${globalThis.devicePixelRatio ?? 1}dppx)`);
     this.dprQuery.addEventListener?.('change', this.onDprChange, { once: true });
+  }
+
+  /** desktop (shell-01): request a frame and remember it as the one in flight. */
+  private schedule(cb: (t: number) => void): void {
+    this.pending = cb;
+    this.animation = requestAnimationFrame(cb);
+  }
+
+  /** desktop (shell-01): animation can no longer run: finish what is in flight through its own fallback, or settle. */
+  private interrupt(): void {
+    const p = this.pending;
+    this.pending = null;
+    if (p) p(globalThis.performance?.now?.() ?? Date.now());
+    else if (!this.still) this.settle();
   }
 
   private hidden(): boolean {
@@ -408,7 +429,9 @@ export class AvatarController implements CompanionAvatar {
 
   private draw(act: Act, frame: number): void {
     act.render(this.target, frame);
-    if (act !== this.acts.question) this.overlayGlyph();
+    // desktop (fidelity-10): the glyph sits at floor height, so it is left off while the body travels
+    // (the launch and its landing frames, and the tall acts on the drop surface).
+    if (act !== this.acts.question && !this.dropActive && !this.travelling.has(act)) this.overlayGlyph();
     this.present();
     this.lastFrame = frame;
   }
@@ -417,6 +440,7 @@ export class AvatarController implements CompanionAvatar {
     if (this.animation) cancelAnimationFrame(this.animation);
     if (this.idleTimer) clearTimeout(this.idleTimer);
     this.animation = 0;
+    this.pending = null;
     this.idleTimer = 0;
     this.looping = false;
     this.onDone = null;
@@ -534,16 +558,16 @@ export class AvatarController implements CompanionAvatar {
         if (this.looping) {
           started = t;
           this.draw(act, from);
-          this.animation = requestAnimationFrame(frame);
+          this.schedule(frame);
           return;
         }
         finish();
         return;
       }
       if (n !== this.lastFrame) this.draw(act, n);
-      this.animation = requestAnimationFrame(frame);
+      this.schedule(frame);
     };
-    this.animation = requestAnimationFrame(frame);
+    this.schedule(frame);
   }
 
   /** Where the fall starts: the drop surface fully above the top of the window (CSS px, negative). */
@@ -604,7 +628,7 @@ export class AvatarController implements CompanionAvatar {
         this.lastFrame = -1;
       }
       if (p < 1) {
-        this.animation = requestAnimationFrame(fall);
+        this.schedule(fall);
         return;
       }
       // Touchdown: the authored frames from 'Impact' on, uncropped, with the shadow in the frames.
@@ -617,7 +641,7 @@ export class AvatarController implements CompanionAvatar {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.animate(act, ENTRANCE_IMPACT_FRAME, act.frames - 1, false);
     };
-    this.animation = requestAnimationFrame(fall);
+    this.schedule(fall);
   }
 
   // ---- desktop (R31..R36): companion additions ----
@@ -843,13 +867,13 @@ export class AvatarController implements CompanionAvatar {
           streak = s;
           drawBody(s);
         }
-        this.animation = requestAnimationFrame(step);
+        this.schedule(step);
         return;
       }
       this.animation = 0;
       touchdown();
     };
-    this.animation = requestAnimationFrame(step);
+    this.schedule(step);
     return tier;
   }
 
@@ -891,9 +915,9 @@ export class AvatarController implements CompanionAvatar {
         return;
       }
       if (i !== this.lastFrame) paint(i);
-      this.animation = requestAnimationFrame(step);
+      this.schedule(step);
     };
-    this.animation = requestAnimationFrame(step);
+    this.schedule(step);
   }
 
   refresh(): void {

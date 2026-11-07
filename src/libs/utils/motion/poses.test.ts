@@ -159,3 +159,25 @@ test('held frame: idle body (raster = idle3 frame 0 by default) plus the authore
   assert.equal(inGlyph(q).length, 10);
   assert.equal(inGlyph(draw((c) => heldFrame(kit, c, { question: false })).raster()).length, 0);
 });
+
+test('M3m: held frame glyphSide "left" puts the same authored glyph in the box mirrored about x = 48, same rows, same pixel count', () => {
+  const rightSide = draw((c) => heldFrame(kit, c, { question: true })).raster();
+  assert.equal(sig(draw((c) => heldFrame(kit, c, { question: true, glyphSide: 'right' })).raster()), sig(rightSide), 'right is the default');
+  const left = draw((c) => heldFrame(kit, c, { question: true, glyphSide: 'left' })).raster();
+  const body = draw((c) => heldFrame(kit, c, {})).raster();
+  const extra = (m: Map<string, string>) => [...m].filter(([k]) => !body.has(k)).map(([k]) => k.split(',').map(Number) as [number, number]);
+  const r = extra(rightSide), l = extra(left);
+  assert.equal(l.length, r.length);
+  assert.equal(l.length, questionGlyphRects(kit).length);
+  // the box [64, 69) mirrors to [27, 32) about x = 48; rows unchanged; the glyph keeps its own shape (a '?' is not flipped)
+  const rb = bounds(new Map(r.map(([x, y]) => [x + ',' + y, '']))), lb = bounds(new Map(l.map(([x, y]) => [x + ',' + y, ''])));
+  assert.equal(lb.left, 96 - QUESTION_GLYPH.x - QUESTION_GLYPH.w);
+  assert.equal(lb.left + QUESTION_GLYPH.w - 1 + QUESTION_GLYPH.x, 95, 'mirrored box: left + right = 2 * 48 - 1');
+  assert.deepEqual([lb.top, lb.bottom], [rb.top, rb.bottom]);
+  const dx = lb.left - QUESTION_GLYPH.x;
+  assert.equal(sig(new Map(l.map(([x, y]) => [x - dx + ',' + y, 'i']))), sig(new Map(r.map(([x, y]) => [x + ',' + y, 'i']))), 'same glyph pixels');
+  // left of the body, with the same 2 px gap as on the right
+  const b = bounds(body);
+  assert.equal(b.left - lb.right, rb.left - b.right);
+  for (const [k, v] of body) assert.equal(left.get(k), v, 'body untouched');
+});

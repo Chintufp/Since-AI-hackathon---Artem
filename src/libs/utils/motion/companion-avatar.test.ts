@@ -409,3 +409,129 @@ test('press, settle and roll poses are stills on the display canvas; status repo
     assert.equal(s.avatar.status().mode, 'pose:settle', 'a pose stays until the next call');
   } finally { s.restore(); mock.timers.reset(); }
 });
+
+// ---- desktop (UX fixes, motion area) ----
+
+/** Flip document.hidden and run the controller's visibilitychange handler (the fake document does not dispatch). */
+const hideWindow = (s: S) => {
+  (globalThis.document as { hidden: boolean }).hidden = true;
+  (s.avatar as unknown as { onVisibility: () => void }).onVisibility();
+};
+
+test('shell-01: hiding the window mid-fall still reports onStep(0), onLand and onSettled, in that order, and leaves him on the floor', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  const s = setup();
+  try {
+    const calls: string[] = [];
+    s.avatar.fallFrom(200, (t) => calls.push('land:' + t), { onStep: (l) => calls.push('step:' + (l === 0 ? 0 : 'air')), onSettled: () => calls.push('settled') });
+    s.pump();
+    s.pump();
+    assert.equal(s.avatar.status().airborne, true);
+    calls.length = 0;
+    hideWindow(s);
+    assert.deepEqual(calls, ['step:0', 'land:hop', 'settled']);
+    const st = s.avatar.status();
+    assert.equal(st.airborne, false);
+    assert.equal(st.lift, 0);
+    assert.equal(st.reactionPlaying, false);
+    assert.equal(st.mode, 'idle3');
+    assert.equal(s.pending(), 0, 'no frame left in flight');
+    s.pump();
+    assert.deepEqual(calls, ['step:0', 'land:hop', 'settled'], 'each callback once');
+  } finally { s.restore(); mock.timers.reset(); }
+});
+
+test('shell-01: hiding the window during the landing frames (hop tier and composed settle) still calls onSettled once', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    for (const lift of [200, 10]) {
+      const s = setup();
+      try {
+        let settled = 0;
+        s.avatar.fallFrom(lift, undefined, { onSettled: () => settled++ });
+        pumpUntil(s, () => !s.avatar.status().airborne);
+        assert.ok(s.avatar.status().reactionPlaying, `landing in flight (${lift})`);
+        hideWindow(s);
+        assert.equal(settled, 1, `onSettled after hide (${lift})`);
+        assert.equal(s.avatar.status().mode, 'idle3');
+        assert.equal(s.drop!.hidden, true);
+        s.pump();
+        assert.equal(settled, 1);
+      } finally { s.restore(); }
+    }
+  } finally { mock.timers.reset(); }
+});
+
+test('shell-01: the intersection observer going not-visible also finishes an in-flight fall', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  const g = globalThis as Record<string, unknown>;
+  const saved = g.IntersectionObserver;
+  let fire: ((e: Array<{ isIntersecting: boolean }>) => void) | null = null;
+  g.IntersectionObserver = class { constructor(cb: typeof fire) { fire = cb; } observe() {} disconnect() {} };
+  const s = setup();
+  try {
+    let settled = 0;
+    const steps: number[] = [];
+    s.avatar.fallFrom(400, undefined, { onStep: (l) => steps.push(l), onSettled: () => settled++ });
+    s.pump();
+    fire!([{ isIntersecting: false }]);
+    assert.equal(steps.at(-1), 0);
+    assert.equal(settled, 1);
+    assert.equal(s.avatar.status().airborne, false);
+  } finally { s.restore(); g.IntersectionObserver = saved; mock.timers.reset(); }
+});
+
+test('shell-01: hiding while idle or holding a still pose is unchanged (settles / keeps the pose)', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  const s = setup();
+  try {
+    s.avatar.pose({ kind: 'press' });
+    hideWindow(s);
+    assert.equal(s.avatar.status().mode, 'pose:press');
+    (globalThis.document as { hidden: boolean }).hidden = false;
+    s.avatar.rest();
+    hideWindow(s);
+    assert.equal(s.avatar.status().mode, 'idle3');
+    assert.equal(s.avatar.status().idleLoop, false, 'no idle timer while hidden');
+  } finally { s.restore(); mock.timers.reset(); }
+});
+
+test('fidelity-10: the question glyph is not overlaid on travelling frames (launch landing, tall acts) but stays on resting acts', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  const s = setup({ question: true });
+  try {
+    const glyph = s.raws[1]!;
+    const raw = s.raws[0]!.ctx;
+    const overlays = () => raw.draws.filter((d) => d[0] === glyph).length;
+    for (const key of ['hop', 'backflip', 'half', 'hero', 'entrance'] as ActKey[]) {
+      s.avatar.play(key);
+      const before = overlays();
+      pumpUntil(s, () => s.avatar.status().mode !== key);
+      // the final settle back to idle3 overlays once
+      assert.ok(overlays() - before <= 1, `${key}: ${overlays() - before} overlays`);
+    }
+    s.avatar.fallFrom(800);
+    pumpUntil(s, () => !s.avatar.status().airborne);
+    const before = overlays();
+    pumpUntil(s, () => s.avatar.status().mode !== 'entrance');
+    assert.ok(overlays() - before <= 1, 'no glyph during the entrance-tier landing');
+    // resting / short acts keep it
+    s.avatar.play('hello');
+    const h = overlays();
+    s.pump(); s.pump(); s.pump(); s.pump(); s.pump(); s.pump();
+    assert.ok(overlays() > h, 'glyph overlays a short act on the display canvas');
+  } finally { s.restore(); mock.timers.reset(); }
+});
+
+test('M3m: hold({ glyphSide: "left" }) draws the glyph left of the body and is a distinct held key', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  const s = setup();
+  try {
+    s.avatar.hold({ question: true });
+    assert.ok(s.raws[0]!.ctx.rects.some((r) => r.x === 65 && r.y === 50 && r.color === kit.palette.ink));
+    s.avatar.hold({ question: true, glyphSide: 'left' });
+    const ink = s.raws[0]!.ctx.rects.filter((r) => r.color === kit.palette.ink && r.y >= 50 && r.y < 57 && (r.x < 34 || r.x > 61));
+    assert.equal(ink.length, 10);
+    assert.ok(ink.every((r) => r.x >= CROP.x && r.x < 34), 'left of the body, inside the display crop');
+  } finally { s.restore(); mock.timers.reset(); }
+});

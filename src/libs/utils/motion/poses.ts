@@ -90,7 +90,18 @@ export interface HeldSpec {
   view?: LookView;
   /** Draw the authored question glyph at its authored place (never relocated). */
   question?: boolean;
+  /**
+   * desktop (M3m, right-edge sliver only): 'right' (default) = the authored place; 'left' = the
+   * authored glyph's box mirrored about the body centre (x = 48), at the same rows, so it is
+   * inside the window when he is tucked at the right edge. The glyph's own pixels are not flipped
+   * (a reversed '?' would be new art): only its place is mirrored.
+   */
+  glyphSide?: GlyphSide;
 }
+
+export type GlyphSide = 'right' | 'left';
+/** desktop (M3m): the vertical axis the glyph's box is mirrored about (the orb's default centre x). */
+export const BODY_CENTRE_X = 48;
 
 const glyphCache = new WeakMap<Kit, Array<{ x: number; y: number; w: number; h: number }>>();
 
@@ -132,5 +143,8 @@ export function heldFrame(k: Kit, c: DrawTarget, spec: HeldSpec = {}): void {
     gaze: sign(spec.gaze ?? 0),
     view: spec.view === 'quarter' ? 'quarter' : 'front',
   });
-  if (spec.question) for (const r of questionGlyphRects(k)) k.pixel(c, r.x, r.y, r.w, r.h, k.palette.ink);
+  if (!spec.question) return;
+  // desktop (M3m): shift by the mirrored box offset: [x0, x0 + w) -> [2 * 48 - x0 - w, 2 * 48 - x0).
+  const dx = spec.glyphSide === 'left' ? 2 * BODY_CENTRE_X - 2 * QUESTION_GLYPH.x - QUESTION_GLYPH.w : 0;
+  for (const r of questionGlyphRects(k)) k.pixel(c, r.x + dx, r.y, r.w, r.h, k.palette.ink);
 }

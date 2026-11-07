@@ -9,9 +9,9 @@ export {
 export type { LandingTier, RollDirection, Ballistic, BallisticState, RollState } from './physics.ts';
 export {
   pressPose, carriedPose, lookPose, settlePose, rollPose, floorShadow, shadowTierFor, heldFrame, questionGlyphRects,
-  SHADOW_WIDTHS, SHADOW_TIER_LIFT_PX, SHADOW_STRIP, SETTLE_SHAPES, SETTLE_FRAME_MS,
+  SHADOW_WIDTHS, SHADOW_TIER_LIFT_PX, SHADOW_STRIP, SETTLE_SHAPES, SETTLE_FRAME_MS, BODY_CENTRE_X,
 } from './poses.ts';
-export type { LookView, ShadowTier, CarriedSpec, HeldSpec } from './poses.ts';
+export type { LookView, ShadowTier, CarriedSpec, HeldSpec, GlyphSide } from './poses.ts';
 export { createMinimalKit, PALETTE } from './minimal-kit.ts';
 export { createCompactCoreActs } from './core-acts.ts';
 export { createCompactStateActs, QUESTION_GLYPH } from './state-acts.ts';

@@ -100,8 +100,25 @@ async function main(): Promise<void> {
     return { frames: d.length, maxMs: +Math.max(...d).toFixed(1), meanMs: +(d.reduce((a, b) => a + b, 0) / d.length).toFixed(2), p95Ms: +(s[Math.floor(s.length * 0.95)] ?? 0).toFixed(1), over20ms: d.filter((x) => x > 20).length };
   };
 
+  /** KT_SHOTS_ENTRANCE=1: capture frames while the launch entrance (drop & settle) plays, right after load. */
+  const captureEntrance = async (width: number): Promise<void> => {
+    if (process.env.KT_SHOTS_ENTRANCE !== '1') return;
+    const t0 = Date.now();
+    const frames: Array<{ file: string; atMs: number; mode: string; frame: number }> = [];
+    for (let i = 0; i < 10; i++) {
+      const image = await win.webContents.capturePage();
+      const st = await js<{ avatar: { mode: string; lastFrame: number } }>('__kt.panel.status()');
+      const file = `entrance-${String(i).padStart(2, '0')}-${width}.png`;
+      writeFileSync(join(outDir, file), image.toPNG());
+      frames.push({ file, atMs: Date.now() - t0, mode: st.avatar.mode, frame: st.avatar.lastFrame });
+      await sleep(110);
+    }
+    checks[`entrance_${width}`] = frames;
+  };
+
   const walk = async (width: number): Promise<void> => {
     await load(width);
+    await captureEntrance(width);
     await js('__s.settle(4000)');
     await sleep(2000); // entrance (24 frames at 16 fps = 1.5 s) plus margin
     await shot('collapsed', width, 0);

@@ -71,14 +71,16 @@ async function ensureService(): Promise<boolean> {
 }
 
 /**
- * B2: api keys. Encrypted with safeStorage into userData/model-keys.json (never the repo or data/), handed to the
+ * B2: api keys. Encrypted with safeStorage into appData/<app name>/model-keys.json (never the repo or data/, also under demo:judge), handed to the
  * service in memory on save and after the service is up. Only the validated `{vendor, key}` crosses the IPC.
  */
 function keychain(): Keychain {
-  const file = join(app.getPath('userData'), KEY_FILE);
+  // appData/<app name> is the default userData; demo:judge's --user-data-dir (under the repo's data/) does not move it.
+  const dir = join(app.getPath('appData'), app.getName());
+  const file = join(dir, KEY_FILE);
   return createKeychain(safeStorage, {
     read: () => (existsSync(file) ? readFileSync(file, 'utf8') : undefined),
-    write: (text) => { mkdirSync(app.getPath('userData'), { recursive: true }); writeFileSync(file, text, { mode: 0o600 }); },
+    write: (text) => { mkdirSync(dir, { recursive: true }); writeFileSync(file, text, { mode: 0o600 }); },
   });
 }
 
@@ -95,6 +97,8 @@ function handleKeys(): void {
 
 /** A freshly started service holds no key: give it the stored ones (memory only on its side). */
 async function restoreKeys(): Promise<void> {
+  // demo:judge (KT_NO_API=1): hosted models stay off, so no stored key reaches the service.
+  if (process.env.KT_NO_API === '1') return;
   for (const { vendor, key } of keychain().load()) {
     try {
       await sendKeyToService(serviceUrl, vendor, key);

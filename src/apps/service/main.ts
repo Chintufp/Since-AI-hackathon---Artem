@@ -38,6 +38,8 @@ const engine = new Engine({
   ...(process.env.KT_ACTIVITY_LOG ? { activityLogPath: process.env.KT_ACTIVITY_LOG } : {}),
   // Background model work (embedding refresh, warming a slot switched to local). With every slot on rules it does nothing.
   autoModels: process.env.KT_AUTO_MODELS !== '0',
+  // demo:judge sets KT_NO_API=1: hosted models stay off whatever the stored slot choices say (BUILD_BRIEF 2.2).
+  ...(process.env.KT_NO_API === '1' ? { modelManager: { noApi: true } } : {}),
 });
 if (values.seed) {
   const r = await engine.resetDemo(values.seed as 'elisa' | 'synthetic' | 'empty');

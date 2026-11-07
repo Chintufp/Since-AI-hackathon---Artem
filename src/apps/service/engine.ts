@@ -13,7 +13,7 @@ import type { InstallJobView, ModelSlotName, ModelSlots, ModelsView, ModelTestRe
 import { fallbackRoute, vendorOf, type ApiVendor, type ModelProvider } from '../../libs/utils/models/providers/index.ts';
 import { EmbeddingIndex, type IndexReport } from '../../libs/utils/retrieval/index.ts';
 import { caseCard, createLlmExtractor, enrichWithModel, RULES_ROUTE, storeHealth, type EnrichItem, type EnrichReport, type StoreHealth } from '../../libs/utils/memory/index.ts';
-import { DEFAULT_LOCAL_MODELS, ModelManager, type ModelManagerOptions } from './models.ts';
+import { DEFAULT_LOCAL_MODELS, ModelManager, NO_API_REASON, type ModelManagerOptions } from './models.ts';
 import { connectionCards } from '../../libs/utils/connectors/index.ts';
 import {
   defaultInvestigationSettings, investigate, investigationId, OUTCOME_KEY, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
@@ -125,7 +125,7 @@ export class Engine {
     this.orgId = opts.orgId ?? 'org:local';
     this.demoClock = opts.demoClock ?? createDemoClock();
     this.clock = opts.clock ?? (() => this.demoClock.now());
-    this.models = opts.modelManager instanceof ModelManager ? opts.modelManager : new ModelManager(opts.modelManager ?? {});
+    this.models = opts.modelManager instanceof ModelManager ? opts.modelManager : new ModelManager({ now: this.clock, ...(opts.modelManager ?? {}) });
     if (opts.store) {
       this.store = opts.store;
       this.ownsStore = false;
@@ -371,7 +371,7 @@ export class Engine {
     if (choice.provider === 'local') return { provider: this.models.local, model: choice.model ?? DEFAULT_LOCAL_MODELS[slot] };
     const api = this.models.api();
     const model = choice.model ?? (slot === 'extract' ? 'claude-haiku-5-5' : 'claude-sonnet-5-5');
-    if (!api || !this.models.hasKey(vendorOf(model))) return { unavailable: `no ${vendorOf(model)} key`, code: 'disabled' };
+    if (!api || !this.models.hasKey(vendorOf(model))) return { unavailable: this.models.noApi ? NO_API_REASON : `no ${vendorOf(model)} key`, code: 'disabled' };
     return { provider: api, model };
   }
 

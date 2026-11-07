@@ -167,6 +167,25 @@ test('api keys live in memory only: never in settings, SQLite, traces or the res
   for (const f of scan(join(ROOT, 'data', 'models'))) assert.ok(!readFileSync(f, 'utf8').includes('sk-test-not-a-real-key'), f);
 });
 
+test('demo:judge (noApi): a stored api slot and a handed key reach no hosted model; the chip says why', async () => {
+  const calls: string[] = [];
+  const apiFetch = async (url: string) => { calls.push(url); return new Response('{}', { status: 200 }); };
+  const svc = await startService({ modelManager: { local: fakeLocal(), apiFetch, noApi: true } });
+  try {
+    await svc.call('POST', '/import', { format: 'scenario-dir', path: DEV_FIXTURE });
+    assert.deepEqual(await svc.call('POST', '/models/key', { provider: 'anthropic', key: 'sk-test-not-a-real-key-456' }), { provider: 'anthropic', present: false });
+    await svc.call('PUT', '/settings', { models: { phrase: { provider: 'api', model: 'claude-sonnet-5-5' }, extract: { provider: 'api' } } });
+    const v = await svc.call('GET', '/models');
+    assert.equal(v.slots.phrase.chip, 'failed: hosted models are off in this run');
+    const r = await svc.call('POST', '/investigate', { text: 'BGP flaps after firmware upgrade on edge router RTR-300 unit', principal: human('person:test:judge', 'Judge', ['noc']) });
+    assert.ok(r.routes.every((x: { route: string }) => x.route !== 'api'));
+    assert.equal((await svc.call('POST', '/models/test', { provider: 'anthropic' })).ok, false);
+    assert.equal(calls.length, 0);
+  } finally {
+    await svc.close();
+  }
+});
+
 test('lifecycle: warm local slots at start (empty request, keep_alive 30m), idle unload, unload everything on shutdown; rules/api start nothing', async () => {
   const local = fakeLocal();
   const m = new ModelManager({ local, idleMs: 30 });

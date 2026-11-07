@@ -40,6 +40,8 @@ export interface ModelManagerOptions {
   /** Monotonic milliseconds for the slot cooldown (default performance.now(); a liveness timer like the slot timeouts, not data). */
   monoNow?: () => number;
   cooldownMs?: number;
+  /** Hosted models are off for this run (KT_NO_API=1, set by demo:judge): keys are refused and an api slot stays unavailable. */
+  noApi?: boolean;
   /** Installs Ollama (default: `brew install ollama` on macOS when Homebrew exists). Tests inject a fake. */
   installer?: OllamaInstaller;
 }
@@ -51,6 +53,7 @@ export interface OllamaInstaller {
   run(brew: string, onLine: (line: string) => void): Promise<void>;
 }
 
+export const NO_API_REASON = 'hosted models are off in this run';
 export const OLLAMA_DOWNLOAD_URL = 'https://ollama.com/download';
 const MAX_LOG_LINES = 200;
 
@@ -258,6 +261,7 @@ export class ModelManager {
     if (choice.provider === 'rules') return { choice, state: 'off', chip: 'off' };
     const failure = this.failures.get(slot);
     if (choice.provider === 'api') {
+      if (this.opts.noApi) return { choice, state: 'failed', chip: `failed: ${NO_API_REASON}`, reason: NO_API_REASON };
       const model = choice.model ?? API_DEFAULT_MODELS.anthropic;
       const vendor: ApiVendor = /^gemini/i.test(model) ? 'gemini' : 'anthropic';
       if (!this.keys[vendor]) return { choice, state: 'failed', chip: `failed: no ${vendor} key`, reason: `no ${vendor} key` };
@@ -365,7 +369,13 @@ export class ModelManager {
 
   // ---- api keys (memory only) ---------------------------------------------------------------------
 
+  /** True when hosted models are off for this run (demo:judge). */
+  get noApi(): boolean {
+    return !!this.opts.noApi;
+  }
+
   setKey(vendor: ApiVendor, key: string): { provider: ApiVendor; present: boolean } {
+    if (this.opts.noApi) return { provider: vendor, present: false };
     const k = key.trim();
     if (k) this.keys[vendor] = k;
     else delete this.keys[vendor];
@@ -378,6 +388,7 @@ export class ModelManager {
 
   /** The api provider, enabled only when at least one key is held. Undefined otherwise. */
   api(): ApiProvider | undefined {
+    if (this.opts.noApi) return undefined;
     if (!this.keys.anthropic && !this.keys.gemini) return undefined;
     return new ApiProvider({ enabled: true, keys: { ...this.keys }, ...(this.opts.apiFetch ? { fetch: this.opts.apiFetch } : {}) });
   }

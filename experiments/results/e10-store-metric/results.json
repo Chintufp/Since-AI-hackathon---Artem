@@ -1,0 +1,143 @@
+{
+  "manifestId": "e10-store-metric",
+  "finishedAt": "2026-11-07T14:01:07.340Z",
+  "variants": [
+    {
+      "variantId": "rules@store-metric",
+      "provenance": "simulated",
+      "split": "demo",
+      "metrics": {
+        "questions.answerRate": {
+          "value": 0.5555555555555556,
+          "numerator": 5,
+          "denominator": 9
+        },
+        "store.supportedClaims.after": {
+          "value": 0.016666666666666666,
+          "numerator": 3,
+          "denominator": 180
+        },
+        "store.supportedClaims.before": {
+          "value": 0.016666666666666666,
+          "numerator": 3,
+          "denominator": 180
+        },
+        "reward.positiveRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        }
+      },
+      "counts": {
+        "seeds": 3,
+        "questions.asked": 9,
+        "questions.answered": 5,
+        "rewards.measured": 5,
+        "store.cases.before": 5,
+        "store.cases.after.meanOverSeeds": 17,
+        "store.completeness.before": 0.45,
+        "store.completeness.after.sameCases": 0.45,
+        "store.correctness.before": 0.0167,
+        "store.correctness.after.sameCases": 0.0167,
+        "store.product.gainPoints.mean": 0,
+        "questions.perPointGained": null,
+        "reward.mean": -0.0215,
+        "reward.deltaPoints.sum": -6.77,
+        "reward.deltas.positive": 0,
+        "questions.perMeasuredPoint": null
+      },
+      "failures": [],
+      "failureSlicesByTag": {},
+      "repeatVariation": {
+        "store.product.gainPoints": {
+          "min": 0,
+          "max": 0,
+          "runs": 3
+        },
+        "questions.asked": {
+          "min": 3,
+          "max": 3,
+          "runs": 3
+        },
+        "reward.mean": {
+          "min": -0.0292,
+          "max": 0,
+          "runs": 3
+        }
+      }
+    },
+    {
+      "variantId": "linucb@store-metric",
+      "provenance": "simulated",
+      "split": "demo",
+      "metrics": {
+        "questions.answerRate": {
+          "value": 0.6666666666666666,
+          "numerator": 6,
+          "denominator": 9
+        },
+        "store.supportedClaims.after": {
+          "value": 0.016666666666666666,
+          "numerator": 3,
+          "denominator": 180
+        },
+        "store.supportedClaims.before": {
+          "value": 0.016666666666666666,
+          "numerator": 3,
+          "denominator": 180
+        },
+        "reward.positiveRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        }
+      },
+      "counts": {
+        "seeds": 3,
+        "questions.asked": 9,
+        "questions.answered": 6,
+        "rewards.measured": 6,
+        "store.cases.before": 5,
+        "store.cases.after.meanOverSeeds": 17,
+        "store.completeness.before": 0.45,
+        "store.completeness.after.sameCases": 0.45,
+        "store.correctness.before": 0.0167,
+        "store.correctness.after.sameCases": 0.0167,
+        "store.product.gainPoints.mean": 0,
+        "questions.perPointGained": null,
+        "reward.mean": -0.0259,
+        "reward.deltaPoints.sum": -13.54,
+        "reward.deltas.positive": 0,
+        "questions.perMeasuredPoint": null
+      },
+      "failures": [],
+      "failureSlicesByTag": {},
+      "repeatVariation": {
+        "store.product.gainPoints": {
+          "min": 0,
+          "max": 0,
+          "runs": 3
+        },
+        "questions.asked": {
+          "min": 3,
+          "max": 3,
+          "runs": 3
+        },
+        "reward.mean": {
+          "min": -0.0677,
+          "max": 0,
+          "runs": 3
+        }
+      }
+    }
+  ],
+  "notes": [
+    "Simulated: the day, the engineers asking and the colleagues answering are the demo:play simulation (seeded), run in-process against the real service; no model is called and no answer key is read.",
+    "Before/after are compared on the same cases (the demo store's cases before the day); the day also imports the train and validation families, whose new cases are reported separately (casesAfter, completenessAfterAll).",
+    "Completeness is the unweighted mean over cases here: the weighted one needs retrievals in the last 30 days, which only exist after the day, so it would not compare like with like (both are in per-seed.json).",
+    "Per point = one percentage point of completeness x correctness. questions.perPointGained uses the same-case before/after gain; questions.perMeasuredPoint uses the sum of the per-answer deltas the coordinator measured on the touched cases (QuestionRecord.reward.delta). Either is null when nothing was gained.",
+    "The product is multiplicative: a touched case with no supported claim has correctness 0, so an answer that fills a completeness slot there measures a delta of 0 and the reward is the burden alone (touchedCasesWithNoSupportedClaim in per-seed.json).",
+    "Each seed starts from a fresh demo store and a fresh selector, so LinUCB learns only within one day; the rules selector is the fixed prior with the same reward written for comparison.",
+    "B1 pairing links do not exist yet, so the correctness term \"links made without an answer\" counts 0 (store-health links hook)."
+  ]
+}

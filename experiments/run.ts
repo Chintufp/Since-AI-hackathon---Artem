@@ -5,13 +5,17 @@
  *   node experiments/run.ts e00-reference  evaluator sanity references (results/e00-reference)
  *   node experiments/run.ts e01            E01: rules extractor vs recorded Claude-agent arm (results/e01-extraction)
  *   node experiments/run.ts e02|e03|e04|e05|e06|e07|usefulness
- *   node experiments/run.ts all [--continue-despite-e00]   E00,E01,E02,E04,E03,E05,E06,E07 (+ usefulness, report) in order; stops if E00 fails (override is recorded); test split stays closed
+ *   node experiments/run.ts e08|e09 [--model <ollama model>]   replay the recorded model outputs (data/replays/e08-<model>, e09-<model>); offline
+ *   node experiments/run.ts e08|e09 --record [--model <m>]     record them once from the local Ollama (lifts the guard for 127.0.0.1:11434 only)
+ *   node experiments/run.ts e10            E10: store metric before/after a simulated day, LinUCB vs rules with the store-metric reward, 3 seeds
+ *   node experiments/run.ts all [--continue-despite-e00]   E00,E01,E02,E04,E03,E05,E06,E07,usefulness,E08,E09,E10 (+ report) in order; stops if E00 fails (override is recorded); test split stays closed
  *   node experiments/run.ts test-final     one-shot test-split confirmation of the E02/E04 choices (refuses to run twice)
  *   node experiments/run.ts report         regenerate experiments/RESULTS.md from experiments/results/
  *
  * Experiments use the same core contracts as the application. They may read hidden keys through the
  * benchmark harness; the system under test never does. Each run writes its manifest BEFORE scoring.
- * No model or network call is made: every route is 'rules', 'local' or 'replay' (a network guard is installed).
+ * No model or network call is made: every route is 'rules', 'local' or 'replay' (a network guard is installed). The one
+ * exception is the explicit `--record` mode of E08/E09, which lets the guard through to the local Ollama alone.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -45,9 +49,11 @@ export const EXPERIMENTS: ExperimentEntry[] = [
   { id: 'E05', title: 'Question generation: templates vs freer structured proposals', status: 'ready', needs: 'Done for the template generator at pool sizes 1/2/4 (results/e05-pool-size); a freer structured generator was not built.' },
   { id: 'E06', title: 'Recipient ranking: direct contributors vs observable-condition eligibility', status: 'ready', needs: 'Done: direct-only vs question-dependent eligibility (results/e06-eligibility).' },
   { id: 'E07', title: 'Coordinator settings: budgets, cooldowns, stopping, deferred responses', status: 'ready', needs: 'Done: budgets {1,3,5} x cooldown {0,30} on train families and a simulator budget layer (results/e07-budgets).' },
-  { id: 'E08', title: 'Prompted LLM vs adapted small transformer outcome assessor', status: 'conditional', needs: 'Reviewed labels, an available model runtime and a bounded training allocation.' },
-  { id: 'E09', title: 'Next-choice policy vs sequential RL on multi-step scenarios', status: 'conditional', needs: 'A tested multi-step simulator and a documented next-choice baseline (U01 stays open).' },
-  { id: 'E10', title: 'Optional evaluative preferences and alternate reward/feature designs', status: 'conditional', needs: 'Separate preference records; never mixed with factual evidence.' },
+  { id: 'E08', title: 'Retrieval: bge-m3 embeddings vs hashed trigram vs BM25 vs hybrid fusion vs hybrid+embed, plus the paraphrased judge problem', status: 'ready', needs: 'Done: recorded bge-m3 vectors replayed from data/replays/e08-bge-m3 on demo/train/validation (results/e08-retrieval-embed); test split not reopened.' },
+  { id: 'E09', title: 'Extraction: local schema-constrained model (qwen3:4b in the brief) vs rules on the E01 families, direct and through the union commit', status: 'ready', needs: 'Done with the installed model (data/replays/e09-<model>, results/e09-extraction-model); re-record with --record --model qwen3:4b once it is pulled.' },
+  { id: 'E10', title: 'Store metric (completeness, correctness) before and after a simulated day; LinUCB vs rules with the store-metric reward', status: 'ready', needs: 'Done: 3 seeds on the demo store, in-process simulated day (results/e10-store-metric).' },
+  // Earlier placeholders that held these ids (outcome-assessor fine-tune, sequential RL, evaluative preferences) are not
+  // planned for day 2; BUILD_BRIEF 4 B2 gave E08-E10 the meanings above.
 ];
 
 function list(): void {
@@ -124,6 +130,12 @@ function runE00Reference(): void {
 }
 
 /** Run one experiment by id; returns wall-clock seconds. */
+const argValue = (name: string): string | undefined => {
+  const i = process.argv.indexOf(name);
+  return i >= 0 ? process.argv[i + 1] : undefined;
+};
+const RECORD = process.argv.includes('--record');
+
 async function runOne(id: string): Promise<number> {
   const t0 = performance.now();
   const core = await import('./runners-core.ts');
@@ -143,6 +155,17 @@ async function runOne(id: string): Promise<number> {
     case 'e06': await learn.runE06(); break;
     case 'e07': await learn.runE07(); break;
     case 'usefulness': await learn.runUsefulness(); break;
+    case 'e08': {
+      const m = argValue('--model');
+      await (await import('./runners-models.ts')).runE08({ mode: RECORD ? 'record' : 'replay', ...(m ? { model: m } : {}) });
+      break;
+    }
+    case 'e09': {
+      const m = argValue('--model');
+      await (await import('./runners-models.ts')).runE09({ mode: RECORD ? 'record' : 'replay', ...(m ? { model: m } : {}) });
+      break;
+    }
+    case 'e10': await (await import('./runners-models.ts')).runE10(); break;
     case 'test-final': await core.runTestFinal(); break;
     case 'report': (await import('./report.ts')).writeReport(); break;
     default: throw new Error(`unknown experiment ${id}`);
@@ -152,11 +175,13 @@ async function runOne(id: string): Promise<number> {
 
 async function main(cmd: string | undefined): Promise<void> {
   if (!cmd || cmd === 'list') return list();
-  installNetworkGuard();
+  if (RECORD && !['e08', 'e09'].includes(cmd.toLowerCase())) throw new Error('--record applies to e08 and e09 only');
+  // --record lets the guard through to the local Ollama alone; every other host (and every other run) stays blocked.
+  installNetworkGuard(RECORD ? { allowOrigins: ['http://127.0.0.1:11434'] } : {});
   const lock = testFamiliesUntouched();
   if (!lock.untouched) throw new Error(`test families changed since freeze: ${lock.changed.join(',')}`);
   if (cmd === 'all') {
-    const order = ['e00', 'e01', 'e02', 'e04', 'e03', 'e05', 'e06', 'e07', 'usefulness'];
+    const order = ['e00', 'e01', 'e02', 'e04', 'e03', 'e05', 'e06', 'e07', 'usefulness', 'e08', 'e09', 'e10'];
     const override = process.argv.includes('--continue-despite-e00');
     const times: Record<string, number> = {};
     let e00StopRuleFired = false;
@@ -178,7 +203,7 @@ async function main(cmd: string | undefined): Promise<void> {
     await runOne('report');
     return;
   }
-  const known = ['e00', 'e00-reference', 'e01', 'e02', 'e03', 'e04', 'e05', 'e06', 'e07', 'usefulness', 'test-final', 'report'];
+  const known = ['e00', 'e00-reference', 'e01', 'e02', 'e03', 'e04', 'e05', 'e06', 'e07', 'usefulness', 'e08', 'e09', 'e10', 'test-final', 'report'];
   if (!known.includes(cmd.toLowerCase())) {
     const e = EXPERIMENTS.find((x) => x.id.toLowerCase() === cmd.toLowerCase());
     console.error(e ? `${e.id} is '${e.status}': ${e.needs}` : `unknown experiment ${cmd}`);

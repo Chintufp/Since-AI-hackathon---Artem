@@ -21,10 +21,11 @@ import { applyDirectory } from '../src/apps/service/directory.ts';
 import {
   defaultInvestigationSettings, investigate, OUTCOME_KEY, parseGapId, RulesAssessor, storeDirectory, type InvestigationSettings,
 } from '../src/libs/utils/investigation/index.ts';
-import { importFromPath, openStore } from '../src/libs/utils/memory/index.ts';
+import { caseCard, importFromPath, openStore } from '../src/libs/utils/memory/index.ts';
 import { QuestionCoordinator, TemplateQuestionGenerator } from '../src/libs/utils/questions/index.ts';
 import { RulesSelector } from '../src/libs/utils/policies/index.ts';
-import { Bm25Retriever, canSee, ExactIdRetriever, HybridRetriever, TrigramVectorRetriever } from '../src/libs/utils/retrieval/index.ts';
+import { Bm25Retriever, canSee, EmbeddingIndex, EmbeddingRetriever, ExactIdRetriever, HybridRetriever, TrigramVectorRetriever } from '../src/libs/utils/retrieval/index.ts';
+import type { Embedder, RetrieverOptions } from '../src/libs/utils/retrieval/index.ts';
 import { loadHidden, loadVisibleInputs, familyEntry } from '../benchmarks/load.ts';
 import { DEFAULT_SCENARIOS_DIR } from '../benchmarks/splits.ts';
 import { answerFor } from '../benchmarks/oracle.ts';
@@ -34,7 +35,17 @@ import { normalizeSourceId } from '../benchmarks/text.ts';
 
 export const ORG = 'org:experiment';
 
-export type RetrieverName = 'hybrid' | 'lexical' | 'exact' | 'trigram';
+export type RetrieverName = 'hybrid' | 'lexical' | 'exact' | 'trigram' | 'embed' | 'hybrid-embed';
+
+/** The embed slot for E08: an embedder (replayed or recording) and the model name the vectors belong to. */
+export interface HarnessEmbedding {
+  embedder: Embedder;
+  model: string;
+  /** Called with the reason whenever the embedding list could not be made and the trigram list stood in. */
+  onFailure?: (reason: string) => void;
+  /** Index and query timeout (record mode: the first call loads the model). Default: the embed slot's. */
+  timeoutMs?: number;
+}
 
 export interface HarnessOptions {
   retriever?: RetrieverName;
@@ -56,6 +67,8 @@ export interface HarnessOptions {
   learn?: boolean;
   /** Restrict to some problem ids. */
   onlyProblems?: string[];
+  /** Required by the 'embed' and 'hybrid-embed' retrievers: the store is indexed once after import (evidence, claims, case cards). */
+  embedding?: HarnessEmbedding;
 }
 
 export interface QuestionLog {
@@ -115,8 +128,11 @@ export interface FamilyRun {
 
 const day = (i: number): Date => new Date(Date.UTC(2026, 0, 5 + i, 9, 0, 0));
 
-export function buildRetriever(name: RetrieverName, store: KnowledgeStore, settings: InvestigationSettings): Retriever {
+export function buildRetriever(name: RetrieverName, store: KnowledgeStore, settings: InvestigationSettings, embedding?: RetrieverOptions['embedding']): Retriever {
+  if ((name === 'embed' || name === 'hybrid-embed') && !embedding) throw new Error(`retriever ${name} needs an embedding index`);
   switch (name) {
+    case 'embed': return new EmbeddingRetriever(store, { ...settings, embedding: embedding! });
+    case 'hybrid-embed': return new HybridRetriever(store, { ...settings, embedding: embedding! });
     case 'hybrid': return new HybridRetriever(store, settings);
     case 'lexical': return new Bm25Retriever(store, settings);
     case 'exact': return new ExactIdRetriever(store, settings);
@@ -252,7 +268,15 @@ export async function runFamily(familyId: string, opts: HarnessOptions = {}): Pr
   const coordinatorCfg: CoordinatorSettings = { ...defaultCoordinatorSettings, ...(opts.coordinator ?? {}) };
   const settings = defaultInvestigationSettings({ ...(opts.settings ?? {}), coordinator: { ...coordinatorCfg, ...(opts.settings?.coordinator ?? {}) } });
   const selector = opts.selector ?? new RulesSelector({ clock });
-  const retriever = buildRetriever(opts.retriever ?? 'hybrid', store, settings);
+  let embedding: RetrieverOptions['embedding'];
+  if (opts.embedding) {
+    // Indexed once after the import, as the service does after demo:reset; answers later in the run do not re-index.
+    const t = opts.embedding.timeoutMs;
+    const index = new EmbeddingIndex(store, opts.embedding.embedder, opts.embedding.model, { cardText: (id) => caseCard(store, id), ...(t ? { indexTimeoutMs: t, queryTimeoutMs: t } : {}) });
+    await index.indexStore();
+    embedding = { index, ...(t ? { timeoutMs: t } : {}), ...(opts.embedding.onFailure ? { onFailure: opts.embedding.onFailure } : {}) };
+  }
+  const retriever = buildRetriever(opts.retriever ?? 'hybrid', store, settings, embedding);
   const assessor: Assessor = new RulesAssessor({ store, settings, mode: opts.assessorMode ?? 'separate' });
   const directory = dirEntity;
   let generator: QuestionGenerator = new TemplateQuestionGenerator({ store, settings, directory, clock });

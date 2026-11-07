@@ -1,0 +1,10 @@
+{
+  "experiment": "E10",
+  "hypothesis": "A simulated day of questions answered by simulated colleagues raises the store metric (completeness x correctness, BUILD_BRIEF 5.1-5.2) of the demo store, and the LinUCB selector rewarded by the measured delta of that metric minus burden (5.4) gains at least as much per question asked as the rules selector on the same store and the same day.",
+  "criterion": "Bandit vs rules: LinUCB is reported as better only if its mean same-case gain per question asked is higher than the rules selector's on at least 2 of 3 seeds; otherwise the rules selector stays the default (it is the default either way until a judge-visible reason exists).",
+  "outcome": "rules: completeness 0.45 -> 0.45, correctness 0.0167 -> 0.0167 (same 5 cases, mean of 3 seeds); gain 0 points for 9 questions asked over 3 days (n/a questions per point); answered 0.556 (5/9); mean reward -0.0215; measured per-answer deltas sum to -6.77 points (0/5 positive). linucb: completeness 0.45 -> 0.45, correctness 0.0167 -> 0.0167 (same 5 cases, mean of 3 seeds); gain 0 points for 9 questions asked over 3 days (n/a questions per point); answered 0.667 (6/9); mean reward -0.0259; measured per-answer deltas sum to -13.54 points (0/6 positive). LinUCB gains more per question on 0/3 seeds.",
+  "shipped": "The rules selector stays the default; LinUCB did not gain more per question on 2 of 3 seeds.",
+  "detail": {
+    "wins": "0/3"
+  }
+}

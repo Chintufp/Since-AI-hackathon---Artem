@@ -454,6 +454,111 @@ Daily limit {1,3,5} x cooldown {0,30} minutes. Family arm: train families, probl
 - demo: confusion (seed 1) TP 24 FP 7 FN 0 TN 1; predicted useful 31/32; beats the majority class by 1 example(s) of 32. n=32, positives 24, accuracy 0.781/0.781/0.781 (seeds 1/2/3), majority 0.750, precision 0.774/0.774/0.774, recall 1.000/1.000/1.000
 - train: confusion (seed 1) TP 51 FP 0 FN 0 TN 15; predicted useful 51/66; beats the majority class by 15 example(s) of 66. n=66, positives 51, accuracy 1.000/1.000/1.000 (seeds 1/2/3), majority 0.773, precision 1.000/1.000/1.000, recall 1.000/1.000/1.000
 
+## E08 - retrieval with a local embedding model (bge-m3)
+
+**Hypothesis.** A local embedding model (bge-m3) finds the relevant case by meaning: the fusion with bge-m3 in place of the trigram list keeps recall@3 and the lookalike rejection of the shipped hybrid on the hash-locked splits, and finds the judge's paraphrased problem that the lexical lists miss.
+
+Same cases and access filters; only the retriever changes. The embedding arms replay bge-m3 vectors recorded once from the local Ollama (`data/replays/e08-bge-m3/`, hash-checked per text). The decision split is validation; demo and train are reported for context. **The test split is not reopened.**
+
+**validation**
+
+| metric | lexical-bm25 | local-trigram | embed-bge-m3 | hybrid-rrf | hybrid+embed-bge-m3 |
+| --- | --- | --- | --- | --- | --- |
+| recall@1 | 0.556 (5/9) | 0.556 (5/9) | 0.556 (5/9) | 0.556 (5/9) | 0.556 (5/9) |
+| recall@3 | 0.778 (7/9) | 0.778 (7/9) | 0.778 (7/9) | 0.778 (7/9) | 0.778 (7/9) |
+| accessible recall@3 | 0.875 (7/8) | 0.875 (7/8) | 0.875 (7/8) | 0.875 (7/8) | 0.875 (7/8) |
+| precision@3 | 0.583 (7/12) | 0.583 (7/12) | 0.583 (7/12) | 0.583 (7/12) | 0.583 (7/12) |
+| lookalike top-1 rate (lower is better) | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) |
+| lookalike rejection rate | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) | 0.500 (1/2) |
+| recommendation kind accuracy | 0.500 (3/6) | 0.500 (3/6) | 0.500 (3/6) | 0.500 (3/6) | 0.500 (3/6) |
+| embedding fallbacks (count) | n/a | n/a | 0 | n/a | 0 |
+
+**train**
+
+| metric | lexical-bm25 | local-trigram | embed-bge-m3 | hybrid-rrf | hybrid+embed-bge-m3 |
+| --- | --- | --- | --- | --- | --- |
+| recall@1 | 0.667 (12/18) | 0.667 (12/18) | 0.667 (12/18) | 0.667 (12/18) | 0.667 (12/18) |
+| recall@3 | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) |
+| accessible recall@3 | 0.941 (16/17) | 0.941 (16/17) | 0.941 (16/17) | 0.941 (16/17) | 0.941 (16/17) |
+| precision@3 | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) | 0.889 (16/18) |
+| lookalike top-1 rate (lower is better) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) |
+| lookalike rejection rate | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) |
+| recommendation kind accuracy | 0.250 (3/12) | 0.250 (3/12) | 0.250 (3/12) | 0.250 (3/12) | 0.250 (3/12) |
+| embedding fallbacks (count) | n/a | n/a | 0 | n/a | 0 |
+
+**demo**
+
+| metric | lexical-bm25 | local-trigram | embed-bge-m3 | hybrid-rrf | hybrid+embed-bge-m3 |
+| --- | --- | --- | --- | --- | --- |
+| recall@1 | 0.625 (5/8) | 0.750 (6/8) | 0.750 (6/8) | 0.625 (5/8) | 0.625 (5/8) |
+| recall@3 | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) |
+| accessible recall@3 | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) | 1.000 (8/8) |
+| precision@3 | 0.667 (8/12) | 0.667 (8/12) | 0.667 (8/12) | 0.667 (8/12) | 0.667 (8/12) |
+| lookalike top-1 rate (lower is better) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) | 0.000 (0/1) |
+| lookalike rejection rate | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) | 1.000 (1/1) |
+| recommendation kind accuracy | 0.167 (1/6) | 0.167 (1/6) | 0.167 (1/6) | 0.167 (1/6) | 0.167 (1/6) |
+| embedding fallbacks (count) | n/a | n/a | 0 | n/a | 0 |
+
+**Paraphrase probe on the demo store** (rank of the first case on the target asset among the top 8; `-` = not found). The Elisa files are absent in this checkout, so the target is TRN-117 of optic-forwarding-a, the stand-in for TRN-042.
+
+| paraphrase (target TRN-117) | parsed conditions | lexical-bm25 | local-trigram | embed-bge-m3 | hybrid-rrf | hybrid+embed-bge-m3 |
+| --- | --- | --- | --- | --- | --- | --- |
+| "green light, nothing flowing" | none | - | 5 | 1 | 5 | 1 |
+| "The lamp on the box is green, yet no data gets through to the customer." | none | 3 | 3 | 1 | 3 | 1 |
+| "Everything on the unit looks healthy, but the customer is still getting nothing." | none | 1 | 2 | 3 | 1 | 1 |
+
+**Frozen criterion.** On validation: hybrid+embed recall@3 >= hybrid-rrf recall@3 AND hybrid+embed lookalike-top-1 rate <= hybrid-rrf's -> embed=local may be offered as the opt-in embed slot for the demo; else the embed slot stays rules by default and the result is reported as is. (The default is rules either way; nothing is enabled silently.)
+
+**Outcome.** validation recall@3 hybrid+embed 0.778 (7/9) vs hybrid 0.778 (7/9) -> met; lookalike-top-1 hybrid+embed 0.500 (1/2) vs hybrid 0.500 (1/2) -> met. Paraphrase probe (rank of the target case, - = not in the top 8): "green light, nothing flowing" -> TRN-117 at lexical-bm25 -, local-trigram 5, embed-bge-m3 1, hybrid-rrf 5, hybrid+embed-bge-m3 1; "The lamp on the box is green, yet no data gets through to the customer." -> TRN-117 at lexical-bm25 3, local-trigram 3, embed-bge-m3 1, hybrid-rrf 3, hybrid+embed-bge-m3 1; "Everything on the unit looks healthy, but the customer is still getting nothing." -> TRN-117 at lexical-bm25 1, local-trigram 2, embed-bge-m3 3, hybrid-rrf 1, hybrid+embed-bge-m3 1.
+
+**Shipped choice.** embed=local (bge-m3) is offered as the opt-in embed slot; the default stays rules (hybrid-rrf).
+
+## E09 - extraction with a local schema-constrained model
+
+Not run (no results in experiments/results/e09-extraction-model).
+
+## E10 - the store metric and the bandit it rewards
+
+**Hypothesis.** A simulated day of questions answered by simulated colleagues raises the store metric (completeness x correctness, BUILD_BRIEF 5.1-5.2) of the demo store, and the LinUCB selector rewarded by the measured delta of that metric minus burden (5.4) gains at least as much per question asked as the rules selector on the same store and the same day.
+
+Simulated: a fresh demo store per run (demo:reset --synthetic), the demo:play day (10 h; train and validation sources arrive, simulated engineers investigate, simulated colleagues answer from a seeded model) driven in-process against the real service. The coordinator measures completeness x correctness of the touched case before and after each answer and rewards the selector with the delta minus burden. Same day for both selectors; 3 seeds.
+
+| metric | rules@store-metric | linucb@store-metric |
+| --- | --- | --- |
+| questions asked (3 days) | 9 | 9 |
+| answered | 0.556 (5/9) | 0.667 (6/9) |
+| demo cases (before) | 5 | 5 |
+| completeness before | 0.45 | 0.45 |
+| completeness after (same cases) | 0.45 | 0.45 |
+| correctness before | 0.0167 | 0.0167 |
+| correctness after (same cases) | 0.0167 | 0.0167 |
+| supported claims before | 0.017 (3/180) | 0.017 (3/180) |
+| supported claims after (same cases) | 0.017 (3/180) | 0.017 (3/180) |
+| same-case gain (points, mean per day) | 0 | 0 |
+| questions per point (same cases) | n/a | n/a |
+| measured per-answer deltas (points, sum) | -6.77 | -13.54 |
+| positive per-answer deltas | 0 | 0 |
+| rewards measured | 5 | 6 |
+| mean reward | -0.0215 | -0.0259 |
+| questions per measured point | n/a | n/a |
+
+**Per seed**
+
+| selector | seed | asked | answered | cases before -> after (all) | product before -> after (same cases) | measured delta sum (points) | mean reward | touched cases with no supported claim |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| rules | 1 | 3 | 2 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | -0.01 | 1 |
+| rules | 2 | 3 | 3 | 5 -> 17 | 0.0075 -> 0.0075 | -6.77 | -0.0292 | 2 |
+| rules | 3 | 3 | 0 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | 0 | 0 |
+| linucb | 1 | 3 | 2 | 5 -> 17 | 0.0075 -> 0.0075 | 0 | 0 | 1 |
+| linucb | 2 | 3 | 3 | 5 -> 17 | 0.0075 -> 0.0075 | -6.77 | -0.0292 | 2 |
+| linucb | 3 | 3 | 1 | 5 -> 17 | 0.0075 -> 0.0075 | -6.77 | -0.0677 | 1 |
+
+**Frozen criterion.** Bandit vs rules: LinUCB is reported as better only if its mean same-case gain per question asked is higher than the rules selector's on at least 2 of 3 seeds; otherwise the rules selector stays the default (it is the default either way until a judge-visible reason exists).
+
+**Outcome.** rules: completeness 0.45 -> 0.45, correctness 0.0167 -> 0.0167 (same 5 cases, mean of 3 seeds); gain 0 points for 9 questions asked over 3 days (n/a questions per point); answered 0.556 (5/9); mean reward -0.0215; measured per-answer deltas sum to -6.77 points (0/5 positive). linucb: completeness 0.45 -> 0.45, correctness 0.0167 -> 0.0167 (same 5 cases, mean of 3 seeds); gain 0 points for 9 questions asked over 3 days (n/a questions per point); answered 0.667 (6/9); mean reward -0.0259; measured per-answer deltas sum to -13.54 points (0/6 positive). LinUCB gains more per question on 0/3 seeds.
+
+**Shipped choice.** The rules selector stays the default; LinUCB did not gain more per question on 2 of 3 seeds.
+
 ## Test split: one-shot confirmation of the E02 and E04 choices
 
 The test families were scored once, at the very end, with the criteria frozen before any scored run. Nothing was tuned afterwards. Recorded separately as `results/e02-test/` and `results/e04-test/`.

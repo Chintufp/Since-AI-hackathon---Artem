@@ -1,0 +1,14 @@
+{
+  "experiment": "E08",
+  "hypothesis": "A local embedding model (bge-m3) finds the relevant case by meaning: the fusion with bge-m3 in place of the trigram list keeps recall@3 and the lookalike rejection of the shipped hybrid on the hash-locked splits, and finds the judge's paraphrased problem that the lexical lists miss.",
+  "criterion": "On validation: hybrid+embed recall@3 >= hybrid-rrf recall@3 AND hybrid+embed lookalike-top-1 rate <= hybrid-rrf's -> embed=local may be offered as the opt-in embed slot for the demo; else the embed slot stays rules by default and the result is reported as is. (The default is rules either way; nothing is enabled silently.)",
+  "outcome": "validation recall@3 hybrid+embed 0.778 (7/9) vs hybrid 0.778 (7/9) -> met; lookalike-top-1 hybrid+embed 0.500 (1/2) vs hybrid 0.500 (1/2) -> met. Paraphrase probe (rank of the target case, - = not in the top 8): \"green light, nothing flowing\" -> TRN-117 at lexical-bm25 -, local-trigram 5, embed-bge-m3 1, hybrid-rrf 5, hybrid+embed-bge-m3 1; \"The lamp on the box is green, yet no data gets through to the customer.\" -> TRN-117 at lexical-bm25 3, local-trigram 3, embed-bge-m3 1, hybrid-rrf 3, hybrid+embed-bge-m3 1; \"Everything on the unit looks healthy, but the customer is still getting nothing.\" -> TRN-117 at lexical-bm25 1, local-trigram 2, embed-bge-m3 3, hybrid-rrf 1, hybrid+embed-bge-m3 1.",
+  "shipped": "embed=local (bge-m3) is offered as the opt-in embed slot; the default stays rules (hybrid-rrf).",
+  "detail": {
+    "lexical-bm25": "recall@1 0.556 (5/9); recall@3 0.778 (7/9); lookalike-top-1 0.500 (1/2); kindAccuracy 0.500 (3/6)",
+    "local-trigram": "recall@1 0.556 (5/9); recall@3 0.778 (7/9); lookalike-top-1 0.500 (1/2); kindAccuracy 0.500 (3/6)",
+    "embed-bge-m3": "recall@1 0.556 (5/9); recall@3 0.778 (7/9); lookalike-top-1 0.500 (1/2); kindAccuracy 0.500 (3/6)",
+    "hybrid-rrf": "recall@1 0.556 (5/9); recall@3 0.778 (7/9); lookalike-top-1 0.500 (1/2); kindAccuracy 0.500 (3/6)",
+    "hybrid+embed-bge-m3": "recall@1 0.556 (5/9); recall@3 0.778 (7/9); lookalike-top-1 0.500 (1/2); kindAccuracy 0.500 (3/6)"
+  }
+}

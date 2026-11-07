@@ -48,6 +48,10 @@ export const investigateSchema = z.object({
   allowQuestions: z.boolean().optional(),
   /** B1: point in time (ISO 8601 with a zone). */
   at: z.string().min(1).optional(),
+  /** B3: evidence cutoff inside an undated thread (Context Layer slider). */
+  atEvidence: z.string().min(1).optional(),
+  /** B3: compute without persisting anything. */
+  preview: z.boolean().optional(),
 });
 
 /** B1: GET /context query. */
@@ -140,3 +144,6 @@ export const activityQuerySchema = z.object({ since: z.coerce.number().int().min
 export const optInSchema = z.object({ principal: principalSchema, participates: z.boolean() });
 export const participationQuerySchema = z.object({ principalId: z.string().min(1).optional() });
 export const ratingQuerySchema = z.object({ personEntityId: z.string().min(1).optional(), principalId: z.string().min(1).optional() });
+
+/** B3: GET /costs query. */
+export const costsQuerySchema = z.object({ personEntityId: z.string().min(1).optional(), principalId: z.string().min(1).optional() });

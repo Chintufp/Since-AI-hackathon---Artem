@@ -14,7 +14,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { getPriority, setPriority } from 'node:os';
 import { join, resolve } from 'node:path';
 import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/service.ts';
-import { allowServiceCors, createCompanionWindow, createShell, handleMouseIgnore } from './window.ts';
+import { allowServiceCors, createCompanionWindow, createShell, handleMouseIgnore, handleOpenContext } from './window.ts';
 import type { Shell } from './window.ts';
 import { appMenuTemplate, columnIgnoredEnv, flagsFromEnv, flagsToQuery, IPC, restoreDefaultPriority } from './flags.ts';
 import { createKeychain, KEY_FILE, parseKeyPayload, sendKeyToService, type Keychain } from './keychain.ts';
@@ -123,6 +123,7 @@ else {
   // desktop (R36): launching again brings him back (and shows the window if it was hidden).
   app.on('second-instance', () => shell?.command('return'));
   handleMouseIgnore(() => win);
+  handleOpenContext(() => win, serviceUrl);
   void app.whenReady().then(() => {
     // desktop (M4): a niced launch (background shell) starves requestAnimationFrame; reset to 0 before the window
     // (and so the renderer, which inherits it) is created. Unprivileged processes may be refused: logged, not fatal.

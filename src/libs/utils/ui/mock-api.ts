@@ -236,6 +236,11 @@ function makeHandlers(s: MockState): Handlers {
         loop: quiet ? 'deferred' : 'question-open',
         routes: [{ route: 'replay', version: 'ui-dev-mock' }],
         caseView: CASE,
+        // B3: the provenance strip, so the screenshot harness shows it under the heading.
+        provenance: {
+          claimId: 'claim_mock_advice', person: 'Noor Ahmadi', providerLabel: 'Teams', when: '09:22 (date unknown)', sources: 1,
+          reportedOnce: true, stillBelievedTrue: true, route: 'rules', text: 'Noor Ahmadi · Teams 09:22 (date unknown) · reported once · still believed true',
+        },
       };
       const state: InvestigationState = {
         id, orgId: ORG, createdAt: NOW(), updatedAt: NOW(),
@@ -333,6 +338,21 @@ function makeHandlers(s: MockState): Handlers {
         subject: 'Question about label printer LP-3 printing blank labels',
         body: `Hi ${person.name.split(' ')[0]},\n\nLP-3 on line 3 feeds labels but prints them blank after a ribbon swap. Head temperature looks normal.\n\nSo far: nothing has been confirmed; reloading the ribbon the other way round helped in PKG-117, but the cause was never verified.\n\nStill unclear: was this the older printhead revision?\n\nCould you tell me what you saw, or point me to someone who did?\n\nThanks`,
         requiresReview: true, createdAt: NOW(),
+      };
+    },
+    // B3: Erkki's cost (dev data, deterministic for the screenshot harness)
+    'GET /costs': ({ query }) => {
+      const who = query.personEntityId ?? 'person:mock:noor';
+      const name = PEOPLE.find((p) => p.personEntityId === who)?.name ?? 'Dev User';
+      return {
+        personEntityId: who, name, asked: 3, answered: 2, deferred: 1, dismissed: 0, open: 0, cancelled: 0,
+        seconds: { total: 21, median: 9, answers: 2, clock: 'real' as const }, reuse: { people: 3, agents: 2, total: 5 },
+        storeHealth: {
+          cases: 14, completeness: 0.83, completenessBefore: 0.71, answeredSince: 5, correctness: 0.92, singletons: 2,
+          denominators: { cases: 14, retrievals: 9, caseClaims: 120, supportedClaims: 110 },
+          line: 'Store: 14 cases · completeness 0.71 → 0.83 after 5 questions · correctness 0.92 · 2 singletons left',
+        },
+        line: `${name}: asked 3 · answered 2 · 21 s · reused 5 (3 by people, 2 by agents)`,
       };
     },
     // R46: points (dev data; the rating is deterministic for the screenshot harness)

@@ -159,7 +159,17 @@ export function lookupAccessFacts(input: AccessLookupInput, intent: Condition | 
   const kindAsked = KIND.exec(input.problemText)?.[1];
   const kind = kindAsked ? normKind(kindAsked) : undefined;
   const visible = (c: Claim): boolean => c.supporting.some((r) => gate.ref(r));
-  const all = store.list('claim').filter((c) => c.type === 'access-fact' && READABLE.has(c.status) && c.subjectEntityIds.some((id) => ids.has(id)) && visible(c));
+  // B3 review: a code replaced by a newer claim the requester may not see reads as it did before that claim (as in
+  // context-assertions, B1 D-B1-39): no close time from it, so "no code on file" never hints that a hidden one exists.
+  const asSeen = (c: Claim): Claim => {
+    const newer = c.supersededBy ? store.get('claim', c.supersededBy) : undefined;
+    if (!c.supersededBy || (newer && visible(newer))) return c;
+    const closedByNewer = JSON.stringify(c.validity.to) === JSON.stringify(newer?.validity.from ?? { known: false });
+    const { to, ...rest } = c.validity;
+    const { supersededBy: _sb, ...plain } = c;
+    return { ...plain, status: c.status === 'superseded' ? 'provisional' : c.status, validity: closedByNewer || !to ? rest : { ...rest, to } } as Claim;
+  };
+  const all = store.list('claim').filter((c) => c.type === 'access-fact' && READABLE.has(c.status) && c.subjectEntityIds.some((id) => ids.has(id)) && visible(c)).map(asSeen);
   const now = all.filter((c) => validAt(c, atMs));
   const codesAll = now.filter((c) => c.condition?.key === ACCESS_CODE_KEY);
   const codes = kind && codesAll.some((c) => c.condition?.qualifier === kind) ? codesAll.filter((c) => c.condition?.qualifier === kind) : kind ? [] : codesAll;

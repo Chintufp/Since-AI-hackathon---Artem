@@ -156,6 +156,7 @@ export const IPC = {
   state: 'kt:state', // renderer → main ShellState
   contextMenu: 'kt:context-menu', // renderer → main (no payload)
   keySave: 'kt:key-save', // renderer → main (invoke) { vendor, key } → { present, stored } (B2: safeStorage)
+  openContext: 'kt:open-context', // renderer → main entity name (B3: the Context Layer page in the system browser)
 } as const;
 
 /**
@@ -369,4 +370,27 @@ export function isAllowedExternal(url: string): boolean {
     const a = new URL(l);
     return u.origin === a.origin && (u.pathname === a.pathname || u.pathname.startsWith(a.pathname + '/'));
   });
+}
+
+/** B3: an entity name the case view may ask the main process to open on the Context Layer page ("TRN-042"). */
+export function isEntityName(x: unknown): x is string {
+  return typeof x === 'string' && /^[A-Za-z0-9._ -]{1,64}$/.test(x) && x.trim() === x && x.length > 0;
+}
+
+/**
+ * B3: the Context Layer page for an entity on the configured service, or undefined. Only
+ * `<serviceUrl>/context.html?entity=<name>` on a loopback http service is ever produced (the main process opens nothing else).
+ */
+export function contextPageUrl(serviceUrl: string, name: unknown): string | undefined {
+  if (!isEntityName(name)) return undefined;
+  let base: URL;
+  try {
+    base = new URL(serviceUrl);
+  } catch {
+    return undefined;
+  }
+  if (base.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(base.hostname) || base.username || base.password) return undefined;
+  const root = serviceUrl.replace(/\/+$/, '');
+  const url = `${root}/context.html?entity=${encodeURIComponent(name)}`;
+  return url.startsWith(`${root}/context.html?entity=`) ? url : undefined;
 }

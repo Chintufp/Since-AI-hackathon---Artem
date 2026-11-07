@@ -38,6 +38,8 @@ export interface InvestigateInput {
   store: KnowledgeStore;
   principal: Principal;
   deps: InvestigateDeps;
+  /** B3: false computes the state without storing it (a preview; nothing is persisted). Default true. */
+  persist?: boolean;
   /** Prior state when rebuilding after an answer/observation; questions, decisions and events are carried over. */
   previous?: InvestigationState;
 }
@@ -171,9 +173,10 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
     parsed.conditions, prior, problem.observations ?? [], recorded.map((o) => o.condition).filter((c) => c.key !== OUTCOME_KEY),
   ]);
 
-  const gate = atMs === undefined ? evidenceGate(store, principal) : gateAt(store, evidenceGate(store, principal), atMs);
+  const gate = atMs === undefined ? evidenceGate(store, principal) : gateAt(store, evidenceGate(store, principal), atMs, problem.atEvidence);
   const candidates = visibleCandidates(store, await deps.retriever.search({
     text: problem.text, conditions, entityIds, requesterPrincipal: { id: principal.id, groups: principal.groups }, k: settings.k, ...(problem.at ? { at: problem.at } : {}),
+    ...(problem.at && problem.atEvidence ? { atEvidence: problem.atEvidence } : {}),
   }), gate);
   const top = candidates[0]?.score ?? 0;
   const relevant = candidates.filter((c) => c.score >= settings.relativeScoreFloor * top && c.score > 0);
@@ -255,7 +258,7 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
       : { principal: { id: principal.id, displayName: principal.displayName, groups: principal.groups, type: principal.type }, recommendation: recommendation.kind, ...basisData },
   };
   state.events = [...state.events, event];
-  store.put('investigation', state);
+  if (input.persist !== false) store.put('investigation', state);
   return state;
 }
 

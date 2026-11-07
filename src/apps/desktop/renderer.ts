@@ -19,6 +19,8 @@ interface KtBridge {
   showContextMenu?(): void;
   // B2
   saveModelKey?(vendor: 'anthropic' | 'gemini', key: string): Promise<{ present: boolean; stored: boolean }>;
+  // B3
+  openContext?(entityName: string): void;
 }
 declare global {
   interface Window {
@@ -59,6 +61,8 @@ const panel = createPanel({
   companion: flags,
   // B2: api keys go through the main process (safeStorage); the mock keeps them in the mock service's memory.
   keychain: !mock && window.kt?.saveModelKey ? { save: (vendor, key) => window.kt!.saveModelKey!(vendor, key) } : null,
+  // B3: the case view's "Open the context layer" (hidden without the bridge, and in mock mode where there is no page).
+  openContext: !mock && window.kt?.openContext ? (name) => window.kt!.openContext!(name) : null,
 });
 
 // Click-through: the window is transparent; only Lumi and the open panel take the mouse.

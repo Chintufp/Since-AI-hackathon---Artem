@@ -20,6 +20,7 @@ import { ApiError } from './api-client.ts';
 import type { ApiClient } from './api-client.ts';
 import { hydrateIcons, iconSvg } from './icons.ts';
 import { createPanelMotion } from './panel-motion.ts';
+import { costRow, setProvenance } from './b3-rows.ts';
 import type { PanelMotion, PanelMotionStatus } from './panel-motion.ts';
 import { attachCompanion, createCompanion } from './companion.ts';
 import type { Companion, CompanionCommand, CompanionFlags, CompanionPower, CompanionStatus } from './companion.ts';
@@ -75,6 +76,8 @@ export interface PanelOptions {
    * and lasts until the service restarts.
    */
   keychain?: { save(provider: 'anthropic' | 'gemini', key: string): Promise<{ present: boolean; stored: boolean }> } | null;
+  /** B3: opens the Context Layer page for an entity name (desktop: the system browser). null/absent hides the button. */
+  openContext?: ((entityName: string) => void) | null;
   /**
    * desktop (R31..R36): the companion flags (drag, away, gaze, fidgets). Default: `window.__ktFlags`
    * (set by the desktop renderer). null, `companion: false` or `windowMode: 'column'` = the R28 panel.
@@ -142,7 +145,7 @@ interface ReceiptAction {
   run: () => void;
 }
 
-const TEMPLATE = `
+export const TEMPLATE = `
 <div class="rf-stage" data-view="input">
  <div class="rf-window">
   <div class="rf-motion-skin" aria-hidden="true"></div><div class="rf-texture" aria-hidden="true"></div>
@@ -155,7 +158,7 @@ const TEMPLATE = `
    <section class="rf-view" data-view="question" hidden>
     <div class="rf-question">
      <p class="rf-case"></p><button class="rf-tool rf-close" type="button" data-action="queue" aria-label="Back to questions"><i data-icon="arrow-left"></i></button>
-     <h2></h2>
+     <h2></h2><p class="rf-provenance" hidden></p>
      <textarea class="rf-free-text" aria-label="Your answer in your own words" placeholder="What did you see?" hidden></textarea>
      <div class="rf-responses"><button class="rf-answer" type="button" data-action="yes">Yes</button><button class="rf-answer" type="button" data-action="no">No</button></div>
      <div class="rf-secondary-responses"><button class="rf-later" type="button" data-action="unknown">Not sure</button><button class="rf-later" type="button" data-action="later">Later</button><span class="rf-spacer"></span><button class="rf-later" type="button" data-action="dismiss">Dismiss</button></div>
@@ -176,6 +179,7 @@ const TEMPLATE = `
      <label class="rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox"></label>
      <label class="rf-setting rf-option"><span>Reduced motion</span><input class="rf-motion" type="checkbox"></label>
      <div class="rf-setting rf-option"><span>Points &amp; rating</span><button class="rf-later" type="button" data-action="points">Open</button></div>
+     <div class="rf-setting rf-cost-row" hidden><span class="rf-cost-label">Cost</span><span class="rf-cost"><span class="rf-cost-line"></span><small class="rf-cost-store"></small></span></div>
      <div class="rf-setting rf-option"><span>Connections</span><button class="rf-later" type="button" data-action="connections">Open</button></div>
      <label class="rf-setting rf-option"><span>Sound</span><em class="rf-setting-note">No sounds yet</em><input class="rf-sound" type="checkbox" disabled aria-label="Sound (no sounds yet)"></label>
      <div class="rf-setting rf-option"><span>Demo data</span><button class="rf-later" type="button" data-action="reset-demo">Reset demo</button></div>
@@ -209,7 +213,7 @@ const TEMPLATE = `
     <div class="rf-models-body rf-list-scroll"></div>
    </section>
    <section class="rf-view rf-result" data-view="result" aria-label="Result" hidden>
-    <div class="rf-result-head"><p class="rf-result-title"></p><div class="rf-result-notes"></div><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to writing"><i data-icon="arrow-left"></i></button></div>
+    <div class="rf-result-head"><p class="rf-result-title"></p><p class="rf-provenance" hidden></p><div class="rf-result-notes"></div><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to writing"><i data-icon="arrow-left"></i></button></div>
     <div class="rf-case-path"></div>
     <div class="rf-result-rows"></div>
    </section>
@@ -219,6 +223,7 @@ const TEMPLATE = `
    </section>
    <section class="rf-view rf-panel-content" data-view="case" aria-label="Case" hidden>
     <p class="rf-case"></p><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to people"><i data-icon="arrow-left"></i></button>
+    <p class="rf-provenance" hidden></p>
     <div class="rf-case-body"></div>
    </section>
    <section class="rf-view rf-receipt" data-view="contact" aria-label="Message draft" hidden aria-live="polite">
@@ -315,6 +320,7 @@ export function createPanel(options: PanelOptions): Panel {
   let pointsRating: ParticipationRating | null = null;
   let pointsFrom: ViewName = 'settings';
   let pointsLoad = 0;
+  let costsLoad = 0;
   // B2: Settings -> Models.
   let modelsView: ModelsView | null = null;
   let modelsError: string | null = null;
@@ -415,6 +421,7 @@ export function createPanel(options: PanelOptions): Panel {
     const q = activeQuestion();
     $('.rf-question h2').textContent = q?.text ?? 'No open question';
     $('.rf-question .rf-case').textContent = q ? q.caseLabel + (q.deferred ? ' · later' : '') : '';
+    setProvenance($('.rf-question .rf-provenance'), q?.provenance);
     root.querySelectorAll<HTMLButtonElement>('.rf-answer[data-action], .rf-secondary-responses .rf-later').forEach((b) => (b.disabled = !q));
     // B1 review: a free-text question (a standing missing symptom) takes words; Yes becomes Send and No goes away.
     const free = q?.answerType === 'free-text';
@@ -536,6 +543,7 @@ export function createPanel(options: PanelOptions): Panel {
     if (!result) return;
     const r = result.recommendation;
     $('.rf-result-title').textContent = r.text;
+    setProvenance($('.rf-result-head .rf-provenance'), result.provenance);
     const notes = $('.rf-result-notes');
     notes.replaceChildren();
     // The engine's applicability is a one-word enum (qualified, ...): the sentence above already says it, so only prose is shown.
@@ -623,6 +631,7 @@ export function createPanel(options: PanelOptions): Panel {
   function renderCase(): void {
     if (!caseView) return;
     $('.rf-view[data-view="case"] .rf-case').textContent = caseView.title;
+    setProvenance($('.rf-view[data-view="case"] .rf-provenance'), caseView.provenance);
     const body = $('.rf-case-body');
     body.replaceChildren();
     const wrap = el('div', 'rf-case-path');
@@ -630,6 +639,15 @@ export function createPanel(options: PanelOptions): Panel {
     wrap.style.padding = '8px 0 0';
     wrap.append(evidencePath(caseView.timeline, 'case', 'Case timeline; expand a title for details'));
     if (caseView.caveat) wrap.append(el('p', 'rf-context-caveat', caseView.caveat));
+    // B3: the case's asset on the Context Layer page (time axis, validity windows, t slider), when the host can open it.
+    const asset = caseView.entities.find((e) => e.type !== 'person');
+    if (options.openContext && asset) {
+      const open = el('button', 'rf-later rf-open-context', 'Open the context layer');
+      open.type = 'button';
+      open.dataset.action = 'open-context';
+      open.dataset.entity = asset.name;
+      wrap.append(open);
+    }
     body.append(wrap);
     // Artem 7 Nov: the people with relevant experience are listed on the case page.
     const cp = caseView.people ?? [];
@@ -741,6 +759,26 @@ export function createPanel(options: PanelOptions): Panel {
       renderPoints();
     } catch (e) {
       if (n === pointsLoad) showError(e, () => { setView('points'); });
+    }
+  }
+  /**
+   * B3: "Erkki's cost" row: what answering cost the most-asked person and how often their knowledge was reused, plus the
+   * store line. Loaded after the view opens; any failure (older service, mock without the route) leaves the row hidden.
+   */
+  async function loadCosts(): Promise<void> {
+    const n = ++costsLoad;
+    const row = $('.rf-cost-row');
+    try {
+      const c = await api.costs(settings?.currentPersonEntityId ? { principalId: settings.currentPersonEntityId } : {});
+      if (n !== costsLoad) return;
+      const r = costRow(c);
+      $('.rf-cost-label').textContent = r.label;
+      $('.rf-cost-line').textContent = r.line;
+      $('.rf-cost-store').textContent = r.store;
+      row.title = r.title;
+      row.hidden = false;
+    } catch {
+      if (n === costsLoad) row.hidden = true;
     }
   }
   async function setOptIn(on: boolean): Promise<void> {
@@ -999,7 +1037,7 @@ export function createPanel(options: PanelOptions): Panel {
     compose.innerHTML = iconSvg(view === 'input' ? 'paperclip' : 'square-pen');
     if (view === 'queue') renderQueue();
     if (view === 'question') renderQuestion();
-    if (view === 'settings') renderSettings();
+    if (view === 'settings') { renderSettings(); void loadCosts(); }
     if (view === 'result') renderResult();
     if (view === 'people') renderPeople();
     if (view === 'case') renderCase();
@@ -1346,6 +1384,11 @@ export function createPanel(options: PanelOptions): Panel {
       case 'model-test': void testKey(button.dataset.vendor as ApiVendorName, button.dataset.model); return;
       case 'model-copy': void navigator.clipboard?.writeText(button.dataset.text ?? '').catch(() => undefined); button.textContent = 'Copied'; return;
       case 'back': { const to = state.view === 'points' ? pointsFrom : state.view === 'people' && peopleFromCase ? 'case' : BACK[state.view]; if (to) { setView(to); focusFor(to); } return; }
+      case 'open-context': {
+        const name = button.dataset.entity;
+        if (name) options.openContext?.(name);
+        return;
+      }
       case 'view-case': {
         const id = button.dataset.caseId!;
         void (async () => {

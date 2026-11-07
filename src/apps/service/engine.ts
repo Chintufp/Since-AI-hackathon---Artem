@@ -9,7 +9,7 @@ import type {
   InvestigateRequest, InvestigationState, KnowledgeStore, ObservationRequest, OutcomeReport, OutcomeRequest, ParticipationBalance, ParticipationOptIn, ParticipationRating, PeopleDirectory,
   PersonView, PreferenceFeedback, Principal, Problem, QuestionGenerator, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
 import { DEFAULT_MODEL_SLOTS, defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
-import type { InstallJobView, ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView } from '../../libs/utils/contracts/index.ts';
+import type { ExpertCostView, InstallJobView, ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView } from '../../libs/utils/contracts/index.ts';
 import { fallbackRoute, vendorOf, type ApiVendor, type ModelProvider } from '../../libs/utils/models/providers/index.ts';
 import { EmbeddingIndex, type IndexReport } from '../../libs/utils/retrieval/index.ts';
 import { caseCard, createLlmExtractor, enrichWithModel, RULES_ROUTE, storeHealth, type EnrichItem, type EnrichReport, type StoreHealth } from '../../libs/utils/memory/index.ts';
@@ -22,7 +22,7 @@ import {
 import { buildCaseView, contextAssertions, defaultStandingGapSettings, importFromPath, listCases, openStore, parseAt, recordStandingGaps, resolveContextEntity, type StandingGapSettings } from '../../libs/utils/memory/index.ts';
 import { evaluateEligibility, PhrasedQuestionGenerator, TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
 import { createSelector, LinUcb, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
-import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
+import { HybridRetriever, canSee, earliestDated, evidenceGate } from '../../libs/utils/retrieval/index.ts';
 import { buildPeople } from '../../libs/utils/investigation/index.ts';
 import type { CandidateMatch } from '../../libs/utils/contracts/investigation.ts';
 import { awardPoints, balanceOf, getOptIn, participates, rating, revokeContribution, setOptIn, type ParticipationKind } from '../../libs/utils/participation/index.ts';
@@ -30,6 +30,9 @@ import { applyDirectory } from './directory.ts';
 import { resetDemo } from './demo.ts';
 import { DEFAULT_ACTIVITY_LOG, readActivity, type ActivityResponse } from './activity.ts';
 import { activityPage } from './activity-page.ts';
+import { caseProvenance } from './provenance-strip.ts';
+import { contextPage } from './context-page.ts';
+import { expertCost, storeHealthLine } from './costs.ts';
 import { createDemoClock, type DemoClock, type DemoClockStatus } from './demo-clock.ts';
 import { DEFAULT_DB_PATH } from './paths.ts';
 import { badRequest, conflict, forbidden, notFound, toServiceError } from './errors.ts';
@@ -577,7 +580,8 @@ export class Engine {
         people = buildPeople({ store: this.store, directory, principal, gate, candidates: [candidate], selectedCaseId: id, entityIds: c.entityIds, settings, now: this.clock() }).map((p) => personView(p, gate));
       } catch { people = []; }
     }
-    return { ...v, caveat: polishCaveat(v.caveat), people };
+    const provenance = caseProvenance(this.store, id, evidenceGate(this.store, principal));
+    return { ...v, caveat: polishCaveat(v.caveat), people, ...(provenance ? { provenance } : {}) };
   }
 
   /**
@@ -594,7 +598,9 @@ export class Engine {
   }
 
   async investigate(req: InvestigateRequest): Promise<InvestigationResult> {
-    this.deliverDue();
+    // B3: a preview persists nothing, so it does not run the quiet-hours delivery either.
+    const preview = req.preview === true;
+    if (!preview) this.deliverDue();
     const principal = this.effective(req.principal);
     const w = this.wiring();
     const observations = req.observations ?? [];
@@ -605,13 +611,34 @@ export class Engine {
       if (ms === undefined) throw badRequest(`Invalid at: ${req.at} (ISO 8601 with a zone, e.g. 2026-10-20T12:00:00Z)`);
       at = new Date(ms).toISOString();
     }
-    const problemId = stableId('prob', this.orgId, principal.id, req.text.trim(), (req.entityIds ?? []).join(','), JSON.stringify(observations.map((o) => [o.key, o.operator, o.value ?? null])), (req.attachmentNames ?? []).join('|'), ...(at ? [`at:${at}`] : []));
+    // B3: an evidence cutoff is a point-in-time view inside an undated thread. Only that thread up to the cutoff counts
+    // (gateAt); without `at` the moment is just before the earliest dated source the requester can see (else now), so
+    // claim validity is read before any dated change. An id the requester may not see is refused like an unknown one.
+    const atEvidence = req.atEvidence;
+    if (atEvidence !== undefined) {
+      const gate = evidenceGate(this.store, principal);
+      if (!this.store.get('evidence', atEvidence) || !gate.ref({ evidenceId: atEvidence })) throw badRequest(`Unknown atEvidence: ${atEvidence}`);
+      if (at === undefined) {
+        const first = earliestDated(this.store, gate);
+        at = new Date(first !== undefined ? first - 1 : this.now().getTime()).toISOString();
+      }
+    }
+    const problemId = stableId('prob', this.orgId, principal.id, req.text.trim(), (req.entityIds ?? []).join(','), JSON.stringify(observations.map((o) => [o.key, o.operator, o.value ?? null])), (req.attachmentNames ?? []).join('|'), ...(at ? [`at:${at}`] : []), ...(atEvidence ? [`ev:${atEvidence}`] : []), ...(preview ? ['preview'] : []));
     const problem: Problem = {
       id: problemId, orgId: this.orgId, text: req.text.trim(),
       requester: principal.type === 'agent' ? { id: 'agent', displayName: principal.displayName, agentId: principal.id } : actorOf(principal),
       ...(req.entityIds ? { entityIds: req.entityIds } : {}), ...(observations.length ? { observations } : {}),
       ...(req.attachmentNames ? { attachmentNames: req.attachmentNames } : {}), createdAt: this.now().toISOString(), ...(at ? { at } : {}),
+      ...(atEvidence ? { atEvidence } : {}),
     };
+    if (preview) {
+      try {
+        const state = await investigate({ problem, store: this.store, principal, deps: { retriever: w.retriever, assessor: w.assessor, selector: w.selector, settings: w.settings, clock: this.clock, directory: w.directory }, persist: false });
+        return resultView(this.store, state, ANONYMOUS, w.settings.loopReasons);
+      } catch (e) {
+        throw toServiceError(e);
+      }
+    }
     let state: InvestigationState;
     // The id is derived from the whole request, so a repeat carries no new observations or attachments: what the stored
     // state says about the question loop (an answer already used) must survive the refresh.
@@ -1106,7 +1133,49 @@ export class Engine {
   }
 
   async resetDemo(seed: 'elisa' | 'synthetic' | 'empty' | undefined, defaultPerson?: string): Promise<ApiRoutes['POST /demo/reset']['res'] & { defaultPersonEntityId?: string }> {
-    return resetDemo(this, seed, this.opts, defaultPerson);
+    const r = await resetDemo(this, seed, this.opts, defaultPerson);
+    // B3: the store-health baseline for "completeness 0.71 -> 0.83 after 5 questions" (in memory; D-B3-08).
+    this.healthBaselines.clear();
+    const at = this.now().toISOString();
+    this.healthBaselines.set('', { at, health: this.storeHealth() });
+    // Review: the Settings row asks as the current person, so every directory person gets the reset's "before" too
+    // (otherwise it would be taken at the first Settings opening and miss the answers given before it).
+    for (const d of this.directory()) {
+      try {
+        this.healthBaselines.set(d.personEntityId, { at, health: this.storeHealth(d.personEntityId) });
+      } catch {
+        // a person the metric cannot be computed for gets the lazy baseline (D-B3-08)
+      }
+    }
+    return r;
+  }
+
+  private readonly healthBaselines = new Map<string, { at: string; health: StoreHealth }>();
+
+  /**
+   * B3: GET /costs. The person's cost and reuse (`costs.ts`), plus the store line (BUILD_BRIEF 5.5) over the cases the
+   * principal may see. Default person: the most-asked person, else the settings' current person.
+   */
+  costs(query: { personEntityId?: string; principalId?: string }): ExpertCostView {
+    const dir = storeDirectory(this.store);
+    let id = query.personEntityId ? dir.resolve(query.personEntityId) ?? query.personEntityId : undefined;
+    if (!id) {
+      const asked = new Map<string, number>();
+      for (const q of this.store.list('question')) asked.set(q.personEntityId, (asked.get(q.personEntityId) ?? 0) + 1);
+      id = [...asked.entries()].filter(([p]) => !!dir.get(p)).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ?? (this.getSettings().currentPersonEntityId || undefined);
+    }
+    if (!id || !dir.get(id)) throw notFound(`Unknown person ${query.personEntityId ?? '(none: no one was asked and no current person is set)'}`);
+    const view = expertCost(this.store, id, { simulated: this.clockStatus().mode === 'simulated' });
+    try {
+      const key = query.principalId ?? '';
+      const health = this.storeHealth(query.principalId);
+      if (!this.healthBaselines.has(key)) this.healthBaselines.set(key, { at: this.now().toISOString(), health });
+      const base = this.healthBaselines.get(key)!;
+      const answeredSince = this.store.list('answer').filter((a) => a.at > base.at).length;
+      return { ...view, storeHealth: storeHealthLine(health, { health: base.health, answeredSince }) };
+    } catch {
+      return view; // the cost stands on its own; the store line is optional
+    }
   }
 
   // ---- demo clock and simulated activity (read-only views for the judge) ---------------------------
@@ -1138,6 +1207,11 @@ export class Engine {
 
   activityPage(): string {
     return activityPage();
+  }
+
+  /** B3: the Context Layer page; it holds no data (it fetches GET /context and POST /investigate per viewer). */
+  contextPage(): string {
+    return contextPage();
   }
 }
 

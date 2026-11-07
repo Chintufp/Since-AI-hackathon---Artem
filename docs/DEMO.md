@@ -86,6 +86,23 @@ This is a plain MCP client (no model) starting the same MCP server on the same d
 
 The same rows are appended as JSON lines to `data/local/demo-activity.jsonl` (git-ignored) and served by `GET /demo/activity`. `pnpm demo:play -- --seed 2` replays a different day; `--hour-seconds 5` runs it faster; `--instant` runs it in one go; `--delay 0` skips the quiet period when you run it by hand.
 
+## The Context Layer: what an agent is told at time t (1 minute)
+
+Open **http://127.0.0.1:47831/context.html?entity=TRN-042** in a browser (the service must be running; the case view's **Open the context layer** button opens the same page). One plain SVG chart, four rows: **as observed** (a diamond per message or e-mail), **as experienced** (one bar per claim: open bars fade right with *still believed true*, superseded bars are grey with an arrow to what replaced them), **bindings** and **people**. The Teams thread has clock times but no date, so it sits on its own "same day, date unknown" segment: nothing on the page invents a date. Click any bar to see the sentence it came from.
+
+Drag the **t** line (or click it and use ← → Home End). The card under the chart is what an agent is told at that moment, computed by the service through your access (a preview: nothing is stored, nobody is asked). On the Elisa example files:
+
+| t | The card says |
+| --- | --- |
+| 09:14 – 09:18 (date unknown) | nothing yet (`none`): only this thread up to here counts, and the fix is not in it yet |
+| 09:19 – 09:22 | **check first**: "Check the traffic counters first." |
+| 09:25 | **qualified**: bounce the interface, reported once |
+| 14 Oct and now | **qualified** with the caveat *Superseded on 14 Oct by Erkki Expert: fixed in firmware 4.2*; the bar is hatched: *bounded 14 Oct by Erkki Expert · holds for software.version < 4.2* |
+
+Then **http://127.0.0.1:47831/context.html?entity=RBS-310** (the barrier code): before 20 Aug *No barrier code for RBS-310 is on file*; at 20 Aug **5802**; at 6 Oct **7731** *replaces 5802 from 20 Aug*, and the 5802 bar turns grey with an arrow to 7731. Add `&principalId=<id>` (any id from `GET /directory`) to view as someone else; restricted knowledge never shows on their page. `&text=` changes the question the card asks. Without Elisa's files, use `?entity=TRN-117` (the synthetic thread and Helmi's dated firmware note). Screenshots of both stories: `docs/runs/2026-11-07-overnight/day2/screenshots/context-*.png`.
+
+Every result heading in the companion carries the same **provenance strip** (who said it, where and when, how many independent sources, whether it is still believed true). **Erkki's cost** (asked, answered, seconds spent, reuse by people and by agents, and the store line) is a card at the top of the activity page and a row in Settings → Points & rating, both from `GET /costs`.
+
 ## Points, if you want them (30 seconds)
 
 Points are optional and personal: nobody has any until they say so. As Erkki (Settings → **You** = Erkki), open **Settings → Points & rating** and switch on **I take part in points**; the sentence under it says points count contributions and never judge whether an answer was right, and that opting out hides them without deleting anything. Answer a question (the TRN-301 one, or the next one the stream sends you) and the receipt shows **+2** with a small pixel burst and a link **See your points**: your balance large, your rank among the simulated people who take part, your last contributions as neutral lines ("Answered a question (no)"), and the participants list with you marked. A useful *No* earns the same as a *Yes*; *Not sure*, *Later* and *Dismiss* earn nothing and cost nothing. The simulated colleagues take part by default (their awards are **points** rows in the stream, labelled simulated); a person who never opted in has no points and appears nowhere, not even to an agent asking over MCP (`kt_participation`). Switch the toggle off and the view goes quiet; switch it on again and the history is back.

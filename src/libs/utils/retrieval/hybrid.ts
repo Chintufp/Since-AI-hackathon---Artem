@@ -116,7 +116,7 @@ abstract class Base implements Retriever {
 
   async search(q: RetrievalQuery): Promise<CandidateMatch[]> {
     const atMs = q.at ? Date.parse(q.at) : undefined;
-    const docs = buildCorpus(this.store, q.requesterPrincipal, atMs !== undefined && Number.isFinite(atMs) ? atMs : undefined);
+    const docs = buildCorpus(this.store, q.requesterPrincipal, atMs !== undefined && Number.isFinite(atMs) ? atMs : undefined, q.atEvidence);
     const byKey = new Map(docs.map((d) => [d.key, d] as const));
     const entities = this.store.list('entity');
     const { ids: entityIds } = resolveEntityIds(q.text, entities, q.entityIds);

@@ -98,6 +98,8 @@ export interface RetrievalQuery {
   k: number;
   /** B1: retrieve as of this moment (ISO): later evidence and claims not valid then are left out. */
   at?: string;
+  /** B3: evidence cutoff inside an undated thread (with `at`; see Problem.atEvidence). */
+  atEvidence?: string;
 }
 
 export interface Retriever {

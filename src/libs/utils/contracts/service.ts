@@ -69,6 +69,14 @@ export interface InvestigateRequest {
   allowQuestions?: boolean;
   /** B1: answer as of this moment (ISO with zone). A past view never asks anyone (allowQuestions is forced false). */
   at?: string;
+  /**
+   * B3: an evidence cutoff inside an undated thread (the Context Layer slider on a time-only segment). Only undated
+   * evidence of that evidence's thread up to and including it (thread order) is visible, plus evidence dated at or
+   * before `at` (now when `at` is absent). Like `at`, it never asks anyone.
+   */
+  atEvidence?: string;
+  /** B3: compute and return the result but persist nothing (no investigation record, no trace events, no question). */
+  preview?: boolean;
 }
 
 export interface AnswerRequest {
@@ -147,6 +155,13 @@ export interface ApiRoutes {
   'GET /demo/activity': { query: { since?: number; limit?: number }; res: ActivityView };
   /** Standalone local page (text/html) that polls GET /demo/activity, for a browser tab next to the companion. */
   'GET /demo/activity.html': { res: string };
+  /**
+   * B3: what answering cost a person and how often their knowledge was reused (store records only). `personEntityId`
+   * defaults to the most-asked person, else the settings' current person. `principalId` scopes the store-health block.
+   */
+  'GET /costs': { query: { personEntityId?: string; principalId?: string }; res: ExpertCostView };
+  /** B3: the Context Layer page (text/html) for ?entity=<name>[&principalId=]; it fetches GET /context and POST /investigate (preview). */
+  'GET /context.html': { query: { entity?: string; principalId?: string }; res: string };
   /** Settings -> Models: machine detection, the catalog per slot (merged with installed models) and a status chip per slot. */
   'GET /models': { res: ModelsView };
   /** Starts `ollama pull` for one model (only ever from a click); progress by polling GET /models/pull/:id. */
@@ -297,3 +312,36 @@ export const demoPrincipal = (actor: ActorRef, groups: string[] = ['noc', 'field
   groups,
   type: 'human',
 });
+
+/** B3: BUILD_BRIEF 5.5 store line with its denominators. */
+export interface StoreHealthLine {
+  cases: number;
+  completeness: number;
+  /** Store completeness at the last demo reset (or the first request after a restart) and answers since then. */
+  completenessBefore?: number;
+  answeredSince?: number;
+  correctness: number | null;
+  singletons: number;
+  denominators: { cases: number; retrievals: number; caseClaims: number; supportedClaims: number };
+  /** "Store: 14 cases · completeness 0.71 → 0.83 after 5 questions · correctness 0.92 · 2 singletons left" */
+  line: string;
+}
+
+/** B3: "Erkki's cost": questions by status, answer seconds, reuse of the person's knowledge by people and agents. */
+export interface ExpertCostView {
+  personEntityId: string;
+  name: string;
+  asked: number;
+  answered: number;
+  deferred: number;
+  dismissed: number;
+  open: number;
+  cancelled: number;
+  /** Delivery (else creation) to answer, on the engine clock: 'simulated' when the demo clock was simulated. */
+  seconds: { total: number; median: number | null; answers: number; clock: 'real' | 'simulated' };
+  /** Distinct stored investigations whose reuse / check-first / qualified recommendation cites this person's knowledge. */
+  reuse: { people: number; agents: number; total: number };
+  storeHealth?: StoreHealthLine;
+  /** "Erkki Expert: asked 3 · answered 2 · 38 s · reused 5 (3 by people, 2 by agents)" */
+  line: string;
+}

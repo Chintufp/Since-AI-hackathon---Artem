@@ -1,0 +1,145 @@
+{
+  "startedAt": "2026-11-07T18:49:38.702Z",
+  "electron": "45.2.3",
+  "chrome": "156.0.8078.80",
+  "node": "24.22.2",
+  "platform": "darwin",
+  "arch": "arm64",
+  "budgets": {
+    "frameP95Ms": 16.7,
+    "frameMaxMs": 20,
+    "idleCpuPercent": 0.3,
+    "idleRafCalls": 0
+  },
+  "mouseForwarding": "isolated (recorded, not applied; the window ignores the real mouse)",
+  "cursorAtStart": {
+    "x": 895,
+    "y": 654
+  },
+  "workAreaLog": [
+    {
+      "t": "2026-11-07T18:49:38.750Z",
+      "event": "start",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 872
+      }
+    },
+    {
+      "t": "2026-11-07T18:49:38.818Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 872
+      }
+    },
+    {
+      "t": "2026-11-07T18:49:39.433Z",
+      "event": "display-metrics-changed: workArea",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 874
+      }
+    }
+  ],
+  "contextShots": [
+    {
+      "file": "context-trn042-t-0914-before-0916.png",
+      "entity": "TRN-042",
+      "t": "09:14 (date unknown)",
+      "zoom": 0.7963709677419355,
+      "kind": "nothing to reuse",
+      "text": "You already did the SFP replacement; TRN-042 has no other reported fix.",
+      "provenance": "Veikko Vikkelä · Teams 09:14 (date unknown) · reported once · still believed true",
+      "caveats": "The SFP replacement is what TRN-042 reports as helping, and your problem says it was already done.",
+      "dimmed": "32 of 38"
+    },
+    {
+      "file": "context-trn042-t-0922.png",
+      "entity": "TRN-042",
+      "t": "09:22 (date unknown)",
+      "zoom": 0.7963709677419355,
+      "kind": "check-first",
+      "text": "Check the traffic counters first.",
+      "provenance": "Erkki Expert · Teams 09:22 (date unknown) · reported once · still believed true",
+      "caveats": "Whether TRN-042 matches this problem is unconfirmed. | Unknown for this unit: older unit.",
+      "dimmed": "18 of 38"
+    },
+    {
+      "file": "context-trn042-t-0925-after-0922.png",
+      "entity": "TRN-042",
+      "t": "09:25 (date unknown)",
+      "zoom": 0.7963709677419355,
+      "kind": "qualified",
+      "text": "Confirm the unit details (older unit) before disabling and re-enabling the interface.",
+      "provenance": "Erkki Expert · Teams 09:22 (date unknown) · reported once · still believed true",
+      "caveats": "Reported once; cause and lasting effect not verified. | Unknown for this unit: older unit.",
+      "dimmed": "16 of 38"
+    },
+    {
+      "file": "context-trn042-t-14oct-after.png",
+      "entity": "TRN-042",
+      "t": "14 Oct",
+      "zoom": 0.7963709677419355,
+      "kind": "qualified",
+      "text": "Check the traffic counters first; the fix from TRN-042 was superseded for this version.",
+      "provenance": "Erkki Expert · Teams 09:22 (date unknown) · reported once · bounded 14 Oct by Erkki Expert · holds for software.version < 4.2",
+      "caveats": "Superseded on 14 Oct by Erkki Expert: fixed in firmware 4.2 | Reported once; cause and lasting effect not verified. | Unknown for this unit: older unit.",
+      "dimmed": "0 of 38"
+    },
+    {
+      "file": "context-trn042-t-now.png",
+      "entity": "TRN-042",
+      "t": "now",
+      "zoom": 0.7963709677419355,
+      "kind": "qualified",
+      "text": "Check the traffic counters first; the fix from TRN-042 was superseded for this version.",
+      "provenance": "Erkki Expert · Teams 09:22 (date unknown) · reported once · bounded 14 Oct by Erkki Expert · holds for software.version < 4.2",
+      "caveats": "Superseded on 14 Oct by Erkki Expert: fixed in firmware 4.2 | Reported once; cause and lasting effect not verified. | Unknown for this unit: older unit.",
+      "dimmed": "0 of 38"
+    },
+    {
+      "file": "context-rbs310-t-1402-thread.png",
+      "entity": "RBS-310",
+      "t": "14:02 (date unknown)",
+      "zoom": 0.9875,
+      "kind": "nothing to reuse",
+      "text": "No barrier code for RBS-310 is on file.",
+      "provenance": "",
+      "caveats": "",
+      "dimmed": "15 of 17"
+    },
+    {
+      "file": "context-rbs310-t-20aug.png",
+      "entity": "RBS-310",
+      "t": "20 Aug",
+      "zoom": 0.9875,
+      "kind": "reuse",
+      "text": "Barrier code at RBS-310: 5802 (Eino Salo, 20 Aug; changes every October).",
+      "provenance": "Eino Salo · E-mail 20 Aug · reported once · still believed true",
+      "caveats": "It changes every October: the next change is expected in October 2026. | If the barrier is jammed, call the landlord's caretaker.",
+      "dimmed": "1 of 17"
+    },
+    {
+      "file": "context-rbs310-t-6oct-after.png",
+      "entity": "RBS-310",
+      "t": "6 Oct",
+      "zoom": 0.9875,
+      "kind": "reuse",
+      "text": "Barrier code at RBS-310: 7731 (Eino Salo, 6 Oct; replaces 5802 from 20 Aug; changes every October).",
+      "provenance": "Eino Salo · E-mail 6 Oct · reported once · still believed true",
+      "caveats": "It changes every October: the next change is expected in October 2027. | If the barrier is jammed, call the landlord's caretaker.",
+      "dimmed": "1 of 17"
+    }
+  ],
+  "consoleErrors": [],
+  "notes": [],
+  "states": [],
+  "finishedAt": "2026-11-07T18:49:45.017Z"
+}

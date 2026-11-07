@@ -1,10 +1,10 @@
 /**
  * Preload: context isolation on, sandboxed. Exposes only { serviceUrl, platform, setIgnoreMouse, onShow } plus
- * desktop (R31..R36): { flags, onCommand, onPower, onArea, reportState, showContextMenu }, and B2's saveModelKey. Payloads are validated
+ * desktop (R31..R36): { flags, onCommand, onPower, onArea, reportState, showContextMenu }, B2's saveModelKey and B3's openContext. Payloads are validated
  * on both sides; nothing else of Electron reaches the page.
  */
 import { contextBridge, ipcRenderer } from 'electron';
-import { IPC, isPowerEvent, isShellCommand, normaliseState, parseFlags } from './flags.ts';
+import { IPC, isEntityName, isPowerEvent, isShellCommand, normaliseState, parseFlags } from './flags.ts';
 import type { Area, PowerEvent, ShellCommand, ShellState } from './flags.ts';
 import { parseKeyPayload } from './keychain.ts';
 
@@ -38,6 +38,10 @@ contextBridge.exposeInMainWorld('kt', {
   },
   reportState: (state: ShellState): void => ipcRenderer.send(IPC.state, normaliseState(state)),
   showContextMenu: (): void => ipcRenderer.send(IPC.contextMenu),
+  // B3: open the Context Layer page for an entity in the system browser (validated here and again in main).
+  openContext: (entityName: string): void => {
+    if (isEntityName(entityName)) ipcRenderer.send(IPC.openContext, entityName);
+  },
   // B2: an api key goes to the main process (safeStorage) and from there to the service in memory; never to the page again.
   saveModelKey: (vendor: string, key: string): Promise<{ present: boolean; stored: boolean }> => {
     const p = parseKeyPayload({ vendor, key });

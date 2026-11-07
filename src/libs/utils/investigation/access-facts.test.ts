@@ -108,6 +108,21 @@ test('access: a requester who may not see the access e-mails gets no code (the s
   assert.match(insider.recommendation.text, /7731/);
 });
 
+test('B3 review: a newer code the requester may not see leaves the old one as it was (no "no code on file" side channel)', async () => {
+  const e = new Engine({ dbPath: ':memory:', clock: () => new Date('2026-11-07T12:00:00Z'), investigation: { observability: defaultObservabilityPolicy } });
+  e.importData({ format: 'scenario-dir', path: FAMILY });
+  e.importData({ format: 'email-text', payload: NEW_CODE, accessGroups: ['access'] });
+  const old = e.store.list('claim').find((c) => c.type === 'access-fact' && /5802/.test(c.statement) && c.condition?.key === 'site.access_code');
+  assert.ok(old?.supersededBy, 'the hidden 7731 claim supersedes 5802 in the store');
+  const outsider = await e.investigate({ text: P2, principal: KAISA });
+  assert.doesNotMatch(everything(outsider), /7731|6 Oct|No barrier code/);
+  // As without the follow-up: the August code, flagged as past its October change.
+  assert.equal(outsider.recommendation.kind, 'check-first');
+  assert.match(outsider.recommendation.text, /5802/);
+  const insider = await e.investigate({ text: P2, principal: { ...KAISA, id: 'person:directory:eino', groups: ['access'] } });
+  assert.match(insider.recommendation.text, /7731/);
+});
+
 test('an incident report that names a site keeps the incident path (access facts answer only access questions)', async () => {
   const e = await engine();
   const r = await e.investigate({ text: 'RBS-310 is dropping off the network again with DC low alarms; I will drive out to swap the rectifier.', principal: KAISA });

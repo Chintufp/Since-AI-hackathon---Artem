@@ -43,7 +43,7 @@ export class RulesAssessor implements Assessor {
     let sup: { level: Support; reasons: string[] };
     if (candidate.caseId) {
       const at = state.problem.at ? Date.parse(state.problem.at) : undefined;
-      sup = supportFor(loadCaseFacts(this.opts.store, candidate.caseId, state.id, this.opts.settings, viewerOfState.get(state), at !== undefined && Number.isFinite(at) ? at : undefined));
+      sup = supportFor(loadCaseFacts(this.opts.store, candidate.caseId, state.id, this.opts.settings, viewerOfState.get(state), at !== undefined && Number.isFinite(at) ? at : undefined, state.problem.atEvidence));
     } else {
       sup = { level: 'weak', reasons: ['candidate procedure; no reported outcome of its own'] };
     }

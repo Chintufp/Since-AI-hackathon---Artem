@@ -5,6 +5,8 @@ import { basisCaseId, defaultInvestigationSettings, loopReasonFor, questionsForI
 import { visibleCandidates } from '../../libs/utils/investigation/visible-candidates.ts';
 import { buildCaseView } from '../../libs/utils/memory/index.ts';
 import { evidenceGate, type EvidenceGate } from '../../libs/utils/retrieval/index.ts';
+import { gateAt } from '../../libs/utils/retrieval/access.ts';
+import { basisClaim, caseProvenance, provenanceOf } from './provenance-strip.ts';
 
 /**
  * The case caveat in plain words. The sentence is produced by the memory layer ("...; 8 independent of 9 source record(s)");
@@ -29,11 +31,13 @@ export const personView = (p: PersonResult, gate?: EvidenceGate): PersonView => 
 function gatedCaseView(store: KnowledgeStore, caseId: string, viewer: Pick<Principal, 'id' | 'groups'>, gate: EvidenceGate): CaseView | undefined {
   const cv = buildCaseView(store, caseId, viewer);
   if (!cv) return undefined;
+  const provenance = caseProvenance(store, caseId, gate);
   return {
     ...cv,
     caveat: polishCaveat(cv.caveat),
     timeline: cv.timeline.map((n) => ({ ...n, evidence: gate.refs(n.evidence) })),
     sources: cv.sources.filter((x) => gate.ref({ evidenceId: x.evidenceId })),
+    ...(provenance ? { provenance } : {}),
   };
 }
 
@@ -65,6 +69,10 @@ export function questionView(store: KnowledgeStore, q: QuestionRecord, viewer: P
   const caseId = q.candidate.scope.caseId;
   const cv: CaseView | undefined = caseId ? gatedCaseView(store, caseId, viewer, gate) : undefined;
   const entityNames = q.candidate.scope.entityIds.map((id) => store.get('entity', id)?.name).filter((n): n is string => !!n);
+  // B3: the strip names the claim the question tests, else what the investigation's recommendation rests on.
+  const target = q.candidate.targetClaimId ? store.get('claim', q.candidate.targetClaimId) : undefined;
+  const inv = target ? undefined : store.get('investigation', q.candidate.investigationId);
+  const provenance = provenanceOf(store, target ?? (inv ? basisClaim(store, inv.recommendation.basis, gate) : undefined), gate);
   return {
     questionId: q.id,
     investigationId: q.candidate.investigationId,
@@ -80,6 +88,7 @@ export function questionView(store: KnowledgeStore, q: QuestionRecord, viewer: P
     ...(q.deliverAfter && q.status === 'queued' ? { deliverAfter: q.deliverAfter } : {}),
     ...(q.candidate.answerType === 'free-text' ? { answerType: 'free-text' as const } : {}),
     ...wording(q.candidate),
+    ...(provenance ? { provenance } : {}),
   };
 }
 
@@ -120,6 +129,15 @@ export function resultView(
   const shownCaseId = basisCaseId(state) ?? caseOfBasis(state);
   const caseView = shownCaseId ? gatedCaseView(store, shownCaseId, viewer, gate) : undefined;
   const active = questionsForInvestigation(store, state.id).find((q) => ACTIVE_QUESTION.has(q.status));
+  // B3: the provenance strip, through the requester's gate as of the investigation's moment (B1 `at`, B3 `atEvidence`).
+  const atMs = state.problem.at ? Date.parse(state.problem.at) : undefined;
+  const gateT = atMs !== undefined && Number.isFinite(atMs) ? gateAt(store, gate, atMs, state.problem.atEvidence) : gate;
+  const provenance = provenanceOf(store, basisClaim(store, state.recommendation.basis, gateT), gateT, atMs);
+  const caseStrip = caseView && shownCaseId ? caseProvenance(store, shownCaseId, gateT, atMs) : undefined;
+  if (caseView) {
+    delete caseView.provenance;
+    if (caseStrip) caseView.provenance = caseStrip;
+  }
   return {
     investigationId: state.id,
     recommendation: { kind: r.kind, text: r.text, applicability: r.applicability, caveats: r.caveats, ...(r.nextStep ? { nextStep: r.nextStep } : {}), actionClass: r.actionClass },
@@ -130,6 +148,7 @@ export function resultView(
     loopReason: loopReasonFor(state, loopReasons),
     routes: state.routes.map((x) => ({ route: x.route, version: x.version })),
     ...(caseView ? { caseView } : {}),
+    ...(provenance ? { provenance } : {}),
     state,
   };
 }

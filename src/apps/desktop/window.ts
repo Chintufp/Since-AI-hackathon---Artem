@@ -9,7 +9,7 @@ import { app, BrowserWindow, globalShortcut, ipcMain, Menu, powerMonitor, screen
 import type { IpcMainEvent, Rectangle, Session } from 'electron';
 import { join } from 'node:path';
 import { createTrayIcon } from './tray-icon.ts';
-import { awayEnabled, boundsFor, COLUMN, createReloadGate, flagsFromEnv, IPC, isAllowedExternal, isShellCommand, menuTemplate, normaliseState, sameRect, SHORTCUT_ACCELERATOR, trayTitle } from './flags.ts';
+import { awayEnabled, boundsFor, COLUMN, contextPageUrl, createReloadGate, flagsFromEnv, IPC, isAllowedExternal, isShellCommand, menuTemplate, normaliseState, sameRect, SHORTCUT_ACCELERATOR, trayTitle } from './flags.ts';
 import type { Area, DesktopFlags, PowerEvent, ShellCommand, ShellState, WindowMode } from './flags.ts';
 
 /**
@@ -179,6 +179,19 @@ export function handleMouseIgnore(getWindow: () => BrowserWindow | null): void {
     if (event.sender !== win.webContents || typeof flag !== 'boolean') return;
     if (flag) win.setIgnoreMouseEvents(true, { forward: true });
     else win.setIgnoreMouseEvents(false);
+  });
+}
+
+/**
+ * B3: "Open the context layer" from the case view: the main process opens `<serviceUrl>/context.html?entity=<name>` in
+ * the system browser. Only from our page, only a valid entity name, only that path on the configured loopback service.
+ */
+export function handleOpenContext(getWindow: () => BrowserWindow | null, serviceUrl: string): void {
+  ipcMain.on(IPC.openContext, (event: IpcMainEvent, name: unknown) => {
+    const win = getWindow();
+    if (!win || win.isDestroyed() || event.sender !== win.webContents) return;
+    const url = contextPageUrl(serviceUrl, name);
+    if (url) void shell.openExternal(url);
   });
 }
 

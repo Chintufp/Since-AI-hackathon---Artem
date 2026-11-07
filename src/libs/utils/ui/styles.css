@@ -344,3 +344,16 @@
 #kt-panel .rf-model-log { margin:0; max-height:96px; overflow:auto; font-size:10.5px; line-height:1.4; color:#4b5258; background:#f7f8f8; border-radius:7px; padding:6px 8px; white-space:pre-wrap; }
 #kt-panel .rf-model-cmd { display:flex; align-items:center; justify-content:space-between; gap:8px; border-top:1px solid #f0f1f2; }
 #kt-panel .rf-model-cmd code { font-size:11px; color:#343a40; }
+
+/* B3: provenance strip under a heading (result, question, case): one line, the source of what is shown */
+#kt-panel .rf-provenance { font-size:11px; line-height:1.45; color:#8d959c; letter-spacing:.025em; margin:5px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+#kt-panel .rf-question .rf-provenance { margin:7px 0 0; max-width:300px; }
+#kt-panel .rf-panel-content > .rf-provenance { margin:-2px 0 8px; padding-right:32px; }
+/* B3: Erkki's cost row in Settings (two short lines, loaded after the view opens) */
+#kt-panel .rf-setting.rf-cost-row { flex-direction:column; align-items:stretch; gap:4px; padding:9px 0; }
+#kt-panel .rf-setting.rf-cost-row > span { flex:none; }
+#kt-panel .rf-setting.rf-cost-row > .rf-cost-label { padding-top:1px; }
+#kt-panel .rf-cost { min-width:0; text-align:left; display:flex; flex-direction:column; gap:3px; }
+#kt-panel .rf-cost-line { font-size:12px; color:#343a40; line-height:1.4; }
+#kt-panel .rf-cost-store { font-size:11px; color:#8d959c; line-height:1.4; letter-spacing:.01em; }
+#kt-panel .rf-open-context { display:block; margin:10px auto 2px; }

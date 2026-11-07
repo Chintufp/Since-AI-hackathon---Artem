@@ -2,7 +2,8 @@
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import type { ModelProvider } from '../src/libs/utils/models/providers/index.ts';
+import { ProviderError, type ModelProvider } from '../src/libs/utils/models/providers/index.ts';
+import { SLOT_COOLDOWN_MS } from '../src/apps/service/models.ts';
 import { DEV_FIXTURE, startService } from './support.ts';
 
 const TEAMS = join(DEV_FIXTURE, 'teams.json');
@@ -102,5 +103,34 @@ test('phrase=local: the question card reads the accepted wording and says "worde
     } finally {
       await svc.close();
     }
+  }
+});
+
+test('phrase=local with a model that times out: one wait, then the slot is skipped for the cooldown (labelled), then tried again', async () => {
+  const req = { id: 'person:test:req3', displayName: 'Rune Requester', groups: ['noc'], type: 'human' as const };
+  const TEXT = 'BGP flaps after firmware upgrade on edge router RTR-300 unit';
+  const local = fakeGenerator(() => { throw new ProviderError('timeout', 'phrase: no answer within 20000 ms'); });
+  let ms = 0;
+  const svc = await startService({ modelManager: { local, monoNow: () => ms } });
+  try {
+    await svc.call('POST', '/import', { format: 'scenario-dir', path: DEV_FIXTURE });
+    await svc.call('PUT', '/settings', { models: { phrase: { provider: 'local', model: 'qwen3:8b' } } });
+    const versions = (r: { routes: Array<{ version: string }> }): string => r.routes.map((x) => x.version).join(' ');
+    const a = await svc.call('POST', '/investigate', { text: TEXT, principal: req });
+    assert.ok(local.calls.length >= 1);
+    // the first quick candidate waits and times out; any later generate in the same request is skipped
+    assert.match(versions(a), /\[fallback:phrase:(timeout|cooldown)\]/);
+    assert.ok(svc.engine.models.cooling('phrase'));
+    const after = local.calls.length;
+    ms += 10_000;
+    const b = await svc.call('POST', '/investigate', { text: `${TEXT} since this morning`, principal: { ...req, id: 'person:test:req4' } });
+    assert.equal(local.calls.length, after, 'the cooling slot is not called');
+    assert.match(versions(b), /\[fallback:phrase:cooldown\]/);
+    assert.match(svc.engine.models.cooling('phrase')!, /skipped for 50 s/);
+    ms += SLOT_COOLDOWN_MS;
+    await svc.call('POST', '/investigate', { text: `${TEXT} again`, principal: { ...req, id: 'person:test:req5' } });
+    assert.ok(local.calls.length > after, 'after the cooldown the model is tried again');
+  } finally {
+    await svc.close();
   }
 });

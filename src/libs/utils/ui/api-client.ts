@@ -100,7 +100,8 @@ export function buildUrl(baseUrl: string, route: string, params: Record<string, 
 
 export function createApiClient(options: ApiClientOptions): ApiClient {
   const doFetch: FetchLike = options.fetch ?? ((input, init) => globalThis.fetch(input, init));
-  const timeoutMs = options.timeoutMs ?? 20000;
+  // Above the slot budgets one request can spend (embed 5 s + phrase 20 s, D-B2-57), so a slow model never reads as a dead service.
+  const timeoutMs = options.timeoutMs ?? 40000;
 
   async function call<K extends RouteKey>(route: K, o: CallOptions<K> = {}): Promise<ResOf<K>> {
     const { url, method } = buildUrl(options.baseUrl, route, o.params, (o.query ?? {}) as Record<string, unknown>);

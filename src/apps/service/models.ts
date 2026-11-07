@@ -16,6 +16,8 @@ import { REPO_ROOT } from './paths.ts';
 
 export const DEFAULT_CATALOG_PATH = join(REPO_ROOT, 'data', 'models', 'catalog.json');
 export const IDLE_UNLOAD_MS = 30 * 60 * 1000;
+/** After a slot's model times out, requests skip it for this long (labelled `[fallback:<slot>:cooldown]`), so a stuck model costs one wait, not one per request. */
+export const SLOT_COOLDOWN_MS = 60 * 1000;
 /** Default local model per slot when the choice names none (the catalog's recommended ones). */
 export const DEFAULT_LOCAL_MODELS: Record<ModelSlotName, string> = { embed: 'bge-m3', extract: 'qwen3:4b', phrase: 'qwen3:8b' };
 const SLOTS: ModelSlotName[] = ['embed', 'extract', 'phrase'];
@@ -35,6 +37,9 @@ export interface ModelManagerOptions {
   /** fetch for the api provider (tests). */
   apiFetch?: FetchFn;
   now?: () => Date;
+  /** Monotonic milliseconds for the slot cooldown (default performance.now(); a liveness timer like the slot timeouts, not data). */
+  monoNow?: () => number;
+  cooldownMs?: number;
   /** Installs Ollama (default: `brew install ollama` on macOS when Homebrew exists). Tests inject a fake. */
   installer?: OllamaInstaller;
 }
@@ -86,6 +91,7 @@ export class ModelManager {
   private readonly opts: ModelManagerOptions;
   private readonly loaded = new Map<string, { embedding: boolean; timer?: ReturnType<typeof setTimeout> }>();
   private readonly failures = new Map<ModelSlotName, string>();
+  private readonly cooldownUntil = new Map<ModelSlotName, number>();
   private readonly jobs = new Map<string, PullJob>();
   private readonly keys: Partial<Record<ApiVendor, string>> = {};
   private server: ChildProcess | undefined;
@@ -118,12 +124,28 @@ export class ModelManager {
     return [...this.loaded.keys()].sort();
   }
 
-  recordFailure(slot: ModelSlotName, reason: string): void {
+  /** A slot's model failed. A timeout also starts the slot's cooldown; a skip during the cooldown ('cooldown') changes nothing. */
+  recordFailure(slot: ModelSlotName, reason: string, code?: string): void {
+    if (code === 'cooldown') return;
     this.failures.set(slot, reason);
+    if (code === 'timeout') this.cooldownUntil.set(slot, this.monoNow() + (this.opts.cooldownMs ?? SLOT_COOLDOWN_MS));
   }
 
   clearFailure(slot: ModelSlotName): void {
     this.failures.delete(slot);
+    this.cooldownUntil.delete(slot);
+  }
+
+  /** Why `slot` is skipped right now (its model timed out less than SLOT_COOLDOWN_MS ago), or undefined. */
+  cooling(slot: ModelSlotName): string | undefined {
+    const until = this.cooldownUntil.get(slot);
+    if (until === undefined) return undefined;
+    if (this.monoNow() >= until) { this.cooldownUntil.delete(slot); return undefined; }
+    return `${this.failures.get(slot) ?? 'timed out'}; skipped for ${Math.ceil((until - this.monoNow()) / 1000)} s`;
+  }
+
+  private monoNow(): number {
+    return this.opts.monoNow?.() ?? performance.now();
   }
 
   async unload(model: string): Promise<void> {

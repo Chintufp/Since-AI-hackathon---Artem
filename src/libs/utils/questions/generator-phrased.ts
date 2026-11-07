@@ -157,8 +157,13 @@ export interface PhrasedGeneratorOptions {
   provider: Pick<ModelProvider, 'kind' | 'generateJson'>;
   model: string;
   route?: RouteInfo;
+  /** The phrase budget of this generator's life (one request): every generate() shares it; default the slot's 20 s. */
   timeoutMs?: number;
-  onFailure?: (reason: string) => void;
+  onFailure?: (reason: string, code?: string) => void;
+  /** A reason to skip the model now (the slot is cooling down after a timeout); the template wording stays, labelled 'cooldown'. */
+  skip?: () => string | undefined;
+  /** Monotonic milliseconds (tests); default performance.now(). */
+  monoNow?: () => number;
 }
 
 const PHRASE_SCHEMA = { type: 'object', properties: { question: { type: 'string' } }, required: ['question'], additionalProperties: false } as const;
@@ -193,6 +198,7 @@ export class PhrasedQuestionGenerator implements QuestionGenerator {
   private readonly o: PhrasedGeneratorOptions;
   private readonly modelRoute: RouteInfo;
   private last: RouteInfo;
+  private spentMs = 0;
 
   constructor(o: PhrasedGeneratorOptions) {
     this.o = o;
@@ -207,6 +213,15 @@ export class PhrasedQuestionGenerator implements QuestionGenerator {
 
   async generate(state: InvestigationState, maxCandidates: number): Promise<QuestionCandidate[]> {
     const detailed = await this.o.inner.generateDetailed(state, maxCandidates);
+    // One phrase budget per request (D-B2-57): a second generate() gets what the first left, and a cooling slot is skipped.
+    const mono = this.o.monoNow ?? (() => performance.now());
+    const budget = (this.o.timeoutMs ?? SLOT_TIMEOUT_MS.phrase) - this.spentMs;
+    const skip = this.o.skip?.() ?? (budget <= 0 ? 'the request used up its phrase budget' : undefined);
+    if (skip) {
+      this.last = fallbackRoute(this.o.inner.route, 'phrase', 'cooldown');
+      return withEvaluative(this.o.ctx, detailed.map(({ candidate }) => candidate.kind !== 'quick' ? candidate : { ...candidate, phrasing: { by: 'template' as const, reason: `phrase model skipped: ${skip}` } }));
+    }
+    const t0 = mono();
     const requester = startedBy(state);
     const gate = requester ? evidenceGate(this.o.ctx.store, requester) : undefined;
     let accepted = 0;
@@ -217,13 +232,13 @@ export class PhrasedQuestionGenerator implements QuestionGenerator {
       const prompt = buildPhrasePrompt(facts, caseFacts);
       const r = await withFallback('phrase',
         async () => {
-          const raw = await this.o.provider.generateJson(this.o.model, prompt, PHRASE_SCHEMA as unknown as Record<string, unknown>, { timeoutMs: this.o.timeoutMs ?? SLOT_TIMEOUT_MS.phrase });
+          const raw = await this.o.provider.generateJson(this.o.model, prompt, PHRASE_SCHEMA as unknown as Record<string, unknown>, { timeoutMs: budget });
           const q = (raw as { question?: unknown } | null)?.question;
           if (typeof q !== 'string') throw new Error('no question in the model output');
           return q.replace(/\s+/g, ' ').trim();
         },
         () => undefined,
-        { route: this.modelRoute, rulesRoute: this.o.inner.route, timeoutMs: this.o.timeoutMs ?? SLOT_TIMEOUT_MS.phrase, onFailure: (_s, reason, code) => { failure = code; this.o.onFailure?.(reason); } });
+        { route: this.modelRoute, rulesRoute: this.o.inner.route, timeoutMs: budget, onFailure: (_s, reason, code) => { failure = code; this.o.onFailure?.(reason, code); } });
       if (r.value === undefined) return { ...candidate, phrasing: { by: 'template' as const, reason: `phrase model failed: ${r.fallback?.reason ?? 'unknown'}` } };
       const verdict = validatePhrase(r.value, {
         asset: facts.asset, ...(facts.conditionLabel ? { conditionLabel: facts.conditionLabel } : {}),
@@ -236,6 +251,7 @@ export class PhrasedQuestionGenerator implements QuestionGenerator {
       accepted++;
       return { ...candidate, text: r.value, templateText: candidate.text, generatedBy: { route: this.modelRoute.route, version: this.modelRoute.version }, phrasing: { by: 'model' as const } };
     }));
+    this.spentMs += mono() - t0;
     this.last = accepted ? this.modelRoute : failure ? fallbackRoute(this.o.inner.route, 'phrase', failure) : this.o.inner.route;
     return withEvaluative(this.o.ctx, out);
   }

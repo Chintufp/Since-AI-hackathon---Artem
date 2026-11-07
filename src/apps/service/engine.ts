@@ -271,7 +271,7 @@ export class Engine {
     const directory: PersonDirectory = storeDirectory(this.store);
     const index = this.embeddingIndex();
     const retriever = new HybridRetriever(this.store, index
-      ? { ...settings, embedding: { index, onFailure: (reason) => this.models.recordFailure('embed', reason) } }
+      ? { ...settings, embedding: { index, onFailure: (reason, code) => this.models.recordFailure('embed', reason, code), skip: () => this.models.cooling('embed') } }
       : settings);
     const assessor = new RulesAssessor({ store: this.store, settings });
     const qctx = { store: this.store, settings, directory, clock: this.clock };
@@ -279,7 +279,10 @@ export class Engine {
     const phrase = this.slotModel('phrase');
     const generator: QuestionGenerator = !phrase ? templates
       : 'unavailable' in phrase ? templates
-      : new PhrasedQuestionGenerator({ inner: templates, ctx: qctx, provider: phrase.provider, model: phrase.model, onFailure: (reason) => this.models.recordFailure('phrase', reason) });
+      : new PhrasedQuestionGenerator({
+        inner: templates, ctx: qctx, provider: phrase.provider, model: phrase.model,
+        onFailure: (reason, code) => this.models.recordFailure('phrase', reason, code), skip: () => this.models.cooling('phrase'),
+      });
     if (phrase && 'unavailable' in phrase) this.models.recordFailure('phrase', phrase.unavailable);
     const selector = this.selector(settings.coordinator.selectorId);
     const coordinator = new QuestionCoordinator({ store: this.store, settings, selector, generator, retriever, assessor, directory, clock: this.clock, onSelectorUpdated: (sel) => this.selectorUpdated(sel) });
@@ -384,14 +387,16 @@ export class Engine {
     let scope: AccessScope = { visibility: 'org' };
     const res = this.importData(req, (it, sc) => { items = it; scope = sc; });
     let report: EnrichReport;
-    if ('unavailable' in sm) {
-      this.models.recordFailure('extract', sm.unavailable);
-      report = { route: fallbackRoute(RULES_ROUTE, 'extract', sm.code), threads: items.length, modelClaimIds: [], dropped: [], fallback: { reason: sm.unavailable, code: sm.code } };
+    const cooling = 'unavailable' in sm ? undefined : this.models.cooling('extract');
+    if ('unavailable' in sm || cooling) {
+      const why = 'unavailable' in sm ? { reason: sm.unavailable, code: sm.code } : { reason: cooling!, code: 'cooldown' };
+      this.models.recordFailure('extract', why.reason, why.code);
+      report = { route: fallbackRoute(RULES_ROUTE, 'extract', why.code), threads: items.length, modelClaimIds: [], dropped: [], fallback: why };
     } else {
       const extractor = createLlmExtractor({ provider: sm.provider, model: sm.model });
       report = await enrichWithModel(this.store, items, extractor, {
         orgId: this.orgId, accessScope: scope, now: this.now().toISOString(),
-        onFailure: (reason) => this.models.recordFailure('extract', reason),
+        onFailure: (reason, code) => this.models.recordFailure('extract', reason, code),
       });
       if (!report.fallback) this.models.clearFailure('extract');
       this.reapplyDirectory();

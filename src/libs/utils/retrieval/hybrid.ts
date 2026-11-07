@@ -47,7 +47,11 @@ export interface RetrieverOptions extends CompareOptions {
    * takes the place of the hashed-trigram list (the slot's rules fallback); when the query cannot be embedded the
    * trigram list is used for that call and the route says so.
    */
-  embedding?: { index: EmbeddingIndex; weight?: number; minRelative?: number; timeoutMs?: number; onFailure?: (reason: string) => void };
+  embedding?: {
+    index: EmbeddingIndex; weight?: number; minRelative?: number; timeoutMs?: number; onFailure?: (reason: string, code?: string) => void;
+    /** A reason to skip the query embedding now (the slot is cooling down after a timeout): the trigram list stands in, labelled 'cooldown'. */
+    skip?: () => string | undefined;
+  };
 }
 
 const queryText = (q: RetrievalQuery): string => [q.text, ...q.conditions.map(conditionLabel)].join('\n');
@@ -156,10 +160,11 @@ export class TrigramVectorRetriever extends Base {
 /** The embedding list for one query, or why it could not be made. Shared by HybridRetriever and EmbeddingRetriever. */
 async function embeddingList(store: KnowledgeStore, emb: NonNullable<RetrieverOptions['embedding']>, docs: CorpusDoc[], q: RetrievalQuery): Promise<{ list?: RankedList; failure?: string }> {
   if (!emb.index.available) return { failure: 'no-table' };
+  if (emb.skip?.()) return { failure: 'cooldown' };
   const visible = new Set(docs.filter((d) => d.kind === 'case').map((d) => d.key));
   const r = await withFallback('embed', () => emb.index.search(queryText(q), visible, evidenceGate(store, q.requesterPrincipal)), () => undefined, {
     route: { route: 'local', version: `ollama-embed@1:${emb.index.model}` }, rulesRoute: routeInfo('trigram-hash'), ...(emb.timeoutMs ? { timeoutMs: emb.timeoutMs } : {}),
-    ...(emb.onFailure ? { onFailure: (_s: string, reason: string) => emb.onFailure!(reason) } : {}),
+    ...(emb.onFailure ? { onFailure: (_s: string, reason: string, code: string) => emb.onFailure!(reason, code) } : {}),
   });
   if (!r.value) return { failure: r.fallback?.code ?? 'error' };
   return { list: { name: r.value.name, weight: emb.weight ?? 1, hits: pruneRelative(r.value.hits, emb.minRelative ?? 0.75) } };

@@ -125,3 +125,26 @@ test('phrased generator: a model that returns the template sentence unchanged do
   assert.deepEqual(phrased[0]!.generatedBy, template[0]!.generatedBy);
   assert.equal(g.route.version, 'question-templates@1');
 });
+
+test('phrased generator: one phrase budget per request; a second generate after a timeout waits no more, and a cooling slot is skipped', async () => {
+  const h = makeHarness(buildSyntheticStore());
+  let ms = 0;
+  // the call uses the whole budget and never answers
+  const provider = fake(() => { ms = 30; return new Promise(() => {}); });
+  const ctx = { store: h.store, settings: h.settings, directory: storeDirectory(h.store), clock: h.clock };
+  const g = new PhrasedQuestionGenerator({ inner: h.generator, ctx, provider, model: 'qwen3:8b', timeoutMs: 30, monoNow: () => ms });
+  const st = await h.start('p_budget', `TRN-301: ${SYMPTOM_TEXT}`);
+  await g.generate(st, 4);
+  assert.equal(g.route.version, 'question-templates@1[fallback:phrase:timeout]');
+  const asked = provider.prompts.length;
+  const second = (await g.generate(st, 4)).filter((c) => c.kind === 'quick');
+  assert.equal(provider.prompts.length, asked, 'no second wait in the same request');
+  assert.equal(g.route.version, 'question-templates@1[fallback:phrase:cooldown]');
+  assert.match(second[0]!.phrasing!.reason!, /phrase model skipped: the request used up its phrase budget/);
+
+  const cooled = new PhrasedQuestionGenerator({ inner: h.generator, ctx, provider, model: 'qwen3:8b', skip: () => 'timed out; skipped for 42 s' });
+  const out = (await cooled.generate(st, 4)).filter((c) => c.kind === 'quick');
+  assert.equal(provider.prompts.length, asked);
+  assert.equal(cooled.route.version, 'question-templates@1[fallback:phrase:cooldown]');
+  assert.match(out[0]!.phrasing!.reason!, /skipped for 42 s/);
+});

@@ -44,13 +44,45 @@ export async function templateFor(templates: TemplateQuestionGenerator, state: I
   return all.find((x) => x.candidate.gapId === gapId && x.candidate.kind === 'quick');
 }
 
-/** The phrase validator over an agent's text, with the same input the phrase model gets (no model involved). */
+/** Present-tense and past-tense factual openers: an agent may swap within a group, never across (D-B7-13). */
+const OPENER_GROUPS = [['is', 'are', 'does', 'do', 'has', 'have'], ['was', 'were', 'did', 'had']];
+/**
+ * Words that change what a yes means (comparison, alternative, time, modality) without being a negation. The phrase
+ * model never writes against the validator, an agent may: such a word is allowed only when the template has it (D-B7-13).
+ */
+const MEANING_WORDS = new Set([
+  'other', 'another', 'else', 'than', 'or', 'either', 'whether', 'instead', 'except', 'besides', 'but', 'unlike', 'different', 'differently', 'rather',
+  'newer', 'older', 'new', 'old', 'later', 'earlier', 'previous', 'previously', 'prior', 'before', 'after', 'since', 'until', 'till', 'ago', 'ever',
+  'once', 'formerly', 'used', 'anymore', 'longer', 'still', 'yet', 'should', 'would', 'could', 'can', 'might', 'may', 'must', 'will', 'shall', 'ought',
+  'supposed', 'more', 'less', 'fewer', 'higher', 'lower', 'above', 'below', 'over', 'under', 'beyond', 'least', 'most', 'max', 'min', 'maximum',
+  'minimum', 'only', 'if', 'unless', 'almost', 'nearly', 'about', 'around', 'approximately', 'roughly', 'expected', 'planned', 'scheduled', 'meant',
+  'intended', 'want', 'wanted', 'need', 'needs', 'plus', 'minus', 'up', 'down', 'downgraded', 'upgraded', 'replaced', 'removed', 'outdated',
+]);
+const wordsOf = (s: string): string[] => (s.toLowerCase().match(/[\p{L}\p{N}][\p{L}\p{N}'-]*/gu) ?? []);
+
+/**
+ * The phrase validator over an agent's text, stricter than for the phrase model (D-B7-13): the agent wrote the problem
+ * text itself, so the problem text is not part of the allowed input; the opener stays in the template's tense and
+ * mood; and no word that changes what a yes means may appear unless the template has it. The template's yes/no
+ * consequences stay with the candidate, so the agent's sentence must ask the same thing.
+ */
 export function checkAgentWording(ctx: QuestionContext, state: InvestigationState, facts: PhraseFacts, text: string): PhraseVerdict {
   const requester = startedBy(state);
   const gate = requester ? evidenceGate(ctx.store, requester) : undefined;
   const t = text.replace(/\s+/g, ' ').trim();
   if (facts.kind !== 'missing' && facts.kind !== 'outcome') return { ok: false, reason: 'only yes/no questions about a missing condition or an outcome can be reworded' };
-  return validatePhrase(t, phraseCheckFor(facts, visibleCaseFacts(ctx, facts.caseId, state.id, gate)));
+  const tpl = wordsOf(facts.templateText);
+  const ws = wordsOf(t);
+  const tplOpener = tpl[0] ?? '';
+  const opener = ws[0] ?? '';
+  if (opener !== tplOpener) {
+    const group = OPENER_GROUPS.find((g) => g.includes(tplOpener));
+    if (!group || !group.includes(opener)) return { ok: false, reason: `opens with "${opener}" where the template opens with "${tplOpener}": that asks a different question` };
+  }
+  const tplSet = new Set(tpl);
+  const shift = ws.find((w) => MEANING_WORDS.has(w) && !tplSet.has(w));
+  if (shift) return { ok: false, reason: `"${shift}" changes what a yes means; the template's consequences would no longer fit` };
+  return validatePhrase(t, phraseCheckFor({ ...facts, problemText: '' }, visibleCaseFacts(ctx, facts.caseId, state.id, gate)));
 }
 
 /**

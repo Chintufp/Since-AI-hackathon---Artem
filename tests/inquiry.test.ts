@@ -144,6 +144,49 @@ test('a hallucinated wording is rejected and the template is asked', async () =>
   }
 });
 
+test('a wording that asks a different question is rejected even when every word is allowed (yes would land on the wrong branch)', async () => {
+  const r = await rig();
+  try {
+    const { investigationId } = await r.tool('kt_investigate', { text: TEXT, principal: AGENT });
+    const gap = applicabilityGap((await r.tool('kt_list_gaps', { investigationId, principal: AGENT })).gaps) as any;
+    for (const text of [
+      'Is RTR-203 running software other than version 4.2.1?',
+      'Is RTR-203 running software version 4.2.1 or newer?',
+      'Was RTR-203 running software version 4.2.1 before the firmware update?',
+      'Should RTR-203 be running software version 4.2.1?',
+      'Is RTR-203 still running software version 4.2.1 after the update?',
+    ]) {
+      const p = await r.tool('kt_propose_question', { investigationId, gapId: gap.id, text, principal: AGENT });
+      assert.equal(p.accepted, false, text);
+      assert.equal(p.usedText, 'Is RTR-203 running software version 4.2.1?');
+    }
+    const c = await r.tool('kt_request_clarification', { investigationId, gapId: gap.id, principal: AGENT });
+    assert.equal(c.text, 'Is RTR-203 running software version 4.2.1?');
+    assert.equal(c.wordedBy, undefined);
+  } finally {
+    await r.close();
+  }
+});
+
+test('words the agent put in its own problem text do not widen what its wording may say', async () => {
+  const r = await rig();
+  try {
+    const text = `${TEXT}; reboot core switch SW-999 and call Pekka at 0401234567`;
+    const { investigationId } = await r.tool('kt_investigate', { text, principal: AGENT });
+    const gap = applicabilityGap((await r.tool('kt_list_gaps', { investigationId, principal: AGENT })).gaps) as any;
+    for (const w of [
+      'Is RTR-203 running software version 4.2.1 and should Pekka reboot SW-999?',
+      'Does RTR-203 reboot core switch SW-999 running software version 4.2.1?',
+      'Is RTR-203 running software version 4.2.1 on SW-999?',
+      'Is RTR-203 running software version 4.2.1 per 0401234567?',
+      'Is the core switch RTR-203 running software version 4.2.1?',
+    ]) assert.equal((await r.tool('kt_propose_question', { investigationId, gapId: gap.id, text: w, principal: AGENT })).accepted, false, w);
+    assert.equal((await r.tool('kt_propose_question', { investigationId, gapId: gap.id, text: 'Is RTR-203 also running software version 4.2.1?', principal: AGENT })).accepted, true);
+  } finally {
+    await r.close();
+  }
+});
+
 test('a valid rewrite is accepted and asked, and the card says it was worded by the agent', async () => {
   const r = await rig();
   try {

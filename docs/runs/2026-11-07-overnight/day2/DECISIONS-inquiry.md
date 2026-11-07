@@ -144,3 +144,21 @@ the simulated night changes). Reverse: `--day` behaviour as the default.
 - Tests: `tests/inquiry.test.ts` runs each case on its own service and MCP process (budgets and cooldowns never leak);
   the three-gap batch seeds a third open gap (unit.age) on the basis case and three NOC engineers, because no fixture has
   three open askable gaps for one problem (the brief allows seeding). 526 tests after B7 (511 before).
+
+## D-B7-13 · An agent's wording is checked more strictly than the phrase model's (review fix)
+Two reviewers showed that B2's validator is a vocabulary filter, which an agent can write against: "Is RTR-203 running
+software other than version 4.2.1?" passed, was delivered, and a Yes recorded "software version 4.2.1 holds"
+(applicable). And the agent writes the problem text itself (kt_investigate), which was part of the validator's
+allowed input, so "reboot core switch SW-999 and call Pekka at 0401234567" in the problem text let those words into
+a delivered question.
+Decision: `checkAgentWording` (used by kt_propose_question and again by AgentWordedGenerator at ask time) now
+(1) builds the PhraseCheck without the problem text (the asset still comes from `facts.asset`); (2) keeps the opener
+in the template's tense and mood (Is/Are/Does/Do/Has/Have interchange, Was/Were/Did/Had interchange; Should, Can,
+Could only when the template opens with them); (3) rejects any word of a fixed list that changes what a yes means
+(other, than, or, newer, older, before, after, since, still, should, can, more, less, only, if, ...) unless the
+template has it. B2's validator for the phrase model is unchanged.
+Reason: the template's consequences stay with the candidate, so the sentence must ask the same thing; a list of
+meaning words is crude but closed and testable offline. Reversal: drop the list and compare the agent's sentence to
+the template with a model judge, or only accept wordings whose words are a permutation of the template's plus glue.
+Tests: tests/inquiry.test.ts (five inverted wordings rejected; five smuggled wordings rejected, a plain rewrite still
+accepted).

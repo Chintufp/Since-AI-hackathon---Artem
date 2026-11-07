@@ -932,6 +932,15 @@ export function createPanel(options: PanelOptions): Panel {
       remove.dataset.action = 'remove-attachment';
       remove.dataset.index = String(i);
       remove.setAttribute('aria-label', 'Remove ' + file.name);
+      // Artem 7 Nov: a thumbnail for images so you can see which picture is which (object URL, revoked on remove/send).
+      if (file.type.startsWith('image/') && typeof URL.createObjectURL === 'function') {
+        const img = document.createElement('img');
+        img.className = 'rf-chip-thumb';
+        img.alt = '';
+        img.src = URL.createObjectURL(file);
+        img.addEventListener('load', () => URL.revokeObjectURL(img.src), { once: true });
+        chip.append(img);
+      }
       chip.append(el('span', undefined, file.name), remove);
       wrap.append(chip);
     });

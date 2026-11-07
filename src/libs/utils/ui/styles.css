@@ -296,4 +296,7 @@
 @media (max-width:419px) { #kt-panel .rf-alts { padding-left:19px; padding-right:19px; } }
 /* desktop (Artem 7 Nov): the result view has the same top-right arrow as the other panels */
 #kt-panel .rf-result-head { padding-right:52px; }
+/* desktop (Artem 7 Nov): image attachments show a small thumbnail in their chip */
+#kt-panel .rf-chip-thumb { width:28px; height:28px; object-fit:cover; border-radius:4px; background:#e9ecee; flex:0 0 28px; }
+#kt-panel .rf-chip:has(.rf-chip-thumb) { padding:3px 7px 3px 3px; }
 

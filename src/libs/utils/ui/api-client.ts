@@ -61,6 +61,8 @@ export interface ApiClient {
   dismiss(id: string, principal: Principal): Promise<ResOf<'POST /questions/:id/dismiss'>>;
   undo(id: string, principal: Principal): Promise<ResOf<'POST /questions/:id/undo'>>;
   people(query: { investigationId: string; principalId: string }): Promise<ResOf<'GET /people'>>;
+  /** B1: assertions bound to an entity, evaluated at `at` (ISO with zone; default now). */
+  context(query: { entity: string; at?: string; principalId?: string }): Promise<ResOf<'GET /context'>>;
   contactDraft(req: ReqOf<'POST /contact-draft'>): Promise<ResOf<'POST /contact-draft'>>;
   directory(): Promise<ResOf<'GET /directory'>>;
   resetDemo(seed?: 'elisa' | 'synthetic' | 'empty'): Promise<ResOf<'POST /demo/reset'> & { defaultPersonEntityId?: string }>;
@@ -157,6 +159,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     dismiss: (id, principal) => call('POST /questions/:id/dismiss', { params: { id }, body: { principal } }),
     undo: (id, principal) => call('POST /questions/:id/undo', { params: { id }, body: { principal } }),
     people: (query) => call('GET /people', { query }),
+    context: (query) => call('GET /context', { query }),
     contactDraft: (req) => call('POST /contact-draft', { body: req }),
     directory: () => call('GET /directory'),
     resetDemo: (seed) => call('POST /demo/reset', { body: seed ? { seed } : {} }),

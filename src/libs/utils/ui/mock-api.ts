@@ -237,6 +237,33 @@ function makeHandlers(s: MockState): Handlers {
       ...PEOPLE.map((p) => ({ personEntityId: p.personEntityId, name: p.name, ...(p.role ? { role: p.role } : {}), groups: [], available: p.askable })),
     ],
     'GET /people': () => PEOPLE,
+    // B1: one undated assertion and one dated note that conditions it (dev data, synthetic).
+    'GET /context': ({ query }) => {
+      if (query.entity !== 'LP-3') throw new MockHttpError(404, `Unknown entity ${query.entity}`);
+      const at = query.at ?? NOW();
+      const noteAt = '2026-10-14T07:05:00.000Z';
+      return {
+        entity: { id: 'ent:mock:lp-3', name: 'LP-3', type: 'asset' },
+        ...(query.at ? { at: query.at } : {}),
+        assertions: [
+          {
+            claimId: 'claim:mock:advice', type: 'advice' as const, statement: 'Check which way the ribbon is loaded before swapping the printhead.', status: 'provisional' as const,
+            validFrom: { kind: 'time-only' as const, raw: '09:22', sequence: 3 }, validityCondition: 'printhead.revision < B', validAt: true,
+            assertedBy: { id: 'person:mock:noor', displayName: 'Noor Ahmadi' },
+            source: { evidenceId: 'ev:mock:1', provider: 'teams', time: '09:22 (date unknown)', position: { kind: 'time-only' as const, raw: '09:22', sequence: 3 } },
+            excerpt: 'Check which way the ribbon is loaded before swapping the printhead.', caseId: CASE.caseId,
+          },
+          {
+            claimId: 'claim:mock:note', type: 'other' as const, statement: 'Revision B printheads fix the blank-label fault.', status: 'provisional' as const,
+            validFrom: { kind: 'known' as const, iso: noteAt }, validAt: at >= noteAt,
+            assertedBy: { id: 'person:mock:noor', displayName: 'Noor Ahmadi' },
+            source: { evidenceId: 'ev:mock:2', provider: 'teams', time: noteAt, position: { kind: 'known' as const, iso: noteAt } },
+            excerpt: 'Revision B printheads fix the blank-label fault.',
+          },
+        ],
+        bindings: [{ entityName: 'Noor Ahmadi', kind: 'firsthand' as const, label: 'advised', byPerson: 'Noor Ahmadi', recorded: { kind: 'time-only' as const, raw: '09:22' }, evidence: [] }],
+      };
+    },
     'POST /contact-draft': ({ body }) => {
       const person = PEOPLE.find((p) => p.personEntityId === body.personEntityId);
       if (!person) throw new MockHttpError(404, 'Unknown person');

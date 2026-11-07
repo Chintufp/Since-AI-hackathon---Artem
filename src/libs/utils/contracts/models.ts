@@ -1,4 +1,4 @@
-import type { Condition, EvidenceRef, RouteInfo } from './common.ts';
+import type { Condition, EvidenceRef, RouteInfo, TimeRef } from './common.ts';
 import type { ClaimType } from './memory.ts';
 import type { EvidenceEnvelope } from './evidence.ts';
 import type { EligibleAction, PolicyDecision, QuestionCandidate } from './questions.ts';
@@ -28,6 +28,10 @@ export interface ProposedClaim {
   condition?: Condition;
   /** Model confidence is informational only; never evidence. */
   confidence?: number;
+  /** B1: explicit validity cues read from the source (condition / cue / stated end); commit copies them into Claim.validity. */
+  validity?: { condition?: string; cue?: string; to?: TimeRef };
+  /** B1: a superseding note's bound (e.g. software.version gte 4.2); never a case condition. */
+  supersessionBound?: Condition;
 }
 
 export interface ProposedEntity {

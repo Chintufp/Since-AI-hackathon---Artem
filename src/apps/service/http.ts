@@ -7,7 +7,7 @@ import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/index.ts';
 import type { Engine, ExtendedSettings } from './engine.ts';
 import { ServiceError, toServiceError } from './errors.ts';
 import {
-  activityQuerySchema, answerSchema, cancelSchema, clockSchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema,
+  activityQuerySchema, answerSchema, cancelSchema, clockSchema, contextQuerySchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema,
   observationSchema, optInSchema, outcomeSchema, participationQuerySchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, ratingQuerySchema, settingsPatchSchema,
 } from './schemas.ts';
 
@@ -53,6 +53,10 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
     'GET /cases/:id': (c) => engine.caseView(c.params.id!, q(c).principalId),
     'POST /investigate': (c) => engine.investigate(parse(investigateSchema, c.body)),
     'GET /investigations/:id': (c) => engine.getInvestigation(c.params.id!, q(c).principalId),
+    'GET /context': (c) => {
+      const p = parse(contextQuerySchema, q(c));
+      return engine.contextAssertions(p.entity, p.at, p.principalId);
+    },
     'GET /questions': (c) => engine.questions(parse(questionsQuerySchema, q(c))),
     'GET /questions/:id': (c) => engine.question(c.params.id!),
     'POST /questions/:id/answer': (c) => engine.answer(c.params.id!, parse(answerSchema, c.body)),

@@ -1,5 +1,6 @@
 /** Renderer-safe view models. The service builds these; the UI renders them; no secrets inside. */
-import type { EvidenceRef } from './common.ts';
+import type { EvidenceRef, Iso } from './common.ts';
+import type { ClaimStatus, ClaimType } from './memory.ts';
 
 export type TimelineKind = 'problem' | 'step' | 'reported' | 'verified' | 'unknown';
 
@@ -68,4 +69,50 @@ export interface ReceiptView {
   detail: string;
   canUndo: boolean;
   pointsAwarded?: number;
+}
+
+/** B1: where a record sits in time. `iso` only when the source stated a full date-time with zone; never synthesised. */
+export interface TimePosition {
+  kind: 'known' | 'time-only' | 'date-only' | 'unknown';
+  iso?: Iso;
+  raw?: string;
+  sequence?: number;
+}
+
+/** B1: one assertion bound to an entity, with its validity window and where it came from (GET /context). */
+export interface ContextAssertion {
+  claimId: string;
+  type: ClaimType;
+  statement: string;
+  status: ClaimStatus;
+  validFrom: TimePosition;
+  validTo?: TimePosition;
+  validityCondition?: string;
+  supersededBy?: string;
+  /** True when the claim holds at the requested `at` (or now): unknown from = valid from before any dated moment, unknown to = still believed true. */
+  validAt: boolean;
+  /** How validTo was ordered against the newer claim: known event times, or import order (undated sources). */
+  orderBasis?: 'known-time' | 'import-order';
+  assertedBy?: { id: string; displayName: string };
+  source: { evidenceId: string; provider: string; time: string; position: TimePosition };
+  excerpt: string;
+  caseId?: string;
+}
+
+/** B1: a person or class bound to the entity: firsthand work links, or hedged/inferred class conditions. */
+export interface ContextBinding {
+  entityName: string;
+  kind: 'firsthand' | 'hedged-class';
+  label: string;
+  byPerson?: string;
+  recorded: TimePosition;
+  evidence: EvidenceRef[];
+}
+
+export interface ContextAssertionsView {
+  entity: { id: string; name: string; type: string };
+  /** The requested point in time, when one was given (otherwise the rows are evaluated at now). */
+  at?: Iso;
+  assertions: ContextAssertion[];
+  bindings: ContextBinding[];
 }

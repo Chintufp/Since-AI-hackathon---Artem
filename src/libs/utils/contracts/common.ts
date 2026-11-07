@@ -60,6 +60,8 @@ export interface Condition {
   evidence: EvidenceRef[];
   /** Human-readable rendering, e.g. "Interface UP, counters zero". */
   label?: string;
+  /** B1: what the key is about within its entity when one entity has several (e.g. 'barrier' vs 'lockbox' for site.access_code). */
+  qualifier?: string;
 }
 
 /** Explicit inference routes. Every model-dependent output carries one. */

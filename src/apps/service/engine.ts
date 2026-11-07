@@ -14,7 +14,7 @@ import {
   defaultInvestigationSettings, investigate, investigationId, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
   type InvestigationSettings, type PersonDirectory,
 } from '../../libs/utils/investigation/index.ts';
-import { buildCaseView, importFromPath, listCases, openStore } from '../../libs/utils/memory/index.ts';
+import { buildCaseView, contextAssertions, importFromPath, listCases, openStore, parseAt, resolveContextEntity } from '../../libs/utils/memory/index.ts';
 import { TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
 import { createSelector, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
 import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
@@ -322,6 +322,19 @@ export class Engine {
     const v = buildCaseView(this.store, id, this.principalFor(principalId));
     if (!v) throw notFound(`Unknown case ${id}`);
     return { ...v, caveat: polishCaveat(v.caveat) };
+  }
+
+  /**
+   * B1: GET /context. Assertions bound to an entity (id, name or alias among the entities the principal may see),
+   * with validity windows, source and status, evaluated at `at` (default now). Access as for every other read.
+   */
+  contextAssertions(entity: string, at?: string, principalId?: string): ApiRoutes['GET /context']['res'] {
+    const atMs = at === undefined ? this.now().getTime() : parseAt(at);
+    if (atMs === undefined) throw badRequest(`Invalid at: ${at} (ISO 8601 with a zone, e.g. 2026-10-20T12:00:00Z)`);
+    const principal = this.principalFor(principalId);
+    const ent = resolveContextEntity(this.store, entity, principal);
+    if (!ent) throw notFound(`Unknown entity ${entity}`);
+    return contextAssertions(this.store, ent, principal, atMs, at);
   }
 
   async investigate(req: InvestigateRequest): Promise<InvestigationResult> {

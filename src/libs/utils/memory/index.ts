@@ -16,6 +16,8 @@ import { applyMembershipGrants } from './membership.ts';
 export { openStore } from './sqlite-store.ts';
 export type { SqliteKnowledgeStore, StoreOptions } from './sqlite-store.ts';
 export { buildCaseView } from './case-view.ts';
+export { contextAssertions, resolveContextEntity } from './context-assertions.ts';
+export { instantOf, isNewer, parseAt, shortDate, timePosition, validAt } from './validity.ts';
 export { caseLabel } from './case-label.ts';
 export { defaultViewConfig, humanAction, pastAction } from './view-config.ts';
 export type { ViewConfig } from './view-config.ts';

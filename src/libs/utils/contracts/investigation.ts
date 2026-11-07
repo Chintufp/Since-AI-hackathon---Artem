@@ -12,6 +12,11 @@ export interface Problem {
   observations?: Condition[];
   attachmentNames?: string[];
   createdAt: Iso;
+  /**
+   * B1: point in time. When set, the investigation answers "what was known at `at`": evidence dated after it, answers and
+   * observations recorded after it and claims not valid at it are left out; no question is ever asked.
+   */
+  at?: Iso;
 }
 
 export interface ExpectedTrait {

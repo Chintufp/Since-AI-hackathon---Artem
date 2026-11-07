@@ -18,6 +18,7 @@ export const CONDITION_KEYS = {
   'action.performed': 'An action that was performed (e.g. interface.reset, reboot, sfp.replace)',
   'site.id': 'Site identifier',
   'site.access': 'Site access condition (barrier|key|code|contact)',
+  'site.access_code': 'Access code digits for one access point (qualifier: barrier|gate|lockbox|door|hatch)',
   'site.region': 'Region/location',
   'power.state': 'Power (normal|unstable|outage)',
   'temperature.state': 'Temperature (normal|high)',

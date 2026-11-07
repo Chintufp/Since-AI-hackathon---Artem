@@ -7,8 +7,7 @@ import { dirname, join } from 'node:path';
 import type {
   AccessScope, Answer, ApiRoutes, CaseView, Condition, ConnectionCard, ContactDraft, ContactDraftRequest, CoordinatorSettings, ImportRequest, ImportResponse,
   InvestigateRequest, InvestigationState, KnowledgeStore, ObservationRequest, OutcomeReport, OutcomeRequest, ParticipationBalance, PeopleDirectory,
-  PersonView, PreferenceFeedback, Principal, Problem, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings,
-} from '../../libs/utils/contracts/index.ts';
+  PersonView, PreferenceFeedback, Principal, Problem, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
 import { defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
 import { connectionCards } from '../../libs/utils/connectors/index.ts';
 import {
@@ -97,6 +96,14 @@ export class Engine {
 
   private now(): Date {
     return this.clock();
+  }
+
+  /** Visible organization directory: ids, names, roles, groups, availability. Never knowledge or answers. */
+  directory(): DirectoryEntry[] {
+    return storeDirectory(this.store)
+      .all()
+      .map((p) => ({ personEntityId: p.id, name: p.name, ...(p.role ? { role: p.role } : {}), groups: p.groups, available: p.available }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   getSettings(): ExtendedSettings {

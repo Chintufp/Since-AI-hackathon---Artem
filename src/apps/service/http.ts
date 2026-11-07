@@ -60,6 +60,7 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
       return engine.people(p.investigationId, p.principalId);
     },
     'POST /contact-draft': (c) => engine.contactDraft(parse(contactDraftSchema, c.body)),
+    'GET /directory': () => engine.directory(),
     'GET /settings': () => engine.getSettings(),
     'PUT /settings': (c) => engine.putSettings(parse(settingsPatchSchema, c.body) as Partial<ExtendedSettings>),
     'GET /participation/:personEntityId': (c) => engine.participation(c.params.personEntityId!),

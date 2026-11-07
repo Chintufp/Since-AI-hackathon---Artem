@@ -2,7 +2,7 @@
  * The engine: one set of typed functions mirroring ApiRoutes. The HTTP server and the MCP server are thin adapters over
  * this class, so permissions, question limits, ids and trace events behave identically for every caller.
  */
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type {
   AccessScope, Answer, ApiRoutes, CaseView, Condition, ConnectionCard, ContactDraft, ContactDraftRequest, CoordinatorSettings, ImportRequest, ImportResponse,
@@ -12,16 +12,16 @@ import { DEFAULT_MODEL_SLOTS, defaultCoordinatorSettings, defaultUserSettings, f
 import type { ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView } from '../../libs/utils/contracts/index.ts';
 import { fallbackRoute, vendorOf, type ApiVendor, type ModelProvider } from '../../libs/utils/models/providers/index.ts';
 import { EmbeddingIndex, type IndexReport } from '../../libs/utils/retrieval/index.ts';
-import { caseCard, createLlmExtractor, enrichWithModel, RULES_ROUTE, type EnrichItem, type EnrichReport } from '../../libs/utils/memory/index.ts';
+import { caseCard, createLlmExtractor, enrichWithModel, RULES_ROUTE, storeHealth, type EnrichItem, type EnrichReport, type StoreHealth } from '../../libs/utils/memory/index.ts';
 import { DEFAULT_LOCAL_MODELS, ModelManager, type ModelManagerOptions } from './models.ts';
 import { connectionCards } from '../../libs/utils/connectors/index.ts';
 import {
-  defaultInvestigationSettings, investigate, investigationId, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
+  defaultInvestigationSettings, investigate, investigationId, OUTCOME_KEY, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
   type InvestigationSettings, type PersonDirectory,
 } from '../../libs/utils/investigation/index.ts';
 import { buildCaseView, importFromPath, listCases, openStore } from '../../libs/utils/memory/index.ts';
 import { PhrasedQuestionGenerator, TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
-import { createSelector, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
+import { createSelector, LinUcb, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
 import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
 import { awardPoints, balanceOf, getOptIn, participates, rating, revokeContribution, setOptIn, type ParticipationKind } from '../../libs/utils/participation/index.ts';
 import { applyDirectory } from './directory.ts';
@@ -86,6 +86,11 @@ export interface EngineOptions {
    * (an investigation with embed=local, GET /models, a pull) work either way.
    */
   autoModels?: boolean;
+  /**
+   * Where live LinUCB state is kept between restarts (BUILD_BRIEF 5.4). Default: linucb-live.json next to a file
+   * database (data/local/), none for ':memory:' or a provided store. `false` turns persistence off. Never data/models.
+   */
+  linucbStatePath?: string | false;
 }
 
 export interface ClarificationResult {
@@ -173,6 +178,13 @@ export class Engine {
     });
   }
 
+  /** File holding live LinUCB state, or undefined when persistence is off. */
+  linucbStatePath(): string | undefined {
+    if (this.opts.linucbStatePath === false) return undefined;
+    if (this.opts.linucbStatePath) return this.opts.linucbStatePath;
+    return this.ownsStore && this.dbPath !== ':memory:' ? join(dirname(this.dbPath), 'linucb-live.json') : undefined;
+  }
+
   private selector(id: string): Selector {
     let sel = this.selectors.get(id);
     if (!sel) {
@@ -181,9 +193,36 @@ export class Engine {
       } catch (e) {
         throw badRequest(e instanceof Error ? e.message : String(e));
       }
+      // Live learning survives a restart: the LinUCB state saved after each measured reward is loaded back.
+      const path = sel.id === 'linucb' ? this.linucbStatePath() : undefined;
+      if (path && existsSync(path)) {
+        try {
+          sel = LinUcb.fromArtifact(JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>);
+        } catch {
+          // A state file from another build (feature list changed) or a broken one: start fresh, keep the file for inspection.
+        }
+      }
       this.selectors.set(id, sel);
     }
     return sel;
+  }
+
+  /** Saves live LinUCB state after a reward (only LinUCB has state worth keeping; the rules selector is a fixed prior). */
+  private selectorUpdated(sel: Selector): void {
+    const path = sel.id === 'linucb' ? this.linucbStatePath() : undefined;
+    if (!path || !(sel instanceof LinUcb)) return;
+    try {
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, `${JSON.stringify(sel.toModelArtifact({ id: 'linucb-live', dataset: { id: 'live', split: 'live', families: [] } }), null, 2)}\n`);
+    } catch {
+      // Persistence is a convenience; learning in memory continues.
+    }
+  }
+
+  /** The store metric (BUILD_BRIEF 5.1, 5.2) over the cases the principal may see (all cases without one). */
+  storeHealth(principalId?: string): StoreHealth {
+    const p = principalId ? this.principalFor(principalId) : undefined;
+    return storeHealth(this.store, p, { now: this.now(), distinguishingKeys: this.invSettings().distinguishingKeys, outcomeKey: OUTCOME_KEY });
   }
 
   /**
@@ -243,7 +282,7 @@ export class Engine {
       : new PhrasedQuestionGenerator({ inner: templates, ctx: qctx, provider: phrase.provider, model: phrase.model, onFailure: (reason) => this.models.recordFailure('phrase', reason) });
     if (phrase && 'unavailable' in phrase) this.models.recordFailure('phrase', phrase.unavailable);
     const selector = this.selector(settings.coordinator.selectorId);
-    const coordinator = new QuestionCoordinator({ store: this.store, settings, selector, generator, retriever, assessor, directory, clock: this.clock });
+    const coordinator = new QuestionCoordinator({ store: this.store, settings, selector, generator, retriever, assessor, directory, clock: this.clock, onSelectorUpdated: (sel) => this.selectorUpdated(sel) });
     return { settings, directory, retriever, assessor, generator, selector, coordinator };
   }
 
@@ -560,6 +599,8 @@ export class Engine {
         throw toServiceError(e);
       }
     }
+    // BUILD_BRIEF 5.4: an outcome question's reward is measured again once the outcome lands.
+    w.coordinator.rewardOutcome(state.id);
     this.afterChange();
     return report;
   }

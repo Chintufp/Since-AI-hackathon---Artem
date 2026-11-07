@@ -91,3 +91,26 @@ Uses `generateJson` with a one-field schema (same provider surface as extract, s
 
 ## D-B2-28 · Honesty lines in the panel
 The question card shows "Worded by local model qwen3:8b" under the why line (italic, small) with the template wording as its tooltip; `QuestionView.wordedBy` / `templateText` are additive. The result card lists model participation from `result.routes` in plain words (matched by meaning with local model bge-m3; question worded by ...; a model was not available, rules used); with every slot on rules nothing new is shown. Case-node provenance is part of the node detail (D-B2-23).
+
+## D-B2-29 · Store metric definitions where the brief leaves room (`memory/store-health.ts`)
+- symptom: a live observation claim with a supporting reference.
+- distinguishing: the brief's "every key has a value" would almost never be filled on this data (cases rarely state all four keys), so one answer could never move it. The slot counts known keys proportionally (3 of 4 known = 0.75); "filled" for the singleton count still means all known. A key is known from a case condition or condition claim with a value (or operator `absent` = explicitly not applicable), from its alias (`unit.age` from `unit.installed_year`), or from an answered question recorded on that case.
+- attempt: a performed attempt with a performer.
+- outcome: any outcome row of the case, an answered outcome question on it, or an outcome report naming it. Not only rows of "the corrective attempt": the case builder sometimes attaches the outcome to the check that preceded the fix (RTR-117 does), which would read as no outcome.
+- lasting: an outcome or report whose lasting is not unknown.
+- validity: the advice claim (the corrective attempt's, else the first) has a known `from` and a `to`, a condition, or a "supersession check" newer than 90 days, read as an answer that supported or contradicted that claim in the window (B1's supersession records can be added here).
+- Store completeness: weighted by investigations (updated in the last 30 days of the engine clock) whose candidates cite the case; with no retrievals the unweighted mean is used and `denominators.retrievals = 0` says so.
+- Correctness: denominator = live case-bound claims (the brief's "cited claims", i.e. what retrieval can cite); supported = >= 2 independent sources counting supporting answers as sources, or the advice of an attempt with an observed recovery; contradicted-and-cited = status contradicted (or more contradicting than supporting answers) and among the source claims of a standing recommendation (anything but none / retain-uncertainty); links made without an answer come from an injectable `links` hook, 0 until B1's pairing links exist. Null (not 0) when there is no claim.
+Reverse: `storeHealth` options and `caseHealth`.
+
+## D-B2-30 · Reward = delta(completeness x correctness of the touched cases) - burden
+Touched cases = the gap's case. Measured before the answer is stored and after the rebuild (the rebuilt investigation is stored first so its retrieval counts). Burden = 0.02 x questions delivered to the recipient today (other than this one) + 0.02 x their other open questions + 0.05 inside quiet hours (read from `settings.coordinator.quietHours` when B1 adds it; absent today). Untuned. An 'unknown' answer is a real measurement (usually value = -burden); no answer (deferred, dismissed, expired: response 'none') never writes a benefit, so it stays null. Written to `EvaluationRecord.assessedBenefit = {value, method: 'store-metric-delta@1'}` and `QuestionRecord.reward` (additive). Reverse: `QuestionCoordinator.measure/burden/learn`.
+
+## D-B2-31 · Live `selector.update` after every measured benefit, again when an outcome lands
+`answer()` calls `selector.update([record])`; `Engine.recordOutcome` calls `coordinator.rewardOutcome`, which re-measures the answered outcome questions of that investigation and, when the number changed, updates the same evaluation row and calls `update` again (LinUCB then learns from that decision twice, once per measured value; the brief asks for exactly this). A selector error never breaks an answer. The rules selector has no `update`: its formula stays the fixed prior. Reverse: drop the `learn` call.
+
+## D-B2-32 · Live LinUCB state in data/local/linucb-live.json; Undo does not unlearn
+After each update the service writes the LinUCB artifact (id `linucb-live`, dataset `live`) next to the file database (data/local/, git-ignored), never data/models; `Engine.selector('linucb')` loads it at first use (a file from another feature list is ignored). `:memory:` and provided stores keep it in memory only (tests); `EngineOptions.linucbStatePath` overrides, `false` turns it off. Undo of an answer withdraws the answer but not what the bandit learned (LinUCB has no exact downdate in this build and the measured change did happen); the old `reward` stays on the question as history and a new answer learns again. Reverse: rebuild LinUCB from the evaluation rows minus undone answers.
+
+## D-B2-33 · store-health lives in memory/; questions/ imports it
+It reads only store records. `investigation` constants it needs (outcome key, distinguishing keys) are passed in. Reverse: move it to investigation/.

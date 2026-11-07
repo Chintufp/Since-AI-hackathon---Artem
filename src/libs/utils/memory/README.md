@@ -36,6 +36,9 @@ Problem (red) -> Reported conditions (yellow, one node) -> Possible cause (one n
 - `enrich.ts`: `enrichWithModel(store, items, extractor, opts)` commits `unionProposal(rules, model)` per thread AFTER the rules commit (so claims the rules produced keep 'rules' and only model-only claims carry `ollama-extract@1:<model>`), all model calls within one 60 s deadline, all-or-nothing, with a labelled fallback route. `importFromPath(..., {onCommitted})` hands it the threads and their committed rules proposals.
 - `provenance.ts`: `modelProvenance(claim.extraction)` -> "proposed by local model qwen3:4b, committed by rules"; case-view nodes show it after each such statement and in `TimelineNode.provenance`.
 
+## Store metric (BUILD_BRIEF 5)
+`store-health.ts`: `storeHealth(store, principal?, {now, caseIds?, distinguishingKeys?, ...})` -> `{cases, completeness, completenessUnweighted, correctness, singletons, thinPairs, denominators}`; six slots per case, completeness weighted by retrievals in the last 30 days, correctness per 5.2 (null when there is no claim). `healthProduct` is the quantity the bandit's reward is the change of (the coordinator measures it before and after each answer). Definitions: DECISIONS-models D-B2-29.
+
 ## Dependencies
 `contracts/`, `connectors/`, `ingest/`, `context/`, `node:sqlite`, `models/providers` (contracts-only: `withFallback`, slot timeouts) and `zod` (the extraction schema). Acyclic: connectors <- ingest, context <- memory.
 

@@ -87,6 +87,12 @@ export interface QuestionRecord {
   deliveredAt?: Iso;
   /** Previous status, to support Undo of dismiss/answer in the UI. */
   previousStatus?: QuestionStatus;
+  /**
+   * B2 (BUILD_BRIEF 5.4): the measured reward of the answer. `before`/`after` are completeness x correctness of the
+   * touched cases before the answer was stored and after the rebuild (again after an outcome lands, for outcome
+   * questions); `value` = delta - burden is what the selector learned from.
+   */
+  reward?: { method: string; cases: string[]; before: number; after: number; delta: number; burden: number; value: number; at: Iso; outcomeAt?: Iso };
 }
 
 export interface ClaimUpdate {

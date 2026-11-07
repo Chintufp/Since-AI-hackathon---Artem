@@ -1,0 +1,10 @@
+{
+  "status": "checked-frozen",
+  "parent": "../v006/study.html",
+  "inlinePreview": "/Users/artevil/.codex/visualizations/2026/11/06/01a1b265-11e7-75b0-81a1-88d8f1011997/companion-animation-panel-v007.html",
+  "studySha256": "ed032f74041bef6775ba4be2f137b36eb53d821d9dfe839bdbe8cc4745df7d92",
+  "sourceHashes": {
+    "player.js": "2891a4cd70a7746ca4aa4d21d32eafa24f9c371ecde68733c168f85a8c10c95f"
+  },
+  "validation": "/Users/artevil/Since-AI-hackathon---Artem/design-lab/chatgpt/pixel-motion/v007/evidence/checks.json"
+}

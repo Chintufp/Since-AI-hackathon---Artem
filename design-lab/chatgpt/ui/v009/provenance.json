@@ -1,0 +1,11 @@
+{
+  "status": "checked-frozen",
+  "parent": "../v008/study.html",
+  "inlinePreview": "/Users/artevil/.codex/visualizations/2026/11/06/01a1b265-11e7-75b0-81a1-88d8f1011997/companion-panel-v009.html",
+  "studySha256": "7cbad37ee34ef77a6359803ec324513ec7d8346d212a2914f513d20f6d73fb47",
+  "sourceHashes": {
+    "app.js": "f5ef59dc9614cfbccfaf5f8e3b1a3aecf68d66bcd2844017da74b14d03081b63",
+    "motion.js": "c62fd66366bcc13ac70ce835f838e988b4af560bbad85eec87f7c278f329a371"
+  },
+  "validation": "/Users/artevil/Since-AI-hackathon---Artem/design-lab/chatgpt/pixel-motion/v007/evidence/checks.json"
+}

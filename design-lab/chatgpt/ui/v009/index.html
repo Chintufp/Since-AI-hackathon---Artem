@@ -1,0 +1,3197 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com https://persistent.oaistatic.com/plugins/visualize/; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com https://persistent.oaistatic.com/plugins/visualize/charts/; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Study</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+
+</head>
+<body>
+<iframe id="codex-visualization" sandbox="allow-scripts" referrerpolicy="no-referrer" title="Study" data-srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot; data-visualize-standalone&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com https://persistent.oaistatic.com/plugins/visualize/; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com https://persistent.oaistatic.com/plugins/visualize/charts/; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Study&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 16px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans:
+    -apple-system-body, ui-sans-serif, -apple-system, system-ui, &quot;Segoe UI&quot;,
+    Helvetica, &quot;Apple Color Emoji&quot;, Arial, sans-serif, &quot;Segoe UI Emoji&quot;,
+    &quot;Segoe UI Symbol&quot;;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 8px);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  -webkit-font-smoothing: antialiased;
+  font-size: var(--font-size-base);
+  line-height: calc(var(--font-size-base) * 1.625);
+  font-weight: var(--font-weight-normal);
+}
+
+.cursor-interaction {
+  cursor: var(--cursor-interaction, pointer);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: var(--cursor-interaction, pointer);
+  text-decoration: none;
+  text-underline-offset: 2px;
+  font-weight: inherit;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+.table {
+  font-family: var(--font-sans);
+}
+
+h1 {
+  font-size: calc(var(--font-size-base) * 1.5);
+  line-height: 1.3333333333;
+}
+
+h2 {
+  font-size: calc(var(--font-size-base) * 1.25);
+  line-height: 1.4;
+}
+h3 {
+  font-size: calc(var(--font-size-base) * 1.125);
+  line-height: 1.5555555556;
+}
+h4 {
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+h5,
+h6 {
+  font-size: var(--font-size-base);
+  line-height: calc(var(--font-size-base) * 1.625);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+b,
+strong,
+th {
+  font-weight: 600;
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+pre,
+pre code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: calc(var(--font-size-base) * 0.875);
+  line-height: calc(var(--font-size-base) * 1.625);
+  font-family: var(--font-sans);
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+.table :is(th, td):not(:last-child) {
+  padding-inline-end: calc(var(--font-size-base) * 1.5);
+}
+
+.table-responsive &gt; .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead :is(th, td) {
+  border-bottom-color: var(--border-strong, var(--input));
+  padding-block: calc(var(--font-size-base) / 2);
+  line-height: var(--font-size-base);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+.table tbody :is(th, td) {
+  padding-block: calc(var(--font-size-base) * 0.625);
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 8px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align=&quot;right&quot;]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align=&quot;center&quot;]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+.widget {
+  min-width: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  box-shadow: 0 0 0 0.5px var(--border-strong, var(--border));
+  color: var(--foreground);
+  background: var(--background);
+}
+
+#widget &gt; :not(.card, .widget, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  border: 1px solid var(--border);
+  corner-shape: var(--corner-shape);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-sans);
+  padding: 5px 12px;
+  border-color: color-mix(
+    in oklab,
+    light-dark(var(--primary-foreground), var(--foreground)) 5%,
+    transparent
+  );
+  border-radius: var(--radius-2xl);
+  color: light-dark(var(--primary-foreground), var(--foreground));
+  background: light-dark(var(--foreground), var(--popover));
+  box-shadow: 0 8px 18px rgb(15 23 42 / 20%);
+  letter-spacing: -0.15px;
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  color: color-mix(in srgb, var(--foreground) 40%, var(--muted-foreground));
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  font-family: var(--font-sans);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 1;
+}
+
+small,
+.text-small {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+/* Match inline alignment without overriding a containing flex or grid layout. */
+.btn,
+.nav-link,
+.form-control,
+.form-select,
+.form-range,
+.form-check {
+  vertical-align: middle;
+}
+
+.btn,
+.nav-link {
+  --btn-size: calc(12px + 2 * var(--control-spacing, 12px));
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  corner-shape: var(--corner-shape);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: inherit;
+  font-family: var(--font-sans);
+  height: fit-content;
+  min-height: var(--btn-size);
+  padding-inline: var(--control-spacing, 12px);
+  border-color: transparent;
+  border-radius: var(--radius-full);
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+}
+
+.btn {
+  border-color: var(--border);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+}
+
+/* Codex Button size=&quot;compact&quot;; appearance stays with the button variant. */
+.btn-sm {
+  --btn-size: 24px;
+  padding-inline: 8px;
+  font-size: calc(var(--font-size-base) * 12 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 12 / 16), 1px);
+  line-height: 16px;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: var(--cursor-interaction, pointer);
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.nav-link:not(:disabled):not([aria-disabled=&quot;true&quot;]):hover {
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.btn-primary {
+  border-color: var(--border);
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: border-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: border-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--muted-foreground);
+  background: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+/* Shared preview chrome; product styles stay inside each variant. */
+.viz-dotted-background {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--foreground) 14%, transparent) 0.8px,
+    transparent 0.8px
+  );
+  background-position: center;
+  background-size: 16px 16px;
+}
+
+.viz-carousel {
+  position: relative;
+  min-width: 0;
+}
+
+.viz-carousel:has(&gt; .viz-carousel-controls) {
+  min-height: calc(60px + var(--viz-carousel-picker-height, 0px));
+  padding-bottom: 60px;
+}
+
+.viz-carousel &gt; [data-variant][hidden] {
+  display: none !important;
+}
+
+.viz-carousel &gt; [data-variant] {
+  isolation: isolate;
+}
+
+.viz-carousel-controls {
+  --viz-carousel-hover: light-dark(
+    color-mix(in srgb, var(--foreground) 5.4%, transparent),
+    color-mix(in srgb, var(--foreground) 7.8%, transparent)
+  );
+  position: absolute;
+  z-index: 2;
+  bottom: 8px;
+  left: 50%;
+  display: flex;
+  width: max-content;
+  /* Leave room for the host&#x27;s design-controls launcher at the trailing edge. */
+  max-width: calc(100% - 96px);
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+  /* Match the settings dropdown chrome independently of the content font size. */
+  font-size: 13px;
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+  transform: translateX(-50%);
+  user-select: none;
+}
+
+/* Keep authored mockup button styles out of the shared carousel chrome. */
+.viz-carousel-controls button,
+.viz-carousel-picker &gt; summary {
+  display: flex !important;
+  height: auto !important;
+  min-height: 30px;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px;
+  padding: 0 6px !important;
+  -webkit-app-region: no-drag;
+  border: 0 !important;
+  border-radius: 14px !important;
+  color: inherit !important;
+  background: transparent !important;
+  font: inherit !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.viz-carousel-controls &gt; button,
+.viz-carousel-picker &gt; summary {
+  position: relative;
+  isolation: isolate;
+}
+
+.viz-carousel-controls &gt; button {
+  --icon-size: 16px;
+  width: 30px !important;
+  padding: 0 !important;
+}
+
+.viz-carousel-picker &gt; summary {
+  padding-inline: 12px !important;
+}
+
+.viz-carousel-controls .viz-carousel-caret {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  margin: 0;
+  color: inherit;
+  transform: rotate(180deg);
+}
+
+.viz-carousel-controls &gt; button &gt; svg,
+.viz-carousel-controls .viz-carousel-caret,
+.viz-carousel-count {
+  opacity: 0.5;
+}
+
+.viz-carousel-controls &gt; button::before,
+.viz-carousel-picker &gt; summary::before {
+  position: absolute;
+  z-index: -1;
+  inset: 3px;
+  border-radius: 12px;
+  content: &quot;&quot;;
+  pointer-events: none;
+}
+
+.viz-carousel-controls &gt; button:hover::before,
+.viz-carousel-picker &gt; summary:hover::before {
+  background: var(--viz-carousel-hover);
+}
+
+.viz-carousel-controls &gt; button,
+.viz-carousel-controls [data-lucide],
+.viz-carousel-controls .lucide {
+  flex-shrink: 0;
+}
+
+.viz-carousel-picker {
+  min-width: 0;
+}
+
+.viz-carousel-picker &gt; summary {
+  min-width: 0;
+  list-style: none;
+}
+
+.viz-carousel-picker &gt; summary::-webkit-details-marker {
+  display: none;
+}
+
+.viz-carousel-count {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.viz-carousel-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viz-carousel-options {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 4px);
+  left: 0;
+  display: flex;
+  max-height: 240px;
+  flex-direction: column;
+  gap: 2px;
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  box-shadow: 0 4px 12px light-dark(rgb(0 0 0 / 6%), rgb(0 0 0 / 25%));
+}
+
+.viz-carousel-options &gt; button {
+  border-radius: max(0px, calc(var(--radius-lg) - 5px)) !important;
+  width: 100% !important;
+  min-height: 28px;
+  justify-content: flex-start !important;
+  padding: 4px 8px !important;
+  font-size: var(--font-size-small) !important;
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.viz-carousel-options &gt; [aria-current=&quot;true&quot;],
+.viz-carousel-options &gt; button:hover {
+  background: var(--viz-carousel-hover) !important;
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled=&quot;true&quot;] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding-inline: calc(4px + var(--control-spacing, 12px) / 2);
+  border-color: var(--input);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--popover) 96%, transparent);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.4285714286;
+}
+.form-control:is(
+  [type=&quot;file&quot;],
+  [type=&quot;date&quot;],
+  [type=&quot;datetime-local&quot;],
+  [type=&quot;month&quot;],
+  [type=&quot;week&quot;],
+  [type=&quot;color&quot;]
+) {
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  line-height: 18px;
+}
+.form-control:is(
+  [type=&quot;date&quot;],
+  [type=&quot;datetime-local&quot;],
+  [type=&quot;month&quot;],
+  [type=&quot;week&quot;]
+) {
+  padding-inline: var(--control-spacing, 12px);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+  padding: 0;
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+  min-height: calc(10px + 2 * var(--control-spacing, 12px));
+  padding-inline: var(--control-spacing, 12px);
+  margin-inline-end: var(--control-spacing, 12px);
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  resize: vertical;
+  min-height: 96px;
+  padding: 8px 10px;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: none;
+}
+.form-control:disabled {
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  opacity: 1;
+}
+.form-control[aria-invalid=&quot;true&quot;] {
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--red) 20%, transparent);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: fit-content;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  margin: 0;
+  /* The secondary icon role is 14px at compact density and 16px at web density. */
+  --icon-size: calc(10px + var(--control-spacing, 12px) / 2);
+  /* Settings dropdowns retain a 12px inset and a 4px text-to-chevron gap. */
+  padding: 0 calc(16px + var(--icon-size)) 0 12px;
+  outline: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(
+      45deg,
+      transparent calc(50% - 0.6px),
+      var(--muted-foreground) calc(50% - 0.6px) calc(50% + 0.6px),
+      transparent calc(50% + 0.6px)
+    ),
+    linear-gradient(
+      135deg,
+      transparent calc(50% - 0.6px),
+      var(--muted-foreground) calc(50% - 0.6px) calc(50% + 0.6px),
+      transparent calc(50% + 0.6px)
+    );
+  background-position:
+    calc(100% - 12px - var(--icon-size) / 2) 50%,
+    calc(100% - 12px - var(--icon-size) * 0.18) 50%;
+  background-repeat: no-repeat;
+  background-size: calc(var(--icon-size) * 0.32) calc(var(--icon-size) * 0.32);
+  cursor: var(--cursor-interaction, default);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+}
+
+.form-select :is(option, optgroup) {
+  color: var(--popover-foreground);
+  background-color: var(--popover);
+}
+
+.form-select :is(option, optgroup):disabled {
+  color: var(--muted-foreground);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.form-select:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+.form-select:disabled {
+  opacity: 0.4;
+}
+
+.form-check {
+  display: flex;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  corner-shape: round;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  width: calc(10px + var(--control-spacing, 12px) / 2);
+  height: calc(10px + var(--control-spacing, 12px) / 2);
+  border-color: var(--border-strong, var(--input));
+  border-radius: calc(var(--radius-sm) / 2);
+  background-color: transparent;
+  color: var(--foreground);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:is(:checked, :indeterminate) {
+  border-color: var(--border-strong, var(--input));
+  background-color: color-mix(in srgb, var(--popover) 96%, transparent);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+  background-color: var(--foreground);
+}
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:indeterminate::before {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 65%;
+  height: 6.65%;
+  margin: auto;
+  border-radius: var(--radius-full);
+  background: var(--foreground);
+  mask: none;
+  content: &quot;&quot;;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  border-radius: var(--radius-full);
+  width: 16px;
+  height: 16px;
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--input);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 0;
+  background: radial-gradient(
+    circle,
+    var(--primary-foreground) 0 3px,
+    var(--foreground) 3px
+  );
+  box-shadow: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:focus-visible {
+  border-color: var(--ring);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+.form-check:not(.form-switch) .form-check-input[type=&quot;radio&quot;]:disabled,
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;radio&quot;]:disabled
+  + .form-check-label {
+  opacity: 0.5;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+  border-color: #fff;
+  background: #fff;
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--blue);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+  outline: none;
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  accent-color: var(--primary);
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  outline: none;
+  border-radius: var(--radius-full);
+  color: var(--foreground);
+  background: transparent;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  background: var(--form-range-track, var(--border));
+  height: 2px;
+  border-radius: var(--radius-full);
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  margin-top: -9px;
+  border-color: transparent;
+  background: currentColor;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Outline the native track and thumb, preserving the larger input hit area. */
+.form-range:focus-visible::-webkit-slider-runnable-track {
+  outline: 2px auto Highlight;
+  outline-color: -webkit-focus-ring-color;
+}
+
+.form-range::-moz-range-track {
+  background: var(--form-range-track, var(--border));
+  height: 2px;
+  border-radius: var(--radius-full);
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  border-color: transparent;
+  background: currentColor;
+  box-shadow: var(--shadow-sm);
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  outline: 2px solid Highlight;
+  outline-offset: 2px;
+}
+
+.form-range:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed=&quot;true&quot;],
+  [aria-selected=&quot;true&quot;],
+  .is-selected
+) {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--blue);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.viz-carousel-controls :is(button, summary):focus-visible {
+  outline: 2px solid var(--ring) !important;
+  outline-offset: 2px !important;
+}
+
+/* Web recipes are the default, including on renderers without inline style queries. */
+@supports (border-radius: if(style(--corner-shape: round): 1px; else: 2px)) {
+  /* Match the host&#x27;s proportional text-sm scale at every text preference. */
+  .tooltip,
+  .viz-badge,
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    font-size: if(
+      style(--corner-shape: round): round(
+          nearest,
+          calc(var(--font-size-base) * 14 / 16),
+          1px
+        );
+        else: round(nearest, calc(var(--font-size-base) * 13 / 14), 1px)
+    );
+  }
+
+  .btn-sm {
+    font-size: if(
+      style(--corner-shape: round): round(
+          nearest,
+          calc(var(--font-size-base) * 12 / 16),
+          1px
+        );
+        else: round(nearest, calc(var(--font-size-base) * 12 / 14), 1px)
+    );
+  }
+
+  .btn,
+  .nav-link,
+  .form-select {
+    border-radius: if(
+      style(--corner-shape: round): var(--radius-full); else: var(--radius-lg)
+    );
+  }
+
+  .form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+    border-radius: if(
+      style(--corner-shape: round): calc(var(--radius-sm) / 2);
+        else: calc(var(--radius-lg) * 0.4)
+    );
+  }
+
+  .tooltip {
+    font-weight: if(
+      style(--corner-shape: round): 600; else: var(--font-weight-normal)
+    );
+  }
+}
+
+@media (pointer: coarse) {
+  .viz-carousel:has(&gt; .viz-carousel-controls) {
+    min-height: calc(76px + var(--viz-carousel-picker-height, 0px));
+    padding-bottom: 76px;
+  }
+
+  .btn,
+  .nav-link,
+  .viz-carousel-controls button,
+  .viz-carousel-picker &gt; summary,
+  .form-control,
+  .form-select {
+    --btn-size: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, calc(var(--font-size-base) * 14 / 16));
+    font-size: max(
+      16px,
+      round(nearest, calc(var(--font-size-base) * 14 / 16), 1px)
+    );
+  }
+  .form-control:is(
+    [type=&quot;file&quot;],
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;week&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;color&quot;]
+  ) {
+    height: 44px;
+    min-height: 44px;
+    font-size: max(16px, calc(var(--font-size-base) * 14 / 16));
+    font-size: max(
+      16px,
+      round(nearest, calc(var(--font-size-base) * 14 / 16), 1px)
+    );
+  }
+
+  .form-control[type=&quot;file&quot;]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type=&quot;color&quot;] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;week&quot;]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: &quot;&quot;;
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;script type=&quot;application/json&quot; id=&quot;codex-visualization-widget-state&quot;&gt;__CODEX_VISUALIZATION_WIDGET_STATE__&lt;/script&gt;
+&lt;script&gt;(() =&gt; {
+  const root = document.documentElement;
+  const mediaQuery = globalThis.matchMedia(&quot;(prefers-color-scheme: dark)&quot;);
+  const apply = Reflect.apply;
+  const isArray = Array.isArray;
+  const hasOwn = Object.hasOwn;
+  const parentWindow = globalThis.parent;
+  const stringify = JSON.stringify;
+  const parse = JSON.parse;
+  const encode = TextEncoder.prototype.encode.bind(new TextEncoder());
+  const initialStateElement = document.getElementById(
+    &quot;codex-visualization-widget-state&quot;,
+  );
+  const initialGlobals = parse(initialStateElement?.textContent ?? &quot;{}&quot;);
+  initialStateElement?.remove();
+  /** @type {Record&lt;string, unknown&gt; | null} */
+  let state = initialGlobals.widgetState ?? null;
+  const statePersistence = initialGlobals.statePersistence ?? &quot;none&quot;;
+  let nextStateRequestId = 0;
+  /** @type {Map&lt;number, { resolve: () =&gt; void; reject: (error: Error) =&gt; void; timeout: ReturnType&lt;typeof globalThis.setTimeout&gt;; serializedState: string }&gt;} */
+  const pendingStateWrites = new Map();
+  const persistenceError = () =&gt;
+    Object.assign(
+      new Error(&quot;The host could not persist the widget state update&quot;),
+      {
+        code: -32000,
+        data: { code: &quot;widget_state_persistence_failed&quot;, retryable: false },
+      },
+    );
+  /**
+   * @param {object} prototype
+   * @param {string} property
+   */
+  const getPrototypeGetter = (prototype, property) =&gt; {
+    // oxlint-disable-next-line typescript/unbound-method -- invoked through captured Reflect.apply
+    const getter = Object.getOwnPropertyDescriptor(prototype, property)?.get;
+    if (getter == null) {
+      throw new Error(`Missing ${property} getter`);
+    }
+    return getter;
+  };
+  const getMessageData = getPrototypeGetter(MessageEvent.prototype, &quot;data&quot;);
+  const getMessagePorts = getPrototypeGetter(MessageEvent.prototype, &quot;ports&quot;);
+  const getMessageSource = getPrototypeGetter(MessageEvent.prototype, &quot;source&quot;);
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const addHostMessageListener = MessagePort.prototype.addEventListener;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const postHostMessage = MessagePort.prototype.postMessage;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const startHostPort = MessagePort.prototype.start;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const stopMessagePropagation = Event.prototype.stopImmediatePropagation;
+  /** @type {MessagePort | null} */
+  let hostPort = null;
+  const postToHost = (type, payload) =&gt; {
+    if (hostPort != null) {
+      apply(postHostMessage, hostPort, [{ type, ...payload }]);
+    }
+  };
+  const openExternal = ({ href }) =&gt; {
+    if (globalThis.navigator.userActivation?.isActive === true) {
+      postToHost(&quot;open-external&quot;, { href });
+    }
+  };
+  const sendFollowUpMessage = ({ context, prompt, title }) =&gt; {
+    if (globalThis.navigator.userActivation?.isActive === true) {
+      postToHost(&quot;follow-up&quot;, { context, prompt, title });
+    }
+    return Promise.resolve();
+  };
+  /**
+   * @param {Record&lt;string, unknown&gt; | ((previous: Record&lt;string, unknown&gt; | null) =&gt; Record&lt;string, unknown&gt;)} next
+   * @returns {Promise&lt;void&gt;}
+   */
+  const setWidgetState = async (next) =&gt; {
+    const nextState = typeof next === &quot;function&quot; ? next(state) : next;
+    if (
+      nextState == null ||
+      typeof nextState !== &quot;object&quot; ||
+      isArray(nextState)
+    ) {
+      throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+    }
+    const inputState = stringify(
+      nextState,
+      (_key, /** @type {unknown} */ value) =&gt; {
+        if (
+          typeof value === &quot;undefined&quot; ||
+          typeof value === &quot;function&quot; ||
+          typeof value === &quot;symbol&quot; ||
+          (typeof value === &quot;number&quot; &amp;&amp; !Number.isFinite(value))
+        ) {
+          throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+        }
+        return value;
+      },
+    );
+    const parsedState = parse(inputState);
+    if (
+      parsedState == null ||
+      typeof parsedState !== &quot;object&quot; ||
+      isArray(parsedState)
+    ) {
+      throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+    }
+    const storedState = {
+      modelContent: null,
+      privateContent: null,
+      ...parsedState,
+    };
+    const serializedState = stringify(storedState);
+    if (encode(serializedState).length &gt; 16 * 1024) {
+      throw new TypeError(
+        &quot;Widget state must be a JSON object of at most 16 KiB&quot;,
+      );
+    }
+    if (
+      hasOwn(storedState, &quot;imageIds&quot;) &amp;&amp;
+      (!isArray(storedState.imageIds) ||
+        storedState.imageIds.some(
+          (/** @type {unknown} */ id) =&gt; typeof id !== &quot;string&quot;,
+        ))
+    ) {
+      throw new TypeError(&quot;Widget state imageIds must be an array of strings&quot;);
+    }
+    if (storedState.imageIds?.length &gt; 0) {
+      throw Object.assign(
+        new TypeError(&quot;Visualization state does not support image attachments&quot;),
+        { code: -32602, data: { code: &quot;images_unsupported&quot; } },
+      );
+    }
+    state = storedState;
+    globalThis.openai.widgetState = state;
+    globalThis.dispatchEvent(
+      new CustomEvent(&quot;openai:set_globals&quot;, {
+        detail: { globals: { widgetState: state } },
+      }),
+    );
+    if (statePersistence === &quot;none&quot;) {
+      throw persistenceError();
+    }
+    const id = ++nextStateRequestId;
+    return new Promise((resolve, reject) =&gt; {
+      const timeout = globalThis.setTimeout(() =&gt; {
+        pendingStateWrites.delete(id);
+        reject(persistenceError());
+      }, 30_000);
+      pendingStateWrites.set(id, { resolve, reject, timeout, serializedState });
+      postToHost(&quot;widget-state-write&quot;, { id, state: serializedState });
+    });
+  };
+  const mockElement = document.getElementById(&quot;codex-connector-mocks&quot;);
+  const connectorGlobals = {};
+  if (mockElement != null) {
+    const values = new Map(Object.entries(parse(mockElement.textContent)));
+    mockElement.remove();
+    connectorGlobals.visualizationData = {
+      updates: Array.from(values, ([name, value]) =&gt; ({
+        name,
+        revision: 1,
+        state: &quot;ready&quot;,
+        value: { type: &quot;json&quot;, value },
+      })),
+    };
+    connectorGlobals.visualization = {
+      /** @param {string} name @param {(value: unknown) =&gt; void} callback */
+      onData(name, callback) {
+        if (typeof callback !== &quot;function&quot;) {
+          throw new TypeError(&quot;onData requires a callback&quot;);
+        }
+        try {
+          callback(values.get(name));
+        } catch (error) {
+          // oxlint-disable-next-line no-console -- Keep authored callback failures local.
+          console.error(&quot;Live visualization data callback failed&quot;, error);
+        }
+        // A static preview delivers the current fixture once per subscription.
+        return () =&gt; {};
+      },
+    };
+  }
+  const syncTheme = () =&gt; {
+    const theme = mediaQuery.matches ? &quot;dark&quot; : &quot;light&quot;;
+    root.dataset.theme = theme;
+    globalThis.openai = {
+      ...globalThis.openai,
+      ...connectorGlobals,
+      openExternal,
+      sendFollowUpMessage,
+      setWidgetState,
+      theme,
+      visualizationStyleVariables: {},
+      visualizationTheme: theme,
+      widgetState: state,
+      statePersistence,
+      stateModelContext: &quot;none&quot;,
+    };
+    globalThis.dispatchEvent(
+      new CustomEvent(&quot;openai:set_globals&quot;, {
+        detail: { globals: globalThis.openai },
+      }),
+    );
+  };
+  const sendHeight = () =&gt; {
+    postToHost(&quot;height&quot;, {
+      height: Math.ceil(
+        Math.max(
+          document.body.scrollHeight,
+          document.body.getBoundingClientRect().height,
+        ),
+      ),
+    });
+  };
+
+  globalThis.addEventListener(
+    &quot;message&quot;,
+    (event) =&gt; {
+      const data = apply(getMessageData, event, []);
+      const ports = apply(getMessagePorts, event, []);
+      const source = apply(getMessageSource, event, []);
+      if (
+        hostPort != null ||
+        source !== parentWindow ||
+        typeof data !== &quot;object&quot; ||
+        data?.type !== &quot;codex-visualization-initialize&quot; ||
+        !isArray(ports) ||
+        ports.length !== 1
+      ) {
+        return;
+      }
+      apply(stopMessagePropagation, event, []);
+      const nextHostPort = ports[0];
+      try {
+        apply(addHostMessageListener, nextHostPort, [
+          &quot;message&quot;,
+          (event) =&gt; {
+            const data = apply(getMessageData, event, []);
+            if (typeof data === &quot;object&quot; &amp;&amp; data?.type === &quot;measure&quot;) {
+              sendHeight();
+            } else if (
+              typeof data === &quot;object&quot; &amp;&amp;
+              data?.type === &quot;widget-state-result&quot;
+            ) {
+              /** @type {unknown} */
+              const id = data.id;
+              if (typeof id !== &quot;number&quot;) {
+                return;
+              }
+              const pending = pendingStateWrites.get(id);
+              if (pending != null) {
+                pendingStateWrites.delete(id);
+                globalThis.clearTimeout(pending.timeout);
+                if (data.ok === true) {
+                  pending.resolve();
+                } else {
+                  pending.reject(persistenceError());
+                }
+              }
+            }
+          },
+        ]);
+        apply(startHostPort, nextHostPort, []);
+      } catch {
+        return;
+      }
+      hostPort = nextHostPort;
+      for (const [id, { serializedState }] of pendingStateWrites) {
+        postToHost(&quot;widget-state-write&quot;, { id, state: serializedState });
+      }
+      sendHeight();
+    },
+    { capture: true },
+  );
+  document.currentScript?.remove();
+  mediaQuery.addEventListener(&quot;change&quot;, syncTheme);
+  globalThis.addEventListener(&quot;click&quot;, (event) =&gt; {
+    if (event.defaultPrevented) {
+      return;
+    }
+    let element = null;
+    if (event.target instanceof globalThis.Element) {
+      element = event.target;
+    } else if (event.target instanceof globalThis.Node) {
+      element = event.target.parentElement;
+    }
+    const link = element?.closest(&quot;a[href]&quot;);
+    const href = link?.getAttribute(&quot;href&quot;);
+    if (href == null) {
+      return;
+    }
+    if (href.startsWith(&quot;#&quot;)) {
+      let id;
+      try {
+        id = decodeURIComponent(href.slice(1));
+      } catch {
+        return;
+      }
+      const target = id.length === 0 ? root : document.getElementById(id);
+      if (
+        target == null ||
+        globalThis.navigator.userActivation?.isActive !== true
+      ) {
+        return;
+      }
+      event.preventDefault();
+      postToHost(&quot;scroll-to&quot;, {
+        top: target.getBoundingClientRect().top + globalThis.scrollY,
+      });
+      return;
+    }
+    event.preventDefault();
+    openExternal({ href });
+  });
+  new ResizeObserver(sendHeight).observe(document.body);
+  syncTheme();
+})();
+&lt;/script&gt;
+&lt;div id=&quot;kt-panel-companion-v9&quot;&gt;
+&lt;style&gt;
+#kt-panel-companion-v9 { color-scheme:light; font-family:Inter,-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,sans-serif; }
+#kt-panel-companion-v9 * { box-sizing:border-box; }
+#kt-panel-companion-v9 .rf-stage { position:relative; width:100%; height:248px; color:#252729; }
+#kt-panel-companion-v9 .rf-stage[data-view=&quot;question&quot;] { height:460px; }
+#kt-panel-companion-v9 .rf-stage[data-view=&quot;settings&quot;] { height:432px; }
+#kt-panel-companion-v9 .rf-stage[data-view=&quot;queue&quot;] { height:300px; }
+#kt-panel-companion-v9 .rf-window { position:absolute; bottom:44px; left:50%; width:380px; max-width:calc(100% - 32px); transform:translateX(-50%); background:#fff; border:1px solid #e3e4e5; border-radius:16px; box-shadow:0 7px 20px #22242b08,0 1px 3px #22242b05; }
+#kt-panel-companion-v9 button,#kt-panel-companion-v9 textarea,#kt-panel-companion-v9 input,#kt-panel-companion-v9 select { font:inherit; }
+#kt-panel-companion-v9 button { -webkit-tap-highlight-color:transparent; color:inherit; }
+#kt-panel-companion-v9 button:focus-visible,#kt-panel-companion-v9 textarea:focus-visible,#kt-panel-companion-v9 input:focus-visible,#kt-panel-companion-v9 select:focus-visible { outline:2px solid #8b939a; outline-offset:3px; }
+#kt-panel-companion-v9 .rf-writing { display:block; resize:none; width:100%; height:122px; border:0; border-radius:16px 16px 0 0; padding:24px 24px 10px; background:transparent; color:#252729; font-size:16px; line-height:1.55; letter-spacing:-.02em; }
+#kt-panel-companion-v9 .rf-writing::placeholder { color:#7f8489; opacity:1; }
+#kt-panel-companion-v9 .rf-writing:focus-visible { outline:0; }
+#kt-panel-companion-v9 .rf-window:has(.rf-writing:focus-visible) { border-color:#a8adb2; outline:2px solid #a8b2bb; outline-offset:2px; }
+#kt-panel-companion-v9 .rf-footer { position:relative; display:flex; align-items:center; gap:3px; height:48px; padding:0 90px 0 15px; }
+#kt-panel-companion-v9 .rf-tool { border:0; background:transparent; border-radius:7px; width:30px; height:32px; padding:6px; display:inline-flex; align-items:center; justify-content:center; position:relative; color:#72777c; }
+#kt-panel-companion-v9 .rf-tool:hover { color:#303438; background:#f4f4f4; }
+#kt-panel-companion-v9 .rf-tool svg { width:15px; height:15px; stroke-width:1.6; }
+#kt-panel-companion-v9 .rf-count { position:absolute; top:0; right:0; font-size:11px; color:#65696e; background:#fff; padding:1px; line-height:1; }
+#kt-panel-companion-v9 .rf-divider { width:1px; height:12px; background:#edeeef; margin:0 5px; }
+#kt-panel-companion-v9 .rf-spacer { flex:1; }
+#kt-panel-companion-v9 .rf-send { width:30px; height:30px; border:0; border-radius:8px; background:#303336; color:#fff; display:grid; place-items:center; padding:6px; }
+#kt-panel-companion-v9 .rf-send:disabled { background:#eeeff0; color:#bbbfc2; }
+#kt-panel-companion-v9 .rf-send:not(:disabled):hover { background:#17191b; }
+#kt-panel-companion-v9 .rf-send svg { width:16px; height:16px; }
+#kt-panel-companion-v9 .rf-avatar { position:absolute; width:64px; height:64px; right:14px; bottom:-25px; border:0; padding:0; background:transparent; }
+#kt-panel-companion-v9 .rf-avatar canvas { display:block; width:64px; height:64px; image-rendering:pixelated; }
+#kt-panel-companion-v9 .rf-attachments { padding:0 24px 7px; display:flex; gap:6px; flex-wrap:wrap; }
+#kt-panel-companion-v9 .rf-chip { display:flex; align-items:center; gap:5px; max-width:100%; font-size:11px; color:#74777b; background:#f4f5f5; border-radius:5px; padding:5px 7px; }
+#kt-panel-companion-v9 .rf-chip span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:230px; }
+#kt-panel-companion-v9 .rf-chip button { border:0; padding:0 2px; background:transparent; color:#8b8f93; font-size:12px; }
+#kt-panel-companion-v9 .rf-files { display:none; }
+#kt-panel-companion-v9 .rf-window[data-drag=&quot;true&quot;] { outline:2px solid #a9b5c0; outline-offset:4px; background:#fcfdfe; }
+#kt-panel-companion-v9 .rf-preview-note { text-align:center; font-size:11px; line-height:1.3; color:#8b8f94; padding:0 10px 4px; }
+#kt-panel-companion-v9 .rf-question { padding:21px 24px 11px; position:relative; }
+#kt-panel-companion-v9 .rf-case { font-size:11px; color:#838990; margin:0 0 9px; letter-spacing:.025em; }
+#kt-panel-companion-v9 .rf-question h2 { font-size:19px; font-weight:500; line-height:1.3; letter-spacing:-.035em; margin:0; max-width:290px; }
+#kt-panel-companion-v9 .rf-close { position:absolute; top:12px; right:12px; }
+#kt-panel-companion-v9 .rf-responses { display:flex; align-items:center; gap:8px; margin-top:17px; }
+#kt-panel-companion-v9 .rf-secondary-responses { display:flex; align-items:center; gap:10px; margin-top:5px; }
+#kt-panel-companion-v9 .rf-answer { font-size:13px; font-weight:500; background:#fff; border:1px solid #d9dcde; border-radius:8px; height:34px; min-width:57px; padding:0 16px; }
+#kt-panel-companion-v9 .rf-answer:hover { background:#f2f3f4; border-color:#c7cbce; }
+#kt-panel-companion-v9 .rf-later { border:0; background:transparent; padding:8px 5px; color:#737a81; font-size:11px; white-space:nowrap; }
+#kt-panel-companion-v9 .rf-later:hover { color:#464b50; }
+#kt-panel-companion-v9 .rf-reveal { height:0; overflow:hidden; transition:height 240ms steps(6,end); }
+#kt-panel-companion-v9 .rf-history { padding:14px 24px 12px; border-top:1px solid #f0f1f2; }
+#kt-panel-companion-v9 .rf-why { font-size:12px; color:#676e74; line-height:1.45; margin:0 0 13px; }
+#kt-panel-companion-v9 .rf-timeline { padding:0; margin:0; list-style:none; }
+#kt-panel-companion-v9 .rf-timeline li { position:relative; padding:0 0 10px 15px; display:flex; gap:7px; line-height:1.35; font-size:11px; color:#5e666e; }
+#kt-panel-companion-v9 .rf-timeline li::before { content:&quot;&quot;; width:4px; height:4px; position:absolute; left:0; top:5px; background:#aeb6bd; }
+#kt-panel-companion-v9 .rf-timeline li:not(:last-child)::after { content:&quot;&quot;; width:1px; background:#e5e8ea; position:absolute; top:9px; bottom:0; left:1px; }
+#kt-panel-companion-v9 .rf-timeline li:last-child { padding-bottom:0; }
+#kt-panel-companion-v9 .rf-timeline b { font-weight:400; color:#7f878e; width:61px; flex-shrink:0; }
+#kt-panel-companion-v9 .rf-timeline span { flex:1; }
+#kt-panel-companion-v9 .rf-caveat { font-size:11px; line-height:1.35; color:#7f878e; margin:11px 0 0; }
+#kt-panel-companion-v9 .rf-context-button { display:flex; align-items:center; gap:5px; font-size:11px; color:#737a81; background:transparent; padding:4px 0; border:0; height:32px; }
+#kt-panel-companion-v9 .rf-context-button:hover { color:#343a40; }
+#kt-panel-companion-v9 .rf-context-button svg { width:12px; height:12px; }
+#kt-panel-companion-v9 .rf-context-button[data-open=&quot;true&quot;] .rf-down { display:none; }
+#kt-panel-companion-v9 .rf-context-button[data-open=&quot;false&quot;] .rf-up { display:none; }
+#kt-panel-companion-v9 .rf-panel-content { padding:20px 24px 8px; position:relative; }
+#kt-panel-companion-v9 .rf-panel-content h2 { font-size:14px; font-weight:500; letter-spacing:-.02em; margin:0 0 16px; }
+#kt-panel-companion-v9 .rf-question-item { display:block; text-align:left; width:100%; background:#fff; border:0; border-top:1px solid #f0f1f2; padding:13px 0; font-size:13px; line-height:1.45; color:#4b5258; }
+#kt-panel-companion-v9 .rf-question-item small { display:block; font-size:11px; line-height:1.4; color:#8d959c; margin-bottom:3px; }
+#kt-panel-companion-v9 .rf-question-item:hover { color:#181b1e; }
+#kt-panel-companion-v9 .rf-settings-rows { display:grid; gap:0; }
+#kt-panel-companion-v9 .rf-setting { display:flex; align-items:center; gap:12px; min-height:37px; border-top:1px solid #f0f1f2; font-size:12px; color:#7b8187; }
+#kt-panel-companion-v9 .rf-setting &gt; span { flex:0 0 77px; }
+#kt-panel-companion-v9 .rf-setting input[type=&quot;text&quot;],#kt-panel-companion-v9 .rf-setting input[type=&quot;password&quot;],#kt-panel-companion-v9 .rf-setting select { width:0; flex:1; font-size:12px; color:#343a40; border:0; background:transparent; padding:7px 2px; min-width:0; }
+#kt-panel-companion-v9 .rf-setting select { text-align:right; padding-right:0; }
+#kt-panel-companion-v9 .rf-setting input { text-align:right; }
+#kt-panel-companion-v9 .rf-setting input:disabled { color:#a6aab0; }
+#kt-panel-companion-v9 .rf-setting input[type=&quot;checkbox&quot;] { margin-left:auto; accent-color:#5c646c; }
+#kt-panel-companion-v9 .rf-setting.rf-option &gt; span { flex:1; }
+#kt-panel-companion-v9 .rf-receipt { padding:26px 24px 17px; }
+#kt-panel-companion-v9 .rf-receipt p { font-size:15px; font-weight:400; margin:0; letter-spacing:-.02em; }
+#kt-panel-companion-v9 .rf-undo { border:0; background:transparent; color:#959ba1; font-size:11px; padding:0; margin-top:10px; }
+#kt-panel-companion-v9 .rf-reduced *,#kt-panel-companion-v9 .rf-reduced *::before,#kt-panel-companion-v9 .rf-reduced *::after { animation:none!important; transition:none!important; }
+#kt-panel-companion-v9 [hidden] { display:none!important; }
+@media (max-width:420px) {
+ #kt-panel-companion-v9 .rf-stage[data-view=&quot;question&quot;] { height:490px; }
+ #kt-panel-companion-v9 .rf-window { max-width:calc(100% - 20px); }
+ #kt-panel-companion-v9 .rf-question,#kt-panel-companion-v9 .rf-panel-content { padding-left:19px; padding-right:19px; }
+ #kt-panel-companion-v9 .rf-history { padding-left:19px; padding-right:19px; }
+ #kt-panel-companion-v9 .rf-writing { padding-left:19px; padding-right:19px; }
+ #kt-panel-companion-v9 .rf-footer { padding-left:11px; padding-right:83px; gap:0; }
+ #kt-panel-companion-v9 .rf-avatar { right:10px; }
+ #kt-panel-companion-v9 .rf-tool { width:28px; }
+ #kt-panel-companion-v9 .rf-divider { margin:0 4px; }
+ #kt-panel-companion-v9 .rf-question h2 { font-size:18px; }
+ #kt-panel-companion-v9 .rf-responses { gap:6px; }
+ #kt-panel-companion-v9 .rf-answer { padding:0 14px; min-width:53px; }
+ #kt-panel-companion-v9 .rf-timeline b { width:57px; }
+}
+@media (pointer:coarse) {
+ #kt-panel-companion-v9 .rf-tool,#kt-panel-companion-v9 .rf-send,#kt-panel-companion-v9 .rf-answer,#kt-panel-companion-v9 .rf-later,#kt-panel-companion-v9 .rf-context-button { min-width:44px; min-height:44px; }
+ #kt-panel-companion-v9 .rf-footer { height:54px; padding-left:8px; gap:0; }
+ #kt-panel-companion-v9 .rf-footer .rf-divider { display:none; }
+ #kt-panel-companion-v9 .rf-context-button { font-size:0; min-width:44px; }
+ #kt-panel-companion-v9 .rf-context-button svg { width:14px; height:14px; }
+ #kt-panel-companion-v9 .rf-footer .rf-spacer { min-width:4px; }
+ #kt-panel-companion-v9 .rf-writing { font-size:16px; }
+}
+@media (prefers-reduced-motion:reduce) { #kt-panel-companion-v9 *,#kt-panel-companion-v9 *::before,#kt-panel-companion-v9 *::after { animation:none!important; transition:none!important; } }
+#kt-panel-companion-v9 .rf-avatar { width:64px; height:64px; }
+#kt-panel-companion-v9 .rf-avatar canvas { position:absolute; width:88px; height:88px; left:-12px; top:-18px; pointer-events:none; }
+#kt-panel-companion-v9 .rf-receipt-detail { color:#747b82; font-size:12px; line-height:1.5; margin-top:8px; }
+#kt-panel-companion-v9 .rf-receipt { min-height:122px; }
+#kt-panel-companion-v9 .rf-undo { min-height:32px; color:#59636b; margin-top:6px; }
+#kt-panel-companion-v9 .rf-window[data-collapsed=&quot;true&quot;] { border-color:transparent; background:transparent; box-shadow:none; }
+#kt-panel-companion-v9 .rf-window[data-collapsed=&quot;true&quot;] .rf-footer { display:none; }
+#kt-panel-companion-v9 .rf-reveal[data-animating=&quot;true&quot;] .rf-history { visibility:hidden; }
+#kt-panel-companion-v9 .rf-chip button { min-width:24px; min-height:24px; }
+@media (pointer:coarse) { #kt-panel-companion-v9 .rf-chip button,#kt-panel-companion-v9 .rf-undo { min-height:44px; min-width:44px; } }
+#kt-panel-companion-v9 .rf-context-button { width:100%; height:40px; padding:0 24px; display:flex; justify-content:space-between; border-top:1px solid #edf0f1; font-size:12px; color:#5e676e; }
+#kt-panel-companion-v9 .rf-context-button svg { width:14px; height:14px; }
+#kt-panel-companion-v9 .rf-context-button[data-open=&quot;true&quot;] svg { transform:rotate(180deg); }
+#kt-panel-companion-v9 .rf-history { padding:16px 24px 17px; border-top:1px solid #edf0f1; }
+#kt-panel-companion-v9 .rf-evidence-path { list-style:none; margin:0; padding:0; position:relative; }
+#kt-panel-companion-v9 .rf-evidence-path::before { content:&#x27;&#x27;; position:absolute; left:50%; top:9px; bottom:28px; width:1px; background:#cdb569; }
+#kt-panel-companion-v9 .rf-evidence-node { position:relative; text-align:center; padding-top:7px; margin-bottom:8px; }
+#kt-panel-companion-v9 .rf-evidence-node:last-child { margin-bottom:0; }
+#kt-panel-companion-v9 .rf-node-title { display:inline-flex; position:relative; align-items:center; gap:7px; min-height:28px; border:0; background:#fff; padding:4px 12px; color:#886b24; font-size:12px; }
+#kt-panel-companion-v9 .rf-node-title::before { content:&#x27;&#x27;; position:absolute; left:calc(50% - 3px); top:-6px; width:6px; height:6px; background:#d4b452; box-shadow:0 0 0 3px #fff; }
+#kt-panel-companion-v9 .rf-node-title svg { width:11px; height:11px; color:#8e969d; }
+#kt-panel-companion-v9 .rf-node-title[aria-expanded=&quot;true&quot;] svg { transform:rotate(180deg); }
+#kt-panel-companion-v9 .rf-evidence-node[data-kind=&quot;problem&quot;] .rf-node-title { color:#a34e50; }
+#kt-panel-companion-v9 .rf-evidence-node[data-kind=&quot;problem&quot;] .rf-node-title::before { background:#c87474; }
+#kt-panel-companion-v9 .rf-evidence-node[data-kind=&quot;reported&quot;] .rf-node-title { color:#43765a; }
+#kt-panel-companion-v9 .rf-evidence-node[data-kind=&quot;reported&quot;] .rf-node-title::before { background:#6da287; }
+#kt-panel-companion-v9 .rf-node-detail { position:relative; background:#fff; text-align:left; color:#5e6870; margin:3px 0 8px; padding:9px 0 5px; font-size:12px; line-height:1.55; }
+#kt-panel-companion-v9 .rf-context-caveat { position:relative; margin:10px 0 0; padding-top:5px; background:#fff; color:#7b848c; font-size:11px; line-height:1.5; text-align:center; }
+@media (max-width:420px) { #kt-panel-companion-v9 .rf-context-button,#kt-panel-companion-v9 .rf-history { padding-left:19px; padding-right:19px; } }
+@media (pointer:coarse) { #kt-panel-companion-v9 .rf-context-button { min-height:44px; font-size:12px; } #kt-panel-companion-v9 .rf-node-title { min-height:44px; } }
+#kt-panel-companion-v9 .rf-window { border:0; background:transparent; box-shadow:none; }
+#kt-panel-companion-v9 .rf-surface { position:relative; display:grid; grid-template-rows:minmax(0,1fr) 48px; background:#fff; border:1px solid #e3e4e5; border-radius:16px; overflow:hidden; box-shadow:0 7px 20px #22242b08,0 1px 3px #22242b05; }
+#kt-panel-companion-v9 .rf-content { min-height:0; overflow:hidden; }
+#kt-panel-companion-v9 .rf-footer { background:#fff; }
+#kt-panel-companion-v9 .rf-avatar { right:15px; bottom:-24px; }
+#kt-panel-companion-v9 .rf-reveal { transition:none; }
+#kt-panel-companion-v9 .rf-node-detail { padding:0; margin:0; overflow:hidden; height:0; }
+#kt-panel-companion-v9 .rf-node-detail p { margin:0; padding:12px 0 10px; font:inherit; }
+#kt-panel-companion-v9 .rf-reveal[data-animating=&quot;true&quot;] .rf-history { visibility:visible; }
+@media (max-width:420px) { #kt-panel-companion-v9 .rf-avatar { right:11px; } }
+@media (pointer:coarse) { #kt-panel-companion-v9 .rf-surface { grid-template-rows:minmax(0,1fr) 54px; } }
+#kt-panel-companion-v9 .rf-motion-skin { position:absolute; inset:0; background:#fff; border:1px solid #e3e4e5; border-radius:16px; box-shadow:0 7px 20px #22242b08,0 1px 3px #22242b05; pointer-events:none; }
+#kt-panel-companion-v9 .rf-surface { border-color:transparent; background:transparent; box-shadow:none; }
+&lt;/style&gt;
+&lt;div class=&quot;viz-dotted-background&quot;&gt;
+ &lt;div class=&quot;rf-stage&quot; data-view=&quot;input&quot; aria-label=&quot;Refined companion interface&quot;&gt;
+  &lt;div class=&quot;rf-window&quot;&gt;
+   &lt;div class=&quot;rf-motion-skin&quot; aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;
+   &lt;div class=&quot;rf-surface&quot;&gt;&lt;div class=&quot;rf-content&quot;&gt;
+   &lt;section class=&quot;rf-view rf-input&quot; aria-label=&quot;Input&quot;&gt;
+    &lt;textarea class=&quot;rf-writing&quot; aria-label=&quot;Message to your companion&quot; placeholder=&quot;Tell me what happened…&quot;&gt;&lt;/textarea&gt;
+    &lt;div class=&quot;rf-attachments&quot; hidden&gt;&lt;/div&gt;
+    &lt;input class=&quot;rf-files&quot; type=&quot;file&quot; multiple aria-label=&quot;Attach files&quot;&gt;
+   &lt;/section&gt;
+   &lt;section class=&quot;rf-view&quot; data-view=&quot;question&quot; hidden&gt;
+    &lt;div class=&quot;rf-question&quot;&gt;
+     &lt;p class=&quot;rf-case&quot;&gt;TRN-042&lt;/p&gt;&lt;button class=&quot;rf-tool rf-close cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;queue&quot; aria-label=&quot;Back to questions&quot; data-tooltip=&quot;Back to questions&quot;&gt;&lt;i data-lucide=&quot;arrow-left&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+     &lt;h2&gt;Did traffic return right after the reset?&lt;/h2&gt;
+     &lt;div class=&quot;rf-responses&quot;&gt;&lt;button class=&quot;rf-answer cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;yes&quot;&gt;Yes&lt;/button&gt;&lt;button class=&quot;rf-answer cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;no&quot;&gt;No&lt;/button&gt;&lt;/div&gt;
+     &lt;div class=&quot;rf-secondary-responses&quot;&gt;&lt;button class=&quot;rf-later cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;unknown&quot;&gt;Not sure&lt;/button&gt;&lt;button class=&quot;rf-later cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;later&quot;&gt;Later&lt;/button&gt;&lt;span class=&quot;rf-spacer&quot;&gt;&lt;/span&gt;&lt;button class=&quot;rf-later cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;dismiss&quot;&gt;Dismiss&lt;/button&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;rf-reveal&quot; id=&quot;rf9-context&quot; inert&gt;
+     &lt;div class=&quot;rf-history&quot;&gt;
+      &lt;p class=&quot;rf-why&quot;&gt;I’m checking the timing, so we keep the sequence clear.&lt;/p&gt;
+      &lt;ol class=&quot;rf-timeline&quot;&gt;
+       &lt;li&gt;&lt;b&gt;Observed&lt;/b&gt;&lt;span&gt;Link up, no traffic. Optics normal.&lt;/span&gt;&lt;/li&gt;
+       &lt;li&gt;&lt;b&gt;Proposed&lt;/b&gt;&lt;span&gt;Forwarding-state issue; check counters.&lt;/span&gt;&lt;/li&gt;
+       &lt;li&gt;&lt;b&gt;Attempted&lt;/b&gt;&lt;span&gt;Interface reset.&lt;/span&gt;&lt;/li&gt;
+       &lt;li&gt;&lt;b&gt;Reported&lt;/b&gt;&lt;span&gt;Traffic returned. Exact timing unknown.&lt;/span&gt;&lt;/li&gt;
+      &lt;/ol&gt;&lt;p class=&quot;rf-caveat&quot;&gt;Timing alone won’t prove the cause or a lasting fix.&lt;/p&gt;
+     &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;button class=&quot;rf-context-button cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;context&quot; aria-expanded=&quot;false&quot; aria-controls=&quot;rf9-context&quot; data-open=&quot;false&quot;&gt;Why this question?&lt;i data-lucide=&quot;chevron-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+   &lt;/section&gt;
+   &lt;section class=&quot;rf-view rf-panel-content&quot; data-view=&quot;queue&quot; aria-label=&quot;Questions&quot; hidden&gt;
+    &lt;h2&gt;Questions&lt;/h2&gt;&lt;button class=&quot;rf-tool rf-close cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;input&quot; aria-label=&quot;Back to input&quot; data-tooltip=&quot;Back to input&quot;&gt;&lt;i data-lucide=&quot;corner-up-left&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+    &lt;div class=&quot;rf-queue-list&quot;&gt;&lt;/div&gt;
+   &lt;/section&gt;
+   &lt;section class=&quot;rf-view rf-panel-content&quot; data-view=&quot;settings&quot; aria-label=&quot;Settings&quot; hidden&gt;
+    &lt;h2&gt;Settings&lt;/h2&gt;&lt;button class=&quot;rf-tool rf-close cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;input&quot; aria-label=&quot;Back to input&quot; data-tooltip=&quot;Back to input&quot;&gt;&lt;i data-lucide=&quot;corner-up-left&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+    &lt;div class=&quot;rf-settings-rows&quot;&gt;
+     &lt;label class=&quot;rf-setting&quot;&gt;&lt;span&gt;Server&lt;/span&gt;&lt;input class=&quot;rf-server&quot; type=&quot;text&quot; value=&quot;demo.example.invalid&quot; autocomplete=&quot;off&quot; spellcheck=&quot;false&quot;&gt;&lt;/label&gt;
+     &lt;label class=&quot;rf-setting&quot;&gt;&lt;span&gt;Provider&lt;/span&gt;&lt;select class=&quot;rf-provider&quot;&gt;&lt;option&gt;Google&lt;/option&gt;&lt;option&gt;OpenAI&lt;/option&gt;&lt;option&gt;Local&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
+     &lt;label class=&quot;rf-setting&quot;&gt;&lt;span&gt;Model&lt;/span&gt;&lt;select class=&quot;rf-model&quot;&gt;&lt;option&gt;Gemini · demo&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
+     &lt;label class=&quot;rf-setting&quot;&gt;&lt;span&gt;API key&lt;/span&gt;&lt;input type=&quot;password&quot; placeholder=&quot;Unavailable in preview&quot; disabled aria-label=&quot;API key disabled in preview&quot;&gt;&lt;/label&gt;
+     &lt;label class=&quot;rf-setting rf-option&quot;&gt;&lt;span&gt;MCP&lt;/span&gt;&lt;input class=&quot;rf-mcp&quot; type=&quot;checkbox&quot; checked&gt;&lt;/label&gt;
+     &lt;label class=&quot;rf-setting rf-option&quot;&gt;&lt;span&gt;Reduced motion&lt;/span&gt;&lt;input class=&quot;rf-motion&quot; type=&quot;checkbox&quot;&gt;&lt;/label&gt;
+     &lt;label class=&quot;rf-setting rf-option&quot;&gt;&lt;span&gt;Points&lt;/span&gt;&lt;input class=&quot;rf-points&quot; type=&quot;checkbox&quot;&gt;&lt;/label&gt;
+    &lt;/div&gt;
+   &lt;/section&gt;
+   &lt;section class=&quot;rf-view rf-receipt&quot; data-view=&quot;receipt&quot; hidden aria-live=&quot;polite&quot;&gt;&lt;p class=&quot;rf-receipt-title&quot;&gt;Recorded: Yes&lt;/p&gt;&lt;div class=&quot;rf-receipt-detail&quot;&gt;&lt;/div&gt;&lt;button class=&quot;rf-undo cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;undo&quot;&gt;Undo&lt;/button&gt;&lt;/section&gt;
+   &lt;/div&gt;
+   &lt;footer class=&quot;rf-footer&quot;&gt;
+    &lt;button class=&quot;rf-tool cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;attach&quot; aria-label=&quot;Attach text, images or files&quot;&gt;&lt;i data-lucide=&quot;paperclip&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+    &lt;span class=&quot;rf-divider&quot;&gt;&lt;/span&gt;
+    &lt;button class=&quot;rf-tool cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;queue&quot; aria-label=&quot;Open questions&quot;&gt;&lt;i data-lucide=&quot;messages-square&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;rf-count&quot;&gt;2&lt;/span&gt;&lt;/button&gt;
+    &lt;button class=&quot;rf-tool cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;settings&quot; aria-label=&quot;Open settings&quot;&gt;&lt;i data-lucide=&quot;sliders-horizontal&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+    &lt;span class=&quot;rf-spacer&quot;&gt;&lt;/span&gt;
+    &lt;button class=&quot;rf-send cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;send&quot; aria-label=&quot;Send message&quot; disabled&gt;&lt;i data-lucide=&quot;arrow-up&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+
+   &lt;/footer&gt;
+   &lt;/div&gt;
+   &lt;button class=&quot;rf-avatar cursor-interaction&quot; type=&quot;button&quot; data-action=&quot;input&quot; aria-label=&quot;Close panel&quot; aria-expanded=&quot;true&quot;&gt;&lt;canvas width=&quot;44&quot; height=&quot;44&quot; role=&quot;img&quot; aria-label=&quot;White pixel companion at rest&quot;&gt;&lt;/canvas&gt;&lt;/button&gt;
+  &lt;/div&gt;
+ &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;rf-preview-note&quot; aria-live=&quot;polite&quot;&gt;Local preview · nothing is sent&lt;/div&gt;
+&lt;script&gt;
+function createMinimalKit(){
+ const palette={body:&#x27;#ffffff&#x27;,edge:&#x27;#b8c5cf&#x27;,shade:&#x27;#e4edf2&#x27;,nub:&#x27;#d5e0e7&#x27;,ink:&#x27;#243542&#x27;,cheek:&#x27;#f2a5b7&#x27;,shadow:&#x27;#edf1f3&#x27;,accent:&#x27;#a4bbc9&#x27;,star:&#x27;#dcc98f&#x27;};
+ const shapes={
+  neutral:[8,16,16,22,22,22,26,26,26,26,28,28,28,28,28,28,28,28,26,26,26,26,22,22,22,16,16,8],
+  low:[8,16,16,22,22,22,26,26,26,28,28,28,28,28,28,28,28,28,26,26,26,22,22,22,16,16,8],
+  high:[8,16,16,22,22,22,26,26,26,26,28,28,28,28,28,28,28,28,28,26,26,26,26,22,22,20,16,16,8],
+  crouch:[10,18,24,28,30,30,32,32,32,32,32,32,32,32,32,30,30,28,24,18,10],
+  deep:[12,22,28,32,34,36,36,36,36,36,36,34,32,28,22,12],
+  stretch:[6,12,16,18,20,22,22,24,24,24,26,26,26,26,26,26,26,26,26,26,26,26,24,24,24,22,22,20,18,16,12,6],
+  tuck:[8,14,18,22,24,24,26,26,26,26,26,26,26,26,26,26,26,24,24,22,18,14,8]
+ };
+ const n=v=&gt;Math.round(Number.isFinite(v)?v:0);
+ function pixel(c,x,y,w,h,color){c.fillStyle=color;c.fillRect(n(x),n(y),Math.max(0,n(w)),Math.max(0,n(h)));}
+ function clear(c){c.clearRect(0,0,96,96);pixel(c,0,0,96,96,palette.body);}
+ function line(c,points,color=palette.accent){for(let i=1;i&lt;points.length;i++){let x=n(points[i-1][0]),y=n(points[i-1][1]),ex=n(points[i][0]),ey=n(points[i][1]),dx=Math.abs(ex-x),sx=x&lt;ex?1:-1,dy=-Math.abs(ey-y),sy=y&lt;ey?1:-1,e=dx+dy;for(;;){pixel(c,x,y,1,1,color);if(x===ex&amp;&amp;y===ey)break;const e2=e*2;if(e2&gt;=dy){e+=dy;x+=sx;}if(e2&lt;=dx){e+=dx;y+=sy;}}}}
+ function shadow(c,{x=48,y=82,width=26}={}){x=n(x);y=n(y);width=n(width);pixel(c,x-Math.floor(width/2)+3,y-1,width-6,1,palette.shadow);pixel(c,x-Math.floor(width/2),y,width,1,palette.shadow);pixel(c,x-Math.floor(width/2)+3,y+1,width-6,1,palette.shadow);}
+ function star(c,x,y,color=palette.star){pixel(c,x+1,y,1,3,color);pixel(c,x,y+1,3,1,color);}
+ function drawFace(c,{x,bottom,rows,expression,gaze,view,turn}){
+  const cy=bottom-Math.floor(rows.length/2),ey=bottom-rows.length+Math.max(4,Math.round(rows.length*.40));
+  if(view===&#x27;back&#x27;||expression===&#x27;hidden&#x27;)return;
+  if(turn){
+   const poses=[null,{eyes:[[-5,1],[1,-5]],cheeks:[[-3,5],[5,-3]],mouth:[[2,1],[3,2],[2,3]]},{eyes:[[-4,-4],[-4,4]],cheeks:[[0,-8],[0,7]],mouth:[[2,-1],[3,0],[2,1]]},{eyes:[[-5,-1],[1,5]],cheeks:[[-3,-5],[5,3]],mouth:[[1,-2],[2,-3],[3,-2]]},{eyes:[[-5,4],[5,4]],cheeks:[[-9,0],[7,0]],mouth:[[-1,-2],[0,-3],[1,-2]]},{eyes:[[-1,5],[5,-1]],cheeks:[[-5,3],[3,-5]],mouth:[[-3,-2],[-2,-3],[-1,-2]]},{eyes:[[4,4],[4,-4]],cheeks:[[0,7],[0,-8]],mouth:[[-2,-1],[-3,0],[-2,1]]},{eyes:[[-1,-5],[5,1]],cheeks:[[-5,-3],[3,5]],mouth:[[-3,2],[-2,3],[-1,2]]}];
+   const p=poses[Math.max(1,Math.min(7,n(turn)))];p.cheeks.forEach(([a,b])=&gt;pixel(c,x+a,cy+b,3,2,palette.cheek));p.eyes.forEach(([a,b])=&gt;pixel(c,x+a,cy+b,2,2,palette.ink));p.mouth.forEach(([a,b])=&gt;pixel(c,x+a,cy+b,1,1,palette.ink));return;
+  }
+  const faceX=x+(view===&#x27;profile&#x27;?6:view===&#x27;quarter&#x27;?2:0),look=Math.max(-1,Math.min(1,n(gaze)));
+  if(view===&#x27;profile&#x27;){
+   pixel(c,x+6,ey+5,3,2,palette.cheek);pixel(c,faceX+look,ey,2,expression===&#x27;blink&#x27;||expression===&#x27;effort&#x27;?1:3,palette.ink);pixel(c,x+7,ey+7,3,1,palette.ink);return;
+  }
+  pixel(c,faceX-9,ey+4,4,2,palette.cheek);pixel(c,faceX+5,ey+4,4,2,palette.cheek);
+  for(const side of [-1,1]){const ex=faceX-1+side*5+look;
+   if(expression===&#x27;happy&#x27;||expression===&#x27;pleased&#x27;){pixel(c,ex-1,ey+1,1,1,palette.ink);pixel(c,ex,ey,1,1,palette.ink);pixel(c,ex+1,ey+1,1,1,palette.ink);}
+   else if(expression===&#x27;blink&#x27;||expression===&#x27;effort&#x27;||expression===&#x27;wink&#x27;&amp;&amp;side===-1)pixel(c,ex-1,ey+1,3,1,palette.ink);
+   else pixel(c,ex,ey,view===&#x27;quarter&#x27;&amp;&amp;side===-1?1:2,3,palette.ink);
+  }
+  if(expression===&#x27;surprised&#x27;||expression===&#x27;yawn&#x27;){pixel(c,faceX-1,ey+6,3,3,palette.ink);pixel(c,faceX,ey+7,1,1,palette.body);}
+  else if(expression===&#x27;concerned&#x27;||expression===&#x27;sheepish&#x27;){pixel(c,faceX-2,ey+7,4,1,palette.ink);pixel(c,faceX-6,ey-2,2,1,palette.ink);}
+  else{pixel(c,faceX-2,ey+5,1,1,palette.ink);pixel(c,faceX+1,ey+5,1,1,palette.ink);pixel(c,faceX-2,ey+6,4,1,palette.ink);}
+ }
+ function orb(c,{x=48,bottom=80,shape=&#x27;neutral&#x27;,expression=&#x27;normal&#x27;,gaze=0,view=&#x27;front&#x27;,turn=0,hands=[],feet=[]}={}){
+  x=n(x);bottom=n(bottom);const rows=shapes[shape]||shapes.neutral,top=bottom-rows.length,mask=new Set(),key=(a,b)=&gt;a+&#x27;,&#x27;+b;
+  for(const foot of feet){const side=typeof foot===&#x27;number&#x27;?foot:foot.side;const lift=typeof foot===&#x27;object&#x27;?n(foot.lift||0):0;pixel(c,x+side*5-1,bottom-1-lift,3,2,palette.nub);}
+  for(const hand of hands){const side=hand.side&lt;0?-1:1,row=Math.max(2,Math.min(rows.length-3,n((hand.level??.60)*(rows.length-1)))),edge=x+side*Math.floor(rows[row]/2),yy=top+row;
+   if(side&gt;0){pixel(c,edge-1,yy,4,3,palette.nub);pixel(c,edge+1,yy+(hand.pose===&#x27;wave&#x27;?-1:1),2,2,palette.nub);}
+   else{pixel(c,edge-3,yy,4,3,palette.nub);pixel(c,edge-3,yy+(hand.pose===&#x27;wave&#x27;?-1:1),2,2,palette.nub);}
+  }
+  rows.forEach((w,y)=&gt;{for(let xx=0;xx&lt;w;xx++)mask.add(key(x-Math.floor(w/2)+xx,top+y));});
+  for(const p of mask){const [xx,yy]=p.split(&#x27;,&#x27;).map(Number),edge=!mask.has(key(xx-1,yy))||!mask.has(key(xx+1,yy))||!mask.has(key(xx,yy-1))||!mask.has(key(xx,yy+1));pixel(c,xx,yy,1,1,edge?palette.edge:!mask.has(key(xx,yy+3))?palette.shade:palette.body);}
+  drawFace(c,{x,bottom,rows,expression,gaze,view,turn});
+  return {left:x-Math.floor(Math.max(...rows)/2),right:x+Math.ceil(Math.max(...rows)/2)-1,top,bottom:bottom-1};
+ }
+ return {palette,shapes,clear,shadow,orb,pixel,line,star};
+}
+
+function createCompactCoreActs({kit:k}){
+ const P=k.palette;
+ function scene(c,p={}){k.clear(c);k.shadow(c,{width:p.bottom&lt;66?20:26});k.orb(c,p);}
+ const a={
+  click:{label:&#x27;Springy tap&#x27;,fps:15,frames:10,stillFrame:9,beats:[{frame:0,label:&#x27;Notice&#x27;},{frame:2,label:&#x27;Squash&#x27;},{frame:4,label:&#x27;Spring&#x27;},{frame:6,label:&#x27;Rebound&#x27;},{frame:9,label:&#x27;Settle&#x27;}],render(c,f){const shapes=[&#x27;neutral&#x27;,&#x27;crouch&#x27;,&#x27;deep&#x27;,&#x27;crouch&#x27;,&#x27;stretch&#x27;,&#x27;neutral&#x27;,&#x27;stretch&#x27;,&#x27;neutral&#x27;,&#x27;neutral&#x27;,&#x27;neutral&#x27;];scene(c,{shape:shapes[f],expression:&#x27;happy&#x27;});}},
+  idle3:{label:&#x27;Three-pose idle&#x27;,fps:16,frames:24,stillFrame:0,beats:[{frame:0,label:&#x27;Rest&#x27;},{frame:8,label:&#x27;Settle&#x27;},{frame:16,label:&#x27;Breathe&#x27;}],render(c,f){scene(c,{shape:f&lt;8?&#x27;neutral&#x27;:f&lt;16?&#x27;low&#x27;:&#x27;high&#x27;});}},
+  hello:{label:&#x27;Tiny hello&#x27;,fps:15,frames:10,stillFrame:9,beats:[{frame:0,label:&#x27;Notice&#x27;},{frame:4,label:&#x27;Hello&#x27;},{frame:9,label:&#x27;Ready&#x27;}],render(c,f){const shapes=[&#x27;neutral&#x27;,&#x27;low&#x27;,&#x27;low&#x27;,&#x27;neutral&#x27;,&#x27;high&#x27;,&#x27;neutral&#x27;,&#x27;high&#x27;,&#x27;neutral&#x27;,&#x27;neutral&#x27;,&#x27;neutral&#x27;];scene(c,{shape:shapes[f],expression:&#x27;happy&#x27;,hands:f&gt;=4&amp;&amp;f&lt;8?[{side:1,pose:&#x27;wave&#x27;,level:.55}]:[]});}},
+  backflip:{label:&#x27;Little backflip&#x27;,fps:16,frames:24,stillFrame:20,beats:[{frame:0,label:&#x27;Ready&#x27;},{frame:3,label:&#x27;Squash&#x27;},{frame:6,label:&#x27;Push&#x27;},{frame:10,label:&#x27;Tuck&#x27;},{frame:15,label:&#x27;Find the floor&#x27;},{frame:18,label:&#x27;Land&#x27;},{frame:21,label:&#x27;Pleased&#x27;}],render(c,f){
+   const bottoms=[80,80,80,80,80,78,71,63,56,51,48,47,49,53,59,66,74,80,80,79,80,80,80,80];
+   const turns=[0,0,0,0,0,0,0,1,2,3,4,4,5,6,7,0,0,0,0,0,0,0,0,0];
+   scene(c,{bottom:bottoms[f],shape:f&gt;=2&amp;&amp;f&lt;=4?&#x27;crouch&#x27;:f===5||f===6?&#x27;stretch&#x27;:f&gt;=8&amp;&amp;f&lt;=13?&#x27;tuck&#x27;:f===17||f===18?&#x27;deep&#x27;:f===19?&#x27;crouch&#x27;:&#x27;neutral&#x27;,turn:turns[f],expression:f&gt;=20&amp;&amp;f&lt;=22?&#x27;happy&#x27;:f&gt;=2&amp;&amp;f&lt;=4?&#x27;effort&#x27;:&#x27;normal&#x27;,hands:f===4||f===5?[{side:-1,pose:&#x27;push&#x27;},{side:1,pose:&#x27;push&#x27;}]:[],feet:f===5||f===6||f===16?[{side:-1},{side:1}]:[]});
+  }},
+  half:{label:&#x27;Almost a flip&#x27;,fps:16,frames:24,stillFrame:19,beats:[{frame:0,label:&#x27;A small idea&#x27;},{frame:3,label:&#x27;Push&#x27;},{frame:8,label:&#x27;Wait…&#x27;},{frame:12,label:&#x27;Roll through&#x27;},{frame:16,label:&#x27;Still here&#x27;},{frame:20,label:&#x27;All good&#x27;}],render(c,f){
+   const bottom=[80,80,80,79,73,67,62,59,59,60,63,68,74,80,80,80,80,80,80,80,80,80,80,80][f],turn=[0,0,0,0,1,2,3,4,4,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0][f],x=f&gt;=11&amp;&amp;f&lt;18?[49,50,51,51,50,49,48][f-11]:48;
+   scene(c,{x,bottom,turn,shape:f&lt;3?&#x27;crouch&#x27;:f&gt;=6&amp;&amp;f&lt;=12?&#x27;tuck&#x27;:f===13||f===14?&#x27;deep&#x27;:f===15?&#x27;crouch&#x27;:&#x27;neutral&#x27;,expression:f&gt;=16&amp;&amp;f&lt;20?&#x27;sheepish&#x27;:f&gt;=20&amp;&amp;f&lt;23?&#x27;happy&#x27;:&#x27;normal&#x27;});
+  }},
+  hop:{label:&#x27;Small happy hop&#x27;,fps:16,frames:18,stillFrame:14,beats:[{frame:0,label:&#x27;Ready&#x27;},{frame:2,label:&#x27;Dip&#x27;},{frame:6,label:&#x27;Hop&#x27;},{frame:11,label:&#x27;Land&#x27;},{frame:14,label:&#x27;Hello again&#x27;}],render(c,f){const b=[80,80,80,80,77,71,66,64,66,71,77,80,80,79,80,80,80,80][f];scene(c,{bottom:b,shape:f&gt;=1&amp;&amp;f&lt;4||f===12?&#x27;crouch&#x27;:f===4||f===5?&#x27;stretch&#x27;:f===11?&#x27;deep&#x27;:&#x27;neutral&#x27;,expression:f&gt;=6&amp;&amp;f&lt;16?&#x27;happy&#x27;:&#x27;normal&#x27;});}},
+  stretching:{label:&#x27;Little stretch&#x27;,fps:16,frames:20,stillFrame:15,beats:[{frame:0,label:&#x27;Sleepy&#x27;},{frame:3,label:&#x27;Stretch&#x27;},{frame:8,label:&#x27;Yawn&#x27;},{frame:14,label:&#x27;Release&#x27;},{frame:18,label:&#x27;Ready&#x27;}],render(c,f){scene(c,{shape:f&lt;3?&#x27;low&#x27;:f&lt;6?&#x27;high&#x27;:f&lt;12?&#x27;stretch&#x27;:f&lt;15?&#x27;high&#x27;:f===15?&#x27;low&#x27;:&#x27;neutral&#x27;,expression:f&lt;6?&#x27;blink&#x27;:f&lt;12?&#x27;yawn&#x27;:f&lt;17?&#x27;blink&#x27;:&#x27;normal&#x27;});}},
+  peek:{label:&#x27;Attentive glance&#x27;,fps:16,frames:16,stillFrame:12,beats:[{frame:0,label:&#x27;Notice&#x27;},{frame:3,label:&#x27;Look&#x27;},{frame:8,label:&#x27;Look back&#x27;},{frame:12,label:&#x27;Available&#x27;}],render(c,f){scene(c,{view:f&gt;=3&amp;&amp;f&lt;8?&#x27;quarter&#x27;:&#x27;front&#x27;,gaze:f&gt;=2&amp;&amp;f&lt;8?1:0,shape:f&gt;=3&amp;&amp;f&lt;8?&#x27;high&#x27;:&#x27;neutral&#x27;,expression:f===8?&#x27;blink&#x27;:f&gt;=11&amp;&amp;f&lt;15?&#x27;happy&#x27;:&#x27;normal&#x27;});}},
+  entrance:{label:&#x27;Drop &amp; settle&#x27;,fps:16,frames:24,stillFrame:20,beats:[{frame:0,label:&#x27;Incoming&#x27;},{frame:5,label:&#x27;Impact&#x27;},{frame:8,label:&#x27;Spring back&#x27;},{frame:13,label:&#x27;A little dazed&#x27;},{frame:19,label:&#x27;Oh, hello&#x27;}],render(c,f){const b=[-3,8,27,50,73,80,80,80,74,69,73,78,80,80,80,80,80,80,80,80,80,80,80,80][f];scene(c,{bottom:b,shape:f&lt;5?&#x27;stretch&#x27;:f===5||f===6?&#x27;deep&#x27;:f===7?&#x27;crouch&#x27;:f&lt;10?&#x27;stretch&#x27;:&#x27;neutral&#x27;,expression:f&gt;=5&amp;&amp;f&lt;8?&#x27;effort&#x27;:f&gt;=12&amp;&amp;f&lt;17?&#x27;surprised&#x27;:f&gt;=19&amp;&amp;f&lt;23?&#x27;happy&#x27;:&#x27;normal&#x27;});if(f&lt;5){k.pixel(c,35,Math.max(0,b-39),1,5,P.accent);k.pixel(c,60,Math.max(0,b-33),1,4,P.accent);}if(f&gt;=12&amp;&amp;f&lt;17){k.star(c,35+(f-12)*3,47);k.star(c,59-(f-12)*3,44);}}}
+ };
+ for(const act of Object.values(a)){const draw=act.render;act.render=(c,f)=&gt;draw(c,Number.isFinite(f)?Math.max(0,Math.min(act.frames-1,Math.floor(f))):0);}
+ return a;
+}
+
+function createCompactStateActs({kit:k}){
+ const p=k.palette;
+ const defs={idle:{label:&#x27;At rest&#x27;,frames:1,fps:12,stillFrame:0},input:{label:&#x27;Receiving&#x27;,frames:10,fps:15,stillFrame:9},processing:{label:&#x27;Processing&#x27;,frames:20,fps:12,stillFrame:10},question:{label:&#x27;Question available&#x27;,frames:16,fps:12,stillFrame:15},result:{label:&#x27;Result available&#x27;,frames:12,fps:15,stillFrame:11},error:{label:&#x27;Needs attention&#x27;,frames:10,fps:12,stillFrame:9}};
+ for(const [key,a]of Object.entries(defs)){a.beats=[];a.render=(c,value)=&gt;{const f=Number.isFinite(value)?Math.max(0,Math.min(a.frames-1,Math.floor(value))):0;k.clear(c);k.shadow(c,{});
+  const s={};if(key===&#x27;input&#x27;){s.shape=[&#x27;neutral&#x27;,&#x27;low&#x27;,&#x27;low&#x27;,&#x27;neutral&#x27;,&#x27;high&#x27;,&#x27;neutral&#x27;,&#x27;high&#x27;,&#x27;neutral&#x27;,&#x27;neutral&#x27;,&#x27;neutral&#x27;][f];s.expression=&#x27;surprised&#x27;;}
+  if(key===&#x27;processing&#x27;){s.gaze=[0,0,1,1,1,0,-1,-1,-1,0][f%10];s.expression=f===9?&#x27;blink&#x27;:&#x27;normal&#x27;;}
+  if(key===&#x27;question&#x27;){s.gaze=f&lt;5?1:0;s.shape=f&gt;=3&amp;&amp;f&lt;6?&#x27;high&#x27;:&#x27;neutral&#x27;;}
+  if(key===&#x27;result&#x27;){s.expression=&#x27;happy&#x27;;s.shape=f===1?&#x27;low&#x27;:f===3?&#x27;high&#x27;:&#x27;neutral&#x27;;}
+  if(key===&#x27;error&#x27;){s.expression=&#x27;concerned&#x27;;s.gaze=f&lt;3?-1:f&lt;6?1:0;}
+  k.orb(c,s);
+  if(key===&#x27;processing&#x27;)for(let i=0;i&lt;3;i++)k.pixel(c,43+i*4,47-(Math.floor(f/3)%3===i?1:0),2,2,p.accent);
+  if(key===&#x27;question&#x27;){const rows=[&#x27;.xxx.&#x27;,&#x27;x...x&#x27;,&#x27;....x&#x27;,&#x27;..xx.&#x27;,&#x27;..x..&#x27;,&#x27;.....&#x27;,&#x27;..x..&#x27;];rows.forEach((row,y)=&gt;[...row].forEach((v,x)=&gt;{if(v===&#x27;x&#x27;)k.pixel(c,64+x,50+y,1,1,p.ink);}));}
+  if(key===&#x27;result&#x27;){k.pixel(c,64,66,5,7,p.edge);k.pixel(c,65,67,3,5,p.body);k.pixel(c,65,68,2,1,p.shade);k.pixel(c,65,70,2,1,p.shade);}
+ };}return defs;
+}
+
+function createPanelMotion({surface,skin,content,footer,canvas,reveal,history,naturalHeight,reduced}){
+ const make=(value,omega)=&gt;({value,target:value,velocity:0,omega});
+ const panel=make(1,40),height=make(180,46),fade=make(1,48),context=make(0,44),press=make(0,60);
+ let details=[],contextOpen=false,viewTransition=false,raf=0,lastTime=0;
+ const clamp=(v,a=0,b=1)=&gt;Math.max(a,Math.min(b,v));
+ function step(s,dt){const d=s.value-s.target,v=s.velocity,b=v+s.omega*d,e=Math.exp(-s.omega*dt);s.value=s.target+(d+b*dt)*e;s.velocity=(v-s.omega*b*dt)*e;const tolerance=(s===panel||s===fade)?0.0008:0.12;if(Math.abs(s.value-s.target)&lt;tolerance&amp;&amp;Math.abs(s.velocity)&lt;tolerance*30){s.value=s.target;s.velocity=0;}}
+ const unsettled=s=&gt;s.value!==s.target||s.velocity!==0;
+ function render(){
+  details.forEach(d=&gt;{d.el.style.height=Math.max(0,Math.round(d.spring.value))+&#x27;px&#x27;;const ratio=clamp(d.spring.value/d.full);d.inner.style.opacity=String(ratio*ratio*(3-2*ratio));d.inner.style.visibility=d.spring.value&gt;.1?&#x27;&#x27;:&#x27;hidden&#x27;;});
+  reveal.style.height=Math.max(0,Math.round(context.value))+&#x27;px&#x27;;
+  const h=Math.max(2,Math.round(height.value));surface.style.height=h+&#x27;px&#x27;;
+  const p=clamp(panel.value),geometry=clamp(p/.72),text=clamp((p-.72)/.28),smooth=text*text*(3-2*text),width=surface.getBoundingClientRect().width;
+  surface.style.clipPath=p===1?&#x27;none&#x27;:`inset(${Math.round((1-geometry)*h)}px 0px 0px ${Math.round((1-geometry)*width*.82)}px round 16px)`;
+  skin.style.top=Math.round((1-geometry)*h)+&#x27;px&#x27;;skin.style.left=Math.round((1-geometry)*width*.82)+&#x27;px&#x27;;skin.style.visibility=p===0?&#x27;hidden&#x27;:&#x27;visible&#x27;;surface.style.visibility=p===0?&#x27;hidden&#x27;:&#x27;visible&#x27;;surface.style.pointerEvents=panel.target===0?&#x27;none&#x27;:&#x27;&#x27;;
+  content.style.opacity=String(smooth*clamp(fade.value));footer.style.opacity=String(smooth);
+  content.style.transform=`translateY(${Math.round((1-smooth*clamp(fade.value))*4)}px)`;
+  canvas.style.transform=`translateY(${Math.round(clamp(press.value))*2}px)`;
+  const hist=history();if(hist){const top=hist.getBoundingClientRect().top;hist.querySelectorAll(&#x27;.rf-node-title&#x27;).forEach(n=&gt;{n.style.visibility=n.getBoundingClientRect().bottom-top&lt;=context.value+.5?&#x27;&#x27;:&#x27;hidden&#x27;;});}
+ }
+ function tick(time){const dt=lastTime?Math.min(.032,(time-lastTime)/1000):1/60;lastTime=time;
+  if(reduced()){settle();return;}
+  details.forEach(d=&gt;{step(d.spring,dt);d.el.style.height=Math.max(0,Math.round(d.spring.value))+&#x27;px&#x27;;});
+  const full=history()?.getBoundingClientRect().height||0;context.target=contextOpen?full:0;
+  if(details.some(d=&gt;unsettled(d.spring))&amp;&amp;contextOpen){context.value=full;context.velocity=0;}else step(context,dt);
+  reveal.style.height=Math.max(0,Math.round(context.value))+&#x27;px&#x27;;height.target=Math.ceil(naturalHeight());
+  if(viewTransition){step(height,dt);if(!unsettled(height))viewTransition=false;}else{height.value=height.target;height.velocity=0;}
+  step(panel,dt);step(fade,dt);step(press,dt);render();
+  if([panel,height,fade,context,press,...details.map(d=&gt;d.spring)].some(unsettled)){raf=requestAnimationFrame(tick);}else{raf=0;lastTime=0;}
+ }
+ function schedule(){if(reduced()){settle();return;}if(!raf){lastTime=0;raf=requestAnimationFrame(tick);}}
+ function settle(){cancelAnimationFrame(raf);raf=0;lastTime=0;details.forEach(d=&gt;{d.spring.value=d.spring.target;d.spring.velocity=0;d.el.style.height=Math.round(d.spring.value)+&#x27;px&#x27;;});context.target=contextOpen?(history()?.getBoundingClientRect().height||0):0;context.value=context.target;context.velocity=0;reveal.style.height=Math.round(context.value)+&#x27;px&#x27;;height.target=Math.ceil(naturalHeight());height.value=height.target;height.velocity=0;panel.value=panel.target;panel.velocity=0;fade.value=fade.target=1;fade.velocity=0;press.value=press.target=0;press.velocity=0;viewTransition=false;render();}
+ return {
+  registerDetails(openId){details=[...reveal.querySelectorAll(&#x27;.rf-node-detail&#x27;)].map(el=&gt;{const inner=el.firstElementChild,full=Math.ceil(inner.getBoundingClientRect().height);const spring=make(el.dataset.node===openId?full:0,54);el.style.height=spring.value+&#x27;px&#x27;;inner.style.visibility=spring.target?&#x27;&#x27;:&#x27;hidden&#x27;;return{el,inner,spring,full};});},
+  node(openId){details.forEach(d=&gt;{d.full=Math.ceil(d.inner.getBoundingClientRect().height);d.spring.target=d.el.dataset.node===openId?d.full:0;d.el.setAttribute(&#x27;aria-hidden&#x27;,String(d.spring.target===0));});viewTransition=false;schedule();},
+  context(open,animate=true){contextOpen=open;viewTransition=false;context.target=open?(history()?.getBoundingClientRect().height||0):0;if(animate)schedule();else{context.value=context.target;context.velocity=0;reveal.style.height=Math.round(context.value)+&#x27;px&#x27;;}},
+  panel(open,animate=true){panel.target=open?1:0;panel.omega=open?40:49;surface.inert=!open;if(animate){render();schedule();}else settle();},
+  view(animate=true){height.target=Math.ceil(naturalHeight());if(animate){viewTransition=true;fade.value=0;fade.velocity=0;fade.target=1;schedule();}else settle();},
+  press(down){if(reduced())return;press.target=down?1:0;if(down){press.value=1;press.velocity=0;render();}schedule();},
+  settle,
+  status:()=&gt;({active:!!raf,panelProgress:panel.value,panelTarget:panel.target,panelVelocity:panel.velocity,contextHeight:context.value,contextTarget:context.target,panelHeight:height.value,viewTransition,detailHeights:details.map(d=&gt;({id:d.el.dataset.node,value:d.spring.value,target:d.spring.target}))})
+ };
+}
+
+(()=&gt;{
+ const root=document.getElementById(&#x27;kt-panel-companion-v9&#x27;);
+ const $=s=&gt;root.querySelector(s), surface=$(&#x27;.rf-surface&#x27;), content=$(&#x27;.rf-content&#x27;), footer=$(&#x27;.rf-footer&#x27;), stage=$(&#x27;.rf-stage&#x27;), win=$(&#x27;.rf-window&#x27;), field=$(&#x27;.rf-writing&#x27;), send=$(&#x27;.rf-send&#x27;), reveal=$(&#x27;.rf-reveal&#x27;), contextButton=$(&#x27;.rf-context-button&#x27;), canvas=$(&#x27;canvas&#x27;), ctx=canvas.getContext(&#x27;2d&#x27;);
+ const source=&#x27;panel-v9-&#x27;+Math.random().toString(36).slice(2), media=matchMedia(&#x27;(prefers-reduced-motion: reduce)&#x27;);
+ let systemReduced=media.matches;
+ const questions=[
+  {id:&#x27;timing&#x27;,case:&#x27;TRN-042&#x27;,text:&#x27;Did traffic return right after the reset?&#x27;,why:&#x27;The missing timing changes whether we record an immediate recovery or a later one.&#x27;,rows:[[&#x27;Observed&#x27;,&#x27;Link up after an SFP change, but no traffic. Optics normal.&#x27;],[&#x27;Proposed&#x27;,&#x27;Forwarding-state issue; inspect counters.&#x27;],[&#x27;Attempted&#x27;,&#x27;Interface reset.&#x27;],[&#x27;Reported&#x27;,&#x27;Traffic returned. Exact timing unknown.&#x27;]],caveat:&#x27;Timing alone won’t prove the cause or a lasting fix.&#x27;},
+  {id:&#x27;revision&#x27;,case:&#x27;TRN-042&#x27;,text:&#x27;Was this the older controller revision?&#x27;,why:&#x27;The revision changes which equipment history we compare with this incident.&#x27;,rows:[[&#x27;Known&#x27;,&#x27;This report does not identify the controller revision.&#x27;],[&#x27;Needed&#x27;,&#x27;Confirm the revision from the equipment record.&#x27;]],caveat:&#x27;A matching revision would not establish the cause.&#x27;}
+ ];
+ const allowedViews=[&#x27;input&#x27;,&#x27;question&#x27;,&#x27;queue&#x27;,&#x27;settings&#x27;,&#x27;receipt&#x27;,&#x27;collapsed&#x27;];
+ const state={view:&#x27;question&#x27;,panelOpen:true,lastOpen:&#x27;question&#x27;,openNode:null,expanded:false,active:&#x27;timing&#x27;,answers:{},deferred:[],points:false,reduced:false};
+ let attachments=[],undo=null,receipt=null,revealTimer=0,reservedStage=0,reservedWidth=0,animation=0,idleTimer=0,idlePose=0,visible=true,avatarMode=&#x27;idle&#x27;,lastFrame=0;
+ const views=[...root.querySelectorAll(&#x27;.rf-view&#x27;)];
+ const motion=createPanelMotion({surface,skin:$(&#x27;.rf-motion-skin&#x27;),content,footer,canvas,reveal,history:()=&gt;$(&#x27;.rf-history&#x27;),naturalHeight:()=&gt;{const v=views.find(n=&gt;!n.hidden);return (v?.getBoundingClientRect().height||0)+footer.getBoundingClientRect().height+2;},reduced:()=&gt;state.reduced||systemReduced});
+ const activeQuestion=()=&gt;questions.find(q=&gt;q.id===state.active)||questions[0];
+ function restore(saved){if(!saved||saved.version!==9)return;const s=saved.state||{};state.view=allowedViews.includes(s.view)&amp;&amp;![&#x27;receipt&#x27;,&#x27;collapsed&#x27;].includes(s.view)?s.view:&#x27;input&#x27;;state.panelOpen=s.panelOpen!==false;state.lastOpen=allowedViews.includes(s.lastOpen)&amp;&amp;![&#x27;receipt&#x27;,&#x27;collapsed&#x27;].includes(s.lastOpen)?s.lastOpen:&#x27;input&#x27;;state.openNode=typeof s.openNode===&#x27;string&#x27;?s.openNode:null;state.expanded=!!s.expanded;state.active=questions.some(q=&gt;q.id===s.active)?s.active:&#x27;timing&#x27;;state.answers={};for(const q of questions)if([&#x27;yes&#x27;,&#x27;no&#x27;,&#x27;unknown&#x27;,&#x27;dismiss&#x27;].includes(s.answers?.[q.id]))state.answers[q.id]=s.answers[q.id];state.deferred=Array.isArray(s.deferred)?s.deferred.filter(id=&gt;questions.some(q=&gt;q.id===id)):[];state.points=!!s.points;state.reduced=!!s.reduced;}
+ restore(window.openai?.widgetState?.privateContent?.panelV9);
+ function snapshot(){return {version:9,state:{...state,answers:{...state.answers},deferred:[...state.deferred]}};}
+ function save(){window.openai?.setWidgetState?.({modelContent:{panelV9:{view:state.view,openNode:state.openNode,answers:state.answers,expanded:state.expanded,points:state.points}},privateContent:{panelV9:snapshot(),panelV9Source:source}})?.catch(()=&gt;{});}
+ // Exact v006 art; only its white scene background is omitted for the transparent perch.
+ const kit=createMinimalKit(), raw=document.createElement(&#x27;canvas&#x27;);raw.width=raw.height=96;
+ const rawCtx=raw.getContext(&#x27;2d&#x27;);rawCtx.imageSmoothingEnabled=false;
+ const transparentCtx={get fillStyle(){return rawCtx.fillStyle;},set fillStyle(v){rawCtx.fillStyle=v;},clearRect(...a){rawCtx.clearRect(...a);},fillRect(x,y,w,h){if(x===0&amp;&amp;y===0&amp;&amp;w===96&amp;&amp;h===96)return;rawCtx.fillRect(x,y,w,h);}};
+ const stateActs=createCompactStateActs({kit}), coreActs=createCompactCoreActs({kit});
+ const isReduced=()=&gt;state.reduced||systemReduced;
+ // Keep the original question glyph while the existing three-pose body idles.
+ // Extract it from the accepted artwork instead of authoring a new sprite.
+ const questionGlyph=document.createElement(&#x27;canvas&#x27;);questionGlyph.width=5;questionGlyph.height=7;
+ stateActs.question.render(transparentCtx,stateActs.question.stillFrame);
+ questionGlyph.getContext(&#x27;2d&#x27;).drawImage(raw,64,50,5,7,0,0,5,7);
+ const hasQuestion=()=&gt;state.panelOpen&amp;&amp;state.view===&#x27;question&#x27;;
+ const canAnimate=()=&gt;!isReduced()&amp;&amp;visible&amp;&amp;!document.hidden;
+ function draw(act,frame){act.render(transparentCtx,frame);if(hasQuestion()&amp;&amp;act!==stateActs.question)rawCtx.drawImage(questionGlyph,64,50);ctx.clearRect(0,0,44,44);ctx.imageSmoothingEnabled=false;ctx.drawImage(raw,26,42,44,44,0,0,44,44);lastFrame=frame;}
+ function stop(){cancelAnimationFrame(animation);clearTimeout(idleTimer);animation=0;idleTimer=0;}
+ function rest(){
+  stop();avatarMode=&#x27;idle3&#x27;;idlePose=0;draw(coreActs.idle3,0);
+  canvas.setAttribute(&#x27;aria-label&#x27;,hasQuestion()?&#x27;White pixel companion with a question available&#x27;:&#x27;White pixel companion at rest&#x27;);
+  if(!canAnimate())return;
+  // One paint per authored pose, not a continuous requestAnimationFrame loop.
+  function nextPose(){
+   idleTimer=0;if(!canAnimate()){rest();return;}
+   idlePose=(idlePose+1)%3;draw(coreActs.idle3,idlePose*8);
+   idleTimer=setTimeout(nextPose,500);
+  }
+  idleTimer=setTimeout(nextPose,500);
+ }
+ function play(key){
+  stop();const a=stateActs[key]||coreActs[key];avatarMode=key;
+  if(!a||!canAnimate()){rest();return;}
+  draw(a,0);let started;
+  function frame(t){
+   if(!canAnimate()){rest();return;}started??=t;
+   const n=Math.max(0,Math.floor((t-started)*a.fps/1000));
+   if(n&gt;=a.frames){rest();return;}if(n!==lastFrame)draw(a,n);
+   animation=requestAnimationFrame(frame);
+  }
+  animation=requestAnimationFrame(frame);
+ }
+ function syncMotion(event){if(typeof event?.matches===&#x27;boolean&#x27;)systemReduced=event.matches;root.classList.toggle(&#x27;rf-reduced&#x27;,isReduced());$(&#x27;.rf-motion&#x27;).checked=isReduced();$(&#x27;.rf-motion&#x27;).disabled=systemReduced;if(isReduced()){motion.settle();rest();}else if(!animation&amp;&amp;!idleTimer)rest();}
+ const observer=new IntersectionObserver(entries=&gt;{const wasVisible=visible;visible=entries[entries.length-1]?.isIntersecting!==false;if(!visible){motion.settle();rest();}else if(!wasVisible&amp;&amp;!animation)rest();});observer.observe(canvas);
+ document.addEventListener(&#x27;visibilitychange&#x27;,()=&gt;{if(document.hidden){motion.settle();rest();}else{syncMotion({matches:media.matches});if(visible&amp;&amp;!animation&amp;&amp;!idleTimer)rest();}});
+ function maximumContextHeight(){const details=[...reveal.querySelectorAll(&#x27;.rf-node-detail&#x27;)],before=details.map(n=&gt;n.style.height);let height=0;for(let i=-1;i&lt;details.length;i++){details.forEach((n,j)=&gt;n.style.height=(j===i?Math.ceil(n.firstElementChild.getBoundingClientRect().height):0)+&#x27;px&#x27;);height=Math.max(height,$(&#x27;.rf-history&#x27;).getBoundingClientRect().height);}details.forEach((n,i)=&gt;n.style.height=before[i]);return height;}
+ function setExpanded(value,animate=true){state.expanded=!!value;reveal.inert=!state.expanded;reveal.setAttribute(&#x27;aria-hidden&#x27;,String(!state.expanded));contextButton.setAttribute(&#x27;aria-expanded&#x27;,String(state.expanded));contextButton.dataset.open=String(state.expanded);motion.context(state.expanded,animate);}
+ function reserveStage(){
+  const width=stage.getBoundingClientRect().width;if(!width)return;if(width!==reservedWidth){reservedWidth=width;reservedStage=0;}
+  const hidden=views.map(v=&gt;v.hidden),q=views.find(v=&gt;v.dataset.view===&#x27;question&#x27;),title=$(&#x27;.rf-question h2&#x27;);views.forEach(v=&gt;v.hidden=v!==q);let max=0;
+  for(const candidate of questions){title.textContent=candidate.text;renderContext(candidate);max=Math.max(max,q.getBoundingClientRect().height-reveal.getBoundingClientRect().height+maximumContextHeight()+footer.getBoundingClientRect().height+2);}
+  title.textContent=activeQuestion().text;renderContext();
+  for(const v of views){views.forEach(n=&gt;n.hidden=n!==v);max=Math.max(max,v.getBoundingClientRect().height+footer.getBoundingClientRect().height+2);}views.forEach((v,i)=&gt;v.hidden=hidden[i]);reservedStage=Math.max(reservedStage,Math.ceil(max+60));stage.style.height=reservedStage+&#x27;px&#x27;;
+ }
+ function fit(){reserveStage();setExpanded(state.expanded,false);motion.view(false);}
+ function renderContext(q=activeQuestion()){
+  const h=$(&#x27;.rf-history&#x27;);h.replaceChildren();
+  const nodes=q.id===&#x27;timing&#x27;?[
+   {id:&#x27;problem&#x27;,label:&#x27;Problem&#x27;,kind:&#x27;problem&#x27;,text:&#x27;After an SFP change, the link came up but no traffic passed. Optics were reported normal.&#x27;},
+   {id:&#x27;hypothesis&#x27;,label:&#x27;Possible cause&#x27;,kind:&#x27;step&#x27;,text:&#x27;A forwarding-state issue was suggested. This is a hypothesis, not a confirmed cause.&#x27;},
+   {id:&#x27;check&#x27;,label:&#x27;Suggested check&#x27;,kind:&#x27;step&#x27;,text:&#x27;Inspecting counters was proposed. The record does not confirm that this check happened or show a result.&#x27;},
+   {id:&#x27;attempt&#x27;,label:&#x27;Attempted reset&#x27;,kind:&#x27;step&#x27;,text:&#x27;An interface reset was attempted. Timing helps assess whether it affected the reported recovery.&#x27;},
+   {id:&#x27;outcome&#x27;,label:&#x27;Reported recovery&#x27;,kind:&#x27;reported&#x27;,text:&#x27;Traffic recovery was reported. Its timing, cause and lasting resolution remain unconfirmed.&#x27;}
+  ]:[
+   {id:&#x27;missing&#x27;,label:&#x27;Missing revision&#x27;,kind:&#x27;problem&#x27;,text:&#x27;The incident report does not identify which controller revision was installed.&#x27;},
+   {id:&#x27;record&#x27;,label:&#x27;Suggested record check&#x27;,kind:&#x27;step&#x27;,text:&#x27;Check the equipment record for the installed revision. This check is proposed; no result is recorded.&#x27;},
+   {id:&#x27;purpose&#x27;,label:&#x27;Comparison goal&#x27;,kind:&#x27;step&#x27;,text:&#x27;The revision will help select relevant equipment history. A matching revision would not establish the cause.&#x27;}
+  ];
+  const path=document.createElement(&#x27;ol&#x27;);path.className=&#x27;rf-evidence-path&#x27;;path.setAttribute(&#x27;aria-label&#x27;,&#x27;Incident context; expand a title for details&#x27;);
+  nodes.forEach(node=&gt;{const li=document.createElement(&#x27;li&#x27;);li.className=&#x27;rf-evidence-node&#x27;;li.dataset.kind=node.kind;const button=document.createElement(&#x27;button&#x27;);button.type=&#x27;button&#x27;;button.className=&#x27;rf-node-title cursor-interaction&#x27;;button.dataset.node=node.id;const id=&#x27;rf9-&#x27;+q.id+&#x27;-&#x27;+node.id;button.setAttribute(&#x27;aria-controls&#x27;,id);button.setAttribute(&#x27;aria-expanded&#x27;,String(state.openNode===node.id));const title=document.createElement(&#x27;span&#x27;);title.textContent=node.label;const icon=document.createElement(&#x27;i&#x27;);icon.dataset.lucide=&#x27;chevron-down&#x27;;icon.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);button.append(title,icon);const detail=document.createElement(&#x27;div&#x27;);detail.className=&#x27;rf-node-detail&#x27;;detail.id=id;detail.dataset.node=node.id;detail.setAttribute(&#x27;aria-hidden&#x27;,String(state.openNode!==node.id));const detailText=document.createElement(&#x27;p&#x27;);detailText.textContent=node.text;detail.append(detailText);button.addEventListener(&#x27;click&#x27;,()=&gt;{state.openNode=state.openNode===node.id?null:node.id;path.querySelectorAll(&#x27;.rf-node-title&#x27;).forEach(b=&gt;b.setAttribute(&#x27;aria-expanded&#x27;,String(b.dataset.node===state.openNode)));motion.node(state.openNode);save();});li.append(button,detail);path.append(li);});
+  h.append(path);motion.registerDetails(state.openNode);if(globalThis.lucide)lucide.createIcons({attrs:{width:16,height:16}});
+ }
+ function updateCount(){const count=questions.filter(q=&gt;!Object.hasOwn(state.answers,q.id)).length;$(&#x27;.rf-count&#x27;).textContent=count||&#x27;&#x27;;$(&#x27;.rf-footer [data-action=&quot;queue&quot;]&#x27;).setAttribute(&#x27;aria-label&#x27;,`Open questions (${count})`);}
+ function renderQueue(){const list=$(&#x27;.rf-queue-list&#x27;);list.replaceChildren();questions.filter(q=&gt;!Object.hasOwn(state.answers,q.id)).forEach(q=&gt;{const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.className=&#x27;rf-question-item cursor-interaction&#x27;;b.dataset.question=q.id;const label=document.createElement(&#x27;small&#x27;);label.textContent=q.case+(state.deferred.includes(q.id)?&#x27; · later&#x27;:&#x27;&#x27;);b.append(label,document.createTextNode(q.text));b.addEventListener(&#x27;click&#x27;,()=&gt;{if(state.active!==q.id){state.openNode=null;state.expanded=false;}state.active=q.id;setView(&#x27;question&#x27;);$(&#x27;[data-action=&quot;yes&quot;]&#x27;).focus({preventScroll:true});play(&#x27;question&#x27;);save();});list.append(b);});if(!list.children.length){const p=document.createElement(&#x27;p&#x27;);p.style.cssText=&#x27;font-size:13px;color:#747b82;margin:0 0 12px&#x27;;p.textContent=&#x27;All quiet.&#x27;;list.append(p);}}
+ function syncPanelA11y(){const avatar=$(&#x27;.rf-avatar&#x27;);avatar.setAttribute(&#x27;aria-expanded&#x27;,String(state.panelOpen));avatar.setAttribute(&#x27;aria-label&#x27;,state.panelOpen?&#x27;Close panel&#x27;:&#x27;Open panel&#x27;);}
+ function setView(view,animate=true){
+  if(view===&#x27;collapsed&#x27;){closePanel(animate);return;}
+  state.lastOpen=view;state.view=view;state.panelOpen=true;stage.dataset.view=view;views.forEach(v=&gt;v.hidden=(v.dataset.view||(v.classList.contains(&#x27;rf-input&#x27;)?&#x27;input&#x27;:&#x27;&#x27;))!==view);send.hidden=view!==&#x27;input&#x27;;contextButton.hidden=view!==&#x27;question&#x27;;syncPanelA11y();
+  const compose=$(&#x27;[data-action=&quot;attach&quot;]&#x27;);compose.setAttribute(&#x27;aria-label&#x27;,view===&#x27;input&#x27;?&#x27;Attach text, images or files&#x27;:&#x27;Write a message&#x27;);compose.dataset.tooltip=view===&#x27;input&#x27;?&#x27;Attach files&#x27;:&#x27;Write a message&#x27;;compose.replaceChildren();const icon=document.createElement(&#x27;i&#x27;);icon.dataset.lucide=view===&#x27;input&#x27;?&#x27;paperclip&#x27;:&#x27;square-pen&#x27;;icon.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);compose.append(icon);
+  if(view===&#x27;queue&#x27;)renderQueue();if(view===&#x27;question&#x27;){$(&#x27;.rf-question h2&#x27;).textContent=activeQuestion().text;$(&#x27;.rf-case&#x27;).textContent=activeQuestion().case;}reserveStage();setExpanded(state.expanded,false);updateCount();motion.panel(true,animate);motion.view(animate);rest();if(globalThis.lucide)lucide.createIcons({attrs:{width:16,height:16}});
+ }
+ function closePanel(animate=true){state.lastOpen=state.view;state.panelOpen=false;syncPanelA11y();motion.panel(false,animate);rest();$(&#x27;.rf-avatar&#x27;).focus({preventScroll:true});save();}
+ function openPanel(){state.panelOpen=true;syncPanelA11y();motion.panel(true);const view=state.view;const target=view===&#x27;input&#x27;?field:view===&#x27;question&#x27;?$(&#x27;[data-action=&quot;yes&quot;]&#x27;):view===&#x27;receipt&#x27;?($(&#x27;.rf-undo&#x27;).hidden?$(&#x27;[data-action=&quot;attach&quot;]&#x27;):$(&#x27;.rf-undo&#x27;)):view===&#x27;queue&#x27;?$(&#x27;.rf-question-item&#x27;)||$(&#x27;[data-action=&quot;attach&quot;]&#x27;):$(&#x27;.rf-server&#x27;);target?.focus({preventScroll:true});rest();save();}
+ function showReceipt(title,detail,canUndo){$(&#x27;.rf-receipt-title&#x27;).textContent=title;$(&#x27;.rf-receipt-detail&#x27;).textContent=detail;$(&#x27;.rf-undo&#x27;).hidden=!canUndo;setView(&#x27;receipt&#x27;);play(&#x27;result&#x27;);}
+ function respond(value){const q=activeQuestion();undo={active:state.active,answers:{...state.answers},deferred:[...state.deferred]};if(value===&#x27;later&#x27;){if(!state.deferred.includes(q.id))state.deferred.push(q.id);}else state.answers[q.id]=value;state.expanded=false;receipt={kind:value,id:q.id};const titles={yes:&#x27;Recorded: Yes&#x27;,no:&#x27;Recorded: No&#x27;,unknown:&#x27;Recorded: Not sure&#x27;,later:&#x27;Saved for later&#x27;,dismiss:&#x27;Question dismissed&#x27;};showReceipt(titles[value],q.text,true);save();}
+ function updateSend(){send.disabled=!field.value.trim()&amp;&amp;!attachments.length;}
+ function renderAttachments(){const wrap=$(&#x27;.rf-attachments&#x27;);wrap.replaceChildren();attachments.forEach((file,i)=&gt;{const chip=document.createElement(&#x27;div&#x27;);chip.className=&#x27;rf-chip&#x27;;const name=document.createElement(&#x27;span&#x27;);name.textContent=file.name;const remove=document.createElement(&#x27;button&#x27;);remove.type=&#x27;button&#x27;;remove.className=&#x27;cursor-interaction&#x27;;remove.textContent=&#x27;×&#x27;;remove.setAttribute(&#x27;aria-label&#x27;,&#x27;Remove &#x27;+file.name);remove.addEventListener(&#x27;click&#x27;,()=&gt;{attachments.splice(i,1);renderAttachments();});chip.append(name,remove);wrap.append(chip);});wrap.hidden=!attachments.length;updateSend();fit();}
+ root.querySelectorAll(&#x27;[data-action]&#x27;).forEach(button=&gt;button.addEventListener(&#x27;click&#x27;,()=&gt;{
+  const a=button.dataset.action;
+  if(button.classList.contains(&#x27;rf-avatar&#x27;)){state.panelOpen?closePanel():openPanel();play(&#x27;click&#x27;);return;}
+  if([&#x27;yes&#x27;,&#x27;no&#x27;,&#x27;unknown&#x27;,&#x27;later&#x27;,&#x27;dismiss&#x27;].includes(a)){respond(a);return;}
+  if([&#x27;input&#x27;,&#x27;settings&#x27;,&#x27;queue&#x27;].includes(a)){setView(a);if(a===&#x27;input&#x27;)field.focus({preventScroll:true});if(a===&#x27;queue&#x27;)($(&#x27;.rf-question-item[data-question=&quot;&#x27;+state.active+&#x27;&quot;]&#x27;)||$(&#x27;.rf-question-item&#x27;)||$(&#x27;.rf-view[data-view=&quot;queue&quot;] [data-action=&quot;input&quot;]&#x27;)).focus({preventScroll:true});save();return;}
+  if(a===&#x27;attach&#x27;){if(state.view===&#x27;input&#x27;)$(&#x27;.rf-files&#x27;).click();else{setView(&#x27;input&#x27;);field.focus({preventScroll:true});play(&#x27;hello&#x27;);save();}return;}
+  if(a===&#x27;context&#x27;){setExpanded(!state.expanded);save();return;}
+  if(a===&#x27;undo&#x27;){if(undo){Object.assign(state,{active:undo.active,answers:undo.answers,deferred:undo.deferred});undo=null;receipt=null;setView(&#x27;question&#x27;);$(&#x27;[data-action=&quot;yes&quot;]&#x27;).focus({preventScroll:true});save();}return;}
+  if(a===&#x27;send&#x27;&amp;&amp;!send.disabled){undo=null;receipt={kind:&#x27;input&#x27;};showReceipt(&#x27;Ready to review&#x27;,attachments.length?`${field.value.trim()?&#x27;Text and &#x27;:&#x27;&#x27;}${attachments.length} ${attachments.length===1?&#x27;file&#x27;:&#x27;files&#x27;} kept in your draft.`:&#x27;Your text is kept in the input.&#x27;,false);save();}
+ }));
+ let inputNoticed=false;field.addEventListener(&#x27;input&#x27;,()=&gt;{motion.settle();updateSend();if(field.value&amp;&amp;!inputNoticed){inputNoticed=true;play(&#x27;input&#x27;);}if(!field.value)inputNoticed=false;});
+ field.addEventListener(&#x27;paste&#x27;,event=&gt;{if(event.clipboardData?.files.length){attachments.push(...event.clipboardData.files);renderAttachments();play(&#x27;input&#x27;);}});
+ $(&#x27;.rf-files&#x27;).addEventListener(&#x27;change&#x27;,event=&gt;{attachments.push(...event.target.files);renderAttachments();play(&#x27;input&#x27;);event.target.value=&#x27;&#x27;;});
+ let dragDepth=0;win.addEventListener(&#x27;dragenter&#x27;,event=&gt;{event.preventDefault();dragDepth++;win.dataset.drag=&#x27;true&#x27;;});win.addEventListener(&#x27;dragover&#x27;,event=&gt;event.preventDefault());win.addEventListener(&#x27;dragleave&#x27;,()=&gt;{dragDepth--;if(dragDepth&lt;=0)win.dataset.drag=&#x27;false&#x27;;});win.addEventListener(&#x27;drop&#x27;,event=&gt;{event.preventDefault();dragDepth=0;win.dataset.drag=&#x27;false&#x27;;setView(&#x27;input&#x27;);if(event.dataTransfer.files.length)attachments.push(...event.dataTransfer.files);else{const text=event.dataTransfer.getData(&#x27;text/plain&#x27;);field.value+=text?(field.value?&#x27;\n&#x27;:&#x27;&#x27;)+text:&#x27;&#x27;;}renderAttachments();play(&#x27;input&#x27;);});
+ root.addEventListener(&#x27;keydown&#x27;,event=&gt;{if(event.key===&#x27;Escape&#x27;){event.preventDefault();closePanel();}if((event.metaKey||event.ctrlKey)&amp;&amp;event.key===&#x27;Enter&#x27;){if(!state.panelOpen){event.preventDefault();return;}if(state.view===&#x27;input&#x27;&amp;&amp;!send.disabled){event.preventDefault();send.click();}}});
+ $(&#x27;.rf-motion&#x27;).addEventListener(&#x27;change&#x27;,e=&gt;{state.reduced=e.target.checked;syncMotion();save();});media.addEventListener(&#x27;change&#x27;,syncMotion);
+ $(&#x27;.rf-points&#x27;).checked=state.points;$(&#x27;.rf-points&#x27;).addEventListener(&#x27;change&#x27;,e=&gt;{state.points=e.target.checked;save();});
+ $(&#x27;.rf-provider&#x27;).addEventListener(&#x27;change&#x27;,e=&gt;{const select=$(&#x27;.rf-model&#x27;);select.replaceChildren();const option=document.createElement(&#x27;option&#x27;);option.textContent=e.target.value===&#x27;Google&#x27;?&#x27;Gemini · demo&#x27;:e.target.value===&#x27;OpenAI&#x27;?&#x27;GPT · demo&#x27;:&#x27;Local · demo&#x27;;select.append(option);});
+ window.addEventListener(&#x27;openai:set_globals&#x27;,event=&gt;{const p=event.detail?.globals?.widgetState?.privateContent;if(!p?.panelV9||p.panelV9Source===source||JSON.stringify(p.panelV9)===JSON.stringify(snapshot()))return;restore(p.panelV9);syncMotion();$(&#x27;.rf-points&#x27;).checked=state.points;const open=state.panelOpen;setView(state.view,false);if(!open){state.panelOpen=false;syncPanelA11y();motion.panel(false,false);}});
+ window.addEventListener(&#x27;resize&#x27;,()=&gt;{fit();motion.settle();});
+ root.companionPreview={status:()=&gt;({view:state.panelOpen?state.view:&#x27;collapsed&#x27;,panelOpen:state.panelOpen,uiMotion:motion.status(),lastOpen:state.lastOpen,openNode:state.openNode,expanded:state.expanded,answers:{...state.answers},deferred:[...state.deferred],attachments:attachments.map(f=&gt;f.name),draft:field.value,avatarMode,lastFrame,animating:!!animation||!!idleTimer,reactionPlaying:!!animation,idleLoop:!!idleTimer,idlePose,questionCue:hasQuestion(),visible,reduced:isReduced()}),showQuestion:id=&gt;{state.active=questions.some(q=&gt;q.id===id)?id:&#x27;timing&#x27;;state.expanded=false;setView(&#x27;question&#x27;);}};
+ const initiallyOpen=state.panelOpen;syncMotion();setView(state.view,false);if(!initiallyOpen){state.panelOpen=false;syncPanelA11y();motion.panel(false,false);}updateSend();if(globalThis.lucide)lucide.createIcons({attrs:{width:16,height:16}});
+ $(&#x27;.rf-avatar&#x27;).addEventListener(&#x27;pointerdown&#x27;,()=&gt;motion.press(true));window.addEventListener(&#x27;pointerup&#x27;,()=&gt;motion.press(false));$(&#x27;.rf-avatar&#x27;).addEventListener(&#x27;pointercancel&#x27;,()=&gt;motion.press(false));
+ if(globalThis.Tweak){const options={view:state.view};let previous=options.view;const tweak=new Tweak({container:stage,onChange:()=&gt;{if(options.view!==previous){if(options.view===&#x27;collapsed&#x27;)closePanel();else setView(options.view);}previous=options.view;}});tweak.addSelect(options,&#x27;view&#x27;,{label:&#x27;Preview&#x27;,options:[{label:&#x27;Question&#x27;,value:&#x27;question&#x27;},{label:&#x27;Input&#x27;,value:&#x27;input&#x27;},{label:&#x27;At rest&#x27;,value:&#x27;collapsed&#x27;}]});}
+})();
+
+&lt;/script&gt;
+&lt;/div&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+  let lastPointerWasTouch = false;
+  let pinnedByTouch = false;
+
+  const getTrigger = (event) =&gt; {
+    for (const target of event.composedPath()) {
+      if (target?.nodeType === Node.ELEMENT_NODE) {
+        const trigger = target.closest(&quot;[data-tooltip]&quot;);
+        if (trigger) return trigger;
+      }
+    }
+    return null;
+  };
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    pinnedByTouch = false;
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handlePointer = (event) =&gt; {
+    lastPointerWasTouch =
+      event.type === &quot;pointerdown&quot; &amp;&amp; event.pointerType === &quot;touch&quot;;
+  };
+  const handleTouchClick = (event) =&gt; {
+    const isTouch = event.pointerType === &quot;touch&quot; || lastPointerWasTouch;
+    lastPointerWasTouch = false;
+    if (!isTouch || event.detail === 0) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (
+      trigger == null ||
+      !trigger.isConnected ||
+      getContent(trigger).length === 0 ||
+      (pinnedByTouch &amp;&amp; activeTrigger === trigger)
+    ) {
+      if (pinnedByTouch) {
+        closeTooltip();
+      }
+      return;
+    }
+    openTooltip(trigger);
+    pinnedByTouch = activeTrigger === trigger;
+    window.setTimeout(() =&gt; {
+      if (activeTrigger === trigger &amp;&amp; !trigger.isConnected) {
+        closeTooltip(false);
+      }
+    }, 0);
+  };
+  const handleLeave = (event) =&gt; {
+    if (pinnedByTouch) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    lastPointerWasTouch = false;
+    const trigger = getTrigger(event);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handlers = {
+    pointerover: handlePointerOpen,
+    pointerdown: handlePointer,
+    pointercancel: handlePointer,
+    click: handleTouchClick,
+    pointerout: handleLeave,
+    focusin: handleFocusIn,
+    focusout: handleLeave,
+    keydown: handleKeyDown,
+    contextmenu: handleContextMenu,
+  };
+  const roots = new Map();
+  const handledEvents = new WeakSet();
+  const handleEvent = (event) =&gt; {
+    if (handledEvents.has(event)) return;
+    handledEvents.add(event);
+    handlers[event.type](event);
+  };
+  const discoverRoots = (node) =&gt; {
+    if (node.shadowRoot) listen(node.shadowRoot);
+    for (const element of node.querySelectorAll(&quot;*&quot;)) {
+      if (element.shadowRoot) listen(element.shadowRoot);
+    }
+  };
+  const listen = (root) =&gt; {
+    if (roots.has(root)) return;
+    for (const type of Object.keys(handlers)) root.addEventListener(type, handleEvent);
+    const observer = new window.MutationObserver((records) =&gt; {
+      for (const { addedNodes } of records) {
+        for (const node of addedNodes) {
+          if (node.nodeType === Node.ELEMENT_NODE) discoverRoots(node);
+        }
+      }
+      for (const [root, cleanup] of roots) {
+        if (root.host &amp;&amp; !root.host.isConnected) {
+          cleanup();
+          roots.delete(root);
+        }
+      }
+      if (activeTrigger &amp;&amp; !activeTrigger.isConnected) closeTooltip(false);
+    });
+    observer.observe(root, { childList: true, subtree: true });
+    roots.set(root, () =&gt; {
+      observer.disconnect();
+      for (const type of Object.keys(handlers)) root.removeEventListener(type, handleEvent);
+    });
+    discoverRoots(root);
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    lastPointerWasTouch = false;
+    for (const cleanup of roots.values()) cleanup();
+    roots.clear();
+    tooltip = null;
+  };
+
+  // Events between children of one shadow root never reach the document.
+  listen(document);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-tabs&quot;&gt;
+(() =&gt; {
+  const selector = &#x27;.nav[role=&quot;tablist&quot;] [role=&quot;tab&quot;]&#x27;;
+  const disabled = &#x27;:disabled,[aria-disabled=&quot;true&quot;]&#x27;;
+  const selectTab = (selected) =&gt; {
+    const panelId = selected.getAttribute(&quot;aria-controls&quot;);
+    for (const tab of selected.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;)) {
+      const active = tab === selected;
+      tab.classList.toggle(&quot;active&quot;, active);
+      tab.setAttribute(&quot;aria-selected&quot;, String(active));
+      const id = tab.getAttribute(&quot;aria-controls&quot;);
+      const panel = id &amp;&amp; document.getElementById(id);
+      if (panel != null) {
+        panel.hidden = id !== panelId;
+        if (!panel.hidden &amp;&amp; selected.id) {
+          panel.setAttribute(&quot;aria-labelledby&quot;, selected.id);
+        }
+      }
+    }
+  };
+  const interact = (event) =&gt; {
+    const tab = event.target?.closest?.(selector);
+    if (event.defaultPrevented || tab == null || tab.matches(disabled)) {
+      return;
+    }
+    if (event.type === &quot;click&quot;) {
+      selectTab(tab);
+      return;
+    }
+    const tabs = Array.from(
+      tab.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;),
+    ).filter((candidate) =&gt; !candidate.matches(disabled));
+    const current = tabs.indexOf(tab);
+    let next;
+    if (event.key === &quot;ArrowRight&quot; || event.key === &quot;ArrowDown&quot;) {
+      next = (current + 1) % tabs.length;
+    } else if (event.key === &quot;ArrowLeft&quot; || event.key === &quot;ArrowUp&quot;) {
+      next = (current + tabs.length - 1) % tabs.length;
+    } else if (event.key === &quot;Home&quot;) {
+      next = 0;
+    } else if (event.key === &quot;End&quot;) {
+      next = tabs.length - 1;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    tabs[next].focus();
+    selectTab(tabs[next]);
+  };
+
+  for (const list of document.querySelectorAll(&#x27;.nav[role=&quot;tablist&quot;]&#x27;)) {
+    const selected =
+      list.querySelector(&#x27;[role=&quot;tab&quot;][aria-selected=&quot;true&quot;]&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;].active&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;]&#x27;);
+    if (selected != null) {
+      selectTab(selected);
+    }
+  }
+  document.addEventListener(&quot;click&quot;, interact);
+  document.addEventListener(&quot;keydown&quot;, interact);
+  window.addEventListener(&quot;pagehide&quot;, () =&gt; {
+    document.removeEventListener(&quot;click&quot;, interact);
+    document.removeEventListener(&quot;keydown&quot;, interact);
+  }, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-carousel&quot;&gt;
+  (() =&gt; {
+    for (const root of document.querySelectorAll(&quot;.viz-carousel&quot;)) {
+      const panels = Array.from(
+        root.querySelectorAll(&quot;:scope &gt; [data-variant]&quot;),
+      );
+      if (panels.length === 0) {
+        continue;
+      }
+      root.setAttribute(&quot;role&quot;, &quot;group&quot;);
+      panels.forEach((panel, index) =&gt; {
+        panel.hidden = index !== 0;
+        panel.setAttribute(&quot;role&quot;, &quot;group&quot;);
+        if (!panel.hasAttribute(&quot;aria-label&quot;)) {
+          panel.setAttribute(&quot;aria-label&quot;, panel.dataset.variant);
+        }
+      });
+      root.dataset.activeVariant = panels[0].dataset.variant;
+      if (panels.length === 1) {
+        continue;
+      }
+
+      const controls = document.createElement(&quot;div&quot;);
+      controls.className = &quot;viz-carousel-controls&quot;;
+      // Portable copy of the settings dropdown&#x27;s legacy glyph; no 14px icon-package preset matches it.
+      // https://github.com/openai/openai/blob/master/codex/codex-apps/webview/src/icons/chevron.svg
+      controls.innerHTML = `
+      &lt;button type=&quot;button&quot; class=&quot;viz-carousel-previous cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;chevron-left&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+      &lt;details class=&quot;viz-carousel-picker&quot;&gt;
+        &lt;summary class=&quot;cursor-interaction&quot;&gt;
+          &lt;span class=&quot;viz-carousel-count tabular-nums&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;viz-carousel-name&quot;&gt;&lt;/span&gt;
+          &lt;svg class=&quot;viz-carousel-caret&quot; width=&quot;14&quot; height=&quot;14&quot; viewBox=&quot;0 0 20 21&quot; fill=&quot;none&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;
+            &lt;path d=&quot;M15.2793 7.71101C15.539 7.45131 15.961 7.45131 16.2207 7.71101C16.4804 7.97071 16.4804 8.39272 16.2207 8.65242L10.4707 14.4024C10.211 14.6621 9.78902 14.6621 9.52932 14.4024L3.77932 8.65242L3.69436 8.54792C3.52385 8.28979 3.55205 7.93828 3.77932 7.71101C4.00659 7.48374 4.3581 7.45554 4.61623 7.62605L4.72073 7.71101L10 12.9903L15.2793 7.71101Z&quot; fill=&quot;currentColor&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;0.6&quot; /&gt;
+          &lt;/svg&gt;
+        &lt;/summary&gt;
+        &lt;div class=&quot;viz-carousel-options&quot;&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;button type=&quot;button&quot; class=&quot;viz-carousel-next cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;chevron-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;`;
+      const previous = controls.querySelector(&quot;.viz-carousel-previous&quot;);
+      const next = controls.querySelector(&quot;.viz-carousel-next&quot;);
+      const picker = controls.querySelector(&quot;.viz-carousel-picker&quot;);
+      const summary = picker.querySelector(&quot;summary&quot;);
+      const count = controls.querySelector(&quot;.viz-carousel-count&quot;);
+      const name = controls.querySelector(&quot;.viz-carousel-name&quot;);
+      const options = controls.querySelector(&quot;.viz-carousel-options&quot;);
+      const status = document.createElement(&quot;span&quot;);
+      status.className = &quot;sr-only&quot;;
+      status.setAttribute(&quot;role&quot;, &quot;status&quot;);
+      status.setAttribute(&quot;aria-live&quot;, &quot;polite&quot;);
+      status.setAttribute(&quot;aria-atomic&quot;, &quot;true&quot;);
+      previous.setAttribute(
+        &quot;aria-label&quot;,
+        root.dataset.previousLabel ?? &quot;Previous variant&quot;,
+      );
+      next.setAttribute(&quot;aria-label&quot;, root.dataset.nextLabel ?? &quot;Next variant&quot;);
+
+      let active = 0;
+      let mousePointerId = null;
+      let summaryPointerHandled = false;
+      summary.addEventListener(&quot;pointerdown&quot;, (event) =&gt; {
+        summaryPointerHandled =
+          event.pointerType === &quot;mouse&quot; &amp;&amp; event.button === 0 &amp;&amp; !event.ctrlKey;
+        if (!summaryPointerHandled) {
+          return;
+        }
+        event.preventDefault();
+        summary.focus({ preventScroll: true });
+        picker.open = !picker.open;
+        mousePointerId = picker.open ? event.pointerId : null;
+      });
+      summary.addEventListener(&quot;click&quot;, (event) =&gt; {
+        if (summaryPointerHandled &amp;&amp; event.detail &gt; 0) {
+          event.preventDefault();
+        }
+      });
+      const choices = panels.map((panel, index) =&gt; {
+        const choice = document.createElement(&quot;button&quot;);
+        choice.type = &quot;button&quot;;
+        choice.className = &quot;cursor-interaction&quot;;
+        choice.textContent = panel.dataset.variant;
+        choice.addEventListener(&quot;click&quot;, () =&gt; {
+          select(index);
+          summary.focus();
+        });
+        choice.addEventListener(&quot;pointerup&quot;, (event) =&gt; {
+          if (
+            picker.open &amp;&amp;
+            event.pointerType === &quot;mouse&quot; &amp;&amp;
+            event.button === 0 &amp;&amp;
+            event.pointerId === mousePointerId
+          ) {
+            choice.click();
+          }
+        });
+        options.appendChild(choice);
+        return choice;
+      });
+      const select = (index) =&gt; {
+        const changed = active !== index;
+        active = index;
+        panels.forEach((panel, position) =&gt; {
+          panel.hidden = position !== active;
+          choices[position].setAttribute(
+            &quot;aria-current&quot;,
+            String(position === active),
+          );
+        });
+        root.dataset.activeVariant = panels[active].dataset.variant;
+        count.textContent = `${active + 1} / ${panels.length}`;
+        name.textContent = panels[active].dataset.variant;
+        picker.open = false;
+        mousePointerId = null;
+        if (changed) {
+          status.textContent = `${count.textContent}: ${name.textContent}`;
+        }
+      };
+      previous.addEventListener(&quot;click&quot;, () =&gt;
+        select((active + panels.length - 1) % panels.length),
+      );
+      next.addEventListener(&quot;click&quot;, () =&gt;
+        select((active + 1) % panels.length),
+      );
+      picker.addEventListener(&quot;keydown&quot;, (event) =&gt; {
+        if (event.key === &quot;Escape&quot; &amp;&amp; picker.open) {
+          event.preventDefault();
+          picker.open = false;
+          mousePointerId = null;
+          summary.focus();
+          return;
+        }
+        if (event.altKey || event.ctrlKey || event.metaKey) {
+          return;
+        }
+        const index = choices.indexOf(document.activeElement);
+        let nextIndex;
+        if (event.key === &quot;ArrowDown&quot;) {
+          nextIndex = index &lt; 0 ? active : (index + 1) % choices.length;
+        } else if (event.key === &quot;ArrowUp&quot;) {
+          nextIndex = index &lt; 0 ? active : (index + choices.length - 1) % choices.length;
+        } else if (picker.open &amp;&amp; event.key === &quot;Home&quot;) {
+          nextIndex = 0;
+        } else if (picker.open &amp;&amp; event.key === &quot;End&quot;) {
+          nextIndex = choices.length - 1;
+        } else {
+          return;
+        }
+        event.preventDefault();
+        picker.open = true;
+        choices[nextIndex].focus();
+      });
+      picker.addEventListener(&quot;focusout&quot;, (event) =&gt; {
+        if (!picker.contains(event.relatedTarget)) {
+          picker.open = false;
+          mousePointerId = null;
+        }
+      });
+      const dismiss = (event) =&gt; {
+        if (!summary.contains(event.target)) {
+          mousePointerId = null;
+        }
+        if (!picker.contains(event.target)) {
+          picker.open = false;
+        }
+      };
+      const endPointerSelection = () =&gt; {
+        mousePointerId = null;
+      };
+      const sizePicker = () =&gt; {
+        root.style.setProperty(
+          &quot;--viz-carousel-picker-height&quot;,
+          `${picker.open ? options.offsetHeight : 0}px`,
+        );
+      };
+      picker.addEventListener(&quot;toggle&quot;, sizePicker);
+      window.addEventListener(&quot;resize&quot;, sizePicker);
+      document.addEventListener(&quot;pointerdown&quot;, dismiss);
+      document.addEventListener(&quot;pointerup&quot;, endPointerSelection);
+      document.addEventListener(&quot;pointercancel&quot;, endPointerSelection);
+      window.addEventListener(&quot;blur&quot;, endPointerSelection);
+      window.addEventListener(
+        &quot;pagehide&quot;,
+        () =&gt; {
+          document.removeEventListener(&quot;pointerdown&quot;, dismiss);
+          document.removeEventListener(&quot;pointerup&quot;, endPointerSelection);
+          document.removeEventListener(&quot;pointercancel&quot;, endPointerSelection);
+          window.removeEventListener(&quot;blur&quot;, endPointerSelection);
+          window.removeEventListener(&quot;resize&quot;, sizePicker);
+        },
+        { once: true },
+      );
+      root.append(controls, status);
+      select(0);
+    }
+  })();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+
+<script>(() => {
+  const frame = document.getElementById("codex-visualization");
+  if (!(frame instanceof HTMLIFrameElement)) {
+    return;
+  }
+  const isShare = document.documentElement.classList.contains(
+    "visualization-share-root",
+  );
+  let viewportHeight = globalThis.innerHeight;
+  let sizeFingerprint = null;
+  let sizeWriteTimeout;
+  let lastSize = null;
+  let pendingSize = null;
+  const storageKey = `codex:visualization-widget-state-v2:${JSON.stringify([
+    globalThis.location.pathname,
+    globalThis.location.search,
+  ])}`;
+  const sizeStorageKey = `${storageKey}:share-size-v1`;
+  const parseState = (serializedState) => {
+    if (
+      typeof serializedState !== "string" ||
+      new TextEncoder().encode(serializedState).length > 16 * 1024
+    ) {
+      throw new TypeError(
+        "Widget state must be a JSON object of at most 16 KiB",
+      );
+    }
+    /** @type {unknown} */
+    const state = JSON.parse(serializedState);
+    if (
+      state == null ||
+      typeof state !== "object" ||
+      Array.isArray(state) ||
+      ("imageIds" in state &&
+        (!Array.isArray(state.imageIds) || state.imageIds.length > 0))
+    ) {
+      throw new TypeError("Widget state must be a JSON object");
+    }
+    const storedState = { modelContent: null, privateContent: null, ...state };
+    const canonicalState = JSON.stringify(
+      storedState,
+      (_key, /** @type {unknown} */ value) => {
+        if (typeof value === "number" && !Number.isFinite(value)) {
+          throw new TypeError("Widget state must contain finite numbers");
+        }
+        return value;
+      },
+    );
+    if (new TextEncoder().encode(canonicalState).length > 16 * 1024) {
+      throw new TypeError(
+        "Widget state must be a JSON object of at most 16 KiB",
+      );
+    }
+    return storedState;
+  };
+  let storage = null;
+  let state = null;
+  try {
+    const localStorage = globalThis.localStorage;
+    const probeKey = `${storageKey}:probe`;
+    localStorage.setItem(probeKey, "1");
+    localStorage.removeItem(probeKey);
+    storage = localStorage;
+    const savedState = storage.getItem(storageKey);
+    if (savedState != null) {
+      try {
+        state = parseState(savedState);
+      } catch {
+        // Invalid saved state does not disable future writes.
+      }
+    }
+  } catch {
+    storage = null;
+  }
+  const persistSize = () => {
+    globalThis.clearTimeout(sizeWriteTimeout);
+    if (pendingSize == null) {
+      return;
+    }
+    try {
+      storage?.setItem(sizeStorageKey, pendingSize);
+    } catch {
+      // A denied or full cache must not affect the visualization.
+    }
+    pendingSize = null;
+  };
+  if (isShare) {
+    globalThis.addEventListener("pagehide", persistSize);
+  }
+  const initialGlobals = {
+    widgetState: state,
+    statePersistence: storage == null ? "none" : "local",
+  };
+
+  const channel = new MessageChannel();
+  channel.port1.addEventListener("message", (event) => {
+    const data = event.data;
+    if (typeof data !== "object" || data == null) {
+      return;
+    }
+    if (data.type === "widget-state-write") {
+      if (!Number.isSafeInteger(data.id) || data.id <= 0) {
+        return;
+      }
+      let ok = false;
+      try {
+        if (storage != null) {
+          const state = parseState(data.state);
+          storage.setItem(storageKey, JSON.stringify(state));
+          ok = true;
+        }
+      } catch {
+        // Storage denial, quota limits, and invalid state return a failed receipt.
+      }
+      channel.port1.postMessage({
+        type: "widget-state-result",
+        id: data.id,
+        ok,
+      });
+      return;
+    }
+    if (data.type === "height") {
+      const height = data.height;
+      if (
+        typeof height !== "number" ||
+        !Number.isFinite(height) ||
+        height < 0
+      ) {
+        return;
+      }
+      if (height <= 10_000) {
+        const width = isShare && storage != null ? frame.clientWidth : null;
+        frame.style.height = Math.ceil(height) + "px";
+        if (isShare && storage != null) {
+          const size = JSON.stringify({
+            fingerprint: sizeFingerprint,
+            width,
+            viewportHeight: globalThis.innerHeight,
+            dark: globalThis.matchMedia("(prefers-color-scheme: dark)").matches,
+            scale: globalThis.devicePixelRatio,
+            height: Math.ceil(height),
+          });
+          if (size !== lastSize) {
+            lastSize = size;
+            pendingSize = size;
+            globalThis.clearTimeout(sizeWriteTimeout);
+            sizeWriteTimeout = globalThis.setTimeout(persistSize, 100);
+          }
+        }
+      }
+      if (isShare) {
+        // Keep unusually tall content accessible without accepting an unbounded height.
+        if (height > 10_000 && Number.parseFloat(frame.style.height) === 0) {
+          frame.style.removeProperty("height");
+        }
+        frame.scrolling = height > 10_000 ? "auto" : "no";
+        document.documentElement.classList.add("visualization-share-ready");
+      }
+      return;
+    }
+    if (data.type === "scroll-to") {
+      const top = data.top;
+      if (
+        typeof top === "number" &&
+        Number.isFinite(top) &&
+        top >= 0 &&
+        globalThis.navigator.userActivation?.isActive === true
+      ) {
+        globalThis.scrollTo({
+          top: Math.ceil(
+            globalThis.scrollY + frame.getBoundingClientRect().top + top,
+          ),
+        });
+      }
+      return;
+    }
+    if (data.type === "open-external") {
+      const rawHref = data.href;
+      if (typeof rawHref !== "string") {
+        return;
+      }
+      let href;
+      try {
+        const url = new URL(rawHref, document.baseURI);
+        if (url.protocol !== "https:") {
+          return;
+        }
+        href = url.href;
+      } catch {
+        return;
+      }
+      if (globalThis.navigator.userActivation?.isActive === true) {
+        const anchor = document.createElement("a");
+        anchor.href = href;
+        anchor.rel = "noopener noreferrer";
+        anchor.target = "_blank";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      }
+      return;
+    }
+    if (data.type === "follow-up") {
+      const prompt = data.prompt;
+      if (
+        typeof prompt !== "string" ||
+        globalThis.navigator.userActivation?.isActive !== true
+      ) {
+        return;
+      }
+      const title = data.title;
+      globalThis.prompt(typeof title === "string" ? title : prompt, prompt);
+    }
+  });
+  channel.port1.start();
+  const srcdoc = frame.dataset.srcdoc;
+  if (srcdoc == null) {
+    return;
+  }
+  globalThis.addEventListener("resize", () => {
+    const height = Number.parseFloat(frame.style.height);
+    if (!isShare && (!Number.isFinite(height) || height <= viewportHeight)) {
+      frame.style.removeProperty("height");
+    }
+    viewportHeight = globalThis.innerHeight;
+    channel.port1.postMessage({ type: "measure" });
+  });
+  frame.addEventListener(
+    "load",
+    () => {
+      frame.contentWindow?.postMessage(
+        { type: "codex-visualization-initialize" },
+        "*",
+        [channel.port2],
+      );
+    },
+    { once: true },
+  );
+  // Match the trusted bootstrap element, not the same text in an authored title.
+  const frameHtml = srcdoc.replace(
+    '<script type="application/json" id="codex-visualization-widget-state">__CODEX_VISUALIZATION_WIDGET_STATE__<\/script>',
+    () =>
+      '<script type="application/json" id="codex-visualization-widget-state">' +
+      JSON.stringify(initialGlobals).replaceAll("<", "\\u003c") +
+      "<\/script>",
+  );
+  if (isShare && storage != null) {
+    // Fingerprint the rendered document, including restored widget state, without
+    // storing its content. This is a layout cache, not a security identity.
+    let hash = 5381;
+    for (let index = 0; index < frameHtml.length; index += 1) {
+      hash = (hash * 33 + frameHtml.charCodeAt(index)) % 4_294_967_296;
+    }
+    sizeFingerprint = hash.toString(36);
+    try {
+      const size = JSON.parse(storage.getItem(sizeStorageKey) ?? "null");
+      if (
+        size?.fingerprint === sizeFingerprint &&
+        size.width === frame.clientWidth &&
+        size.viewportHeight === globalThis.innerHeight &&
+        size.dark ===
+          globalThis.matchMedia("(prefers-color-scheme: dark)").matches &&
+        size.scale === globalThis.devicePixelRatio &&
+        typeof size.height === "number" &&
+        Number.isFinite(size.height) &&
+        size.height >= 0 &&
+        size.height <= 10_000
+      ) {
+        frame.style.height = size.height + "px";
+      }
+    } catch {
+      // Ignore missing or invalid cache entries and measure the live frame.
+    }
+  }
+  frame.srcdoc = frameHtml;
+  delete frame.dataset.srcdoc;
+})();
+</script>
+</body>
+</html>

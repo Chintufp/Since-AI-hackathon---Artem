@@ -1,0 +1,52 @@
+[
+  {
+    "frame": 0,
+    "width": 28,
+    "height": 28
+  },
+  {
+    "frame": 1,
+    "width": 32,
+    "height": 21
+  },
+  {
+    "frame": 2,
+    "width": 36,
+    "height": 16
+  },
+  {
+    "frame": 3,
+    "width": 32,
+    "height": 21
+  },
+  {
+    "frame": 4,
+    "width": 26,
+    "height": 32
+  },
+  {
+    "frame": 5,
+    "width": 28,
+    "height": 28
+  },
+  {
+    "frame": 6,
+    "width": 26,
+    "height": 32
+  },
+  {
+    "frame": 7,
+    "width": 28,
+    "height": 28
+  },
+  {
+    "frame": 8,
+    "width": 28,
+    "height": 28
+  },
+  {
+    "frame": 9,
+    "width": 28,
+    "height": 28
+  }
+]

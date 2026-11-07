@@ -1,0 +1,24 @@
+[
+  {
+    "width": 736,
+    "clickInterruptsAction": true,
+    "rapidClickSettles": true,
+    "tinyHelloSeparate": true,
+    "panelToggleAndContextPreserved": true,
+    "returnsToIdle": true,
+    "fixedAnchor": true,
+    "reducedMotion": true,
+    "errors": []
+  },
+  {
+    "width": 320,
+    "clickInterruptsAction": true,
+    "rapidClickSettles": true,
+    "tinyHelloSeparate": true,
+    "panelToggleAndContextPreserved": true,
+    "returnsToIdle": true,
+    "fixedAnchor": true,
+    "reducedMotion": true,
+    "errors": []
+  }
+]

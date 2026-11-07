@@ -1,0 +1,36 @@
+<div id="compact-companion-v7">
+ <div class="cc-window" aria-label="Compact pixel companion studies">
+  <div class="cc-stage"><canvas width="96" height="96" role="img" aria-label="White pixel companion resting"></canvas><button type="button" class="cc-touch cursor-interaction" aria-label="Tap the companion" data-tooltip="Tap for a springy hello"></button></div>
+  <div class="cc-main"><select class="cc-act" aria-label="Companion action"></select><output class="cc-duration" aria-label="Duration">1.5 s</output><button type="button" class="cc-play cursor-interaction">Play</button></div>
+  <div class="cc-options"><select class="cc-state" aria-label="Communication state"><option value="idle">At rest</option><option value="input">Receiving</option><option value="processing">Processing</option><option value="question">Question</option><option value="result">Result</option><option value="error">Needs attention</option></select><label><input type="checkbox" class="cc-slow">Slow view</label><label><input type="checkbox" class="cc-reduced">Reduced motion</label></div>
+  <div class="cc-status" aria-live="polite">Ready</div>
+ </div>
+</div>
+<style>
+#compact-companion-v7 {display:flex;justify-content:center;}
+#compact-companion-v7 .cc-window {width:100%;max-width:430px;background:#fff;color:#243542;border:1px solid #e4e9ed;border-radius:16px;font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:light;padding-bottom:12px;}
+#compact-companion-v7 .cc-stage {width:192px;height:192px;margin:0 auto;position:relative;}
+#compact-companion-v7 canvas {width:192px;height:192px;display:block;image-rendering:pixelated;image-rendering:crisp-edges;}
+#compact-companion-v7 .cc-touch {position:absolute;left:36px;top:30px;width:120px;height:145px;border:0;background:none;}
+#compact-companion-v7 .cc-main {display:flex;align-items:center;gap:10px;padding:0 15px;}
+#compact-companion-v7 select,#compact-companion-v7 .cc-play {font:inherit;color:inherit;background:#fff;border:1px solid #dfe5e9;border-radius:7px;padding:7px 9px;min-height:34px;}
+#compact-companion-v7 .cc-act {flex:1;min-width:0;}
+#compact-companion-v7 .cc-duration {color:#65747f;font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums;}
+#compact-companion-v7 .cc-play {background:#243542;color:#fff;border-color:#243542;min-width:63px;}
+#compact-companion-v7 .cc-play:hover {background:#3c5260;}
+#compact-companion-v7 .cc-play:disabled {opacity:.4;}
+#compact-companion-v7 .cc-options {display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:10px 15px 0;color:#65747f;font-size:11px;}
+#compact-companion-v7 .cc-options select {font-size:11px;padding:4px 6px;min-height:28px;}
+#compact-companion-v7 .cc-options label {display:flex;align-items:center;gap:4px;}
+#compact-companion-v7 input {accent-color:#344a58;}
+#compact-companion-v7 .cc-status {min-height:16px;padding:8px 15px 0;text-align:center;font-size:11px;color:#65747f;}
+#compact-companion-v7 :is(button,select,input):focus-visible {outline:2px solid #86acbf;outline-offset:3px;}
+@media(max-width:360px){#compact-companion-v7 .cc-main{gap:7px;padding:0 10px;}#compact-companion-v7 .cc-options{gap:8px;padding-left:10px;padding-right:10px;}}
+@media(pointer:coarse){#compact-companion-v7 .cc-play,#compact-companion-v7 select,#compact-companion-v7 .cc-options select{min-height:44px;}#compact-companion-v7 .cc-options label{min-height:44px;}}
+</style>
+<script>
+(()=>{
+/* INLINE_MODULES */
+/* INLINE_PLAYER */
+})();
+</script>

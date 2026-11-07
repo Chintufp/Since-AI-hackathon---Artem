@@ -25,9 +25,9 @@ export const conditionLabel = (c: Condition): string => c.label ?? `${c.key} ${c
  * entity names/aliases, and procedures (purpose, steps, condition labels). Access scope is applied here, so nothing
  * downstream can leak a case the principal may not see.
  */
-export function buildCorpus(store: KnowledgeStore, principal: PrincipalLike, atMs?: number): CorpusDoc[] {
+export function buildCorpus(store: KnowledgeStore, principal: PrincipalLike, atMs?: number, atEvidence?: string): CorpusDoc[] {
   const base = evidenceGate(store, principal);
-  const gate = atMs === undefined ? base : gateAt(store, base, atMs);
+  const gate = atMs === undefined ? base : gateAt(store, base, atMs, atEvidence);
   const entities = new Map(store.list('entity').filter((e) => e.type !== 'person').map((e) => [e.id, e] as const));
   const claimsByCase = new Map<string, string[]>();
   // B1: at a past moment the case's conditions come from its condition claims valid then (the stored ones are the now view).

@@ -57,11 +57,11 @@ function outcomeRank(a: Attempt, outs: Outcome[]): number {
  */
 export function loadCaseFacts(
   store: KnowledgeStore, caseId: string, investigationId: string | undefined, settings: Pick<InvestigationSettings, 'diagnosticActions'>,
-  viewer?: PrincipalLike | EvidenceGate, atMs?: number,
+  viewer?: PrincipalLike | EvidenceGate, atMs?: number, atEvidence?: string,
 ): CaseFacts {
   const gate0 = viewer ? ('ref' in viewer ? viewer : evidenceGate(store, viewer)) : undefined;
-  // B1: at a moment, evidence dated later is invisible and only claims valid then count.
-  const gate = gate0 && atMs !== undefined ? gateAt(store, gate0, atMs) : gate0;
+  // B1: at a moment, evidence dated later is invisible and only claims valid then count (B3: plus a thread cutoff).
+  const gate = gate0 && atMs !== undefined ? gateAt(store, gate0, atMs, atEvidence) : gate0;
   const rawCase = store.get('case', caseId);
   const c = !rawCase ? undefined : !gate ? rawCase : visibleCase(rawCase, gate);
   const keep = <T extends { evidence: EvidenceRef[] }>(xs: T[]): T[] =>

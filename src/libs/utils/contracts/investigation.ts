@@ -17,6 +17,8 @@ export interface Problem {
    * observations recorded after it and claims not valid at it are left out; no question is ever asked.
    */
   at?: Iso;
+  /** B3: evidence cutoff inside an undated thread (see InvestigateRequest.atEvidence); set only together with `at`. */
+  atEvidence?: string;
 }
 
 export interface ExpectedTrait {

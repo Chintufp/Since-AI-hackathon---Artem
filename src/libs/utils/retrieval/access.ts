@@ -75,17 +75,34 @@ export function visibleCase(c: Case, gate: EvidenceGate): Case | undefined {
 /**
  * B1: the same gate as seen at a moment: evidence whose event time is known and later than `atMs` is invisible;
  * evidence with an unknown or partial time stays visible (an undated source is "valid from before any dated moment").
+ *
+ * B3: with `atEvidence` (an evidence id), undated evidence is visible only when it belongs to that evidence's thread and
+ * comes at or before it in thread order (sequence, then position); undated evidence of other threads is not visible.
+ * Dated evidence follows `atMs` as above. This is how the Context Layer slider moves through a thread whose date is
+ * unknown without inventing a date for it.
  */
-export function gateAt(store: Pick<KnowledgeStore, 'get'>, base: EvidenceGate, atMs: number): EvidenceGate {
+export function gateAt(store: Pick<KnowledgeStore, 'get'>, base: EvidenceGate, atMs: number, atEvidence?: string): EvidenceGate {
   const cache = new Map<string, boolean>();
+  const cut = atEvidence ? store.get('evidence', atEvidence) : undefined;
+  const order = (e: { eventTime: { sequence?: number }; thread: { position?: number } }): [number, number] => [e.eventTime.sequence ?? Number.MAX_SAFE_INTEGER, e.thread.position ?? Number.MAX_SAFE_INTEGER];
   const ref = (r: EvidenceRef): boolean => {
     const hit = cache.get(r.evidenceId);
     if (hit !== undefined) return hit;
     let ok = base.ref(r);
     if (ok) {
-      const t = store.get('evidence', r.evidenceId)?.eventTime;
+      const ev = store.get('evidence', r.evidenceId);
+      const t = ev?.eventTime;
       const ms = t?.known && t.iso ? Date.parse(t.iso) : NaN;
       if (Number.isFinite(ms) && ms > atMs) ok = false;
+      if (ok && atEvidence !== undefined && !Number.isFinite(ms)) {
+        if (!cut || !ev) ok = false;
+        else if (ev.id !== cut.id) {
+          const sameThread = ev.thread.threadId !== undefined && ev.thread.threadId === cut.thread.threadId;
+          const [a1, a2] = order(ev);
+          const [b1, b2] = order(cut);
+          ok = sameThread && (a1 < b1 || (a1 === b1 && a2 <= b2));
+        }
+      }
     }
     cache.set(r.evidenceId, ok);
     return ok;

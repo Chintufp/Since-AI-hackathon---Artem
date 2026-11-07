@@ -48,6 +48,10 @@ export const investigateSchema = z.object({
   allowQuestions: z.boolean().optional(),
   /** B1: point in time (ISO 8601 with a zone). */
   at: z.string().min(1).optional(),
+  /** B3: evidence cutoff inside an undated thread (Context Layer slider). */
+  atEvidence: z.string().min(1).optional(),
+  /** B3: compute without persisting anything. */
+  preview: z.boolean().optional(),
 });
 
 /** B1: GET /context query. */

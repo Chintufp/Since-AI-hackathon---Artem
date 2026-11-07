@@ -594,7 +594,9 @@ export class Engine {
   }
 
   async investigate(req: InvestigateRequest): Promise<InvestigationResult> {
-    this.deliverDue();
+    // B3: a preview persists nothing, so it does not run the quiet-hours delivery either.
+    const preview = req.preview === true;
+    if (!preview) this.deliverDue();
     const principal = this.effective(req.principal);
     const w = this.wiring();
     const observations = req.observations ?? [];
@@ -605,13 +607,28 @@ export class Engine {
       if (ms === undefined) throw badRequest(`Invalid at: ${req.at} (ISO 8601 with a zone, e.g. 2026-10-20T12:00:00Z)`);
       at = new Date(ms).toISOString();
     }
-    const problemId = stableId('prob', this.orgId, principal.id, req.text.trim(), (req.entityIds ?? []).join(','), JSON.stringify(observations.map((o) => [o.key, o.operator, o.value ?? null])), (req.attachmentNames ?? []).join('|'), ...(at ? [`at:${at}`] : []));
+    // B3: an evidence cutoff is a point-in-time view too; without `at`, dated evidence counts up to now.
+    const atEvidence = req.atEvidence;
+    if (atEvidence !== undefined) {
+      if (!this.store.get('evidence', atEvidence)) throw badRequest(`Unknown atEvidence: ${atEvidence}`);
+      at ??= this.now().toISOString();
+    }
+    const problemId = stableId('prob', this.orgId, principal.id, req.text.trim(), (req.entityIds ?? []).join(','), JSON.stringify(observations.map((o) => [o.key, o.operator, o.value ?? null])), (req.attachmentNames ?? []).join('|'), ...(at ? [`at:${at}`] : []), ...(atEvidence ? [`ev:${atEvidence}`] : []), ...(preview ? ['preview'] : []));
     const problem: Problem = {
       id: problemId, orgId: this.orgId, text: req.text.trim(),
       requester: principal.type === 'agent' ? { id: 'agent', displayName: principal.displayName, agentId: principal.id } : actorOf(principal),
       ...(req.entityIds ? { entityIds: req.entityIds } : {}), ...(observations.length ? { observations } : {}),
       ...(req.attachmentNames ? { attachmentNames: req.attachmentNames } : {}), createdAt: this.now().toISOString(), ...(at ? { at } : {}),
+      ...(atEvidence ? { atEvidence } : {}),
     };
+    if (preview) {
+      try {
+        const state = await investigate({ problem, store: this.store, principal, deps: { retriever: w.retriever, assessor: w.assessor, selector: w.selector, settings: w.settings, clock: this.clock, directory: w.directory }, persist: false });
+        return resultView(this.store, state, ANONYMOUS, w.settings.loopReasons);
+      } catch (e) {
+        throw toServiceError(e);
+      }
+    }
     let state: InvestigationState;
     // The id is derived from the whole request, so a repeat carries no new observations or attachments: what the stored
     // state says about the question loop (an answer already used) must survive the refresh.

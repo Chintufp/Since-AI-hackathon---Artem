@@ -69,6 +69,14 @@ export interface InvestigateRequest {
   allowQuestions?: boolean;
   /** B1: answer as of this moment (ISO with zone). A past view never asks anyone (allowQuestions is forced false). */
   at?: string;
+  /**
+   * B3: an evidence cutoff inside an undated thread (the Context Layer slider on a time-only segment). Only undated
+   * evidence of that evidence's thread up to and including it (thread order) is visible, plus evidence dated at or
+   * before `at` (now when `at` is absent). Like `at`, it never asks anyone.
+   */
+  atEvidence?: string;
+  /** B3: compute and return the result but persist nothing (no investigation record, no trace events, no question). */
+  preview?: boolean;
 }
 
 export interface AnswerRequest {

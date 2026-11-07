@@ -9,6 +9,7 @@ import { Engine } from './engine.ts';
 import { defaultObservabilityPolicy, defaultQuietHours, defaultStandingGaps } from './org-config.ts';
 import { DEFAULT_DB_PATH } from './paths.ts';
 import { startHttp } from './http.ts';
+import { installServiceGuard } from './guard.ts';
 
 const { values } = parseArgs({
   options: {
@@ -51,7 +52,11 @@ if (values.seed) {
   const r = await engine.resetDemo(values.seed as 'elisa' | 'synthetic' | 'empty');
   process.stderr.write(`demo seed "${values.seed}": ${r.imported.length} imports\n`);
 }
+let ownOrigin: string | undefined;
+// D-INT-20: the running service refuses every host its configured slots do not need (re-derived per call from live settings).
+installServiceGuard({ slots: () => engine.modelSlots(), ownOrigin: () => ownOrigin });
 const http = await startHttp({ engine, port, host: values.host });
+ownOrigin = new URL(http.url).origin;
 process.stdout.write(`Knowledge Twin service listening on ${http.url} (db: ${engine.dbPath})\n`);
 // App start: warm every slot set to local (start `ollama serve` if needed); rules/api slots start nothing.
 if (process.env.KT_AUTO_MODELS !== '0') {

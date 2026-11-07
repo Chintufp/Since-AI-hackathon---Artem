@@ -231,3 +231,22 @@ Six minor findings, all confirmed and all fixed:
   row reads "You are Jukka Salo in the companion"; it failed on the old runner with "You are ent_06ee…".
 
 Commits d8356c0, 8231903, 00a8ac5. Typecheck clean, 604/604 tests (601 + 3).
+
+## R5 hardening (day2/r5-guard)
+
+- **D-INT-20, the network guard runs in the service.** `src/apps/service/guard.ts` (`installServiceGuard`, `deriveAllowlist`)
+  installs `installNetworkGuard` in `main.ts` before listening. `NetworkGuardOptions.allowOrigins` may now be a function and
+  there is an `onBlock` hook; the allowlist is evaluated per fetch from `engine.modelSlots()`, so `PUT /settings` takes
+  effect on the next call with no re-install. Allowed: nothing with every slot on rules; the Ollama origin for a local slot;
+  the two hosted-model origins for an api slot only when KT_NO_API is not 1; slack.com only under KT_SLACK_LIVE=1; the
+  service's own origin (local pages, mcp-demo). A refusal logs the route label it was missing (`ORIGIN_ROUTES` in
+  routes.ts; "none" for a host no route reaches). Decision: the spec says nothing on rules, so GET /models detection also
+  cannot reach Ollama until a slot is local; flagged in the service README rather than carved out. Tests:
+  `tests/service-guard.test.ts` (2), `tests/service-main.test.ts` (source order). demo:judge and demo:agent unaffected
+  (separate processes talking to the service port).
+- **D-INT-21, provenance on /investigate was not a defect.** Reproduced on a clean clone (no private/, default reset, port
+  47996, KT_NO_API=1): `{text, principal}` and the page body `{text, principal, entityIds, allowQuestions:false, preview:true}`
+  return the same provenance for the same text. The Phase 4 body lacked it because its text named no asset and had no
+  entityIds: nothing is found (`kind none`, no case), and a strip describes a claim, so inventing one would be false.
+  `principal` as a string is a 400. Not changed in the service; the body is documented in service/README.md and
+  docs/DEMO.md and pinned by `tests/investigate-provenance.test.ts`.

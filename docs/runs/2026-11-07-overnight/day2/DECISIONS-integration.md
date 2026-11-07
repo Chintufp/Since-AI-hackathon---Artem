@@ -148,3 +148,51 @@ reproduces exactly) and raised five minor findings. All five were confirmed agai
    fails when the guard is widened (checked).
 
 Typecheck clean, 511/511 tests (507 + 4 new).
+
+## D-INT-13 · Day 2 lanes merged in the order b3, b4, b5, b7
+
+The stray panel fix in the checkout (the missing `</section>` after the Connections grid) was committed alone first
+(b90b2d9). day2/b3 carries the same line (4b5c1dd), so the b3 merge took it without a conflict; panel.ts has 12 opening
+and 12 closing `<section>` tags after all four merges. Merged with `--no-ff`, typecheck and the full suite run after each:
+511 -> 538 (b3) -> 571 (b4) -> 582 (b5) -> 601 (b7), every lane's own count added in full, so no lane test was lost.
+
+## D-INT-14 · Conflicts resolved by keeping both sides
+
+- b4: `ui/mock-api.test.ts` (B3's provenance and /costs mock tests next to B4's POST /import paste test) and `ui/styles.css`
+  (B3's provenance strip and cost row rules, then B4's Remember this button and offer chip). Plain union.
+- b5: `contracts/views.ts` ResultView carries both `provenance?` (B3) and `alternatives?` (B5); `service/views.ts`
+  spreads both; `ui/mock-api.ts` mock investigate returns both; `docs/DEMO.md` keeps B4's "### Remember this" and then
+  B5's "## Experts disagree" section. The panel already rendered both (setProvenance under the heading, "Also on record"
+  lines in the result notes), auto-merged.
+- b7: `service/engine.ts` imports, the union of B3/B4's (`ImportFromPathResult`, `earliestDated`) and B7's
+  (`AGENT_WORDING_EVENT`, `AgentWordedGenerator`, `checkAgentWording`, `templateFor`, `BatchItem`, `visibleCase`).
+  Engine.storeHealth (B3's per-viewer cost store line) and B7's storeHealthView (kt_store_health) sit on the same method
+  without conflict.
+No shared decision file (DECISIONS-engine/models/integration) was appended by more than one lane; each lane's own
+DECISIONS-view/capture/disagree/inquiry.md came in unchanged.
+
+## D-INT-15 · Counts: 42 HTTP routes, 12 MCP tools
+
+B3 added two routes (GET /context.html and GET /costs), not one, so the union is 42, not the 41 the integration brief
+guessed; B4 rides on POST /import and B5/B7 add no routes. The route assertions in `tests/e2e.test.ts` and
+`tests/points.test.ts` already said 42 from b3 and stay. MCP_TOOLS has 12 entries (9 + B7's kt_list_gaps,
+kt_propose_question, kt_store_health; the three are MCP only); `tests/mcp.test.ts` says 12 from b7.
+
+## D-INT-16 · Post-merge checks
+
+- `node --test experiments/*.test.ts` 23/23; `node experiments/run.ts e00` 17/17, results differed in timings only and
+  were dropped (`git checkout -- experiments/results`).
+- With every slot on rules nothing new calls out: the new `fetch` calls are the activity and context pages and
+  `scripts/mcp-demo.ts` talking to the local service. Agent wording (B7) is the route `agent-worded@1` (route `rules`) in
+  `models/routes.ts`, no model of ours runs. The Slack poller (B4) uses the fake workspace unless `KT_SLACK_LIVE`, a token,
+  a workspace, a channel and a people file are all given (`pollerGuard` in `scripts/slack-poll.ts`); `slack-live.ts` and
+  its `slack.com/api` client predate the day. Slack is a connector, not a model route, so it is not in routes.ts.
+- Quiet hours: `pnpm demo:agent` (scripts/mcp-demo.ts) starts mcp.ts with `--quiet-hours on` unless `--day`;
+  `pnpm demo:judge` defaults `--quiet-hours off` (D-B1-35 holds for the judge; B7 turns them on only for demo:agent).
+- Remember this: POST /import goes through importAndEnrich; with extract on rules that is importData, and every claim a
+  paste creates carries `route: rules, version: rules-extractor@1` (checked on a pasted two-line thread: 6 of 6 claims);
+  on a model slot the enrich step traces `import.enriched` with its route as before.
+- The b3 merge needed Artem's uncommitted README.md moved aside (b3 adds a Context Layer line): his diff was saved as a
+  patch, the file checked out, merged, and the patch applied back uncommitted. His other files were not touched.
+
+Typecheck clean, 601/601 tests.

@@ -254,3 +254,7 @@
 /* desktop (R32): he can be picked up */
 #kt-panel[data-kt-drag="on"] .rf-avatar { cursor:grab; }
 #kt-panel[data-kt-carried="true"], #kt-panel[data-kt-carried="true"] .rf-avatar { cursor:grabbing; }
+/* desktop (R44, trial, Artem 7 Nov): a quiet band of small grey crosses at the bottom of the card, fading upwards; KT_TEXTURE=0 removes it */
+#kt-panel .rf-texture { display:none; }
+#kt-panel[data-kt-texture="crosses"] .rf-texture { display:block; position:absolute; left:1px; right:1px; bottom:1px; height:44px; pointer-events:none; border-radius:0 0 15px 15px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Cpath d='M7 4.5v5M4.5 7h5' stroke='%23d9dde0' stroke-width='1.1'/%3E%3C/svg%3E"); background-size:14px 14px; background-position:center bottom; -webkit-mask-image:linear-gradient(to top, #000 35%, transparent); mask-image:linear-gradient(to top, #000 35%, transparent); }
+#kt-panel[data-kt-texture="crosses"] .rf-footer { background:transparent; } /* desktop (R44): the crosses band shows through the footer */

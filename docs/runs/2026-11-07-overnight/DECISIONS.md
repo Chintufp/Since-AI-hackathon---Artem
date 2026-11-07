@@ -195,3 +195,7 @@ Artem answered U25 with yes (sandbox, read-only). The live path is `pnpm demo:sl
 ## R43 · DECISION — He is called Lumi (snow, in Finnish)
 
 Artem renamed the companion from "Snowbally" to **Lumi** on 7 Nov. Every user-facing string (window title, tray items, aria labels, README, DEMO.md, REPORT.md, code comments in the app) now says Lumi; code identifiers and the design-lab history keep their old names, since the frozen lab files are not ours to edit. **Reverse:** a word replace back.
+
+## R44 · TRIAL — A quiet band of small grey crosses at the bottom of the card
+
+Artem asked to try "small grey crosses at the bottom of the panel, more texture while staying minimalistic, delete if not good". Implemented as a desktop-only element behind the footer (`.rf-texture`: 14 px tiles, 1.1 px strokes in #d9dde0, fading upwards over 44 px); no v008 value changed except that the footer background is transparent while the band is on. On by default for the trial; `KT_TEXTURE=0` (flag `texture`) removes it entirely. **Reverse:** the flag, or delete the three marked rules and the element.

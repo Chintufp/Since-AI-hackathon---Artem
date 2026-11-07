@@ -114,7 +114,7 @@ interface ReceiptAction {
 const TEMPLATE = `
 <div class="rf-stage" data-view="input">
  <div class="rf-window">
-  <div class="rf-motion-skin" aria-hidden="true"></div>
+  <div class="rf-motion-skin" aria-hidden="true"></div><div class="rf-texture" aria-hidden="true"></div>
   <div class="rf-surface"><div class="rf-content">
    <section class="rf-view rf-input" data-view="input" aria-label="Input">
     <textarea class="rf-writing" aria-label="Message to your companion" placeholder="Tell me what happened…"></textarea>

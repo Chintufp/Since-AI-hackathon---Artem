@@ -31,6 +31,7 @@ const params = new URLSearchParams(location.search);
 // desktop (R31..R36): flags arrive as query params (main.ts flagsToQuery); missing params = defaults.
 const flags: Readonly<DesktopFlags> = Object.freeze(parseFlags(params));
 window.__ktFlags = flags;
+if (flags.texture) document.getElementById('kt-panel')!.dataset.ktTexture = 'crosses'; // desktop (R44, trial)
 const mock = params.get('mock') === '1';
 const shots = params.get('shots') === '1';
 const errors: string[] = [];

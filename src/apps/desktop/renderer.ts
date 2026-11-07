@@ -2,7 +2,7 @@
 import { AvatarController } from '../../libs/utils/motion/index.ts';
 import { createApiClient, createMockFetch, createPanel, MOCK_BASE_URL } from '../../libs/utils/ui/index.ts';
 import type { Panel } from '../../libs/utils/ui/index.ts';
-import { inRect, parseFlags, RENDERER_EVENTS, toHitRect } from './flags.ts';
+import { inRect, nearRects, parseFlags, pinsPress, RENDERER_EVENTS, toHitRect } from './flags.ts';
 import type { Area, DesktopFlags, HitRect, PowerEvent, ShellCommand, ShellState } from './flags.ts';
 
 interface KtBridge {
@@ -59,8 +59,11 @@ const panel = createPanel({
 // Click-through: the window is transparent; only Snowbally and the open panel take the mouse.
 // desktop (R31): O(1) hit test against two cached rects instead of elementFromPoint. The rects are recomputed
 // when the companion moves the carrier or the panel spring settles (`kt-companion:moved`), on resize, and, as a
-// fallback until the companion dispatches that event, at most once per MEASURE_FALLBACK_MS on mousemove.
+// fallback, at most once per MEASURE_FALLBACK_MS on mousemove: always without the companion (nothing dispatches
+// `moved` then), otherwise only within MEASURE_NEAR_PX of his / the panel's rects (shell-12: a mousemove flood far
+// from him no longer forces layout reads).
 const MEASURE_FALLBACK_MS = 100;
+const companionMoves = flags.companion && flags.windowMode === 'area';
 /** Resend an unchanged ignore state after this long: main may have forced click-through on its own (blur, lock). */
 const IGNORE_RESEND_MS = 1000;
 const root = document.getElementById('kt-panel')!;
@@ -88,6 +91,8 @@ const setIgnore = (flag: boolean): void => {
   window.kt?.setIgnoreMouse(flag);
 };
 // desktop (R32): pinned between pointerdown on Snowbally and pointerup / pointercancel / lostpointercapture.
+// shell-03: only a plain primary press pins; a right-click / ctrl-click opens the menu, whose tracking loop eats
+// the release, and `contextmenu` drops any pin so the next mousemove re-runs the hit test.
 let pinned = false;
 let last: { x: number; y: number } | null = null;
 const check = (): void => {
@@ -97,7 +102,7 @@ const check = (): void => {
 const track = (e: MouseEvent): void => {
   last = { x: e.clientX, y: e.clientY };
   if (pinned) return;
-  if (performance.now() - measuredAt >= MEASURE_FALLBACK_MS) measure();
+  if (performance.now() - measuredAt >= MEASURE_FALLBACK_MS && (!companionMoves || nearRects([avatarRect, surfaceRect], e.clientX, e.clientY))) measure();
   check();
 };
 document.addEventListener('mousemove', track, { passive: true });
@@ -109,7 +114,7 @@ document.documentElement.addEventListener('mouseleave', () => {
 window.addEventListener(
   'pointerdown',
   (e) => {
-    if (!(e.target instanceof Element) || !e.target.closest('.rf-avatar')) return;
+    if (!pinsPress(e) || !(e.target instanceof Element) || !e.target.closest('.rf-avatar')) return;
     last = { x: e.clientX, y: e.clientY };
     pinned = true;
     ignoring = null; // force the send
@@ -125,6 +130,14 @@ const unpin = (e: PointerEvent): void => {
   check();
 };
 for (const type of ['pointerup', 'pointercancel', 'lostpointercapture'] as const) window.addEventListener(type, unpin, { capture: true, passive: true });
+window.addEventListener(
+  'contextmenu',
+  () => {
+    pinned = false;
+    ignoring = null; // the menu may leave main's state unknown: resend on the next check
+  },
+  { capture: true, passive: true },
+);
 const remeasure = (): void => {
   measure();
   check();
@@ -132,9 +145,11 @@ const remeasure = (): void => {
 window.addEventListener(RENDERER_EVENTS.moved, remeasure);
 window.addEventListener('resize', remeasure);
 // The window lost focus or main forced click-through: forget the cached state and drop a stale pin.
+// shell-06: and the stale pointer position (the next real mousemove decides).
 window.addEventListener('blur', () => {
   pinned = false;
   ignoring = null;
+  last = null;
 });
 
 // desktop (R31..R36): main → page as CustomEvents on window, so the companion module never imports Electron.
@@ -163,6 +178,7 @@ window.addEventListener(RENDERER_EVENTS.contextMenu, () => window.kt?.showContex
 window.kt?.onShow(() => {
   void panel.refresh();
   ignoring = null;
+  last = null; // shell-06: the pre-hide pointer position must not un-ignore the whole work area
   remeasure();
 });
 measure();

@@ -7,15 +7,16 @@
  * flags.ts reach the renderer as query params, and the shell (tray away/back, global shortcut, power events,
  * right-click menu, click-through resets) is built by createShell() in window.ts.
  */
-import { app, BrowserWindow, session } from 'electron';
+import { app, BrowserWindow, Menu, session } from 'electron';
 import { spawn } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import { getPriority, setPriority } from 'node:os';
 import { resolve } from 'node:path';
 import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/service.ts';
 import { allowServiceCors, createCompanionWindow, createShell, handleMouseIgnore } from './window.ts';
 import type { Shell } from './window.ts';
-import { flagsFromEnv, flagsToQuery } from './flags.ts';
+import { appMenuTemplate, columnIgnoredEnv, flagsFromEnv, flagsToQuery, restoreDefaultPriority } from './flags.ts';
 
 const OPEN_ON_LAUNCH = false;
 const HEALTH_TIMEOUT_MS = 10000;
@@ -24,6 +25,9 @@ const port = Number(process.env.KT_PORT) || DEFAULT_SERVICE_PORT;
 const serviceUrl = `http://127.0.0.1:${port}`;
 // desktop (R31..R36): KT_WINDOW_MODE, KT_COMPANION, KT_DRAG, KT_AWAY, KT_GAZE, KT_FIDGETS, KT_SHORTCUT.
 const flags = flagsFromEnv(process.env);
+// desktop (shell-16): drag / away / shortcut stay off in the column fallback.
+const ignoredInColumn = columnIgnoredEnv(process.env);
+if (ignoredInColumn.length) console.error(`[desktop] KT_WINDOW_MODE=column: ${ignoredInColumn.join(', ')} ignored (no drag, no away in the column)`);
 
 let win: BrowserWindow | null = null;
 let shell: Shell | null = null;
@@ -81,6 +85,18 @@ else {
   app.on('second-instance', () => shell?.command('return'));
   handleMouseIgnore(() => win);
   void app.whenReady().then(() => {
+    // desktop (M4): a niced launch (background shell) starves requestAnimationFrame; reset to 0 before the window
+    // (and so the renderer, which inherits it) is created. Unprivileged processes may be refused: logged, not fatal.
+    if (typeof getPriority === 'function' && typeof setPriority === 'function') {
+      restoreDefaultPriority({
+        get: () => getPriority(),
+        set: (v) => setPriority(v),
+        log: (m) => console.log('[desktop] ' + m),
+        error: (m) => console.error('[desktop] ' + m),
+      });
+    }
+    // desktop (shell-08): no default menu (Cmd+W would close the only window and quit, Cmd+R reload mid-state).
+    Menu.setApplicationMenu(Menu.buildFromTemplate(appMenuTemplate(process.platform === 'darwin')));
     if (!mock) {
       allowServiceCors(session.defaultSession, serviceUrl);
       void ensureService();
@@ -96,5 +112,8 @@ else {
     service?.kill();
   });
   process.on('exit', () => service?.kill());
-  for (const signal of ['SIGINT', 'SIGTERM'] as const) process.on(signal, () => app.quit());
+  // desktop (shell-14): SIGHUP too (the launch shell closed), so the service child never outlives the app; and a
+  // closed inherited stdout / stderr (background launch) must not crash main with EPIPE.
+  for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) process.on(signal, () => app.quit());
+  for (const stream of [process.stdout, process.stderr]) stream?.on?.('error', () => undefined);
 }

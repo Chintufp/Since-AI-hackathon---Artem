@@ -9,7 +9,7 @@ import { app, BrowserWindow, globalShortcut, ipcMain, Menu, powerMonitor, screen
 import type { IpcMainEvent, Rectangle, Session } from 'electron';
 import { join } from 'node:path';
 import { createTrayIcon } from './tray-icon.ts';
-import { awayEnabled, boundsFor, COLUMN, flagsFromEnv, IPC, isShellCommand, menuTemplate, normaliseState, SHORTCUT_ACCELERATOR, trayTitle } from './flags.ts';
+import { awayEnabled, boundsFor, COLUMN, createReloadGate, flagsFromEnv, IPC, isShellCommand, menuTemplate, normaliseState, sameRect, SHORTCUT_ACCELERATOR, trayTitle } from './flags.ts';
 import type { Area, DesktopFlags, PowerEvent, ShellCommand, ShellState, WindowMode } from './flags.ts';
 
 /**
@@ -99,6 +99,9 @@ export function createCompanionWindow(options: CompanionWindowOptions): BrowserW
     fullscreenable: false,
     skipTaskbar: false,
     alwaysOnTop: true,
+    // desktop (shell-09): the first click on him while another app is active reaches the page (macOS default:
+    // that click only activates the window). Not yet verified with a real mouse.
+    acceptFirstMouse: true,
     show: false,
     title: 'Snowbally',
     webPreferences: {
@@ -118,10 +121,14 @@ export function createCompanionWindow(options: CompanionWindowOptions): BrowserW
   win.setIgnoreMouseEvents(true, { forward: true });
 
   // desktop (R31): follow the work area (resolution / Dock / menu bar changes) and tell the renderer.
+  // desktop (shell-04): only when the bounds really change (events for other displays, or repeats, used to force a
+  // kt:area that snapped an in-flight leave / arrive / return); the area message is deduplicated by size.
   const reapply = (): void => {
     if (win.isDestroyed()) return;
-    win.setBounds(windowBounds(mode, mode === 'column' ? win.getBounds().width : WINDOW.width));
-    sendArea(win, true);
+    const next = windowBounds(mode, mode === 'column' ? win.getBounds().width : WINDOW.width);
+    if (sameRect(next, win.getBounds())) return;
+    win.setBounds(next);
+    sendArea(win);
   };
   screen.on('display-metrics-changed', reapply);
   screen.on('display-added', reapply);
@@ -130,10 +137,22 @@ export function createCompanionWindow(options: CompanionWindowOptions): BrowserW
   win.webContents.on('did-finish-load', () => sendArea(win, true));
 
   // desktop (R31): click-through safety: never leave a transparent full-screen window catching the mouse.
+  // desktop (shell-07): and reload it, so the tray / shortcut / second-instance commands reach a live page again
+  // (at most 3 reloads a minute; then it stays click-through and Quit is the way out).
+  const reloadGate = createReloadGate();
   win.webContents.on('render-process-gone', (_e, details) => {
     console.error(`[desktop] renderer gone (${details.reason}); click-through forced on`);
     forceClickThrough(win);
+    if (details.reason === 'clean-exit' || win.isDestroyed()) return;
+    if (reloadGate(Date.now())) {
+      console.error('[desktop] reloading the renderer');
+      win.webContents.reload();
+    } else console.error('[desktop] renderer crashed 3 times within a minute; not reloading again');
   });
+  // desktop (shell-13): the preload bridge must never reach another page (a file dropped outside the card would
+  // otherwise navigate the window to it); no new windows either.
+  win.webContents.on('will-navigate', (e) => e.preventDefault());
+  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.on('unresponsive', () => forceClickThrough(win));
   win.on('blur', () => forceClickThrough(win));
   win.on('closed', () => {
@@ -149,9 +168,11 @@ export function createCompanionWindow(options: CompanionWindowOptions): BrowserW
 
 /** Wire the renderer's hit-test reports to the window (standard transparent-window pattern). */
 export function handleMouseIgnore(getWindow: () => BrowserWindow | null): void {
-  ipcMain.on(IPC.ignoreMouse, (_event, flag: boolean) => {
+  ipcMain.on(IPC.ignoreMouse, (event: IpcMainEvent, flag: unknown) => {
     const win = getWindow();
     if (!win || win.isDestroyed()) return;
+    // desktop (shell-15): only our page, only a boolean (a malformed falsy payload must not un-ignore the window).
+    if (event.sender !== win.webContents || typeof flag !== 'boolean') return;
     if (flag) win.setIgnoreMouseEvents(true, { forward: true });
     else win.setIgnoreMouseEvents(false);
   });

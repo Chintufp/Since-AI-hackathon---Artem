@@ -41,7 +41,10 @@ export const DEFAULT_FLAGS: Readonly<DesktopFlags> = Object.freeze({
   windowMode: 'area',
 });
 
-/** desktop (R31): column mode degrades to "no drag, no away": every flag off unless an env var turns it on. */
+/**
+ * desktop (R31): column mode degrades to "no drag, no away": every flag off unless an env var turns it on,
+ * except drag / away / shortcut, which stay off in the column whatever the env says (COLUMN_FORCED_OFF, shell-16).
+ */
 export const COLUMN_FLAGS: Readonly<DesktopFlags> = Object.freeze({
   companion: false,
   drag: false,
@@ -63,6 +66,23 @@ const parseBool = (value: string | null | undefined): boolean | undefined => {
   return undefined;
 };
 
+/**
+ * desktop (shell-16): flags that make no sense against a 420 px column (away / peek would tuck him at the column's
+ * left edge in the middle of the screen). Forced off in column mode even when an env var or query param asks.
+ */
+export const COLUMN_FORCED_OFF = ['drag', 'away', 'shortcut'] as const satisfies readonly FlagName[];
+
+const applyColumnLimits = (flags: DesktopFlags): DesktopFlags => {
+  if (flags.windowMode === 'column') for (const name of COLUMN_FORCED_OFF) flags[name] = false;
+  return flags;
+};
+
+/** desktop (shell-16): the KT_<FLAG> env vars the column fallback ignores (main logs them). */
+export function columnIgnoredEnv(env: Readonly<Record<string, string | undefined>>): string[] {
+  if (env.KT_WINDOW_MODE?.trim().toLowerCase() !== 'column') return [];
+  return COLUMN_FORCED_OFF.map(flagEnvName).filter((k) => parseBool(env[k]) === true);
+}
+
 /** Flags for the main process: `KT_WINDOW_MODE=column` picks the fallback defaults, then `KT_<FLAG>=0|1` overrides. */
 export function flagsFromEnv(env: Readonly<Record<string, string | undefined>>): DesktopFlags {
   const windowMode: WindowMode = env.KT_WINDOW_MODE?.trim().toLowerCase() === 'column' ? 'column' : 'area';
@@ -71,7 +91,7 @@ export function flagsFromEnv(env: Readonly<Record<string, string | undefined>>):
     const v = parseBool(env[flagEnvName(name)]);
     if (v !== undefined) flags[name] = v;
   }
-  return flags;
+  return applyColumnLimits(flags);
 }
 
 /** Query params for the renderer (like `mock`): `companion=1&drag=1&…&window=area`. */
@@ -91,7 +111,7 @@ export function parseFlags(search: string | URLSearchParams): DesktopFlags {
     const v = parseBool(params.get(name));
     if (v !== undefined) flags[name] = v;
   }
-  return flags;
+  return applyColumnLimits(flags);
 }
 
 // ---- shell constants and IPC surface ----
@@ -185,6 +205,92 @@ export interface HitRect {
 export const toHitRect = (r: { left: number; top: number; width: number; height: number }): HitRect | null =>
   r.width > 0 && r.height > 0 ? { left: r.left, top: r.top, right: r.left + r.width, bottom: r.top + r.height } : null;
 export const inRect = (r: HitRect | null, x: number, y: number): boolean => !!r && x >= r.left && x < r.right && y >= r.top && y < r.bottom;
+
+/**
+ * desktop (shell-12): the mousemove re-measure fallback only runs near what can take the mouse. The window covers
+ * the whole work area, so every mousemove on screen reaches the page; far from him nothing can appear without a
+ * `kt-companion:moved` first, so those moves skip the layout read. True when nothing is measured yet.
+ */
+export const MEASURE_NEAR_PX = 480;
+export function nearRects(rects: readonly (HitRect | null)[], x: number, y: number, margin: number = MEASURE_NEAR_PX): boolean {
+  let any = false;
+  for (const r of rects) {
+    if (!r) continue;
+    any = true;
+    if (x >= r.left - margin && x < r.right + margin && y >= r.top - margin && y < r.bottom + margin) return true;
+  }
+  return !any;
+}
+
+/**
+ * desktop (shell-03): only a plain primary press pins click-through off. A right-click or a macOS ctrl-click opens
+ * the context menu, whose tracking loop eats the release, so no pointerup would ever unpin.
+ */
+export const pinsPress = (e: { button: number; ctrlKey: boolean }): boolean => e.button === 0 && !e.ctrlKey;
+
+/** desktop (shell-04): same rectangle (display events often re-send the bounds the window already has). */
+export const sameRect = (a: Rect, b: Rect): boolean => a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+
+// ---- process health (desktop UX fixes) ----
+
+/**
+ * desktop (shell-07): crash-loop guard for reloading a gone renderer: at most `limit` reloads per `windowMs`.
+ * Returns a gate; call it with the current time, true = reload now.
+ */
+export function createReloadGate(limit = 3, windowMs = 60_000): (now: number) => boolean {
+  const times: number[] = [];
+  return (now) => {
+    while (times.length && now - times[0]! >= windowMs) times.shift();
+    if (times.length >= limit) return false;
+    times.push(now);
+    return true;
+  };
+}
+
+export interface PriorityOps {
+  /** Current nice value of the main process (os.getPriority()). */
+  get(): number;
+  /** os.setPriority(value); may throw (EACCES: an unprivileged process cannot lower its nice value on macOS/Linux). */
+  set(value: number): void;
+  log(message: string): void;
+  error(message: string): void;
+}
+
+/**
+ * desktop (M4): undo a niced launch (`nice … &` from a background shell). A positive nice value starves the
+ * renderer's requestAnimationFrame, which once froze him mid-roll. Children spawned afterwards (the renderer)
+ * inherit the main process's value. Never throws; returns what happened.
+ */
+export function restoreDefaultPriority(ops: PriorityOps): 'normal' | 'restored' | 'failed' {
+  let before: number;
+  try {
+    before = ops.get();
+  } catch (e) {
+    ops.error(`priority: could not read the nice value (${String(e)})`);
+    return 'failed';
+  }
+  if (!(before > 0)) return 'normal';
+  try {
+    ops.set(0);
+    let after: number | string = '?';
+    try {
+      after = ops.get();
+    } catch {
+      /* keep '?' */
+    }
+    ops.log(`priority: launched with nice ${before}; set to ${after} (renderer inherits it)`);
+    return 'restored';
+  } catch (e) {
+    ops.error(`priority: launched with nice ${before}; could not reset to 0 (${String(e)}); animation may stall, relaunch without nice`);
+    return 'failed';
+  }
+}
+
+/**
+ * desktop (shell-08): the application menu. Electron's default menu has Close (Cmd+W, closes the only window and
+ * quits), Reload (Cmd+R) and Toggle DevTools; this keeps the app menu (macOS) and Edit (copy / paste in the panel).
+ */
+export const appMenuTemplate = (mac: boolean): MenuItemConstructorOptions[] => (mac ? [{ role: 'appMenu' }, { role: 'editMenu' }] : [{ role: 'editMenu' }]);
 
 // ---- tray / context menu model ----
 

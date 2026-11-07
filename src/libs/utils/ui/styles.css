@@ -278,3 +278,11 @@
 #kt-panel .rf-points-none { margin:0; padding:7px 0; font-size:12px; color:#8d959c; border-top:1px solid #f0f1f2; }
 #kt-panel .rf-reward .rf-later { margin-left:auto; padding-right:0; }
 @media (max-width:419px) { #kt-panel .rf-points-list { max-height:calc(var(--kt-vh) - 500px); } }
+/* desktop (Artem 7 Nov): the points note as a small "i" with a hover/focus tooltip */
+#kt-panel .rf-info { position:relative; display:inline-flex; margin:10px 0 0; outline:0; }
+#kt-panel .rf-info i { width:16px; height:16px; border-radius:50%; border:1px solid #c9ced2; color:#8d959c; font:600 10px/14px Inter,-apple-system,sans-serif; font-style:normal; text-align:center; display:inline-block; cursor:default; }
+#kt-panel .rf-info:hover i, #kt-panel .rf-info:focus-visible i { color:#4b5258; border-color:#a8adb2; }
+#kt-panel .rf-info-tip { position:absolute; left:0; bottom:22px; width:260px; background:#fff; border:1px solid #e3e4e5; border-radius:10px; box-shadow:0 7px 20px #22242b12,0 1px 3px #22242b08; padding:9px 11px; font-size:11px; line-height:1.45; color:#4b5258; opacity:0; visibility:hidden; transition:opacity 120ms ease; pointer-events:none; z-index:2; }
+#kt-panel .rf-info:hover .rf-info-tip, #kt-panel .rf-info:focus-visible .rf-info-tip { opacity:1; visibility:visible; }
+#kt-panel .rf-info[hidden] { display:none; }
+

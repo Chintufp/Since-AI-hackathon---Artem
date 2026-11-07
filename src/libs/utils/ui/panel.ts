@@ -161,6 +161,7 @@ const TEMPLATE = `
      <label class="rf-setting rf-option rf-points-display" hidden><span>Show +points in receipts</span><input class="rf-points" type="checkbox"></label>
     </div>
     <p class="rf-points-note"></p>
+    <span class="rf-info" tabindex="0" role="note" aria-label="About points"><i>i</i><span class="rf-info-tip"></span></span>
     <div class="rf-points-body" hidden>
      <div class="rf-points-balance"><span class="rf-points-big"></span><span class="rf-points-meta"></span></div>
      <p class="rf-points-sub">Recent</p><div class="rf-points-events"></div>
@@ -596,13 +597,16 @@ export function createPanel(options: PanelOptions): Panel {
     toggle.disabled = !id;
     $<HTMLInputElement>('.rf-points').checked = state.points;
     $('.rf-points-display').hidden = !participates;
-    $('.rf-points-note').textContent = !id ? 'Choose who you are in Settings first.' : POINTS_NOTE;
+    $('.rf-points-note').textContent = !id ? 'Choose who you are in Settings first.' : '';
+    $('.rf-points-note').hidden = !!id;
+    $('.rf-info').hidden = !id;
+    $('.rf-info-tip').textContent = POINTS_NOTE; // desktop (Artem 7 Nov): the note lives in a small i, shown on hover/focus
     const body = $('.rf-points-body');
     const r = pointsRating;
     body.hidden = !(participates && r?.me);
     if (!participates || !r?.me) return;
     $('.rf-points-big').textContent = String(r.me.balance);
-    $('.rf-points-meta').textContent = `${r.me.balance === 1 ? 'point' : 'points'} · rank ${r.me.rank} of ${r.totals.participants} · ${r.me.recent} in the last ${r.period.recentDays} days`;
+    $('.rf-points-meta').textContent = `${r.me.balance === 1 ? 'point' : 'points'} · rank ${r.me.rank} of ${r.totals.participants}`;
     const events = $('.rf-points-events');
     events.replaceChildren();
     if (!r.me.events.length) events.append(el('p', 'rf-points-none', 'Nothing yet. Your next answer counts.'));

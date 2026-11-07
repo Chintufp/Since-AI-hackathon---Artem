@@ -65,6 +65,8 @@ test('a simulated day asks real questions, answers them as simulated people and 
   // The judge is Jukka Salo: a firsthand person on RTR-203 (dev fixture) who would otherwise be asked.
   const helmi = directory.find((d) => d.name === 'Jukka Salo')!;
   await svc.call('PUT', '/settings', { currentPersonEntityId: helmi.personEntityId });
+  // R47: award rows are shown only while the judge takes part; the judge chooses to here.
+  await svc.call('PUT', `/participation/${encodeURIComponent(helmi.personEntityId)}/optin`, { principal: { id: helmi.personEntityId, displayName: helmi.name, groups: helmi.groups, type: 'human' }, participates: true });
   const families: FamilyInput[] = [{
     id: 'optic-forwarding-a', description: 'seeded', seeded: true, sources: [],
     problems: [
@@ -103,14 +105,16 @@ test('a simulated day asks real questions, answers them as simulated people and 
   assert.ok(optRows.length >= 1, 'an opt-in row');
   assert.ok(!String(optRows[0]!.text).includes('Jukka Salo'), 'the judge is not in the opted-in list');
   const judgeOpt = await svc.call('GET', `/participation/${encodeURIComponent(helmi.personEntityId)}/optin`);
-  assert.equal(judgeOpt.participates, false);
+  assert.equal(judgeOpt.participates, true, 'the judge chose to take part in this test (R47); the stream never changes that choice');
   const awards = rows.filter((r) => r.kind === 'points' && /^\+\d+ to /.test(String(r.text)));
   assert.equal(awards.length, summary.pointsRows);
   if (summary.answered > 0) {
     assert.ok(awards.some((r) => /for answering$/.test(String(r.text))), `an answer award row: ${rows.filter((r) => r.kind === 'points').map((r) => r.text).join(' | ')}`);
     const rating = await svc.call('GET', '/participation/rating');
     assert.ok(rating.participants.length >= 1 && rating.totals.points > 0);
-    assert.ok(!JSON.stringify(rating).includes(helmi.personEntityId), 'the judge appears nowhere in the rating');
+    // The judge took part by choice (R47) but the stream never answers for them: listed with 0 points.
+    const me = rating.participants.find((p: { personEntityId: string }) => p.personEntityId === helmi.personEntityId);
+    assert.ok(me && me.balance === 0, `the judge is listed only by their own choice and with 0 points: ${JSON.stringify(me)}`);
   }
   // Simulated people's answers are real attributed answers in the service.
   const all: QuestionView[] = await svc.call('GET', '/questions?status=all');

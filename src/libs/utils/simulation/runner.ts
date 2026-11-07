@@ -136,13 +136,17 @@ export async function runDay(opts: RunnerOptions): Promise<RunSummary> {
         fail(`opting ${d.name} into points`, e);
       }
     }
-    if (names.length) row({ kind: 'points', text: `${names.length} simulated ${names.length === 1 ? 'person takes' : 'people take'} part in points: ${names.join(', ')}`, why: `simulated opt-in (their choice is played by the stream); you are never opted in automatically${judgeId ? `, ${nameOf(judgeId)} decides in Settings → Points & rating` : ''}`, detail: { personEntityIds: directory.filter((d) => names.includes(d.name)).map((d) => d.personEntityId) } });
+    if (names.length && judgeParticipates) row({ kind: 'points', text: `${names.length} simulated ${names.length === 1 ? 'person takes' : 'people take'} part in points: ${names.join(', ')}`, why: `simulated opt-in (their choice is played by the stream); you are never opted in automatically${judgeId ? `, ${nameOf(judgeId)} decides in Settings → Points & rating` : ''}`, detail: { personEntityIds: directory.filter((d) => names.includes(d.name)).map((d) => d.personEntityId) } });
   }
   const pointsRow = (who: string, personEntityId: string, points: number, what: string, detail: Record<string, unknown>): void => {
     if (points <= 0) return;
+    if (!judgeParticipates) { heldPointsRows++; return; } // R47: quiet until the judge takes part
     summary.pointsRows++;
     row({ kind: 'points', who, text: `+${points} to ${who} for ${what}`, why: 'simulated; points count contributions and never judge whether the answer was right', detail: { personEntityId, points, ...detail } });
   };
+  /** R47 (Artem): points rows are shown only once the judge's own person takes part; the awards themselves still happen. */
+  let judgeParticipates = false;
+  let heldPointsRows = 0;
   const refreshJudge = async (): Promise<void> => {
     try {
       const s = await client.get<Settings>('/settings');
@@ -151,6 +155,9 @@ export async function runDay(opts: RunnerOptions): Promise<RunSummary> {
         judgeId = next;
         row({ kind: 'judge', text: judgeId ? `You are ${nameOf(judgeId)} in the companion (Settings → You); questions for this person are left for you to answer` : 'No person is chosen in the companion (Settings → You), so nothing is addressed to you', forYou: true });
       }
+      const was = judgeParticipates;
+      judgeParticipates = judgeId ? !!(await client.get<{ participates: boolean }>(`/participation/${encodeURIComponent(judgeId)}/optin`)).participates : false;
+      if (judgeParticipates && !was) row({ kind: 'points', text: `${nameOf(judgeId!)} takes part in points; from now on the stream shows the simulated people's awards${heldPointsRows ? ` (${heldPointsRows} earlier awards were not shown)` : ''}`, why: 'awards are shown only while you take part (Settings → Points & rating)', forYou: true });
     } catch (e) {
       fail('reading settings', e);
     }

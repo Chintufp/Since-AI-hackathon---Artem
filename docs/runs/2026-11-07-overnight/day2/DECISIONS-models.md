@@ -26,3 +26,6 @@ Reverse: constants in `providers/ollama.ts` and `providers/fallback.ts`.
 
 ## D-B2-07 · Providers read `globalThis.fetch` at call time
 So `installNetworkGuard()` still blocks them in experiments (tested). Tests inject a fake fetch; none needs Ollama or the internet.
+
+## D-B2-08 · r_embedding has its own created_seq counter and an extra (kind, refId) index
+Row id is `${kind}:${model}:${refId}`, so one record can carry vectors of several models side by side and switching models never overwrites the other's rows. Its `created_seq` is its own counter (not the global record seq), so the JSON tables' seq and the search rowids are untouched. A second index on `(kind, refId)` serves `deleteRef`, which removes the record's rows for every model. `EmbeddingTable` is declared in `contracts/store.ts` and `KnowledgeStore.embeddings` is optional (additive); `InMemoryStore` has none and callers check. Blobs are copied into an aligned buffer on read. Reverse: drop the table and the field; nothing else reads it.

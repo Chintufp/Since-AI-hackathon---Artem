@@ -8,6 +8,7 @@ import type { ApiRoutes, Principal } from '../contracts/service.ts';
 import type { InvestigationState } from '../contracts/investigation.ts';
 import type { QuestionRecord, QuestionStatus } from '../contracts/questions.ts';
 import { defaultUserSettings } from '../contracts/outcomes.ts';
+import { DEFAULT_MODEL_SLOTS } from '../contracts/models.ts';
 import type { ParticipationEvent, ParticipationOptIn, ParticipationRating, UserSettings } from '../contracts/outcomes.ts';
 import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
 import { createApiClient, parseRoute } from './api-client.ts';
@@ -147,7 +148,8 @@ function makeHandlers(s: MockState): Handlers {
     'GET /health': () => ({ ok: true as const, version: 'ui-dev-mock', store: 'memory', routes: Object.keys(h) }),
     'GET /settings': () => ({ ...s.settings }),
     'PUT /settings': ({ body }) => {
-      s.settings = { ...s.settings, ...body };
+      const { models, ...plain } = body;
+      s.settings = { ...s.settings, ...plain, ...(models ? { models: { ...(s.settings.models ?? DEFAULT_MODEL_SLOTS), ...models } } : {}) };
       return { ...s.settings };
     },
     'GET /cases/:id': ({ params }) => {

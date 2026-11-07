@@ -10,6 +10,7 @@ import type { InvestigationState } from './investigation.ts';
 import type { Answer, ContactDraft, PreferenceFeedback, QuestionRecord } from './questions.ts';
 import type { OutcomeReport, ParticipationBalance, ParticipationOptIn, ParticipationRating, UserSettings } from './outcomes.ts';
 import type { PeopleDirectory } from './scenarios.ts';
+import type { ModelSlots } from './models.ts';
 import type { CaseView, PersonView, QuestionView, ReceiptView, ResultView } from './views.ts';
 
 export const DEFAULT_SERVICE_PORT = 47831;
@@ -116,7 +117,8 @@ export interface ApiRoutes {
   /** Visible organization directory (ids, names, roles, groups, availability); never knowledge or answers. */
   'GET /directory': { res: DirectoryEntry[] };
   'GET /settings': { res: UserSettings };
-  'PUT /settings': { req: Partial<UserSettings>; res: UserSettings };
+  /** `models` is partial: only the slots named change. */
+  'PUT /settings': { req: Omit<Partial<UserSettings>, 'models'> & { models?: Partial<ModelSlots> }; res: UserSettings };
   /** R46: rating among the people who take part. `personEntityId` (must be the caller: `principalId` or the settings' current person) fills `me`. */
   'GET /participation/rating': { query: { personEntityId?: string; principalId?: string }; res: ParticipationRating };
   /** Own balance only: `principalId` (or the settings' current person) must resolve to that person (403 otherwise). */

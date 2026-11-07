@@ -8,7 +8,8 @@ import type {
   AccessScope, Answer, ApiRoutes, CaseView, Condition, ConnectionCard, ContactDraft, ContactDraftRequest, CoordinatorSettings, ImportRequest, ImportResponse,
   InvestigateRequest, InvestigationState, KnowledgeStore, ObservationRequest, OutcomeReport, OutcomeRequest, ParticipationBalance, ParticipationOptIn, ParticipationRating, PeopleDirectory,
   PersonView, PreferenceFeedback, Principal, Problem, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
-import { defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
+import { DEFAULT_MODEL_SLOTS, defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
+import type { ModelSlots } from '../../libs/utils/contracts/index.ts';
 import { connectionCards } from '../../libs/utils/connectors/index.ts';
 import {
   defaultInvestigationSettings, investigate, investigationId, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
@@ -71,6 +72,8 @@ export interface EngineOptions {
   /** Directory holding families.json + family folders. */
   scenariosDir?: string;
   fixturesDir?: string;
+  /** Model slots used when the user has not chosen any (default DEFAULT_MODEL_SLOTS: every slot on rules). */
+  models?: Partial<ModelSlots>;
 }
 
 export interface ClarificationResult {
@@ -135,7 +138,13 @@ export class Engine {
   getSettings(): ExtendedSettings {
     const rec = this.store.get('settings', SETTINGS_ID);
     const { id: _id, ...rest } = (rec ?? {}) as Partial<UserSettings> & { id?: string; selectorId?: string };
-    return { ...defaultUserSettings, selectorId: this.opts.coordinator?.selectorId ?? defaultCoordinatorSettings.selectorId, ...rest };
+    const models: ModelSlots = { ...DEFAULT_MODEL_SLOTS, ...(this.opts.models ?? {}), ...(rest.models ?? {}) };
+    return { ...defaultUserSettings, selectorId: this.opts.coordinator?.selectorId ?? defaultCoordinatorSettings.selectorId, ...rest, models };
+  }
+
+  /** The effective model slots (stored choice, else the host's EngineOptions.models, else every slot on rules). */
+  modelSlots(): ModelSlots {
+    return this.getSettings().models ?? DEFAULT_MODEL_SLOTS;
   }
 
   private invSettings(): InvestigationSettings {
@@ -661,9 +670,12 @@ export class Engine {
 
   // ---- settings, participation, events ------------------------------------------------------------
 
-  putSettings(patch: Partial<ExtendedSettings>): ExtendedSettings {
+  putSettings(patch: Omit<Partial<ExtendedSettings>, 'models'> & { models?: Partial<ModelSlots> }): ExtendedSettings {
     if (patch.selectorId !== undefined) this.selector(patch.selectorId);
-    const next: ExtendedSettings = { ...this.getSettings(), ...patch };
+    const current = this.getSettings();
+    // A models patch changes only the slots it names.
+    const { models: modelsPatch, ...plain } = patch;
+    const next: ExtendedSettings = { ...current, ...plain, ...(modelsPatch ? { models: { ...(current.models ?? DEFAULT_MODEL_SLOTS), ...modelsPatch } } : {}) };
     this.store.put('settings', { id: SETTINGS_ID, ...next });
     this.trace('settings', 'settings.updated', { id: 'system', displayName: 'settings' }, { keys: Object.keys(patch) });
     return next;

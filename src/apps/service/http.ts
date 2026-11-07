@@ -4,7 +4,7 @@ import type { AddressInfo } from 'node:net';
 import { z, ZodError } from 'zod';
 import type { ApiRoutes } from '../../libs/utils/contracts/index.ts';
 import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/index.ts';
-import type { Engine, ExtendedSettings } from './engine.ts';
+import type { Engine } from './engine.ts';
 import { ServiceError, toServiceError } from './errors.ts';
 import {
   activityQuerySchema, answerSchema, cancelSchema, clockSchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema,
@@ -70,7 +70,7 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
     'POST /contact-draft': (c) => engine.contactDraft(parse(contactDraftSchema, c.body)),
     'GET /directory': () => engine.directory(),
     'GET /settings': () => engine.getSettings(),
-    'PUT /settings': (c) => engine.putSettings(parse(settingsPatchSchema, c.body) as Partial<ExtendedSettings>),
+    'PUT /settings': (c) => engine.putSettings(parse(settingsPatchSchema, c.body) as Parameters<Engine['putSettings']>[0]),
     // R46: the rating route is listed before the :personEntityId one, because both match the path "rating".
     'GET /participation/rating': (c) => engine.participationRating(parse(ratingQuerySchema, q(c))),
     'GET /participation/:personEntityId': (c) => engine.participation(c.params.personEntityId!, parse(participationQuerySchema, q(c)).principalId),

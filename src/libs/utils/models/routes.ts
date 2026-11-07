@@ -16,6 +16,11 @@ export const ROUTE_REGISTRY: Record<string, RouteDescription> = {
   'question-templates': { route: 'rules', version: 'question-templates@1', description: 'Template question generator', learned: false },
   'rules-selector': { route: 'rules', version: 'rules-selector@1', description: 'Deterministic score selector', learned: false },
   'linucb': { route: 'local', version: 'linucb@1', description: 'LinUCB contextual bandit (pure TS, trained on logged/simulated records)', learned: true },
+  'ollama-embed': { route: 'local', version: 'ollama-embed@1', description: 'Text embeddings from a local Ollama model (embed slot). Pretrained, not trained here.', learned: false },
+  'ollama-extract': { route: 'local', version: 'ollama-extract@1', description: 'Schema-constrained extraction proposal from a local Ollama model (extract slot); committed by rules.', learned: false },
+  'ollama-phrase': { route: 'local', version: 'ollama-phrase@1', description: 'Question wording from a local Ollama model (phrase slot); validated, template fallback.', learned: false },
+  'api-extract': { route: 'api', version: 'api-extract@1', description: 'Extraction proposal from a hosted model (only when configured with a key); committed by rules.', learned: false },
+  'api-phrase': { route: 'api', version: 'api-phrase@1', description: 'Question wording from a hosted model (only when configured with a key); validated, template fallback.', learned: false },
 };
 
 export const routeInfo = (key: keyof typeof ROUTE_REGISTRY | string): RouteInfo => {
@@ -48,7 +53,7 @@ export function installNetworkGuard(): () => void {
   };
 }
 
-const ROUTES: Route[] = ['rules', 'local', 'replay', 'claude-agent-arm'];
+const ROUTES: Route[] = ['rules', 'local', 'replay', 'claude-agent-arm', 'api'];
 
 /** Validates that a RouteInfo is honestly labelled. */
 export function assertRouteInfo(info: RouteInfo): RouteInfo {

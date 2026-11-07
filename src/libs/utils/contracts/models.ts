@@ -7,10 +7,36 @@ import type { EvaluationRecord } from './outcomes.ts';
 
 /**
  * Provider interfaces for every model-dependent stage.
- * Implementations declare their route: 'rules' (deterministic), 'local' (trained on this Mac),
- * 'replay' (recorded fixtures) or 'claude-agent-arm' (recorded outputs of a Claude subagent during a run).
- * No implementation may call a network model provider.
+ * Implementations declare their route: 'rules' (deterministic), 'local' (trained on this Mac, or a pretrained model
+ * served by Ollama on this Mac), 'replay' (recorded fixtures), 'claude-agent-arm' (recorded outputs of a Claude
+ * subagent during a run) or 'api' (a hosted model over HTTPS).
+ * No implementation may call a network model provider unless the user configured it: the 'api' provider runs only
+ * when its slot is set to api and a key was given explicitly; never in tests or demo:judge. Everything else stays
+ * on this machine (loopback Ollama at most).
  */
+
+/** Which provider serves one model slot. 'rules' is the default for every slot. */
+export interface SlotChoice {
+  provider: 'rules' | 'local' | 'api';
+  /** Model name for local (an Ollama tag) or api; ignored for rules. */
+  model?: string;
+}
+
+/** The three model slots (BUILD_BRIEF section 2.1): embed text, extract a proposal, phrase a question. */
+export interface ModelSlots {
+  embed: SlotChoice;
+  extract: SlotChoice;
+  phrase: SlotChoice;
+}
+
+export type ModelSlotName = keyof ModelSlots;
+
+/** Every slot on rules: nothing new runs, no process, no RAM, no network. */
+export const DEFAULT_MODEL_SLOTS: ModelSlots = {
+  embed: { provider: 'rules' },
+  extract: { provider: 'rules' },
+  phrase: { provider: 'rules' },
+};
 
 export interface ConversationContext {
   /** Ordered evidence making up one thread/conversation window. */

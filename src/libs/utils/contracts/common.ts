@@ -62,8 +62,12 @@ export interface Condition {
   label?: string;
 }
 
-/** Explicit inference routes. Every model-dependent output carries one. */
-export type Route = 'rules' | 'local' | 'replay' | 'claude-agent-arm';
+/**
+ * Explicit inference routes. Every model-dependent output carries one.
+ * 'api' is a hosted model over HTTPS: allowed only when the user configured it (slot set to api and a key given);
+ * never in tests or demo:judge.
+ */
+export type Route = 'rules' | 'local' | 'replay' | 'claude-agent-arm' | 'api';
 
 export interface RouteInfo {
   route: Route;

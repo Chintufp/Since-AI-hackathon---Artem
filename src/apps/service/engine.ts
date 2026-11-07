@@ -268,7 +268,14 @@ export class Engine {
    */
   storeHealth(who?: string | Principal): StoreHealth {
     const p = who === undefined ? undefined : typeof who === 'string' ? this.principalFor(who) : this.effective(who);
-    const opts = { now: this.now(), distinguishingKeys: this.invSettings().distinguishingKeys, outcomeKey: OUTCOME_KEY };
+    // §5.2 "links made without an answer" (D-B6-29): the system's case-to-case links are B1's pairing Patterns. A
+    // confirmed one without the answer that confirmed it counts against correctness. The coordinator only writes a
+    // pairing with its answer, so this is 0 by construction today; it is counted, not assumed.
+    const links = (store: KnowledgeStore): { made: number; withoutAnswer: number } => {
+      const made = store.list('pattern').filter((x) => x.orgId === this.orgId && x.status === 'confirmed');
+      return { made: made.length, withoutAnswer: made.filter((x) => !x.answerId).length };
+    };
+    const opts = { now: this.now(), distinguishingKeys: this.invSettings().distinguishingKeys, outcomeKey: OUTCOME_KEY, links };
     if (!p) return storeHealth(this.store, undefined, opts);
     const gate = evidenceGate(this.store, p);
     const caseIds = listCases(this.store, p, this.orgId).filter((c) => !!visibleCase(c, gate)).map((c) => c.id);

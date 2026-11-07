@@ -190,3 +190,23 @@ test('live LinUCB: an outcome re-measurement corrects b without observing the de
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('§5.2 through the engine (D-B6-29): a confirmed case link without an answer lowers correctness by one claim; one with its answer does not', () => {
+  const e = engine();
+  try {
+    const before = e.storeHealth();
+    assert.equal(before.denominators.linksWithoutAnswer, 0);
+    const [a, b] = e.store.list('case').map((c) => c.id);
+    const base = { orgId: e.store.list('case')[0]!.orgId, title: 'link', caseIds: [a!, b!], sharedConditions: [], distinguishingConditions: [], createdBy: { route: 'test', version: '1' }, status: 'confirmed' as const };
+    e.store.put('pattern', { ...base, id: 'pattern:test:answered', answerId: 'answer:test:1' });
+    assert.equal(e.storeHealth().correctness, before.correctness, 'a link with its answer costs nothing');
+    e.store.put('pattern', { ...base, id: 'pattern:test:unanswered' });
+    const after = e.storeHealth();
+    assert.equal(after.denominators.linksWithoutAnswer, 1);
+    const d = after.denominators;
+    assert.equal(after.correctness, Math.round(((d.supportedClaims - d.contradictedCited - 1) / d.caseClaims) * 10_000) / 10_000);
+    assert.ok(after.correctness! < before.correctness!);
+  } finally {
+    e.close();
+  }
+});

@@ -35,3 +35,33 @@ Reverse: `memory/context-assertions.ts`.
 
 `shortDate()` renders a known instant as "14 Oct" in UTC (no organization time zone is configured yet). Unknown times are never given a date; captions then use `describeTime()` text.
 Reverse: pass a time zone to `shortDate`.
+
+## D-B1-07 · A "fixed in firmware X" note bounds older advice; it does not close it for everyone
+
+A sentence matching `validityCues.fixedInVersion` ("fixed in firmware 4.2", "the 4.2 firmware fixes ...") is checked before access facts and before outcome classification and becomes one claim of type `other` (caseless) with `supersessionBound = software.version gte 4.2`; the other sentences of that message become `other` claims too (they explain the note, they are not new advice for the case). `memory/supersession.ts` then gives every older live hypothesis/advice claim with an overlapping subject `validity.condition = "software.version < 4.2"` and `validity.conditionedBy = <note id>`; their status stays as it was. The recommendation reads the bound only when the problem states a version inside it (D-B1-11).
+Why: Erkki's note says units already on 4.2 should not see the bug; for a unit of unknown version his advice still stands (TRN-088 keeps "Check the traffic counters ..."). Closing the advice for everyone would make TRN-042 unusable for every older unit.
+Reverse: set `status: 'superseded'` in rule (b) instead of the condition, or remove the note patterns from `defaultValidityCues.fixedInVersion`.
+
+## D-B1-08 · Newer-value rule: listed keys only; undated order needs an explicit cue
+
+Rule (a) applies only to condition keys in `validityCues.newerValueKeys` (`site.access_code`, `software.version`) and compares key + qualifier (D-B1-04). When the newer/older order rests on known event times it fires on its own; when it rests on import order (an undated source) the newer claim must carry a replacement cue (`validityCues.replaces`: "is now", "no longer", "new code since", "changed the lock" ...). Both directions are checked, so importing the older email after the newer one still closes the older value.
+Why: state readings (interface up/down) change every minute and are not replaced facts; an undated re-import must not silently close a claim that only looks older because it was imported first.
+Reverse: edit `newerValueKeys`, or drop the `import-order` cue check in `applySupersession`.
+
+## D-B1-09 · Access codes are their own access-fact claim
+
+An access-fact sentence with a code (`validityCues.accessCode`: barrier|gate|lockbox|door|hatch|access code ... digits) also yields a second access-fact claim, statement "<site>: <kind> code <digits>", condition `site.access_code eq <digits>` with qualifier = the kind. The `site.access` claim of the sentence is unchanged (its tests and ids stay). `site.access_code` is added to `contracts/vocabulary.ts`.
+Why: both "Road barrier code: 5802" and "Barrier code at RBS-310 is now 7731" are `site.access eq barrier`, so the newer-value rule could never see the change.
+Reverse: remove the second push in the access-fact branch of `extractor-rules.ts`.
+
+## D-B1-10 · Message-level cues: "every October", "until <date>"
+
+"every <Month>" anywhere in a message lands on the nearest preceding access fact of that message (the code claim preferred) as `validity.condition = "changes every October"`, and the cue sentence is added to that claim's evidence. "until <date>" / "from <date> to <date>" in a claim's own sentence set `validity.to` as a **date-only** time (raw kept, no year or zone invented), which the validity rule treats as unknown. A replacement cue anywhere in a message marks that message's access facts (`validity.cue`).
+Why: in Eino's email "changes every October" is a separate sentence with no access cue.
+Reverse: `applyValidityCues` in `extractor-rules.ts`.
+
+## D-B1-11 (placeholder, see below) · Links of a superseded claim stay
+
+`rebuildCase` keeps the person link of a superseded claim (only retracted, corrected or contradicted claims reject their links).
+Why: the person still said it; the window closed, the attribution did not.
+Reverse: `case-builder.ts`, links section.

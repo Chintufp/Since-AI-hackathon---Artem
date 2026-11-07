@@ -15,6 +15,7 @@ export const ROUTE_REGISTRY: Record<string, RouteDescription> = {
   'assessor': { route: 'rules', version: 'rules-assessor@1', description: 'Support/applicability rules', learned: false },
   'question-templates': { route: 'rules', version: 'question-templates@1', description: 'Template question generator', learned: false },
   'rules-selector': { route: 'rules', version: 'rules-selector@1', description: 'Deterministic score selector', learned: false },
+  'supersession-rules': { route: 'rules', version: 'supersession-rules@1', description: 'B1: a newer value closes an older one (validity.to, status superseded); a "fixed in version X" note bounds older advice with validity.condition', learned: false },
   'linucb': { route: 'local', version: 'linucb@1', description: 'LinUCB contextual bandit (pure TS, trained on logged/simulated records)', learned: true },
 };
 

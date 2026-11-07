@@ -1,4 +1,4 @@
-import type { ActionName, Condition, ConditionKey } from '../contracts/index.ts';
+import type { ActionName, ClaimType, Condition, ConditionKey } from '../contracts/index.ts';
 
 export type CueType = 'hypothesis' | 'advice' | 'action' | 'outcome' | 'condition' | 'access-fact' | 'identity';
 
@@ -64,7 +64,51 @@ export interface ExtractionConfig {
   declaredRoleClaims: boolean;
   /** Generic language lexicons: verbs, discourse, outcome states, temporal cues (see memory/README.md "Lexicon"). */
   language: LanguageConfig;
+  /** B1: explicit validity and supersession cues (configuration, not logic). */
+  validityCues: ValidityCueLexicon;
 }
+
+/**
+ * B1: cues that say when a statement stops holding or under which condition it holds. Checked before outcome
+ * classification, so "the 4.2 firmware fixes the bug" is a superseding note, not a recovery of the old case.
+ */
+export interface ValidityCueLexicon {
+  /** A fix shipped in a version ("fixed in firmware 4.2", "the 4.2 firmware fixes ..."). Named group `version`. */
+  fixedInVersion: RegExp[];
+  /** Condition key, operator and label of the bound a fixed-in-version note carries ({version} is replaced). */
+  fixedBound: { key: string; operator: Condition['operator']; label: string; conditionText: string };
+  /** Claim types a fixed-in-version note bounds (older claims of these types on the same subject get validity.condition). */
+  boundTypes: ClaimType[];
+  /** Replacement cues ("is now", "no longer", "new code since", "changed the lock"): mark a claim as replacing an older value. */
+  replaces: RegExp;
+  /** A recurring change ("every October", group `when`): message-level, lands on the nearest preceding access fact. */
+  recurring: RegExp;
+  /** "until 1 December" (group `to`) and "from 3 November to 1 December" (groups `from`, `to`): a stated end (date-only, never dated by us). */
+  until: RegExp;
+  range: RegExp;
+  /** An access code on an access-fact sentence: groups `kind` (barrier, lockbox ...) and `code` (digits). */
+  accessCode: RegExp;
+  /** Condition keys whose newer value closes an older one (the newer-value rule). State readings are not listed. */
+  newerValueKeys: string[];
+}
+
+const DATE_WORDS = String.raw`(?:\d{1,2}\.?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*(?:\s+\d{4})?|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+\d{1,2}(?:,?\s+\d{4})?|\d{4}-\d{2}-\d{2})`;
+
+export const defaultValidityCues: ValidityCueLexicon = {
+  fixedInVersion: [
+    /\b(?:fixed|resolved|solved)\s+(?:in|by|with|since)\s+(?:the\s+)?(?:firmware|software|fw|release|version)\s*v?(?<version>\d+(?:\.\d+)+)/i,
+    /\b(?<version>\d+(?:\.\d+)+)\s+(?:firmware|software|fw|release)\s+(?:fixes|fixed|resolves|resolved|solves|solved)\b/i,
+    /\b(?:firmware|software|fw|release|version)\s*v?(?<version>\d+(?:\.\d+)+)\s+(?:fixes|fixed|resolves|resolved|solves|solved)\b/i,
+  ],
+  fixedBound: { key: 'software.version', operator: 'gte', label: 'Fixed in software version {version}', conditionText: 'software.version < {version}' },
+  boundTypes: ['hypothesis', 'advice'],
+  replaces: /\b(?:is now|are now|no longer|new code since|new code from|changed the lock|changed the code|has changed|have changed|replaced by)\b/i,
+  recurring: /\bevery\s+(?<when>january|february|march|april|may|june|july|august|september|october|november|december)\b/i,
+  until: new RegExp(String.raw`\buntil\s+(?<to>${DATE_WORDS})`, 'i'),
+  range: new RegExp(String.raw`\bfrom\s+(?<from>${DATE_WORDS})\s+(?:to|until|till)\s+(?<to>${DATE_WORDS})`, 'i'),
+  accessCode: /\b(?<kind>barrier|gate|lockbox|lock\s*box|key\s*box|door|hatch|access)\s+code\b(?:\s+(?:at|for|on)\s+[\p{L}\p{N}-]+)?\s*(?:(?:is|was)\s+(?:now\s+)?|[:=]\s*)?(?<code>\d{3,8})\b/iu,
+  newerValueKeys: ['site.access_code', 'software.version'],
+};
 
 /** Cue sets for the generic outcome-state classifier. Every entry is a generic phrase pattern, never a sentence from a data set. */
 export interface OutcomeStateLexicon {
@@ -303,4 +347,5 @@ export const defaultExtractionConfig: ExtractionConfig = {
   differentProblemOverlap: 0.25,
   declaredRoleClaims: false,
   language: defaultLanguage,
+  validityCues: defaultValidityCues,
 };

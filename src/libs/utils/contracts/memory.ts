@@ -1,4 +1,4 @@
-import type { ActorRef, Condition, EvidenceRef, Iso, SourceOrigin, TimeRef, AccessScope } from './common.ts';
+import type { ActorRef, Condition, EvidenceRef, Iso, RouteInfo, SourceOrigin, TimeRef, AccessScope } from './common.ts';
 
 export type EntityType = 'asset' | 'site' | 'person' | 'component' | 'software' | 'location' | 'organization' | 'other';
 
@@ -49,6 +49,8 @@ export interface ClaimValidity {
   orderBasis?: 'known-time' | 'import-order';
   /** B1: explicit validity cue found in the source (e.g. 'is now', 'every October', 'until 1 December'). */
   cue?: string;
+  /** B1: the route that set `to` or `condition` from another claim (e.g. supersession-rules@1). */
+  route?: RouteInfo;
 }
 
 export interface Claim {

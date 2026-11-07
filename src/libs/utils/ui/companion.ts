@@ -49,8 +49,6 @@ export const COMPANION = {
   TAP_ALLOWANCE: { ms: 180, px: 8 },
   /** R32: carried face: surprised at lift-off, happy after this long. */
   CARRIED_HAPPY_MS: 400,
-  /** Springy tap on a click (authored act, no jump). While one plays (TAP_HOLD_MS, slightly shorter than the act) further clicks still toggle but the next tap is queued, not cut (spam-clicking looked laggy). */
-  TAP_HOLD_MS: 450,
   /** R33: leaving rolls out; returning / arriving hops in (each direction one constant). */
   LEAVE_MOTION: 'roll' as TravelMotion,
   RETURN_MOTION: 'hop' as TravelMotion,
@@ -346,23 +344,9 @@ export function createCompanion(deps: CompanionDeps): Companion {
   let perchedId: string | null = null;
   let lockedAt: number | null = null;
   let lastAlive = clock.now();
-  let tapUntil = 0;
-  let tapQueued = false;
-  /** The Springy tap from its squash frame. A click while one plays queues exactly one more tap after it (never cut mid-way). */
+  /** The Springy tap exactly as the lab's v007 player does it: every click restarts it from its first frame (Artem's video, 7 Nov). */
   const tap = (): void => {
-    const now = clock.now();
-    if (now < tapUntil) {
-      tapQueued = true;
-      return;
-    }
-    tapUntil = now + COMPANION.TAP_HOLD_MS;
-    tapQueued = false;
-    avatar.run('click', 2);
-    timer('tap', COMPANION.TAP_HOLD_MS, () => {
-      if (!tapQueued || destroyed || st !== 'in') return;
-      tapQueued = false;
-      tap();
-    });
+    avatar.run('click', 0);
   };
   let lastState = { away: false, question: false };
   let destroyed = false;
@@ -836,7 +820,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
       startCarry();
       return true;
     }
-    if (clock.now() >= tapUntil) avatar.pose({ kind: 'press' }); // a tap still playing is not cut by the next press
+    avatar.pose({ kind: 'press' });
     st = 'pressed';
     emitState();
     return true;

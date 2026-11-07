@@ -301,7 +301,7 @@ test('proximity: within 60 px returns at once; an abandoned peek goes back after
   assert.equal(u.c.status().bodyX, sliverX('right', W));
 });
 
-test('click: press pose on pointerdown, toggle + run(click, 2) on release within the threshold', () => {
+test('click: press pose on pointerdown, toggle + run(click, 0) on release within the threshold', () => {
   const t = setup();
   t.c.start();
   t.env.advance(32);
@@ -314,7 +314,7 @@ test('click: press pose on pointerdown, toggle + run(click, 2) on release within
   assert.equal(t.c.status().state, 'pressed');
   assert.equal(t.c.pointerUp(x + 3, y), true, 'native click suppressed');
   assert.deepEqual(t.panelCalls, ['toggle']);
-  assert.equal(t.avatar.calls.at(-1), 'run:click:2');
+  assert.equal(t.avatar.calls.at(-1), 'run:click:0');
   assert.equal(t.c.status().state, 'in');
 });
 
@@ -420,7 +420,7 @@ test('make-room: opening from a spot where the card does not fit slides with the
   assert.deepEqual(t.panelCalls, ['toggle']);
   assert.equal(t.c.status().anim, 'room');
   assert.ok(t.avatar.calls.includes('play:hop'));
-  assert.ok(!t.avatar.calls.includes('run:click:2'), 'the hop plays while he slides');
+  assert.ok(!t.avatar.calls.includes('run:click:0'), 'the hop plays while he slides');
   t.env.advance(600);
   assert.equal(t.c.status().bodyX, 345);
   assert.equal(t.c.status().anim, null);

@@ -177,3 +177,39 @@ test('outcome after 24 h on an undated message counts from capture time (ingeste
   await e.upkeep();
   assert.ok(kinds().includes('outcome'), '24 h after capture');
 });
+
+test('pairing rationale: hours only from known times; time-only messages say the times are unknown', async () => {
+  const { e } = setup();
+  e.importData({ format: 'teams-json', payload: FIX_061 });
+  e.importData({ format: 'teams-json', payload: PROBLEM_061 });
+  await flush();
+  const known = e.store.get('investigation', standingInvestigationId(caseOf(e, 'TRN-061', true).id))!.gaps.find((g) => parseGapId(g.id)?.kind === 'pairing')!;
+  assert.match(known.description, / 2 hours apart and records no fix\.$/);
+  const { e: e2 } = setup();
+  const timeOnly = (t: { channel: string; messages: { time: string }[] }, hhmm: string) => ({ ...t, messages: t.messages.map((m) => ({ ...m, time: hhmm })) });
+  e2.importData({ format: 'teams-json', payload: timeOnly(FIX_061, '08:05') });
+  e2.importData({ format: 'teams-json', payload: timeOnly(PROBLEM_061, '09:40') });
+  await flush();
+  const undated = e2.store.get('investigation', standingInvestigationId(caseOf(e2, 'TRN-061', true).id))!.gaps.find((g) => parseGapId(g.id)?.kind === 'pairing')!;
+  assert.doesNotMatch(undated.description, /hours apart/);
+  assert.match(undated.description, /message times unknown; captured within a day of each other/);
+});
+
+test('pairing never names a partner case more restricted than the orphan fix (a group-scoped problem for an org-visible fix)', async () => {
+  const { e } = setup();
+  e.importData({ format: 'teams-json', payload: FIX_061 });
+  e.importData({ format: 'teams-json', payload: PROBLEM_061, accessGroups: ['secret'] } as any);
+  await flush();
+  const problem = caseOf(e, 'TRN-061', false);
+  assert.equal(problem.accessScope.visibility, 'group');
+  const st = e.store.get('investigation', standingInvestigationId(caseOf(e, 'TRN-061', true).id))!;
+  assert.ok(!st.gaps.some((g) => parseGapId(g.id)?.kind === 'pairing'), 'no pairing gap');
+  assert.ok(st.gaps.every((g) => !g.id.includes(problem.id) && !g.description.includes('no traffic')));
+});
+
+test('an installation is not a fix: no missing-symptom question for "Installed the new unit"', async () => {
+  const { e } = setup();
+  e.importData({ format: 'teams-json', payload: { channel: 'field-log-3', messages: [{ seq: 1, time: '2026-08-11T08:30:00+03:00', author: 'Veikko Field', text: 'Installed the new card on PE-09.' }] } });
+  await flush();
+  assert.ok(!e.store.list('investigation').some((s) => s.origin === 'standing' && s.gaps.some((g) => parseGapId(g.id)?.kind === 'missing-symptom' && g.status === 'open')));
+});

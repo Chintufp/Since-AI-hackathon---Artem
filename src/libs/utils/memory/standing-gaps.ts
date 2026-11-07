@@ -26,12 +26,15 @@ export interface StandingGapSettings {
   pairingWindowDays: number;
   /** Actions that are diagnostic checks (never a fix). */
   diagnosticActions: string[];
+  /** Action verbs that set something up rather than correct a fault (never a fix): an installation has no symptom. */
+  setupVerbs?: string[];
 }
 
 export const defaultStandingGapSettings: StandingGapSettings = {
   outcomeAfterHours: 24,
   pairingWindowDays: 14,
   diagnosticActions: ['counters.check', 'optics.check', 'logs.check'],
+  setupVerbs: ['install', 'provision', 'commission'],
 };
 
 export const STANDING_PRINCIPAL_ID = 'system:standing';
@@ -39,8 +42,10 @@ const LIVE = new Set(['provisional', 'supported']);
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 
+const isSetup = (action: string, s: StandingGapSettings): boolean =>
+  (s.setupVerbs ?? []).some((v) => action === v || action.startsWith(`${v}.`) || action.endsWith(`.${v}`) || action.split(/[.\s_-]/).includes(v));
 const isFix = (a: Attempt, s: StandingGapSettings): boolean =>
-  a.performed === 'reported' && !!a.performedBy && !s.diagnosticActions.includes(a.action) && !a.action.endsWith('.check');
+  a.performed === 'reported' && !!a.performedBy && !s.diagnosticActions.includes(a.action) && !a.action.endsWith('.check') && !isSetup(a.action, s);
 
 /** When a piece was captured: the known event time, else the earliest ingestedAt of its evidence. */
 function capturedAt(store: KnowledgeStore, known: number | undefined, evidenceIds: string[]): number | undefined {
@@ -55,6 +60,8 @@ interface CaseInfo {
   hasSymptom: boolean;
   hasOutcome: boolean;
   at?: number;
+  /** True when `at` is a known event time, false when it is the capture-time fallback. */
+  atKnown: boolean;
   text: string;
   symptom: string;
 }
@@ -67,9 +74,21 @@ function infoOf(store: KnowledgeStore, c: Case, s: StandingGapSettings): CaseInf
   return {
     c, fixes: attempts.filter((a) => isFix(a, s)), hasSymptom: obs.length > 0, hasOutcome: c.outcomeIds.length > 0,
     ...(() => { const t = capturedAt(store, instantOf(c.startedAt), c.evidenceIds); return t !== undefined ? { at: t } : {}; })(),
+    atKnown: instantOf(c.startedAt) !== undefined,
     text: [c.title, ...claims.map((x) => x.statement)].join(' '),
     symptom: (title || obs[0]?.statement || 'reported problem').replace(/[.!?]+$/, ''),
   };
+}
+
+/**
+ * May the orphan's standing state (readable with the orphan's groups) name the partner? Only when the partner is no more
+ * restricted: org-visible, or group-scoped within the orphan's own groups. Private partners never.
+ */
+function withinScope(partner: Case, orphan: Case): boolean {
+  const p = partner.accessScope, o = orphan.accessScope;
+  if (p.visibility === 'org') return true;
+  if (p.visibility !== 'group' || o.visibility !== 'group') return false;
+  return (p.groups ?? []).length > 0 && (p.groups ?? []).every((g) => (o.groups ?? []).includes(g));
 }
 
 /** The org-visible or group-scoped principal that may see the case (private cases get no standing gaps). */
@@ -131,16 +150,20 @@ export function recordStandingGaps(store: KnowledgeStore, opts: { orgId: string;
       const assets = new Set(c.entityIds.filter((id) => store.get('entity', id)?.type !== 'person'));
       const partners = [...infos.values()].filter((p) => p.c.id !== c.id && p.hasSymptom && !p.hasOutcome && p.fixes.length === 0 && p.at !== undefined
         && p.c.entityIds.some((id) => assets.has(id)) && Math.abs((p.at as number) - (info.at as number)) <= s.pairingWindowDays * DAY
-        && !decided.has([c.id, p.c.id].sort().join('|')) && p.c.accessScope.visibility !== 'private');
+        && !decided.has([c.id, p.c.id].sort().join('|')) && withinScope(p.c, c));
       const ranked = partners.map((p) => ({ p, dt: Math.abs((p.at as number) - (info.at as number)), sim: cosine(embed(info), embed(p)) }))
         .sort((x, y) => x.dt - y.dt || y.sim - x.sim || x.p.c.id.localeCompare(y.p.c.id));
       const best = ranked[0];
       if (best) {
         const a = info.fixes[0] as Attempt;
         const hours = Math.round(best.dt / HOUR);
+        // Only known event times give a time distance; a capture-time fallback says nothing about when things happened.
+        const apart = info.atKnown && best.p.atKnown
+          ? `${hours < 48 ? `${hours} hours` : `${Math.round(hours / 24)} days`} apart`
+          : `(message times unknown; captured ${hours < 24 ? 'within a day of each other' : `${Math.round(hours / 24)} days apart`})`;
         fresh.push({
           id: makeGapId(invId, 'pairing', c.id, best.p.c.id),
-          description: `${label} records ${noun(a)} with no symptom; ${shortCaseLabel(store, best.p.c)} reports ${best.p.symptom} on the same asset ${hours < 48 ? `${hours} hours` : `${Math.round(hours / 24)} days`} apart and records no fix.`,
+          description: `${label} records ${noun(a)} with no symptom; ${shortCaseLabel(store, best.p.c)} reports ${best.p.symptom} on the same asset ${apart} and records no fix.`,
           consequential: true,
           whatAnswerChanges: 'Yes links the two cases, with the answer as the evidence; no records them as distinct and the pair is never proposed again. Nothing is linked without an answer.',
           status: 'open',

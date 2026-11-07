@@ -212,3 +212,8 @@ Reverse: the guard in `Engine.answer`; the `.rf-free-text` box in panel.ts/style
 
 `resolveDateCue` (extractor-rules.ts) turns an "until <date>" cue into a known `validity.to` when the claim's message has a known time with an offset: the year is the message's (the next year when the date is already more than a day past), the moment is the start of that day at the message's own offset. Without a known message time or offset it stays date-only, as before. A "from 1 December to 30 April" range stays date-only: such ranges are usually seasons that recur (the MW-77 snowmobile route), and closing the claim after one April would be wrong. E00 re-run: 17/17, only timings changed (result files not committed). Test: supersession.test.ts "until 1 December".
 Reverse: use `dateOnly(to)` again in `applyValidityCues`.
+
+## D-B1-38 · Pairing rationale, partner scope and installations
+
+(1) The pairing gap's description (the question's "Why this question?") states hours or days apart only when both cases have known event times; with a capture-time fallback it says "(message times unknown; captured within a day of each other)". Ranking still uses the capture time (D-B1-26). (2) A partner case is proposed only when it is no more restricted than the orphan fix (org-visible, or group-scoped within the orphan's groups), because the standing state is readable with the orphan's groups; before, any non-private partner could be named. (3) `setupVerbs` (install, provision, commission) are never a fix, so an installation gets no missing-symptom or outcome gap ("You installed on PE-09 ..." no longer appears). Tests: standing.test.ts (three new).
+Reverse: `atKnown`/`apart`, `withinScope`, `isSetup` in standing-gaps.ts.

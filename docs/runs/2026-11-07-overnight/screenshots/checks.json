@@ -1,175 +1,285 @@
 {
-  "startedAt": "2026-11-07T05:25:10.986Z",
+  "startedAt": "2026-11-07T09:04:20.022Z",
   "electron": "45.2.3",
   "chrome": "156.0.8078.80",
   "node": "24.22.2",
   "platform": "darwin",
   "arch": "arm64",
+  "budgets": {
+    "frameP95Ms": 16.7,
+    "frameMaxMs": 20,
+    "idleCpuPercent": 0.3,
+    "idleRafCalls": 0
+  },
+  "mouseForwarding": "isolated (recorded, not applied; the window ignores the real mouse)",
+  "cursorAtStart": {
+    "x": 863,
+    "y": 540
+  },
+  "workAreaLog": [
+    {
+      "t": "2026-11-07T09:04:20.065Z",
+      "event": "start",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    },
+    {
+      "t": "2026-11-07T09:04:20.119Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    },
+    {
+      "t": "2026-11-07T09:04:43.472Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    },
+    {
+      "t": "2026-11-07T09:05:03.715Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    },
+    {
+      "t": "2026-11-07T09:05:09.638Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    },
+    {
+      "t": "2026-11-07T09:05:29.314Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    },
+    {
+      "t": "2026-11-07T09:06:55.172Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    },
+    {
+      "t": "2026-11-07T09:08:38.694Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    },
+    {
+      "t": "2026-11-07T09:08:43.385Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    }
+  ],
   "entrance_420": {
-    "windowHeight": 858,
+    "windowMode": "area",
+    "windowHeight": 868,
+    "crop": [
+      1092,
+      0,
+      420,
+      868
+    ],
     "frames": [
       {
         "file": "entrance-00-420.png",
-        "atMs": 12,
+        "atMs": 28,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -832,
+        "dropY": -851,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            -158,
+            1389,
+            -153,
             88,
             172
           ],
-          "transform": "translateY(-829.81px)"
+          "transform": "translateY(-848.93px)"
         }
       },
       {
         "file": "entrance-01-420.png",
-        "atMs": 146,
+        "atMs": 158,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -783,
+        "dropY": -801,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            -111,
+            1389,
+            -100,
             88,
             172
           ],
-          "transform": "translateY(-783.08px)"
+          "transform": "translateY(-796.45px)"
         }
       },
       {
         "file": "entrance-02-420.png",
-        "atMs": 284,
+        "atMs": 289,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -705,
+        "dropY": -711,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            -13,
+            1389,
+            -8,
             88,
             172
           ],
-          "transform": "translateY(-684.86px)"
+          "transform": "translateY(-703.67px)"
         }
       },
       {
         "file": "entrance-03-420.png",
-        "atMs": 420,
+        "atMs": 426,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -575,
+        "dropY": -582,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            115,
+            1389,
+            133,
             88,
             172
           ],
-          "transform": "translateY(-556.7px)"
+          "transform": "translateY(-563.23px)"
         }
       },
       {
         "file": "entrance-04-420.png",
-        "atMs": 556,
+        "atMs": 567,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -415,
+        "dropY": -404,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            278,
+            1389,
+            316,
             88,
             172
           ],
-          "transform": "translateY(-393.68px)"
+          "transform": "translateY(-379.75px)"
         }
       },
       {
         "file": "entrance-05-420.png",
-        "atMs": 701,
+        "atMs": 711,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -205,
+        "dropY": -183,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            509,
+            1389,
+            528,
             88,
             172
           ],
-          "transform": "translateY(-163.06px)"
+          "transform": "translateY(-167.69px)"
         }
       },
       {
         "file": "entrance-06-420.png",
-        "atMs": 842,
+        "atMs": 847,
         "mode": "entrance",
         "frame": 5,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            672,
+            1389,
+            696,
             88,
             172
           ],
@@ -178,22 +288,22 @@
       },
       {
         "file": "entrance-07-420.png",
-        "atMs": 979,
+        "atMs": 982,
         "mode": "entrance",
         "frame": 7,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            672,
+            1389,
+            696,
             88,
             172
           ],
@@ -202,22 +312,22 @@
       },
       {
         "file": "entrance-08-420.png",
-        "atMs": 1111,
+        "atMs": 1119,
         "mode": "entrance",
         "frame": 9,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            672,
+            1389,
+            696,
             88,
             172
           ],
@@ -226,22 +336,22 @@
       },
       {
         "file": "entrance-09-420.png",
-        "atMs": 1253,
+        "atMs": 1256,
         "mode": "entrance",
         "frame": 11,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            672,
+            1389,
+            696,
             88,
             172
           ],
@@ -250,22 +360,22 @@
       },
       {
         "file": "entrance-10-420.png",
-        "atMs": 1387,
+        "atMs": 1395,
         "mode": "entrance",
-        "frame": 13,
+        "frame": 14,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            672,
+            1389,
+            696,
             88,
             172
           ],
@@ -274,22 +384,22 @@
       },
       {
         "file": "entrance-11-420.png",
-        "atMs": 1527,
+        "atMs": 1525,
         "mode": "entrance",
         "frame": 16,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            672,
+            1389,
+            696,
             88,
             172
           ],
@@ -298,22 +408,22 @@
       },
       {
         "file": "entrance-12-420.png",
-        "atMs": 1658,
+        "atMs": 1657,
         "mode": "entrance",
         "frame": 18,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            672,
+            1389,
+            696,
             88,
             172
           ],
@@ -322,22 +432,22 @@
       },
       {
         "file": "entrance-13-420.png",
-        "atMs": 1790,
+        "atMs": 1785,
         "mode": "entrance",
         "frame": 20,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            672,
+            1389,
+            696,
             88,
             172
           ],
@@ -346,22 +456,22 @@
       },
       {
         "file": "entrance-14-420.png",
-        "atMs": 1921,
+        "atMs": 1914,
         "mode": "entrance",
         "frame": 22,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
         "drop": {
           "hidden": false,
           "rect": [
-            309,
-            672,
+            1389,
+            696,
             88,
             172
           ],
@@ -370,14 +480,14 @@
       },
       {
         "file": "entrance-15-420.png",
-        "atMs": 2055,
+        "atMs": 2049,
         "mode": "idle3",
         "frame": 0,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
@@ -394,14 +504,14 @@
       },
       {
         "file": "entrance-16-420.png",
-        "atMs": 2187,
+        "atMs": 2190,
         "mode": "idle3",
         "frame": 0,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
@@ -418,14 +528,14 @@
       },
       {
         "file": "entrance-17-420.png",
-        "atMs": 2317,
+        "atMs": 2331,
         "mode": "idle3",
         "frame": 0,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
@@ -442,14 +552,14 @@
       },
       {
         "file": "entrance-18-420.png",
-        "atMs": 2453,
+        "atMs": 2465,
         "mode": "idle3",
         "frame": 0,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
@@ -466,14 +576,14 @@
       },
       {
         "file": "entrance-19-420.png",
-        "atMs": 2581,
+        "atMs": 2595,
         "mode": "idle3",
         "frame": 8,
         "falling": false,
         "dropY": 0,
         "hitbox": [
-          321,
-          774,
+          1401,
+          798,
           64,
           64
         ],
@@ -492,8 +602,8 @@
   },
   "idleCpu": {
     "windowSeconds": 3,
-    "state": "collapsed, idle poses only",
-    "totalPercent": 0.18,
+    "state": "collapsed, idle poses only (work-area window, companion on, away=0)",
+    "totalPercent": 0.16,
     "perProcess": [
       {
         "type": "Browser",
@@ -501,7 +611,7 @@
       },
       {
         "type": "GPU",
-        "percent": 0.11
+        "percent": 0.1
       },
       {
         "type": "Utility",
@@ -510,7 +620,7 @@
       },
       {
         "type": "Tab",
-        "percent": 0.06
+        "percent": 0.05
       }
     ],
     "avatarStatus": {
@@ -522,73 +632,39 @@
       "idlePose": 0,
       "visible": true,
       "reduced": false,
-      "questionCue": false,
+      "questionCue": true,
       "scale": 4,
       "falling": false,
       "dropY": 0,
-      "dropActive": false
-    }
-  },
-  "openFrames_420": {
-    "frames": 93,
-    "maxMs": 16.7,
-    "meanMs": 8.42,
-    "p95Ms": 9.3,
-    "over20ms": 0
-  },
-  "avatarModeRightAfterSend_420": "processing",
-  "closeFrames_420": {
-    "frames": 35,
-    "maxMs": 9.3,
-    "meanMs": 8.33,
-    "p95Ms": 9.2,
-    "over20ms": 0
-  },
-  "hitbox": {
-    "320": {
-      "initial": [
-        235,
-        774,
-        64,
-        64
-      ],
-      "final": [
-        235,
-        774,
-        64,
-        64
-      ],
-      "allStatesEqual": true
-    },
-    "420": {
-      "initial": [
-        321,
-        774,
-        64,
-        64
-      ],
-      "final": [
-        321,
-        774,
-        64,
-        64
-      ],
-      "allStatesEqual": true
+      "dropActive": false,
+      "held": false,
+      "carried": false,
+      "airborne": false,
+      "lift": 0,
+      "base": "idle3",
+      "surface": "display"
     }
   },
   "entrance_320": {
-    "windowHeight": 858,
+    "windowMode": "column",
+    "windowHeight": 856,
+    "crop": [
+      0,
+      0,
+      320,
+      856
+    ],
     "frames": [
       {
         "file": "entrance-00-320.png",
-        "atMs": 21,
+        "atMs": 12,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -830,
+        "dropY": -828,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -596,23 +672,23 @@
           "hidden": false,
           "rect": [
             223,
-            -153,
+            -156,
             88,
             172
           ],
-          "transform": "translateY(-825.46px)"
+          "transform": "translateY(-826.2px)"
         }
       },
       {
         "file": "entrance-01-320.png",
-        "atMs": 155,
+        "atMs": 141,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -779,
+        "dropY": -782,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -620,23 +696,23 @@
           "hidden": false,
           "rect": [
             223,
-            -98,
+            -108,
             88,
             172
           ],
-          "transform": "translateY(-769.89px)"
+          "transform": "translateY(-777.91px)"
         }
       },
       {
         "file": "entrance-02-320.png",
-        "atMs": 291,
+        "atMs": 279,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -691,
+        "dropY": -697,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -644,23 +720,23 @@
           "hidden": false,
           "rect": [
             223,
-            -5,
+            -14,
             88,
             172
           ],
-          "transform": "translateY(-677.28px)"
+          "transform": "translateY(-683.89px)"
         }
       },
       {
         "file": "entrance-03-320.png",
-        "atMs": 424,
+        "atMs": 408,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -566,
+        "dropY": -575,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -668,23 +744,23 @@
           "hidden": false,
           "rect": [
             223,
-            124,
+            104,
             88,
             172
           ],
-          "transform": "translateY(-547.65px)"
+          "transform": "translateY(-566.3px)"
         }
       },
       {
         "file": "entrance-04-320.png",
-        "atMs": 556,
+        "atMs": 545,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -404,
+        "dropY": -416,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -692,23 +768,23 @@
           "hidden": false,
           "rect": [
             223,
-            291,
+            265,
             88,
             172
           ],
-          "transform": "translateY(-380.85px)"
+          "transform": "translateY(-405.1px)"
         }
       },
       {
         "file": "entrance-05-320.png",
-        "atMs": 694,
+        "atMs": 682,
         "mode": "entrance",
         "frame": -1,
         "falling": true,
-        "dropY": -191,
+        "dropY": -220,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -716,23 +792,23 @@
           "hidden": false,
           "rect": [
             223,
-            495,
+            463,
             88,
             172
           ],
-          "transform": "translateY(-177.14px)"
+          "transform": "translateY(-206.97px)"
         }
       },
       {
         "file": "entrance-06-320.png",
-        "atMs": 823,
+        "atMs": 820,
         "mode": "entrance",
         "frame": 5,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -740,7 +816,7 @@
           "hidden": false,
           "rect": [
             223,
-            672,
+            670,
             88,
             172
           ],
@@ -749,14 +825,14 @@
       },
       {
         "file": "entrance-07-320.png",
-        "atMs": 960,
+        "atMs": 956,
         "mode": "entrance",
         "frame": 7,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -764,7 +840,7 @@
           "hidden": false,
           "rect": [
             223,
-            672,
+            670,
             88,
             172
           ],
@@ -773,14 +849,14 @@
       },
       {
         "file": "entrance-08-320.png",
-        "atMs": 1090,
+        "atMs": 1086,
         "mode": "entrance",
         "frame": 9,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -788,7 +864,7 @@
           "hidden": false,
           "rect": [
             223,
-            672,
+            670,
             88,
             172
           ],
@@ -797,14 +873,14 @@
       },
       {
         "file": "entrance-09-320.png",
-        "atMs": 1219,
+        "atMs": 1208,
         "mode": "entrance",
         "frame": 11,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -812,7 +888,7 @@
           "hidden": false,
           "rect": [
             223,
-            672,
+            670,
             88,
             172
           ],
@@ -821,14 +897,14 @@
       },
       {
         "file": "entrance-10-320.png",
-        "atMs": 1350,
+        "atMs": 1337,
         "mode": "entrance",
         "frame": 13,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -836,7 +912,7 @@
           "hidden": false,
           "rect": [
             223,
-            672,
+            670,
             88,
             172
           ],
@@ -845,14 +921,14 @@
       },
       {
         "file": "entrance-11-320.png",
-        "atMs": 1480,
+        "atMs": 1464,
         "mode": "entrance",
         "frame": 15,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -860,7 +936,7 @@
           "hidden": false,
           "rect": [
             223,
-            672,
+            670,
             88,
             172
           ],
@@ -869,14 +945,14 @@
       },
       {
         "file": "entrance-12-320.png",
-        "atMs": 1613,
+        "atMs": 1592,
         "mode": "entrance",
         "frame": 17,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -884,7 +960,7 @@
           "hidden": false,
           "rect": [
             223,
-            672,
+            670,
             88,
             172
           ],
@@ -893,14 +969,14 @@
       },
       {
         "file": "entrance-13-320.png",
-        "atMs": 1749,
+        "atMs": 1723,
         "mode": "entrance",
         "frame": 19,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -908,7 +984,7 @@
           "hidden": false,
           "rect": [
             223,
-            672,
+            670,
             88,
             172
           ],
@@ -917,14 +993,14 @@
       },
       {
         "file": "entrance-14-320.png",
-        "atMs": 1879,
+        "atMs": 1847,
         "mode": "entrance",
         "frame": 21,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -932,7 +1008,7 @@
           "hidden": false,
           "rect": [
             223,
-            672,
+            670,
             88,
             172
           ],
@@ -941,38 +1017,38 @@
       },
       {
         "file": "entrance-15-320.png",
-        "atMs": 2010,
-        "mode": "idle3",
-        "frame": 0,
+        "atMs": 1978,
+        "mode": "entrance",
+        "frame": 23,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
         "drop": {
-          "hidden": true,
+          "hidden": false,
           "rect": [
-            0,
-            0,
-            0,
-            0
+            223,
+            670,
+            88,
+            172
           ],
           "transform": ""
         }
       },
       {
         "file": "entrance-16-320.png",
-        "atMs": 2140,
+        "atMs": 2110,
         "mode": "idle3",
         "frame": 0,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -989,14 +1065,14 @@
       },
       {
         "file": "entrance-17-320.png",
-        "atMs": 2273,
+        "atMs": 2247,
         "mode": "idle3",
         "frame": 0,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -1013,14 +1089,14 @@
       },
       {
         "file": "entrance-18-320.png",
-        "atMs": 2403,
+        "atMs": 2382,
         "mode": "idle3",
         "frame": 0,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -1037,14 +1113,14 @@
       },
       {
         "file": "entrance-19-320.png",
-        "atMs": 2533,
+        "atMs": 2513,
         "mode": "idle3",
         "frame": 8,
         "falling": false,
         "dropY": 0,
         "hitbox": [
           235,
-          774,
+          772,
           64,
           64
         ],
@@ -1061,26 +1137,11 @@
       }
     ]
   },
-  "openFrames_320": {
-    "frames": 93,
-    "maxMs": 11.1,
-    "meanMs": 8.31,
-    "p95Ms": 9.3,
-    "over20ms": 0
-  },
-  "avatarModeRightAfterSend_320": "processing",
-  "closeFrames_320": {
-    "frames": 36,
-    "maxMs": 9.3,
-    "meanMs": 8.33,
-    "p95Ms": 9.2,
-    "over20ms": 0
-  },
   "reducedMotion": {
     "timingsMs": {
       "nodeExpand": 22,
-      "people": 24,
-      "close": 24
+      "people": 26,
+      "close": 25
     },
     "status": {
       "view": "collapsed",
@@ -1145,16 +1206,2197 @@
         "idlePose": 0,
         "visible": true,
         "reduced": true,
-        "questionCue": false,
+        "questionCue": true,
         "scale": 4,
         "falling": false,
         "dropY": 0,
-        "dropActive": false
-      }
+        "dropActive": false,
+        "held": false,
+        "carried": false,
+        "airborne": false,
+        "lift": 0,
+        "base": "idle3",
+        "surface": "display"
+      },
+      "companion": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "away": false,
+        "side": "right",
+        "pointerNear": false,
+        "homeFromRight": 79,
+        "homeX": 1433,
+        "rafActive": false,
+        "timers": [],
+        "anim": null,
+        "fidgets": false,
+        "question": null
+      },
+      "unseenQuestion": true
     },
     "nonZeroTimingsIncludeIpcRoundTrip": true
   },
+  "walks": {
+    "area-420": {
+      "windowMode": "area",
+      "bounds": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      },
+      "expectedBounds": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      },
+      "openFrames": {
+        "frames": 92,
+        "maxMs": 16.7,
+        "meanMs": 8.42,
+        "p95Ms": 9.3,
+        "over20ms": 0,
+        "pass": true
+      },
+      "avatarModeRightAfterSend": "processing",
+      "closeFrames": {
+        "frames": 93,
+        "maxMs": 9.4,
+        "meanMs": 8.33,
+        "p95Ms": 9.2,
+        "over20ms": 0,
+        "pass": true
+      },
+      "hitbox": {
+        "initial": [
+          1401,
+          798,
+          64,
+          64
+        ],
+        "final": [
+          1401,
+          798,
+          64,
+          64
+        ],
+        "windowContentSizes": [
+          "1512x868"
+        ],
+        "allStatesEqual": true,
+        "allStatesEqualInWindowCoords": true
+      },
+      "companion": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "away": false,
+        "side": "right",
+        "pointerNear": false,
+        "homeFromRight": 79,
+        "homeX": 1433,
+        "rafActive": false,
+        "timers": [],
+        "anim": null,
+        "fidgets": false,
+        "question": null
+      },
+      "ktCompanionAttr": "on"
+    },
+    "column-320": {
+      "windowMode": "column",
+      "bounds": {
+        "x": 1180,
+        "y": 33,
+        "width": 320,
+        "height": 856
+      },
+      "expectedBounds": {
+        "x": 1180,
+        "y": 33,
+        "width": 320,
+        "height": 856
+      },
+      "openFrames": {
+        "frames": 95,
+        "maxMs": 9.4,
+        "meanMs": 8.33,
+        "p95Ms": 9.3,
+        "over20ms": 0,
+        "pass": true
+      },
+      "avatarModeRightAfterSend": "processing",
+      "closeFrames": {
+        "frames": 94,
+        "maxMs": 10.2,
+        "meanMs": 8.33,
+        "p95Ms": 9.9,
+        "over20ms": 0,
+        "pass": true
+      },
+      "hitbox": {
+        "initial": [
+          235,
+          772,
+          64,
+          64
+        ],
+        "final": [
+          235,
+          772,
+          64,
+          64
+        ],
+        "windowContentSizes": [
+          "320x856"
+        ],
+        "allStatesEqual": true,
+        "allStatesEqualInWindowCoords": true
+      },
+      "companion": null,
+      "ktCompanionAttr": null
+    },
+    "column-420": {
+      "windowMode": "column",
+      "bounds": {
+        "x": 1080,
+        "y": 33,
+        "width": 420,
+        "height": 856
+      },
+      "expectedBounds": {
+        "x": 1080,
+        "y": 33,
+        "width": 420,
+        "height": 856
+      },
+      "openFrames": {
+        "frames": 94,
+        "maxMs": 10.3,
+        "meanMs": 8.34,
+        "p95Ms": 10,
+        "over20ms": 0,
+        "pass": true
+      },
+      "avatarModeRightAfterSend": "processing",
+      "closeFrames": {
+        "frames": 94,
+        "maxMs": 10.4,
+        "meanMs": 8.35,
+        "p95Ms": 10.2,
+        "over20ms": 0,
+        "pass": true
+      },
+      "hitbox": {
+        "initial": [
+          321,
+          772,
+          64,
+          64
+        ],
+        "final": [
+          321,
+          772,
+          64,
+          64
+        ],
+        "windowContentSizes": [
+          "420x856"
+        ],
+        "allStatesEqual": true,
+        "allStatesEqualInWindowCoords": true
+      },
+      "companion": null,
+      "ktCompanionAttr": null
+    }
+  },
+  "companion": {
+    "scenarios": {
+      "window": {
+        "bounds": {
+          "x": 0,
+          "y": 33,
+          "width": 1512,
+          "height": 868
+        },
+        "workArea": {
+          "x": 0,
+          "y": 33,
+          "width": 1512,
+          "height": 868
+        },
+        "boundsEqualWorkArea": true,
+        "contentSize": [
+          1512,
+          868
+        ],
+        "derivedGravityPxS2": 2143
+      },
+      "launch": {
+        "launchToInMs": 1999,
+        "inToLeavingMs": 4027,
+        "side": "right",
+        "bodyX": 1528,
+        "expectedSliverX": 1528,
+        "pass": true
+      },
+      "peek": {
+        "ms": 2213,
+        "timedOut": false,
+        "states": [
+          "peeking",
+          "returning",
+          "in"
+        ],
+        "sequence": [
+          "peeking:hold",
+          "returning:hop",
+          "in:hello",
+          "in:idle3"
+        ],
+        "hello": true,
+        "pass": true
+      },
+      "leaveAfterPointer": {
+        "pointerAwayToLeavingMs": 19924,
+        "armToLeavingMs": 20008,
+        "armAfterPointerAwayMs": -84,
+        "idleTimerArms": [
+          -13621,
+          -13620,
+          -13620,
+          -11521,
+          -1060,
+          -84
+        ],
+        "expectedMs": 20000,
+        "pass": true
+      },
+      "sendInputEventSmoke": {
+        "overHimIgnore": false,
+        "pressedMode": "pose:press",
+        "opened": true,
+        "closedAgain": true,
+        "ignoreAfterMovingAway": true,
+        "pass": true
+      },
+      "press": {
+        "mode": "pose:press",
+        "frame": 1,
+        "st": "pressed",
+        "nextPaintMs": 0.3,
+        "xy": [
+          1433,
+          830
+        ],
+        "pass": true
+      },
+      "click": {
+        "open": true,
+        "mode": "click",
+        "frame": 2,
+        "st": "in",
+        "nativeClickSuppressed": true,
+        "pass": true
+      },
+      "closePanelLeave": {
+        "closed": true,
+        "closeToLeavingMs": 20189,
+        "expectedMs": 20000,
+        "pass": true
+      },
+      "dragRelease250": {
+        "dragFrames": {
+          "frames": 36,
+          "maxMs": 10.3,
+          "meanMs": 8.33,
+          "p95Ms": 10.2,
+          "over20ms": 0,
+          "pass": true
+        },
+        "fallFrames": {
+          "frames": 113,
+          "maxMs": 10.4,
+          "meanMs": 8.32,
+          "p95Ms": 10.3,
+          "over20ms": 0,
+          "pass": true
+        },
+        "fallMs": 953,
+        "timedOut": false,
+        "bodyXBefore": 1433,
+        "liftAtRelease": 250,
+        "stateWhileCarried": "carried",
+        "mid": {
+          "geom": {
+            "state": "carried",
+            "bodyX": 1283,
+            "lift": 125,
+            "dx": 0,
+            "gap": 6,
+            "w": 64,
+            "h": 64
+          },
+          "shadow": {
+            "gap": -4,
+            "cx": 1283,
+            "transform": "translateY(125px)"
+          },
+          "avatar": {
+            "mode": "pose:carried",
+            "surface": "drop",
+            "carried": true,
+            "lift": 125
+          }
+        },
+        "shadowOnFloor": true,
+        "shadowRest": {
+          "gap": -4,
+          "cx": 1433,
+          "transform": ""
+        },
+        "carriedPose": true,
+        "impactSpeedPxS": 1035,
+        "expectedTier": "hop",
+        "tier": "hop",
+        "landingFrames": {
+          "hop": [
+            11,
+            17
+          ],
+          "entrance": []
+        },
+        "sequence": [
+          "airborne:fall",
+          "landing:hop",
+          "in:idle3"
+        ],
+        "after": {
+          "state": "in",
+          "bodyX": 1133,
+          "homeFromRight": 379,
+          "homeX": 1133
+        },
+        "pass": true,
+        "expectedHomeFromRight": 379,
+        "homeSaved": true
+      },
+      "dragRelease600": {
+        "dragFrames": {
+          "frames": 36,
+          "maxMs": 10.3,
+          "meanMs": 8.34,
+          "p95Ms": 10.3,
+          "over20ms": 0,
+          "pass": true
+        },
+        "fallFrames": {
+          "frames": 235,
+          "maxMs": 10.4,
+          "meanMs": 8.33,
+          "p95Ms": 10,
+          "over20ms": 0,
+          "pass": true
+        },
+        "fallMs": 1967,
+        "timedOut": false,
+        "bodyXBefore": 1133,
+        "liftAtRelease": 600,
+        "stateWhileCarried": "carried",
+        "mid": {
+          "geom": {
+            "state": "carried",
+            "bodyX": 1133,
+            "lift": 300,
+            "dx": 0,
+            "gap": 6,
+            "w": 64,
+            "h": 64
+          },
+          "shadow": {
+            "gap": -4,
+            "cx": 1133,
+            "transform": "translateY(300px)"
+          },
+          "avatar": {
+            "mode": "pose:carried",
+            "surface": "drop",
+            "carried": true,
+            "lift": 300
+          }
+        },
+        "shadowOnFloor": true,
+        "shadowRest": {
+          "gap": -4,
+          "cx": 1433,
+          "transform": ""
+        },
+        "carriedPose": true,
+        "impactSpeedPxS": 1604,
+        "expectedTier": "entrance",
+        "tier": "entrance",
+        "landingFrames": {
+          "hop": [],
+          "entrance": [
+            5,
+            23
+          ]
+        },
+        "sequence": [
+          "airborne:fall",
+          "landing:entrance",
+          "in:idle3"
+        ],
+        "after": {
+          "state": "in",
+          "bodyX": 1133,
+          "homeFromRight": 379,
+          "homeX": 1133
+        },
+        "pass": true
+      },
+      "catchMidAir": {
+        "caughtState": "carried",
+        "liftWhenCaught": 513,
+        "liftBefore": 513,
+        "releasedAtLift": 20,
+        "tier": "settle",
+        "expectedTier": "settle",
+        "sequence": [
+          "airborne:fall",
+          "landing:land:settle",
+          "in:idle3"
+        ],
+        "final": "in",
+        "pass": true
+      },
+      "rollOut": {
+        "fromBodyX": 1133,
+        "toBodyX": 1528,
+        "ms": 1057,
+        "timedOut": false,
+        "rollPoseChanges": 16,
+        "sequence": [
+          "leaving:idle3",
+          "leaving:pose:roll",
+          "leaving:pose:settle",
+          "away:hold"
+        ],
+        "side": "right",
+        "pass": true
+      },
+      "pushPastRightEdge": {
+        "pointerEndX": 1510,
+        "side": "right",
+        "state": "away",
+        "homeFromRightBefore": 379,
+        "homeFromRightAfter": 379,
+        "pass": true
+      },
+      "stateEvents": [
+        {
+          "t": 1794042363546,
+          "state": {
+            "away": false,
+            "question": true
+          }
+        },
+        {
+          "t": 1794042366888,
+          "state": {
+            "away": false,
+            "question": false
+          }
+        },
+        {
+          "t": 1794042388032,
+          "state": {
+            "away": true,
+            "question": false
+          }
+        },
+        {
+          "t": 1794042388839,
+          "state": {
+            "away": false,
+            "question": false
+          }
+        },
+        {
+          "t": 1794042402327,
+          "state": {
+            "away": true,
+            "question": false
+          }
+        },
+        {
+          "t": 1794042403530,
+          "state": {
+            "away": false,
+            "question": false
+          }
+        },
+        {
+          "t": 1794042406081,
+          "state": {
+            "away": true,
+            "question": false
+          }
+        },
+        {
+          "t": 1794042407355,
+          "state": {
+            "away": false,
+            "question": false
+          }
+        },
+        {
+          "t": 1794042410217,
+          "state": {
+            "away": true,
+            "question": false
+          }
+        },
+        {
+          "t": 1794042411031,
+          "state": {
+            "away": false,
+            "question": false
+          }
+        },
+        {
+          "t": 1794042413646,
+          "state": {
+            "away": true,
+            "question": false
+          }
+        },
+        {
+          "t": 1794042414958,
+          "state": {
+            "away": false,
+            "question": false
+          }
+        }
+      ],
+      "questionArrival": {
+        "questionId": "q:mock:timing",
+        "perchedBodyX": 1468,
+        "perchTimers": [
+          "perch"
+        ],
+        "glyph": {
+          "questionCue": true,
+          "held": true,
+          "unseen": true
+        },
+        "perchedShot": "companion/perched-glyph.png",
+        "perchedToAwayMs": 89369,
+        "expectedPerchWaitMs": 90000,
+        "tuckedState": "away",
+        "glyphOnSliver": {
+          "questionCue": true,
+          "held": true,
+          "unseen": true,
+          "mode": "hold"
+        },
+        "sliverShot": "companion/sliver-after-question.png",
+        "trayStateEvents": [],
+        "lastTrayState": {
+          "away": true,
+          "question": true
+        },
+        "engagement": {
+          "openDelaysMs": [],
+          "answered": 0,
+          "deferred": 0,
+          "dismissed": 0,
+          "arrivals": 1,
+          "reminders": 0,
+          "arrivalsIgnored": 1,
+          "medianOpenDelayMs": null
+        },
+        "pass": true
+      },
+      "secondArrival": {
+        "questionId": "q:mock:revision",
+        "state": "perched",
+        "timedOut": false,
+        "sequence": [
+          "away:hold",
+          "arriving:hop",
+          "perched:question",
+          "perched:hold"
+        ],
+        "afterPointer": "returning"
+      },
+      "reducedMotion": {
+        "reduced": true,
+        "awayImmediately": "away",
+        "awayShot": "companion/reduced-away.png",
+        "peekImmediately": {
+          "st": "peeking",
+          "x": 1468
+        },
+        "afterDwell": "in",
+        "drop": {
+          "carried": "carried",
+          "landed": "in",
+          "lift": 0
+        },
+        "arrival": {
+          "arrived": true,
+          "st": "perched"
+        },
+        "perchedShot": "companion/reduced-perched.png",
+        "rafCalls": 0,
+        "rafWindowMs": 1272,
+        "rafStacks": [],
+        "pass": true
+      },
+      "reloadKeepsSpot": {
+        "windowWidth": 1512,
+        "atLaunch": 1433,
+        "dropped": 1233,
+        "saved": {
+          "version": 1,
+          "homeFromRight": 279,
+          "awaySide": null,
+          "fidgets": false
+        },
+        "afterReload": 1233,
+        "pass": true
+      },
+      "columnMode": {
+        "pass": true
+      }
+    },
+    "captures": {
+      "drag-fall": {
+        "frames": 19,
+        "reachedEnd": true,
+        "snaps": [
+          "carried:pose:carried:0",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "landing:hop:11",
+          "landing:hop:12",
+          "landing:hop:12",
+          "landing:hop:13",
+          "landing:hop:14",
+          "landing:hop:15",
+          "landing:hop:16",
+          "landing:hop:17",
+          "in:idle3:0",
+          "in:idle3:0"
+        ]
+      },
+      "drop-high": {
+        "frames": 37,
+        "reachedEnd": true,
+        "snaps": [
+          "carried:pose:carried:0",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "airborne:fall:-1",
+          "landing:entrance:5",
+          "landing:entrance:5",
+          "landing:entrance:6",
+          "landing:entrance:7",
+          "landing:entrance:8",
+          "landing:entrance:9",
+          "landing:entrance:10",
+          "landing:entrance:11",
+          "landing:entrance:12",
+          "landing:entrance:13",
+          "landing:entrance:13",
+          "landing:entrance:14",
+          "landing:entrance:15",
+          "landing:entrance:16",
+          "landing:entrance:17",
+          "landing:entrance:18",
+          "landing:entrance:19",
+          "landing:entrance:20",
+          "landing:entrance:21",
+          "landing:entrance:21",
+          "landing:entrance:22",
+          "landing:entrance:23",
+          "in:idle3:0",
+          "in:idle3:0"
+        ]
+      },
+      "roll": {
+        "frames": 21,
+        "reachedEnd": true,
+        "snaps": [
+          "in:idle3:0",
+          "leaving:pose:roll:0",
+          "leaving:pose:roll:0",
+          "leaving:pose:roll:0",
+          "leaving:pose:roll:7",
+          "leaving:pose:roll:6",
+          "leaving:pose:roll:4",
+          "leaving:pose:roll:3",
+          "leaving:pose:roll:1",
+          "leaving:pose:roll:7",
+          "leaving:pose:roll:6",
+          "leaving:pose:roll:5",
+          "leaving:pose:roll:3",
+          "leaving:pose:roll:3",
+          "leaving:pose:roll:2",
+          "leaving:pose:roll:1",
+          "leaving:pose:roll:1",
+          "leaving:pose:settle:0",
+          "leaving:pose:settle:1",
+          "away:hold:0",
+          "away:hold:0"
+        ]
+      },
+      "peek": {
+        "frames": 54,
+        "reachedEnd": true,
+        "snaps": [
+          "away:hold:0",
+          "peeking:hold:0",
+          "peeking:hold:0",
+          "peeking:hold:0",
+          "peeking:hold:0",
+          "peeking:hold:0",
+          "peeking:hold:0",
+          "peeking:hold:0",
+          "returning:pose:roll:0",
+          "returning:pose:roll:0",
+          "returning:pose:roll:0",
+          "returning:pose:roll:1",
+          "returning:pose:roll:2",
+          "returning:pose:roll:3",
+          "returning:pose:roll:4",
+          "returning:pose:roll:5",
+          "returning:pose:roll:5",
+          "returning:pose:roll:6",
+          "returning:hop:0",
+          "returning:hop:0",
+          "returning:hop:1",
+          "returning:hop:2",
+          "returning:hop:3",
+          "returning:hop:4",
+          "returning:hop:5",
+          "returning:hop:6",
+          "returning:hop:6",
+          "returning:hop:7",
+          "returning:hop:8",
+          "returning:hop:9",
+          "returning:hop:10",
+          "returning:hop:11",
+          "returning:hop:12",
+          "returning:hop:13",
+          "returning:hop:14",
+          "returning:hop:15",
+          "returning:hop:15",
+          "returning:hop:16",
+          "returning:hop:17",
+          "in:hello:0",
+          "in:hello:0",
+          "in:hello:1",
+          "in:hello:2",
+          "in:hello:3",
+          "in:hello:3",
+          "in:hello:4",
+          "in:hello:5",
+          "in:hello:6",
+          "in:hello:6",
+          "in:hello:7",
+          "in:hello:8",
+          "in:hello:9",
+          "in:idle3:0",
+          "in:idle3:0"
+        ]
+      },
+      "arrival": {
+        "frames": 48,
+        "reachedEnd": true,
+        "snaps": [
+          "away:hold:0",
+          "arriving:hop:0",
+          "arriving:hop:1",
+          "arriving:hop:2",
+          "arriving:hop:3",
+          "arriving:hop:4",
+          "arriving:hop:5",
+          "arriving:hop:5",
+          "arriving:hop:6",
+          "arriving:hop:7",
+          "arriving:hop:8",
+          "arriving:hop:9",
+          "arriving:hop:10",
+          "arriving:hop:11",
+          "arriving:hop:12",
+          "arriving:hop:13",
+          "arriving:hop:14",
+          "arriving:hop:15",
+          "arriving:hop:15",
+          "arriving:hop:16",
+          "arriving:hop:17",
+          "perched:question:0",
+          "perched:question:0",
+          "perched:question:1",
+          "perched:question:1",
+          "perched:question:2",
+          "perched:question:3",
+          "perched:question:3",
+          "perched:question:4",
+          "perched:question:5",
+          "perched:question:5",
+          "perched:question:6",
+          "perched:question:7",
+          "perched:question:7",
+          "perched:question:8",
+          "perched:question:8",
+          "perched:question:9",
+          "perched:question:10",
+          "perched:question:10",
+          "perched:question:11",
+          "perched:question:12",
+          "perched:question:12",
+          "perched:question:13",
+          "perched:question:13",
+          "perched:question:14",
+          "perched:question:15",
+          "perched:question:15",
+          "perched:hold:0"
+        ]
+      },
+      "arrival-tuck": {
+        "frames": 2,
+        "reachedEnd": true,
+        "snaps": [
+          "away:hold:0",
+          "away:hold:0"
+        ]
+      }
+    },
+    "frames": {
+      "peek": {
+        "frames": 266,
+        "maxMs": 10.4,
+        "meanMs": 8.33,
+        "p95Ms": 9.8,
+        "over20ms": 0,
+        "pass": true
+      },
+      "drag": {
+        "frames": 36,
+        "maxMs": 10.3,
+        "meanMs": 8.33,
+        "p95Ms": 10.2,
+        "over20ms": 0,
+        "pass": true
+      },
+      "fall": {
+        "frames": 113,
+        "maxMs": 10.4,
+        "meanMs": 8.32,
+        "p95Ms": 10.3,
+        "over20ms": 0,
+        "pass": true
+      },
+      "fallHigh": {
+        "frames": 235,
+        "maxMs": 10.4,
+        "meanMs": 8.33,
+        "p95Ms": 10,
+        "over20ms": 0,
+        "pass": true
+      },
+      "roll": {
+        "frames": 127,
+        "maxMs": 10.2,
+        "meanMs": 8.33,
+        "p95Ms": 9.7,
+        "over20ms": 0,
+        "pass": true
+      },
+      "arrive": {
+        "frames": 299,
+        "maxMs": 10.4,
+        "meanMs": 8.33,
+        "p95Ms": 10.2,
+        "over20ms": 0,
+        "pass": true
+      }
+    },
+    "idle": {
+      "away": {
+        "label": "away",
+        "windowSeconds": 3,
+        "state": "away",
+        "timers": [],
+        "companionRaf": false,
+        "avatar": {
+          "mode": "hold",
+          "held": true,
+          "idleLoop": false,
+          "reactionPlaying": false,
+          "questionCue": true
+        },
+        "totalCpuPercent": 0.02,
+        "rendererCpuPercent": 0,
+        "perProcess": [
+          {
+            "type": "Browser",
+            "percent": 0.01
+          },
+          {
+            "type": "GPU",
+            "percent": 0.01
+          },
+          {
+            "type": "Utility",
+            "name": "Network Service",
+            "percent": 0
+          },
+          {
+            "type": "Tab",
+            "percent": 0
+          }
+        ],
+        "rafCalls": 0,
+        "rafWindowMs": 3005,
+        "rafStacks": [],
+        "ignoreIpcDuringWindow": 0,
+        "longTimersArmedDuringWindow": [],
+        "pass": {
+          "cpu": true,
+          "raf": true
+        }
+      },
+      "in": {
+        "label": "in",
+        "windowSeconds": 3,
+        "state": "in",
+        "timers": [
+          "idle"
+        ],
+        "companionRaf": false,
+        "avatar": {
+          "mode": "idle3",
+          "held": false,
+          "idleLoop": true,
+          "reactionPlaying": false,
+          "questionCue": true
+        },
+        "totalCpuPercent": 0.16,
+        "rendererCpuPercent": 0.06,
+        "perProcess": [
+          {
+            "type": "Browser",
+            "percent": 0
+          },
+          {
+            "type": "GPU",
+            "percent": 0.1
+          },
+          {
+            "type": "Utility",
+            "name": "Network Service",
+            "percent": 0
+          },
+          {
+            "type": "Tab",
+            "percent": 0.06
+          }
+        ],
+        "rafCalls": 0,
+        "rafWindowMs": 3004,
+        "rafStacks": [],
+        "ignoreIpcDuringWindow": 0,
+        "longTimersArmedDuringWindow": [],
+        "pass": {
+          "cpu": true,
+          "raf": true
+        }
+      },
+      "flood": {
+        "events": 167,
+        "seconds": 3,
+        "state": "in",
+        "rendererCpuPercent": 0.48,
+        "totalCpuPercent": 1.04,
+        "perProcess": [
+          {
+            "type": "Browser",
+            "percent": 0.28
+          },
+          {
+            "type": "GPU",
+            "percent": 0.28
+          },
+          {
+            "type": "Utility",
+            "name": "Network Service",
+            "percent": 0
+          },
+          {
+            "type": "Tab",
+            "percent": 0.48
+          }
+        ],
+        "rafCalls": 0,
+        "lastIgnore": true
+      },
+      "perched": {
+        "label": "perched",
+        "windowSeconds": 3,
+        "state": "perched",
+        "timers": [
+          "perch"
+        ],
+        "companionRaf": false,
+        "avatar": {
+          "mode": "hold",
+          "held": true,
+          "idleLoop": false,
+          "reactionPlaying": false,
+          "questionCue": true
+        },
+        "totalCpuPercent": 0.01,
+        "rendererCpuPercent": 0,
+        "perProcess": [
+          {
+            "type": "Browser",
+            "percent": 0.01
+          },
+          {
+            "type": "GPU",
+            "percent": 0
+          },
+          {
+            "type": "Utility",
+            "name": "Network Service",
+            "percent": 0
+          },
+          {
+            "type": "Tab",
+            "percent": 0
+          }
+        ],
+        "rafCalls": 0,
+        "rafWindowMs": 3004,
+        "rafStacks": [],
+        "ignoreIpcDuringWindow": 0,
+        "longTimersArmedDuringWindow": [],
+        "pass": {
+          "cpu": true,
+          "raf": true
+        }
+      }
+    },
+    "geomSamples": [
+      {
+        "label": "shot 01-collapsed-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 02-input-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 03-draft-attachments-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 04-result-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 05-result-node-expanded-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 06-people-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 07-contact-draft-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 08-people-back-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 09-case-from-people-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 10-result-question-card-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 11-question-context-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 12-question-context-node-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 13-queue-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 14-settings-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 15-receipt-points-burst-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 16-receipt-undo-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 17-undo-returns-to-question-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 18-error-unreachable-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 19-closed-again-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 39-reduced-settings-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 40-reduced-result-node-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "shot 41-reduced-collapsed-420.png",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "in after launch",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "away (sliver)",
+        "geom": {
+          "state": "away",
+          "bodyX": 1528,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "in after peek-return",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "in, panel open",
+        "geom": {
+          "state": "in",
+          "bodyX": 1433,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "drag-left-250: carried at lift 250",
+        "geom": {
+          "state": "carried",
+          "bodyX": 1133,
+          "lift": 250,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "drag-left-250: landed",
+        "geom": {
+          "state": "in",
+          "bodyX": 1133,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "drag-up-600: carried at lift 600",
+        "geom": {
+          "state": "carried",
+          "bodyX": 1133,
+          "lift": 600,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "drag-up-600: landed",
+        "geom": {
+          "state": "in",
+          "bodyX": 1133,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "away (sliver, after commands)",
+        "geom": {
+          "state": "away",
+          "bodyX": 1528,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      },
+      {
+        "label": "perched",
+        "geom": {
+          "state": "perched",
+          "bodyX": 1468,
+          "lift": 0,
+          "dx": 0,
+          "gap": 6,
+          "w": 64,
+          "h": 64
+        }
+      }
+    ],
+    "hitProbes": [
+      {
+        "label": "in (pointer near)",
+        "point": "center",
+        "x": 1433,
+        "y": 830,
+        "expectIgnore": false,
+        "lastIgnore": false,
+        "pass": true
+      },
+      {
+        "label": "in (pointer near)",
+        "point": "below",
+        "x": 1433,
+        "y": 864,
+        "expectIgnore": true,
+        "lastIgnore": true,
+        "pass": true
+      },
+      {
+        "label": "in (pointer near)",
+        "point": "left",
+        "x": 1399,
+        "y": 830,
+        "expectIgnore": true,
+        "lastIgnore": true,
+        "pass": true
+      },
+      {
+        "label": "in (pointer near)",
+        "point": "right",
+        "x": 1467,
+        "y": 830,
+        "expectIgnore": true,
+        "lastIgnore": true,
+        "pass": true
+      },
+      {
+        "label": "in (pointer near)",
+        "point": "above",
+        "x": 1433,
+        "y": 796,
+        "expectIgnore": true,
+        "lastIgnore": true,
+        "pass": true
+      },
+      {
+        "label": "in, panel open",
+        "point": "center",
+        "x": 1433,
+        "y": 830,
+        "expectIgnore": false,
+        "lastIgnore": false,
+        "pass": true
+      },
+      {
+        "label": "in, panel open",
+        "point": "below",
+        "x": 1433,
+        "y": 864,
+        "expectIgnore": true,
+        "lastIgnore": true,
+        "pass": true
+      },
+      {
+        "label": "away (sliver)",
+        "point": "center",
+        "x": 1504,
+        "y": 830,
+        "expectIgnore": false,
+        "lastIgnore": false,
+        "pass": true
+      },
+      {
+        "label": "away (sliver)",
+        "point": "below",
+        "x": 1504,
+        "y": 864,
+        "expectIgnore": true,
+        "lastIgnore": true,
+        "pass": true
+      },
+      {
+        "label": "perched",
+        "point": "center",
+        "x": 1468,
+        "y": 830,
+        "expectIgnore": false,
+        "lastIgnore": false,
+        "pass": true
+      },
+      {
+        "label": "perched",
+        "point": "below",
+        "x": 1468,
+        "y": 864,
+        "expectIgnore": true,
+        "lastIgnore": true,
+        "pass": true
+      }
+    ],
+    "ignoreAfterScenario": [
+      {
+        "scenario": "launch-and-leave",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "peek-return",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "leave-after-pointer",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "sendInputEvent-smoke",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "press-click",
+        "beforeMove": false,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "close-panel-leave",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "drag-release-250",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "drag-release-600",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "catch-mid-air",
+        "beforeMove": false,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "strip-drag-release",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "strip-drop-high",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "roll-out",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "strip-roll-out",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "push-right-edge",
+        "beforeMove": false,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "strip-peek-return",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "away-probe",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "question-arrival-and-tuck",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "second-arrival-pointer-in",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "reduced-motion",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      },
+      {
+        "scenario": "reload-keeps-spot",
+        "beforeMove": true,
+        "afterMove": true,
+        "pass": true
+      }
+    ],
+    "ignoreMessages": 84,
+    "trayStateEvents": [
+      {
+        "t": 1794042260180,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042260193,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042303794,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042303810,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042329392,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042329407,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042335507,
+        "state": {
+          "away": true,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042340835,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042362946,
+        "state": {
+          "away": true,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042363546,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042366888,
+        "state": {
+          "away": false,
+          "question": false
+        }
+      },
+      {
+        "t": 1794042388032,
+        "state": {
+          "away": true,
+          "question": false
+        }
+      },
+      {
+        "t": 1794042388839,
+        "state": {
+          "away": false,
+          "question": false
+        }
+      },
+      {
+        "t": 1794042402327,
+        "state": {
+          "away": true,
+          "question": false
+        }
+      },
+      {
+        "t": 1794042403530,
+        "state": {
+          "away": false,
+          "question": false
+        }
+      },
+      {
+        "t": 1794042406081,
+        "state": {
+          "away": true,
+          "question": false
+        }
+      },
+      {
+        "t": 1794042407355,
+        "state": {
+          "away": false,
+          "question": false
+        }
+      },
+      {
+        "t": 1794042410217,
+        "state": {
+          "away": true,
+          "question": false
+        }
+      },
+      {
+        "t": 1794042411031,
+        "state": {
+          "away": false,
+          "question": false
+        }
+      },
+      {
+        "t": 1794042413646,
+        "state": {
+          "away": true,
+          "question": false
+        }
+      },
+      {
+        "t": 1794042414958,
+        "state": {
+          "away": false,
+          "question": false
+        }
+      },
+      {
+        "t": 1794042415261,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042415275,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042421385,
+        "state": {
+          "away": true,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042516691,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042518770,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042518783,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042521951,
+        "state": {
+          "away": true,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042522381,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042522993,
+        "state": {
+          "away": true,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042523468,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042523483,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042523601,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      },
+      {
+        "t": 1794042527045,
+        "state": {
+          "away": false,
+          "question": true
+        }
+      }
+    ]
+  },
+  "summary": [
+    {
+      "name": "frames panel open area-420 (p95 / max ms)",
+      "value": "9.3 / 16.7 (92 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "frames panel close area-420 (p95 / max ms)",
+      "value": "9.2 / 9.4 (93 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "frames panel open column-320 (p95 / max ms)",
+      "value": "9.3 / 9.4 (95 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "frames panel close column-320 (p95 / max ms)",
+      "value": "9.9 / 10.2 (94 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "frames panel open column-420 (p95 / max ms)",
+      "value": "10 / 10.3 (94 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "frames panel close column-420 (p95 / max ms)",
+      "value": "10.2 / 10.4 (94 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "frames peek (p95 / max ms)",
+      "value": "9.8 / 10.4 (266 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "frames drag (p95 / max ms)",
+      "value": "10.2 / 10.3 (36 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "frames fall (p95 / max ms)",
+      "value": "10.3 / 10.4 (113 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "frames fallHigh (p95 / max ms)",
+      "value": "10 / 10.4 (235 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "frames roll (p95 / max ms)",
+      "value": "9.7 / 10.2 (127 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "frames arrive (p95 / max ms)",
+      "value": "10.2 / 10.4 (299 frames)",
+      "budget": "<= 16.7 / <= 20",
+      "pass": true
+    },
+    {
+      "name": "idle CPU in (3 s, all processes)",
+      "value": 0.16,
+      "budget": "<= 0.3 %",
+      "pass": true
+    },
+    {
+      "name": "rAF calls in (3 s)",
+      "value": 0,
+      "budget": "0",
+      "pass": true
+    },
+    {
+      "name": "idle CPU away (3 s, all processes)",
+      "value": 0.02,
+      "budget": "<= 0.3 %",
+      "pass": true
+    },
+    {
+      "name": "rAF calls away (3 s)",
+      "value": 0,
+      "budget": "0",
+      "pass": true
+    },
+    {
+      "name": "idle CPU perched (3 s, all processes)",
+      "value": 0.01,
+      "budget": "<= 0.3 %",
+      "pass": true
+    },
+    {
+      "name": "rAF calls perched (3 s)",
+      "value": 0,
+      "budget": "0",
+      "pass": true
+    },
+    {
+      "name": "60 Hz mousemove flood far from him, renderer CPU (report only)",
+      "value": "0.48 % renderer, 1.04 % total, 167 events, 0 rAF",
+      "budget": "reported",
+      "pass": true
+    },
+    {
+      "name": "hitbox = carrier avatar rect (geometry, every sampled state)",
+      "value": "32/32",
+      "budget": "all",
+      "pass": true
+    },
+    {
+      "name": "hit-test probes through the renderer (kt:ignore-mouse)",
+      "value": "11/11",
+      "budget": "all",
+      "pass": true
+    },
+    {
+      "name": "scenario launch",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario peek",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario leaveAfterPointer",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario sendInputEventSmoke",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario press",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario click",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario closePanelLeave",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario dragRelease250",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario dragRelease600",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario catchMidAir",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario rollOut",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario pushPastRightEdge",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario questionArrival",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario reducedMotion",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario reloadKeepsSpot",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario columnMode",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "window ignores the mouse after every scenario",
+      "value": "20/20",
+      "budget": "all",
+      "pass": true
+    },
+    {
+      "name": "console errors",
+      "value": 0,
+      "budget": "0",
+      "pass": true
+    }
+  ],
   "consoleErrors": [],
+  "notes": [],
   "states": [
     {
       "name": "collapsed",
@@ -1163,138 +3405,398 @@
       "view": "collapsed",
       "settleMs": 0,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "input",
       "width": 420,
       "file": "02-input-420.png",
-      "view": "input",
+      "view": "question",
       "settleMs": 0,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "draft-attachments",
       "width": 420,
       "file": "03-draft-attachments-420.png",
-      "view": "input",
+      "view": "question",
       "settleMs": 0,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "result",
       "width": 420,
       "file": "04-result-420.png",
       "view": "result",
-      "settleMs": 811,
+      "settleMs": 801,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "result-node-expanded",
       "width": 420,
       "file": "05-result-node-expanded-420.png",
       "view": "result",
-      "settleMs": 161,
+      "settleMs": 158,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "people",
       "width": 420,
       "file": "06-people-420.png",
       "view": "people",
-      "settleMs": 194,
+      "settleMs": 196,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "contact-draft",
       "width": 420,
       "file": "07-contact-draft-420.png",
       "view": "contact",
-      "settleMs": 799,
+      "settleMs": 811,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "people-back",
       "width": 420,
       "file": "08-people-back-420.png",
       "view": "people",
-      "settleMs": 192,
+      "settleMs": 193,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "case-from-people",
       "width": 420,
       "file": "09-case-from-people-420.png",
       "view": "case",
-      "settleMs": 190,
+      "settleMs": 192,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "result-question-card",
       "width": 420,
       "file": "10-result-question-card-420.png",
       "view": "question",
-      "settleMs": 1351,
+      "settleMs": 1344,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "question-context",
@@ -1303,54 +3805,158 @@
       "view": "question",
       "settleMs": 227,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "question-context-node",
       "width": 420,
       "file": "12-question-context-node-420.png",
       "view": "question",
-      "settleMs": 162,
+      "settleMs": 158,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "queue",
       "width": 420,
       "file": "13-queue-420.png",
       "view": "queue",
-      "settleMs": 24,
+      "settleMs": 23,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "settings",
       "width": 420,
       "file": "14-settings-420.png",
       "view": "settings",
-      "settleMs": 208,
+      "settleMs": 213,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "receipt-points-burst",
@@ -1359,40 +3965,118 @@
       "view": "receipt",
       "settleMs": 0,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "receipt-undo",
       "width": 420,
       "file": "16-receipt-undo-420.png",
       "view": "receipt",
-      "settleMs": 562,
+      "settleMs": 886,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "undo-returns-to-question",
       "width": 420,
       "file": "17-undo-returns-to-question-420.png",
       "view": "question",
-      "settleMs": 188,
+      "settleMs": 1002,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "error-unreachable",
@@ -1401,12 +4085,38 @@
       "view": "receipt",
       "settleMs": 0,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "closed-again",
@@ -1415,12 +4125,38 @@
       "view": "collapsed",
       "settleMs": 0,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "collapsed",
@@ -1430,11 +4166,29 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "input",
@@ -1444,11 +4198,29 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "draft-attachments",
@@ -1458,109 +4230,253 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "result",
       "width": 320,
       "file": "23-result-320.png",
       "view": "result",
-      "settleMs": 812,
+      "settleMs": 808,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "result-node-expanded",
       "width": 320,
       "file": "24-result-node-expanded-320.png",
       "view": "result",
-      "settleMs": 157,
+      "settleMs": 159,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "people",
       "width": 320,
       "file": "25-people-320.png",
       "view": "people",
-      "settleMs": 189,
+      "settleMs": 191,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "contact-draft",
       "width": 320,
       "file": "26-contact-draft-320.png",
       "view": "contact",
-      "settleMs": 804,
+      "settleMs": 800,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "people-back",
       "width": 320,
       "file": "27-people-back-320.png",
       "view": "people",
-      "settleMs": 194,
+      "settleMs": 190,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "case-from-people",
       "width": 320,
       "file": "28-case-from-people-320.png",
       "view": "case",
-      "settleMs": 209,
+      "settleMs": 211,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "result-question-card",
       "width": 320,
       "file": "29-result-question-card-320.png",
       "view": "question",
-      "settleMs": 1343,
+      "settleMs": 1356,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "question-context",
@@ -1570,53 +4486,125 @@
       "settleMs": 223,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "question-context-node",
       "width": 320,
       "file": "31-question-context-node-320.png",
       "view": "question",
-      "settleMs": 176,
+      "settleMs": 160,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "queue",
       "width": 320,
       "file": "32-queue-320.png",
       "view": "queue",
-      "settleMs": 24,
+      "settleMs": 27,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "settings",
       "width": 320,
       "file": "33-settings-320.png",
       "view": "settings",
-      "settleMs": 210,
+      "settleMs": 218,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "receipt-points-burst",
@@ -1626,39 +4614,93 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "receipt-undo",
       "width": 320,
       "file": "35-receipt-undo-320.png",
       "view": "receipt",
-      "settleMs": 572,
+      "settleMs": 887,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "undo-returns-to-question",
       "width": 320,
       "file": "36-undo-returns-to-question-320.png",
       "view": "question",
-      "settleMs": 191,
+      "settleMs": 1016,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "error-unreachable",
@@ -1668,11 +4710,29 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "closed-again",
@@ -1682,11 +4742,29 @@
       "settleMs": 0,
       "hitbox": [
         235,
-        774,
+        772,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        21,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        320,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        320,
+        680
+      ],
+      "geom": null
     },
     {
       "name": "reduced-settings",
@@ -1695,12 +4773,38 @@
       "view": "settings",
       "settleMs": 0,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": true
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": true,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "reduced-result-node",
@@ -1709,27 +4813,687 @@
       "view": "result",
       "settleMs": 22,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": true
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": true,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "reduced-collapsed",
       "width": 420,
       "file": "41-reduced-collapsed-420.png",
       "view": "collapsed",
-      "settleMs": 24,
+      "settleMs": 25,
       "hitbox": [
-        321,
-        774,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": true
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": true,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
+    },
+    {
+      "name": "collapsed",
+      "width": 420,
+      "file": "column/01-collapsed-420.png",
+      "view": "collapsed",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "input",
+      "width": 420,
+      "file": "column/02-input-420.png",
+      "view": "input",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "draft-attachments",
+      "width": 420,
+      "file": "column/03-draft-attachments-420.png",
+      "view": "input",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "result",
+      "width": 420,
+      "file": "column/04-result-420.png",
+      "view": "result",
+      "settleMs": 814,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "result-node-expanded",
+      "width": 420,
+      "file": "column/05-result-node-expanded-420.png",
+      "view": "result",
+      "settleMs": 171,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "people",
+      "width": 420,
+      "file": "column/06-people-420.png",
+      "view": "people",
+      "settleMs": 192,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "contact-draft",
+      "width": 420,
+      "file": "column/07-contact-draft-420.png",
+      "view": "contact",
+      "settleMs": 813,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "people-back",
+      "width": 420,
+      "file": "column/08-people-back-420.png",
+      "view": "people",
+      "settleMs": 192,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "case-from-people",
+      "width": 420,
+      "file": "column/09-case-from-people-420.png",
+      "view": "case",
+      "settleMs": 192,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "result-question-card",
+      "width": 420,
+      "file": "column/10-result-question-card-420.png",
+      "view": "question",
+      "settleMs": 1343,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "question-context",
+      "width": 420,
+      "file": "column/11-question-context-420.png",
+      "view": "question",
+      "settleMs": 222,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "question-context-node",
+      "width": 420,
+      "file": "column/12-question-context-node-420.png",
+      "view": "question",
+      "settleMs": 159,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "queue",
+      "width": 420,
+      "file": "column/13-queue-420.png",
+      "view": "queue",
+      "settleMs": 25,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "settings",
+      "width": 420,
+      "file": "column/14-settings-420.png",
+      "view": "settings",
+      "settleMs": 213,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "receipt-points-burst",
+      "width": 420,
+      "file": "column/15-receipt-points-burst-420.png",
+      "view": "receipt",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "receipt-undo",
+      "width": 420,
+      "file": "column/16-receipt-undo-420.png",
+      "view": "receipt",
+      "settleMs": 890,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "undo-returns-to-question",
+      "width": 420,
+      "file": "column/17-undo-returns-to-question-420.png",
+      "view": "question",
+      "settleMs": 1020,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "error-unreachable",
+      "width": 420,
+      "file": "column/18-error-unreachable-420.png",
+      "view": "receipt",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
+    },
+    {
+      "name": "closed-again",
+      "width": 420,
+      "file": "column/19-closed-again-420.png",
+      "view": "collapsed",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        772,
+        64,
+        64
+      ],
+      "anchored": [
+        35,
+        20,
+        64,
+        64
+      ],
+      "content": [
+        420,
+        856
+      ],
+      "reduced": false,
+      "mode": "column",
+      "crop": [
+        0,
+        176,
+        420,
+        680
+      ],
+      "geom": null
     }
   ],
-  "finishedAt": "2026-11-07T05:25:54.276Z"
+  "finishedAt": "2026-11-07T09:08:49.896Z"
 }

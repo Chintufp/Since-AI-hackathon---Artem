@@ -1,0 +1,1538 @@
+[
+  {
+    "out": "drag-release-strip.png",
+    "scale": 1,
+    "dedupe": true,
+    "maxFrames": 18,
+    "frames": [
+      {
+        "file": "frames/drag-00.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-01.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-02.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-03.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-04.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-05.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-01.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-02.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-03.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-04.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-05.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-06.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-07.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-08.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-09.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-10.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-11.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-12.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-13.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-14.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-15.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-16.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-17.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drag-fall-18.png",
+        "css": [
+          120,
+          420
+        ],
+        "box": null
+      }
+    ]
+  },
+  {
+    "out": "drop-high-strip.png",
+    "scale": 0.5,
+    "dedupe": true,
+    "maxFrames": 18,
+    "frames": [
+      {
+        "file": "frames/drop-high-00.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-00.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-01.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-02.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-03.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-04.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-05.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-06.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-07.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-08.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-09.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-10.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-11.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-12.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-13.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-14.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-15.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-16.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-17.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-18.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-19.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-20.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-21.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-22.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-23.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-24.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-25.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-26.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-27.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-28.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-29.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-30.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-31.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-32.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-33.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-34.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-35.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/drop-high-36.png",
+        "css": [
+          120,
+          770
+        ],
+        "box": null
+      }
+    ]
+  },
+  {
+    "out": "roll-out-strip.png",
+    "scale": 1,
+    "dedupe": true,
+    "maxFrames": 18,
+    "frames": [
+      {
+        "file": "frames/roll-00.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-01.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-02.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-03.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-04.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-05.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-06.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-07.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-08.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-09.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-10.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-11.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-12.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-13.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-14.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-15.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-16.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-17.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-18.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-19.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/roll-20.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      }
+    ]
+  },
+  {
+    "out": "peek-return-strip.png",
+    "scale": 1,
+    "dedupe": true,
+    "maxFrames": 18,
+    "frames": [
+      {
+        "file": "frames/peek-00.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-01.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-02.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-03.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-04.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-05.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-06.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-07.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-08.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-09.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-10.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-11.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-12.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-13.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-14.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-15.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-16.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-17.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-18.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-19.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-20.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-21.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-22.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-23.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-24.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-25.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-26.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-27.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-28.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-29.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-30.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-31.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-32.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-33.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-34.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-35.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-36.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-37.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-38.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-39.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-40.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-41.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-42.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-43.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-44.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-45.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-46.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-47.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-48.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-49.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-50.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-51.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-52.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-53.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      }
+    ]
+  },
+  {
+    "out": "question-arrival-strip.png",
+    "scale": 1,
+    "dedupe": true,
+    "maxFrames": 20,
+    "frames": [
+      {
+        "file": "frames/arrival-00.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-01.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-02.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-03.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-04.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-05.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-06.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-07.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-08.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-09.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-10.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-11.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-12.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-13.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-14.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-15.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-16.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-17.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-18.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-19.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-20.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-21.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-22.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-23.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-24.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-25.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-26.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-27.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-28.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-29.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-30.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-31.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-32.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-33.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-34.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-35.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-36.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-37.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-38.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-39.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-40.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-41.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-42.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-43.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-44.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-45.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-46.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-47.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-tuck-00.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-tuck-01.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      }
+    ]
+  }
+]

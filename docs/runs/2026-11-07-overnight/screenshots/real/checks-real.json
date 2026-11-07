@@ -1,10 +1,63 @@
 {
-  "startedAt": "2026-11-07T02:34:41.796Z",
+  "startedAt": "2026-11-07T09:08:52.221Z",
   "electron": "45.2.3",
   "chrome": "156.0.8078.80",
   "node": "24.22.2",
   "platform": "darwin",
   "arch": "arm64",
+  "budgets": {
+    "frameP95Ms": 16.7,
+    "frameMaxMs": 20,
+    "idleCpuPercent": 0.3,
+    "idleRafCalls": 0
+  },
+  "mouseForwarding": "isolated (recorded, not applied; the window ignores the real mouse)",
+  "cursorAtStart": {
+    "x": 863,
+    "y": 540
+  },
+  "workAreaLog": [
+    {
+      "t": "2026-11-07T09:08:52.257Z",
+      "event": "start",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    },
+    {
+      "t": "2026-11-07T09:08:52.324Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    },
+    {
+      "t": "2026-11-07T09:09:04.696Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    },
+    {
+      "t": "2026-11-07T09:09:14.330Z",
+      "event": "window-created",
+      "workArea": {
+        "x": 0,
+        "y": 33,
+        "width": 1512,
+        "height": 868
+      }
+    }
+  ],
   "ids": {
     "investigationId": "inv_ac44f4f4a11fe66c6554",
     "secondInvestigationId": "inv_483464c265f014fffd36",
@@ -320,6 +373,17 @@
     "status": "delivered",
     "deferred": false
   },
+  "realArrival": {
+    "state": "perched",
+    "question": "q_63dd53ed2287f01c41ba",
+    "expectedQuestion": "q_63dd53ed2287f01c41ba",
+    "file": "arrival-perched-real-420.png",
+    "glyph": {
+      "questionCue": true,
+      "unseen": true
+    },
+    "pass": true
+  },
   "badgeForRecipient": "1",
   "queueTexts": [
     "TRN-042 · no traffic after SFP changeIs TRN-301 an older unit?"
@@ -336,20 +400,51 @@
   "afterAnswerTitle": "Check the traffic counters before replacing the SFP again.",
   "hitbox": {
     "initial": [
-      321,
-      596,
+      1401,
+      798,
       64,
       64
     ],
     "final": [
-      321,
-      596,
+      1401,
+      798,
       64,
       64
     ],
-    "allStatesEqual": true
+    "windowContentSizes": [
+      "1512x868"
+    ],
+    "allStatesEqual": true,
+    "allStatesEqualInWindowCoords": true
   },
+  "summary": [
+    {
+      "name": "scenario realArrival",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "scenario realHitbox",
+      "value": "ok",
+      "budget": "pass",
+      "pass": true
+    },
+    {
+      "name": "window ignores the mouse after every scenario",
+      "value": "2/2",
+      "budget": "all",
+      "pass": true
+    },
+    {
+      "name": "console errors",
+      "value": 0,
+      "budget": "0",
+      "pass": true
+    }
+  ],
   "consoleErrors": [],
+  "notes": [],
   "states": [
     {
       "name": "collapsed",
@@ -358,12 +453,38 @@
       "view": "collapsed",
       "settleMs": 0,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "settings-you",
@@ -372,12 +493,38 @@
       "view": "settings",
       "settleMs": 0,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "input",
@@ -386,68 +533,198 @@
       "view": "input",
       "settleMs": 0,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "result",
       "width": 420,
       "file": "04-result-420.png",
       "view": "result",
-      "settleMs": 813,
+      "settleMs": 809,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "result-node-expanded",
       "width": 420,
       "file": "05-result-node-expanded-420.png",
       "view": "result",
-      "settleMs": 190,
+      "settleMs": 189,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "result-last-node",
       "width": 420,
       "file": "06-result-last-node-420.png",
       "view": "result",
-      "settleMs": 196,
+      "settleMs": 178,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "people",
       "width": 420,
       "file": "07-people-420.png",
       "view": "people",
-      "settleMs": 199,
+      "settleMs": 197,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "contact-draft",
@@ -456,12 +733,38 @@
       "view": "contact",
       "settleMs": 0,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "result-second",
@@ -470,12 +773,38 @@
       "view": "result",
       "settleMs": 0,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "settings-recipient",
@@ -484,54 +813,158 @@
       "view": "settings",
       "settleMs": 0,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "queue",
       "width": 420,
       "file": "11-queue-420.png",
       "view": "queue",
-      "settleMs": 23,
+      "settleMs": 31,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "question",
       "width": 420,
       "file": "12-question-420.png",
       "view": "question",
-      "settleMs": 1342,
+      "settleMs": 1344,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "question-context",
       "width": 420,
       "file": "13-question-context-420.png",
       "view": "question",
-      "settleMs": 229,
+      "settleMs": 233,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "receipt-no",
@@ -540,26 +973,78 @@
       "view": "receipt",
       "settleMs": 0,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "undo-returns-to-question",
       "width": 420,
       "file": "15-undo-returns-to-question-420.png",
       "view": "question",
-      "settleMs": 22,
+      "settleMs": 23,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "receipt-yes",
@@ -568,12 +1053,38 @@
       "view": "receipt",
       "settleMs": 0,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "result-after-answer",
@@ -582,12 +1093,38 @@
       "view": "result",
       "settleMs": 0,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     },
     {
       "name": "collapsed-end",
@@ -596,13 +1133,39 @@
       "view": "collapsed",
       "settleMs": 0,
       "hitbox": [
-        321,
-        596,
+        1401,
+        798,
         64,
         64
       ],
-      "reduced": false
+      "anchored": [
+        47,
+        6,
+        64,
+        64
+      ],
+      "content": [
+        1512,
+        868
+      ],
+      "reduced": false,
+      "mode": "area",
+      "crop": [
+        1092,
+        188,
+        420,
+        680
+      ],
+      "geom": {
+        "state": "in",
+        "bodyX": 1433,
+        "lift": 0,
+        "dx": 0,
+        "gap": 6,
+        "w": 64,
+        "h": 64
+      }
     }
   ],
-  "finishedAt": "2026-11-07T02:34:59.434Z"
+  "finishedAt": "2026-11-07T09:09:27.251Z"
 }

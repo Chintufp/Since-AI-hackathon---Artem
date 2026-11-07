@@ -1,0 +1,552 @@
+{
+ "01-collapsed-420.png": {
+  "status": "changed",
+  "changedPct": 1.069,
+  "bbox": [
+   626,
+   1196,
+   766,
+   1352
+  ]
+ },
+ "02-input-420.png": {
+  "status": "changed",
+  "changedPct": 23.631,
+  "bbox": [
+   0,
+   726,
+   830,
+   1352
+  ]
+ },
+ "03-draft-attachments-420.png": {
+  "status": "changed",
+  "changedPct": 23.641,
+  "bbox": [
+   0,
+   726,
+   830,
+   1352
+  ]
+ },
+ "04-result-420.png": {
+  "status": "changed",
+  "changedPct": 24.93,
+  "bbox": [
+   0,
+   220,
+   830,
+   1352
+  ]
+ },
+ "05-result-node-expanded-420.png": {
+  "status": "changed",
+  "changedPct": 25.747,
+  "bbox": [
+   0,
+   220,
+   830,
+   1352
+  ]
+ },
+ "06-people-420.png": {
+  "status": "changed",
+  "changedPct": 21.325,
+  "bbox": [
+   0,
+   432,
+   830,
+   1352
+  ]
+ },
+ "07-contact-draft-420.png": {
+  "status": "changed",
+  "changedPct": 28.856,
+  "bbox": [
+   0,
+   260,
+   830,
+   1352
+  ]
+ },
+ "08-people-back-420.png": {
+  "status": "changed",
+  "changedPct": 21.325,
+  "bbox": [
+   0,
+   432,
+   830,
+   1352
+  ]
+ },
+ "09-case-from-people-420.png": {
+  "status": "changed",
+  "changedPct": 15.261,
+  "bbox": [
+   0,
+   642,
+   830,
+   1352
+  ]
+ },
+ "10-result-question-card-420.png": {
+  "status": "changed",
+  "changedPct": 16.109,
+  "bbox": [
+   0,
+   698,
+   830,
+   1352
+  ]
+ },
+ "11-question-context-420.png": {
+  "status": "changed",
+  "changedPct": 23.734,
+  "bbox": [
+   0,
+   144,
+   830,
+   1352
+  ]
+ },
+ "12-question-context-node-420.png": {
+  "status": "changed",
+  "changedPct": 25.067,
+  "bbox": [
+   0,
+   98,
+   830,
+   1352
+  ]
+ },
+ "13-queue-420.png": {
+  "status": "changed",
+  "changedPct": 14.646,
+  "bbox": [
+   0,
+   778,
+   830,
+   1352
+  ]
+ },
+ "14-settings-420.png": {
+  "status": "changed",
+  "changedPct": 27.838,
+  "bbox": [
+   0,
+   248,
+   830,
+   1352
+  ]
+ },
+ "15-receipt-points-burst-420.png": {
+  "status": "changed",
+  "changedPct": 12.938,
+  "bbox": [
+   0,
+   842,
+   830,
+   1352
+  ]
+ },
+ "16-receipt-undo-420.png": {
+  "status": "changed",
+  "changedPct": 12.889,
+  "bbox": [
+   0,
+   842,
+   830,
+   1352
+  ]
+ },
+ "17-undo-returns-to-question-420.png": {
+  "status": "changed",
+  "changedPct": 16.109,
+  "bbox": [
+   0,
+   698,
+   830,
+   1352
+  ]
+ },
+ "18-error-unreachable-420.png": {
+  "status": "changed",
+  "changedPct": 12.32,
+  "bbox": [
+   0,
+   906,
+   830,
+   1352
+  ]
+ },
+ "19-closed-again-420.png": {
+  "status": "changed",
+  "changedPct": 1.069,
+  "bbox": [
+   626,
+   1196,
+   766,
+   1352
+  ]
+ },
+ "20-collapsed-320.png": {
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
+ },
+ "21-input-320.png": {
+  "status": "changed",
+  "changedPct": 0.001,
+  "bbox": [
+   20,
+   952,
+   614,
+   1266
+  ]
+ },
+ "22-draft-attachments-320.png": {
+  "status": "changed",
+  "changedPct": 0.003,
+  "bbox": [
+   71,
+   790,
+   620,
+   1213
+  ]
+ },
+ "23-result-320.png": {
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
+ },
+ "24-result-node-expanded-320.png": {
+  "status": "changed",
+  "changedPct": 0.001,
+  "bbox": [
+   189,
+   1232,
+   614,
+   1266
+  ]
+ },
+ "25-people-320.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   619,
+   402,
+   620,
+   403
+  ]
+ },
+ "26-contact-draft-320.png": {
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
+ },
+ "27-people-back-320.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   619,
+   402,
+   620,
+   403
+  ]
+ },
+ "28-case-from-people-320.png": {
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
+ },
+ "29-result-question-card-320.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   619,
+   744,
+   620,
+   745
+  ]
+ },
+ "30-question-context-320.png": {
+  "status": "changed",
+  "changedPct": 0.001,
+  "bbox": [
+   189,
+   1232,
+   614,
+   1266
+  ]
+ },
+ "31-question-context-node-320.png": {
+  "status": "changed",
+  "changedPct": 0.001,
+  "bbox": [
+   189,
+   1232,
+   614,
+   1266
+  ]
+ },
+ "32-queue-320.png": {
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
+ },
+ "33-settings-320.png": {
+  "status": "changed",
+  "changedPct": 0.003,
+  "bbox": [
+   189,
+   408,
+   620,
+   1233
+  ]
+ },
+ "34-receipt-points-burst-320.png": {
+  "status": "changed",
+  "changedPct": 0.512,
+  "bbox": [
+   470,
+   846,
+   620,
+   1308
+  ]
+ },
+ "35-receipt-undo-320.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   619,
+   846,
+   620,
+   847
+  ]
+ },
+ "36-undo-returns-to-question-320.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   619,
+   744,
+   620,
+   745
+  ]
+ },
+ "37-error-unreachable-320.png": {
+  "status": "changed",
+  "changedPct": 0.001,
+  "bbox": [
+   26,
+   930,
+   190,
+   1266
+  ]
+ },
+ "38-closed-again-320.png": {
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
+ },
+ "39-reduced-settings-420.png": {
+  "status": "changed",
+  "changedPct": 27.902,
+  "bbox": [
+   0,
+   248,
+   830,
+   1352
+  ]
+ },
+ "40-reduced-result-node-420.png": {
+  "status": "changed",
+  "changedPct": 25.747,
+  "bbox": [
+   0,
+   220,
+   830,
+   1352
+  ]
+ },
+ "41-reduced-collapsed-420.png": {
+  "status": "changed",
+  "changedPct": 1.069,
+  "bbox": [
+   626,
+   1196,
+   766,
+   1352
+  ]
+ },
+ "column/01-collapsed-420.png": {
+  "status": "changed",
+  "changedPct": 0.081,
+  "bbox": [
+   650,
+   1192,
+   762,
+   1296
+  ]
+ },
+ "column/02-input-420.png": {
+  "status": "changed",
+  "changedPct": 0.001,
+  "bbox": [
+   40,
+   952,
+   794,
+   1266
+  ]
+ },
+ "column/03-draft-attachments-420.png": {
+  "status": "changed",
+  "changedPct": 0.003,
+  "bbox": [
+   46,
+   854,
+   794,
+   1266
+  ]
+ },
+ "column/04-result-420.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   799,
+   260,
+   800,
+   261
+  ]
+ },
+ "column/05-result-node-expanded-420.png": {
+  "status": "changed",
+  "changedPct": 0.001,
+  "bbox": [
+   249,
+   260,
+   800,
+   1266
+  ]
+ },
+ "column/06-people-420.png": {
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
+ },
+ "column/07-contact-draft-420.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   799,
+   300,
+   800,
+   301
+  ]
+ },
+ "column/08-people-back-420.png": {
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
+ },
+ "column/09-case-from-people-420.png": {
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
+ },
+ "column/10-result-question-card-420.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   799,
+   738,
+   800,
+   739
+  ]
+ },
+ "column/11-question-context-420.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   40,
+   184,
+   41,
+   185
+  ]
+ },
+ "column/12-question-context-node-420.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   799,
+   138,
+   800,
+   139
+  ]
+ },
+ "column/13-queue-420.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   40,
+   818,
+   800,
+   819
+  ]
+ },
+ "column/14-settings-420.png": {
+  "status": "changed",
+  "changedPct": 0.002,
+  "bbox": [
+   249,
+   408,
+   800,
+   1233
+  ]
+ },
+ "column/15-receipt-points-burst-420.png": {
+  "status": "changed",
+  "changedPct": 0.386,
+  "bbox": [
+   46,
+   866,
+   790,
+   1308
+  ]
+ },
+ "column/16-receipt-undo-420.png": {
+  "status": "changed",
+  "changedPct": 0.001,
+  "bbox": [
+   46,
+   866,
+   56,
+   1266
+  ]
+ },
+ "column/17-undo-returns-to-question-420.png": {
+  "status": "changed",
+  "changedPct": 0.0,
+  "bbox": [
+   799,
+   738,
+   800,
+   739
+  ]
+ },
+ "column/18-error-unreachable-420.png": {
+  "status": "changed",
+  "changedPct": 0.001,
+  "bbox": [
+   46,
+   930,
+   250,
+   1266
+  ]
+ },
+ "column/19-closed-again-420.png": {
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
+ }
+}

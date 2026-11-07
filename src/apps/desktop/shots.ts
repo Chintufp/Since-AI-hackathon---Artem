@@ -44,7 +44,7 @@ const CROP = { width: WINDOW.width, height: WINDOW.height, bodyFromRight: 79 } a
 /** Strip columns: 120 CSS px around his body (240 px at 2x); floor region 168 CSS px (336 px at 2x). */
 const STRIP = { half: 60, floor: 168, dropMargin: 170 } as const;
 /** In-page gesture plan. */
-const GESTURE = { frames: 36, dragLeftPx: 300, liftLowPx: 250, liftHighPx: 600, idleWindowMs: 3000, floodMs: 3000, floodHz: 60 } as const;
+const GESTURE = { frames: 36, dragLeftPx: 300, liftLowPx: 250, liftHighPx: 600, idleQuietMs: 1000, idleWindowMs: 3000, floodMs: 3000, floodHz: 60 } as const;
 /** The SPEC leave timings (companion.ts COMPANION) and the tolerance the harness allows on them. */
 const LEAVE = { afterLaunchMs: 4000, afterIdleMs: 20000, perchWaitMs: 90000, toleranceMs: 1200 } as const;
 
@@ -52,7 +52,7 @@ const awayOffQuery = (): Record<string, string> => flagsToQuery({ ...DEFAULT_FLA
 const defaultQuery = (): Record<string, string> => flagsToQuery({ ...DEFAULT_FLAGS });
 
 interface Geom { state: string; bodyX: number; lift: number; dx: number; gap: number; w: number; h: number }
-interface StateRecord { name: string; width: number; file: string; view: string; settleMs: number; hitbox: number[]; reduced: boolean; mode: WindowMode; crop: number[]; geom: Geom | null }
+interface StateRecord { name: string; width: number; file: string; view: string; settleMs: number; hitbox: number[]; anchored: number[]; content: number[]; reduced: boolean; mode: WindowMode; crop: number[]; geom: Geom | null }
 interface Snap { st: string | null; x: number | null; lift: number; anim: string | null; mode: string; f: number; surface: string; held: boolean; open: boolean; rp: boolean; airborne: boolean }
 interface RecResult { deltas: number[]; trace: Array<Snap & { ms: number }>; ms: number; frames: number; timedOut: boolean; error?: string; end?: number[]; mid?: unknown }
 interface FrameStats { frames: number; maxMs: number; meanMs: number; p95Ms: number; over20ms: number; pass?: boolean }
@@ -74,6 +74,15 @@ const RAF_COUNTER = `(() => {
     c.calls++;
     if (c.stacks.length < 3) c.stacks.push(String(new Error().stack).split('\\n').slice(2, 4).map((s) => s.trim()).join(' <- '));
     return orig(cb);
+  };
+  // Long timers (>= 1 s: the companion's leave / perch / poll timers): when each was armed, so the harness can
+  // time "leave after LEAVE_AFTER_IDLE_MS" from the moment the idle timer was (re)armed, not from its own clock.
+  const st = window.setTimeout.bind(window);
+  const long = [];
+  window.__longTimers = { read: (ms) => long.filter((t) => ms === undefined || t.ms === ms), reset() { long.length = 0; return true; } };
+  window.setTimeout = function (fn, ms, ...rest) {
+    if (typeof ms === 'number' && ms >= 1000) { long.push({ ms, at: Math.round(performance.now()) }); if (long.length > 200) long.shift(); }
+    return st(fn, ms, ...rest);
   };
 })(); true;`;
 
@@ -164,6 +173,16 @@ const w = (): BrowserWindow => {
 const size = (): { W: number; H: number } => {
   const [W = 0, H = 0] = w().getContentSize();
   return { W, H };
+};
+/**
+ * The hitbox in window-anchored coordinates [right inset, bottom inset, w, h]: he is anchored to the window's
+ * bottom right, and macOS can change the work area (and so the window, which follows it on
+ * display-metrics-changed) by a few px during a run; stationarity is checked against that anchor.
+ */
+const anchoredHit = (r: number[]): number[] => {
+  const { W, H } = size();
+  const [x = 0, y = 0, rw = 0, rh = 0] = r;
+  return [W - x - rw, H - y - rh, rw, rh].map((v) => Math.round(v * 100) / 100);
 };
 const js = <T = unknown>(code: string): Promise<T> =>
   (w().webContents.executeJavaScript(code, true) as Promise<T>).catch((e: unknown) => {
@@ -290,7 +309,8 @@ async function shot(name: string, width: number, settleMs: number): Promise<void
   writeFileSync(join(shotDir, file), image.toPNG());
   const st = await js<{ view: string; reduced: boolean; geom: Geom | null }>('({ view: __kt.panel.status().view, reduced: __kt.panel.status().reduced, geom: __s.geom() })');
   if (st.geom) geomSamples.push({ label: `shot ${file}`, geom: st.geom });
-  states.push({ name, width, file: relative(outDir, join(shotDir, file)), view: st.view, settleMs, hitbox: await js<number[]>('__s.hit()'), reduced: st.reduced, mode: current.mode, crop: [rect.x, rect.y, rect.width, rect.height], geom: st.geom });
+  const hitbox = await js<number[]>('__s.hit()');
+  states.push({ name, width, file: relative(outDir, join(shotDir, file)), view: st.view, settleMs, hitbox, anchored: anchoredHit(hitbox), content: [size().W, size().H], reduced: st.reduced, mode: current.mode, crop: [rect.x, rect.y, rect.width, rect.height], geom: st.geom });
 }
 const act = async (code: string): Promise<number> => {
   const t = Date.now();
@@ -338,6 +358,7 @@ async function walk(width: number): Promise<Record<string, unknown>> {
   await sleep(2600); // entrance: 0.9 s fall + 19 authored frames at 16 fps (1.2 s) plus margin
   await shot('collapsed', width, 0);
   const base = await js<number[]>('__s.hit()');
+  const baseAnchored = anchoredHit(base);
   const first = states.length - 1;
   if (width === 420 && current.mode === 'area' && shotDir === outDir) {
     // idle CPU: panel collapsed, nothing animating (companion on, away off)
@@ -389,7 +410,12 @@ async function walk(width: number): Promise<Record<string, unknown>> {
   await shot('closed-again', width, 0);
   const final = await js<number[]>('__s.hit()');
   const mine = states.slice(first);
-  result.hitbox = { initial: base, final, allStatesEqual: mine.every((s) => s.hitbox.every((v, i) => v === base[i])) };
+  const sizes = [...new Set(mine.map((s) => s.content.join('x')))];
+  result.hitbox = {
+    initial: base, final, windowContentSizes: sizes,
+    allStatesEqual: mine.every((s) => s.anchored.every((v, i) => v === baseAnchored[i])),
+    allStatesEqualInWindowCoords: mine.every((s) => s.hitbox.every((v, i) => v === base[i])),
+  };
   result.companion = await js('__s.cs()');
   result.ktCompanionAttr = await js<string | null>('document.getElementById("kt-panel").dataset.ktCompanion ?? null');
   await collectPageErrors();
@@ -398,10 +424,17 @@ async function walk(width: number): Promise<Record<string, unknown>> {
 
 // ---- companion measurements ----
 async function measureIdle(label: string): Promise<Record<string, unknown>> {
+  // A quiet second first: the act that led here (hello, the tuck) has just ended and the compositor, GC and the
+  // harness's own executeJavaScript polling settle; the 3 s window then holds only what idling costs.
+  await sleep(GESTURE.idleQuietMs);
   await js('__raf.reset()');
+  const ipc0 = ignoreLog.length;
+  const p0 = await js<number>('performance.now()');
   app.getAppMetrics();
   await sleep(GESTURE.idleWindowMs);
   const metrics = app.getAppMetrics();
+  const ipcDuring = ignoreLog.length - ipc0;
+  const timersArmed = await js<Array<{ ms: number; at: number }>>(`__longTimers.read().filter((t) => t.at >= ${p0})`);
   const raf = await js<{ calls: number; ms: number; stacks: string[] }>('__raf.read()');
   const c = await cs();
   const total = +metrics.reduce((a, m) => a + m.cpu.percentCPUUsage, 0).toFixed(2);
@@ -411,7 +444,7 @@ async function measureIdle(label: string): Promise<Record<string, unknown>> {
     avatar: await js('(() => { const a = __kt.panel.status().avatar; return { mode: a.mode, held: a.held, idleLoop: a.idleLoop, reactionPlaying: a.reactionPlaying, questionCue: a.questionCue }; })()'),
     totalCpuPercent: total, rendererCpuPercent: renderer,
     perProcess: metrics.map((m) => ({ type: m.type, name: m.name, percent: +m.cpu.percentCPUUsage.toFixed(2) })),
-    rafCalls: raf.calls, rafWindowMs: raf.ms, rafStacks: raf.stacks,
+    rafCalls: raf.calls, rafWindowMs: raf.ms, rafStacks: raf.stacks, ignoreIpcDuringWindow: ipcDuring, longTimersArmedDuringWindow: timersArmed,
     pass: { cpu: total <= BUDGET.idleCpuPercent, raf: raf.calls <= BUDGET.idleRafCalls },
   };
   idle[label] = r;
@@ -612,6 +645,7 @@ async function companionRun(): Promise<Record<string, unknown>> {
   // -- in, pointer far: idle CPU / rAF, 60 Hz mousemove flood, then leave after LEAVE_AFTER_IDLE_MS
   await scenario('leave-after-pointer', sc, async () => {
     const tFar = Date.now(); // endScenario moved the pointer far: the idle timer restarted
+    const pFar = await js<number>('performance.now()');
     await waitFor('__s.idle()', 4000);
     await measureIdle('in');
     // 60 Hz mousemove flood far from him, through the real input path
@@ -641,8 +675,17 @@ async function companionRun(): Promise<Record<string, unknown>> {
     };
     await waitFor('__s.cs().state === "leaving"', LEAVE.afterIdleMs + 6000);
     const tLeave = Date.now();
+    const arms = await js<{ now: number; arms: Array<{ ms: number; at: number }> }>(`({ now: performance.now(), arms: __longTimers.read(${LEAVE.afterIdleMs}) })`);
     await waitFor('__s.cs().state === "away"', 5000);
-    sc.leaveAfterPointer = { pointerAwayToLeavingMs: tLeave - tFar, expectedMs: LEAVE.afterIdleMs, pass: Math.abs(tLeave - tFar - LEAVE.afterIdleMs) <= LEAVE.toleranceMs };
+    // The leave is timed from the last (re)arm of the 20 s idle timer (page clock), so harness work between the
+    // pointer leaving and this scenario does not count; the arm's offset from "pointer away" is reported.
+    const lastArm = arms.arms.filter((a) => a.at <= arms.now).at(-1) ?? null;
+    const armToLeavingMs = lastArm ? Math.round(arms.now - lastArm.at) : null;
+    sc.leaveAfterPointer = {
+      pointerAwayToLeavingMs: tLeave - tFar, armToLeavingMs, armAfterPointerAwayMs: lastArm ? Math.round(lastArm.at - pFar) : null,
+      idleTimerArms: arms.arms.map((a) => Math.round(a.at - pFar)), expectedMs: LEAVE.afterIdleMs,
+      pass: armToLeavingMs !== null && Math.abs(armToLeavingMs - LEAVE.afterIdleMs) <= LEAVE.toleranceMs,
+    };
     await endScenario('leave-after-pointer');
   });
 
@@ -1152,6 +1195,7 @@ async function realRun(url: string): Promise<void> {
   await sleep(2600);
   await shot('collapsed', W, 0);
   const base = await js<number[]>('__s.hit()');
+  const baseAnchored = anchoredHit(base);
   checks.settingsAtStart = await get('/settings');
 
   await act('__s.click(".rf-avatar")');
@@ -1270,7 +1314,7 @@ async function realRun(url: string): Promise<void> {
   await act('__s.click(".rf-avatar")');
   await shot('collapsed-end', W, 0);
   const final = await js<number[]>('__s.hit()');
-  checks.hitbox = { initial: base, final, allStatesEqual: states.every((st) => st.hitbox.every((v, i) => v === base[i])) };
+  checks.hitbox = { initial: base, final, windowContentSizes: [...new Set(states.map((st) => st.content.join('x')))], allStatesEqual: states.every((st) => st.anchored.every((v, i) => v === baseAnchored[i])), allStatesEqualInWindowCoords: states.every((st) => st.hitbox.every((v, i) => v === base[i])) };
   await endScenario('real-walk');
   checks.summary = summarise({ realArrival: checks.realArrival, realHitbox: { pass: (checks.hitbox as { allStatesEqual: boolean }).allStatesEqual } }, false);
 }
@@ -1301,6 +1345,14 @@ async function main(): Promise<void> {
   ipcMain.on(IPC.state, (_e, s: unknown) => stateLog.push({ t: Date.now(), state: s as ShellState }));
   await app.whenReady();
   checks.cursorAtStart = screen.getCursorScreenPoint();
+  // macOS can change the primary work area during a run (seen: 868 <-> 870 px high); the window follows it
+  // (window.ts re-applies the bounds), so every change and every window's starting work area is logged.
+  const workAreaLog: Array<{ t: string; event: string; workArea: Rectangle }> = [];
+  checks.workAreaLog = workAreaLog;
+  const logArea = (event: string): void => { workAreaLog.push({ t: new Date().toISOString(), event, workArea: screen.getPrimaryDisplay().workArea }); };
+  logArea('start');
+  screen.on('display-metrics-changed', (_e, _d, changed) => logArea('display-metrics-changed: ' + changed.join(',')));
+  app.on('browser-window-created', () => logArea('window-created'));
   session.defaultSession.setPermissionRequestHandler((_wc, _perm, cb) => cb(false));
   if (realUrl) allowServiceCors(session.defaultSession, realUrl);
 

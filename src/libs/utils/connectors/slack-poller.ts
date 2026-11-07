@@ -14,7 +14,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { PeopleDirectory } from '../contracts/index.ts';
-import { checkLiveGuard, pullChannelReadOnly, SlackApiError, SLACK_READ_SCOPES, type LiveGuardInput, type LiveGuardResult, type SlackReadClient } from './slack-live-pull.ts';
+import { checkLiveGuard, pullChannelReadOnly, SlackApiError, SLACK_READ_SCOPES, WorkspaceMismatchError, type LiveGuardInput, type LiveGuardResult, type SlackReadClient } from './slack-live-pull.ts';
 
 /** The write side's whole allowlist: post the DM, read its reactions. */
 export const SLACK_DM_METHODS = ['chat.postMessage', 'reactions.get'] as const;
@@ -84,6 +84,8 @@ export interface SlackPollerConfig {
   slackUserToPerson: Record<string, SlackPersonMapping>;
   /** Pause between polls in run() (default 5000 ms). */
   pollMs?: number;
+  /** Re-import an unchanged channel at most this often (default 60000 ms; 0 imports every poll). */
+  refreshMs?: number;
   /** Channel messages read per poll (default 50, max 200). */
   limit?: number;
   /**
@@ -102,6 +104,11 @@ export interface DmRecord {
   channel: string;
   ts: string;
   postedAt: string;
+  /**
+   * The question's deliveredAt when the DM went out. A question id is deterministic, so after a demo reset the same id
+   * comes back delivered at a new moment: a different deliveredAt means a new delivery, and the old record is replaced.
+   */
+  deliveredAt?: string;
   state: 'waiting' | 'answered' | 'closed';
   value?: ReactionValue;
   reason?: string;
@@ -164,7 +171,7 @@ export function dmText(q: { text: string; why?: string }): string {
   return [q.text, ...(line ? [`Why: ${line}`] : []), DM_FOOTER].join('\n');
 }
 
-interface QuestionLite { questionId: string; text: string; why?: string; status: string }
+interface QuestionLite { questionId: string; text: string; why?: string; status: string; deliveredAt?: string }
 
 export interface PollReport {
   team?: { id: string; name: string };
@@ -174,6 +181,14 @@ export interface PollReport {
   closed: Array<{ questionId: string; reason: string }>;
   /** Stage failures in plain words (never a token). The next poll tries again. */
   errors: string[];
+  /**
+   * Set when the channel read did not prove the token belongs to the named workspace (auth.test failed or answered a
+   * different team): this poll wrote nothing to Slack, and on a mismatch run() stops.
+   */
+  skippedWrites?: string;
+  /** The channel read the same messages as the last import, so nothing was imported this poll. */
+  unchanged?: boolean;
+  fatal?: string;
 }
 
 export interface SlackPollerDeps {
@@ -186,6 +201,15 @@ export interface SlackPollerDeps {
 }
 
 const ACTIVE = new Set(['queued', 'delivered', 'deferred']);
+/**
+ * A tracked question id that is delivered again is a new delivery when its deliveredAt changed (a demo reset re-creates
+ * the same deterministic id later), or when the record says it was answered or ended although the service now shows it
+ * delivered (a reset, or an Undo in the panel). A record closed because Slack's answer was refused stays closed.
+ */
+function isNewDelivery(old: DmRecord, q: QuestionLite): boolean {
+  if (q.deliveredAt && old.deliveredAt && q.deliveredAt !== old.deliveredAt) return true;
+  return old.state === 'answered' || (old.state === 'closed' && !(old.reason ?? '').startsWith('answer refused'));
+}
 const statusOf = (e: unknown): number | undefined => (e && typeof e === 'object' && 'status' in e ? Number((e as { status: unknown }).status) : undefined);
 const msg = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
@@ -194,24 +218,35 @@ export function createSlackPoller(deps: SlackPollerDeps) {
   const now = deps.now ?? (() => new Date());
   const { config, service } = deps;
   let records = tracking.load();
+  let lastPull = { key: '', at: 0 };
   const persist = () => tracking.save(records);
 
   async function importChannel(report: PollReport): Promise<void> {
     const pull = await pullChannelReadOnly(deps.read, { workspace: config.workspace, channel: config.channel, limit: config.limit ?? 50 });
-    report.team = pull.team;
+    report.team = pull.team; // verified: auth.test answered the named workspace
+    // A quiet channel is not re-imported every poll (each import is a batch): only when what was read changed, or
+    // after refreshMs, so a service reset gets the channel back within a minute.
+    const key = JSON.stringify(pull.data);
+    if (key === lastPull.key && now().getTime() - lastPull.at < (config.refreshMs ?? 60_000)) {
+      report.unchanged = true;
+      return;
+    }
     const res = await service.post<{ batch: { counts: { seen: number; inserted: number } }; cases: number }>('/import', {
       format: 'slack-live', payload: pull.data, connectionId: `slack-live:${pull.team.id}`, ...(config.directory ? { directory: config.directory } : {}),
     });
     report.imported = { seen: res.batch.counts.seen, inserted: res.batch.counts.inserted, cases: res.cases };
+    lastPull = { key, at: now().getTime() };
   }
 
   async function sendQuestions(report: PollReport): Promise<void> {
     for (const [slackUserId, person] of Object.entries(config.slackUserToPerson)) {
       const list = await service.get<QuestionLite[]>(`/questions?personEntityId=${encodeURIComponent(person.personId)}&status=delivered`);
       for (const q of list) {
-        if (q.status !== 'delivered' || records[q.questionId]) continue;
+        if (q.status !== 'delivered') continue;
+        const old = records[q.questionId];
+        if (old && !isNewDelivery(old, q)) continue; // this delivery was DM'd already: never twice
         const res = await deps.dm.call('chat.postMessage', { channel: slackUserId, text: dmText(q) });
-        records[q.questionId] = { questionId: q.questionId, slackUserId, channel: String(res.channel ?? slackUserId), ts: String(res.ts ?? ''), postedAt: now().toISOString(), state: 'waiting' };
+        records[q.questionId] = { questionId: q.questionId, slackUserId, channel: String(res.channel ?? slackUserId), ts: String(res.ts ?? ''), postedAt: now().toISOString(), ...(q.deliveredAt ? { deliveredAt: q.deliveredAt } : {}), state: 'waiting' };
         persist(); // before the next post: a crash here never sends this question again
         report.dmsSent.push({ questionId: q.questionId, slackUserId });
       }
@@ -260,10 +295,17 @@ export function createSlackPoller(deps: SlackPollerDeps) {
     records = tracking.load();
     const report: PollReport = { dmsSent: [], answered: [], closed: [], errors: [] };
     for (const [stage, run] of [['read channel', importChannel], ['send questions', sendQuestions], ['read reactions', collectReactions]] as const) {
+      // The write stages run only after this poll's channel read proved the token belongs to the named workspace
+      // (pullChannelReadOnly checks auth.test's team name first): a token for any other workspace is never written with.
+      if (stage !== 'read channel' && !report.team) {
+        report.skippedWrites = 'the workspace was not verified in this poll, so no DM was sent and no reaction was read';
+        break;
+      }
       try {
         await run(report);
       } catch (e) {
         report.errors.push(`${stage}: ${msg(e)}`);
+        if (e instanceof WorkspaceMismatchError) report.fatal = `${msg(e)}. Stopped: check --workspace and KT_SLACK_TOKEN.`;
       }
       persist();
     }
@@ -273,7 +315,9 @@ export function createSlackPoller(deps: SlackPollerDeps) {
   /** Poll until the signal aborts; each report goes to onReport. */
   async function run(opts: { signal?: AbortSignal; onReport?: (r: PollReport) => void } = {}): Promise<void> {
     while (!opts.signal?.aborted) {
-      opts.onReport?.(await pollOnce());
+      const report = await pollOnce();
+      opts.onReport?.(report);
+      if (report.fatal) return;
       await new Promise<void>((resolve) => {
         const t = setTimeout(resolve, config.pollMs ?? 5000);
         opts.signal?.addEventListener('abort', () => { clearTimeout(t); resolve(); }, { once: true });

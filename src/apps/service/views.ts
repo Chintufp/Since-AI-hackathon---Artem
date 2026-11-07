@@ -78,6 +78,7 @@ export function questionView(store: KnowledgeStore, q: QuestionRecord, viewer: P
     status: q.status,
     deferred: q.status === 'deferred',
     ...(q.deliverAfter && q.status === 'queued' ? { deliverAfter: q.deliverAfter } : {}),
+    ...(q.deliveredAt ? { deliveredAt: q.deliveredAt } : {}),
     ...(q.candidate.answerType === 'free-text' ? { answerType: 'free-text' as const } : {}),
     ...wording(q.candidate),
   };

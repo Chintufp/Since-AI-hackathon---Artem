@@ -499,7 +499,8 @@ export class Engine {
       throw badRequest(`Import failed: ${e instanceof Error ? e.message : String(e)}`);
     }
     if (req.format === 'scenario-dir' && req.path) this.loadDirectoryFile(join(req.path, 'people.json'));
-    if (req.directory) this.inlineDirectories.push(req.directory);
+    // B4: a poller re-sends its people file with each channel import; an equal file is kept once, not appended again.
+    if (req.directory && !this.inlineDirectories.some((d) => JSON.stringify(d) === JSON.stringify(req.directory))) this.inlineDirectories.push(req.directory);
     this.reapplyDirectory();
     // A scenario directory imports several sources, each its own batch; the response's batch id is their combination.
     const points = this.awardEvidence(new Set(this.store.list('importBatch').map((b) => b.id).filter((id) => !batchesBefore.has(id))));

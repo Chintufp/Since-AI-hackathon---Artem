@@ -60,6 +60,8 @@ function describe(r: PollReport, label: string): void {
     r.answered.length ? `answered: ${r.answered.map((a) => `${a.value} by ${a.slackUserId}`).join(', ')}` : '',
     r.closed.length ? `stopped tracking: ${r.closed.map((c) => c.reason).join('; ')}` : '',
     r.errors.length ? `errors: ${r.errors.join('; ')}` : '',
+    r.skippedWrites ? `no Slack writes: ${r.skippedWrites}` : '',
+    r.fatal ?? '',
   ].filter(Boolean);
   say(`${label}${parts.join(' · ') || 'nothing new'}`);
 }
@@ -155,10 +157,13 @@ const onReport = (r: PollReport): void => {
   for (const d of r.dmsSent) activity({ kind: 'question', text: `Slack DM sent to ${slackUserToPerson[d.slackUserId]?.displayName ?? d.slackUserId}`, why: 'route: chat.postMessage (DM allowlist). Real activity.', detail: { questionId: d.questionId } });
   for (const a of r.answered) activity({ kind: 'answer', text: `Slack reaction from ${slackUserToPerson[a.slackUserId]?.displayName ?? a.slackUserId}: ${a.value}`, why: 'route: reactions.get → POST /questions/:id/answer. Real activity.', detail: { questionId: a.questionId } });
 };
+let fatal = false;
+const report = (r: PollReport): void => { onReport(r); if (r.fatal) fatal = true; };
 if (values.once) {
-  onReport(await poller.pollOnce());
-  process.exit(0);
+  report(await poller.pollOnce());
+  process.exit(fatal ? 2 : 0);
 }
 const stop = new AbortController();
 for (const sig of ['SIGINT', 'SIGTERM'] as const) process.on(sig, () => { say('Stopping after this poll.'); stop.abort(); });
-await poller.run({ signal: stop.signal, onReport });
+await poller.run({ signal: stop.signal, onReport: report });
+process.exit(fatal ? 2 : 0);

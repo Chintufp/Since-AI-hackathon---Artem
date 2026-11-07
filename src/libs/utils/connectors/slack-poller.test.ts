@@ -121,7 +121,7 @@ test('poll: channel imported under one stable connection; a delivered question i
       { questionId: 'q2', personId: 'person:slack:U102', text: 'Held by quiet hours', why: '', status: 'queued' },
     ];
     const { svc, imports } = fakeService(qs);
-    const poller = createSlackPoller({ read: slack.read, dm: slack.dm, service: svc, config });
+    const poller = createSlackPoller({ read: slack.read, dm: slack.dm, service: svc, config: { ...config, refreshMs: 0 } });
     slack.type('U101', 'Changed the SFP on TRN-205. Link is up, but traffic is not coming back.');
     const r1 = await poller.pollOnce();
     assert.deepEqual(r1.errors, []);
@@ -205,14 +205,82 @@ test('tracking survives a restart (file under a data/local-like folder): nothing
   }
 });
 
-test('a stage failure is reported in words and the next stages still run', async () => {
-  const slack = createFakeSlack({ team: { id: 'T0OTHER', name: 'Some Other Team' }, channel: { id: 'C0FIELD001', name: 'field-ops' }, users: [{ id: 'U102', real_name: 'Helmi Virtanen' }] });
+test('a workspace mismatch is fatal: no DM is posted, no reaction is read, and run() stops', async () => {
+  const slack = createFakeSlack({ team: { id: 'T0OTHER', name: 'Production Corp' }, channel: { id: 'C0FIELD001', name: 'field-ops' }, users: [{ id: 'U102', real_name: 'Helmi Virtanen' }] });
   const { svc } = fakeService([{ questionId: 'q1', personId: 'person:slack:U102', text: 'One?', why: '', status: 'delivered' }]);
-  const t = memoryTracking();
-  const r = await createSlackPoller({ read: slack.read, dm: slack.dm, service: svc, config, tracking: t }).pollOnce();
+  const t = memoryTracking({ q0: { questionId: 'q0', slackUserId: 'U102', channel: 'D102', ts: '1.1', postedAt: '2026-11-07T08:00:00.000Z', state: 'waiting' } });
+  const dmCalls: string[] = [];
+  const dm = { call: async (m: any, p: any) => { dmCalls.push(m); return slack.dm.call(m, p); } };
+  const poller = createSlackPoller({ read: slack.read, dm, service: svc, config: { ...config, pollMs: 1 }, tracking: t });
+  const r = await poller.pollOnce();
   assert.match(r.errors[0]!, /^read channel: Workspace mismatch/);
+  assert.equal(r.dmsSent.length, 0);
+  assert.deepEqual(dmCalls, []);
+  assert.ok(r.skippedWrites && r.fatal);
+  assert.equal(t.records.q1, undefined);
+  const reports: unknown[] = [];
+  await poller.run({ onReport: (x) => reports.push(x) }); // returns on its own after the first fatal poll
+  assert.equal(reports.length, 1);
+  assert.deepEqual(dmCalls, []);
+});
+
+test('a service failure on import is reported in words and the write stages still run (the workspace was verified)', async () => {
+  const slack = fakeWorkspace();
+  const { svc } = fakeService([{ questionId: 'q1', personId: 'person:slack:U102', text: 'One?', why: '', status: 'delivered' }]);
+  const broken: ServiceLike = { get: svc.get, post: async (path: string, body: unknown) => { if (path === '/import') throw new Error('service is down'); return svc.post(path, body); } };
+  const r = await createSlackPoller({ read: slack.read, dm: slack.dm, service: broken, config }).pollOnce();
+  assert.match(r.errors[0]!, /^read channel: service is down/);
   assert.equal(r.dmsSent.length, 1);
-  assert.ok(t.records.q1);
+});
+
+test('a question id delivered again after a demo reset (new deliveredAt) is DM\'d again; the same delivery never twice', async () => {
+  const slack = fakeWorkspace();
+  const q = { questionId: 'q1', personId: 'person:slack:U102', text: 'One?', why: '', status: 'delivered', deliveredAt: '2026-11-07T09:00:00.000Z' };
+  const { svc } = fakeService([q]);
+  const t = memoryTracking();
+  const poller = createSlackPoller({ read: slack.read, dm: slack.dm, service: svc, config, tracking: t });
+  await poller.pollOnce();
+  const d1 = slack.react('U102', '+1', (d) => d.text.startsWith('One?'));
+  assert.equal((await poller.pollOnce()).answered.length, 1);
+  assert.equal(t.records.q1!.state, 'answered');
+  // demo reset: the same id is created and delivered again, unanswered
+  q.status = 'delivered';
+  delete (q as { answer?: string }).answer;
+  q.deliveredAt = '2026-11-07T10:00:00.000Z';
+  const r = await poller.pollOnce();
+  assert.equal(r.dmsSent.length, 1);
+  assert.equal(slack.dms.length, 2);
+  assert.notEqual(t.records.q1!.ts, d1.ts);
+  assert.equal(t.records.q1!.state, 'waiting'); // the rehearsal's 👍 is on the old DM and does not answer the new one
+  assert.equal((await poller.pollOnce()).dmsSent.length, 0);
+});
+
+test('an answered record whose question shows delivered again (reset under a fixed clock, or Undo in the panel) is DM\'d again', async () => {
+  const slack = fakeWorkspace();
+  const q = { questionId: 'q1', personId: 'person:slack:U102', text: 'One?', why: '', status: 'delivered' };
+  const { svc } = fakeService([q]);
+  const t = memoryTracking({ q1: { questionId: 'q1', slackUserId: 'U102', channel: 'D102', ts: '1.1', postedAt: '2026-11-07T08:00:00.000Z', state: 'answered', value: 'yes' } });
+  const r = await createSlackPoller({ read: slack.read, dm: slack.dm, service: svc, config, tracking: t }).pollOnce();
+  assert.equal(r.dmsSent.length, 1);
+  const refused = memoryTracking({ q1: { questionId: 'q1', slackUserId: 'U102', channel: 'D102', ts: '1.1', postedAt: '2026-11-07T08:00:00.000Z', state: 'closed', reason: 'answer refused (403): not the recipient' } });
+  assert.equal((await createSlackPoller({ read: slack.read, dm: slack.dm, service: svc, config, tracking: refused }).pollOnce()).dmsSent.length, 0);
+});
+
+test('a quiet channel is not re-imported every poll, and the people file is sent with each import that happens', async () => {
+  const slack = fakeWorkspace();
+  const { svc, imports } = fakeService([]);
+  let clock = Date.parse('2026-11-07T09:00:00.000Z');
+  const poller = createSlackPoller({ read: slack.read, dm: slack.dm, service: svc, config, now: () => new Date(clock) });
+  slack.type('U101', 'TRN-301 link up, no traffic');
+  await poller.pollOnce();
+  for (let i = 0; i < 5; i++) { clock += 5000; assert.equal((await poller.pollOnce()).unchanged, true); }
+  assert.equal(imports.length, 1);
+  slack.type('U101', 'still nothing');
+  clock += 5000;
+  assert.equal((await poller.pollOnce()).imported?.inserted, 1);
+  clock += 61_000;
+  assert.equal((await poller.pollOnce()).unchanged, undefined); // refresh after a minute (a service reset gets the channel back)
+  assert.equal(imports.length, 3);
 });
 
 test('people file: Slack actor ids map users to people, and the file travels with each channel import', async () => {

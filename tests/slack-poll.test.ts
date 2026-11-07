@@ -24,6 +24,7 @@ async function setup(): Promise<{ svc: Running; slack: FakeSlack; poller: Return
     read: slack.read, dm: slack.dm, service: httpClient(svc.http.url),
     config: {
       workspace: 'Kalevanet Sandbox', channel: '#field-ops',
+      refreshMs: 0, // import every poll, so a second poll shows the import is idempotent
       // Slack user -> person, as people.json actorIds give it ('person:slack:U…'); the service resolves the identity.
       slackUserToPerson: { U01: { personId: 'person:slack:U01', displayName: 'Hanna Mäkelä' }, U03: { personId: 'person:slack:U03', displayName: 'Jukka Salo' } },
     },
@@ -125,6 +126,20 @@ test('with the network guard on, nothing but the local service is reached (a Sla
   try {
     await poller.pollOnce();
     await assert.rejects(async () => fetch('https://slack.com/api/auth.test'), /blocked|network/i);
+  } finally {
+    restore();
+    await svc.close();
+  }
+});
+
+test('the service keeps one copy of a people file the poller sends again with each import', async () => {
+  const { svc, restore } = await setup();
+  try {
+    const directory = { people: [{ id: 'person:directory:jukka', name: 'Jukka Salo', role: 'Network Expert', groups: ['noc'], actorIds: ['person:slack:U03'], available: true }] };
+    const slack = createFakeSlack({ team: { id: 'T0SANDBOX', name: 'Kalevanet Sandbox' }, channel: { id: 'C0FIELD001', name: 'field-ops' }, users: [{ id: 'U03', real_name: 'Jukka Salo' }] });
+    const poller = createSlackPoller({ read: slack.read, dm: slack.dm, service: httpClient(svc.http.url), config: { workspace: 'Kalevanet Sandbox', channel: '#field-ops', slackUserToPerson: {}, directory, refreshMs: 0 } });
+    for (let i = 0; i < 4; i++) await poller.pollOnce();
+    assert.equal((svc.engine as unknown as { inlineDirectories: unknown[] }).inlineDirectories.length, 1);
   } finally {
     restore();
     await svc.close();

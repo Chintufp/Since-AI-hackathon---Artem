@@ -1,0 +1,34 @@
+# Slack app for the Lumi film: READ ONLY, one sandbox workspace, no events, no public URL.
+# The poller (pnpm demo:slack-poll --read-only) calls only: auth.test, conversations.info, conversations.list,
+# conversations.members, conversations.history, users.list. Nothing is posted, no DMs, no reactions.
+#
+# Five steps (sandbox workspace only, never a production one):
+#   1. https://api.slack.com/apps → Create New App → From a manifest → pick the sandbox workspace → paste this file → Create.
+#   2. Install App → Install to Workspace → Allow.
+#   3. Copy the "Bot User OAuth Token" (starts with xoxb-) from OAuth & Permissions. Do not paste it anywhere but your terminal.
+#   4. In Slack, in the film channel (a fresh, empty one), type: /invite @Lumi film reader
+#   5. In the terminal you film from:
+#        export KT_SLACK_LIVE=1
+#        export KT_SLACK_TOKEN=xoxb-…        (your token; never committed, never printed by the poller)
+#        pnpm demo:slack-poll --read-only --workspace "<exact workspace name>" --channel "#<channel>"
+#      Afterwards: delete the app at api.slack.com/apps (Basic Information → Delete App), which revokes the token.
+display_information:
+  name: Lumi film reader
+  description: Read-only reader for one sandbox channel (Lumi hackathon film). Posts nothing.
+  background_color: "#000000"
+features:
+  bot_user:
+    display_name: Lumi film reader
+    always_online: false
+oauth_config:
+  scopes:
+    bot:
+      - channels:read     # find the public channel by name, its member list
+      - channels:history  # read its messages
+      - groups:read       # the channel lookup lists private channels too; needed even for a public channel
+      - groups:history    # only used if the film channel is private
+      - users:read        # display names of the authors
+settings:
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false

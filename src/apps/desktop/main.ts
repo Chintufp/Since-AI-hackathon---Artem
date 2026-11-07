@@ -23,7 +23,8 @@ const OPEN_ON_LAUNCH = false;
 const HEALTH_TIMEOUT_MS = 10000;
 const mock = process.env.KT_MOCK === '1';
 const port = Number(process.env.KT_PORT) || DEFAULT_SERVICE_PORT;
-const serviceUrl = `http://127.0.0.1:${port}`;
+// Film (two machines): KT_SERVICE_URL points this app at a service on another Mac (use with KT_NO_SERVICE=1).
+const serviceUrl = process.env.KT_SERVICE_URL?.replace(/\/+$/, '') || `http://127.0.0.1:${port}`;
 // desktop (R31..R36): KT_WINDOW_MODE, KT_COMPANION, KT_DRAG, KT_AWAY, KT_GAZE, KT_FIDGETS, KT_SHORTCUT.
 const flags = flagsFromEnv(process.env);
 // desktop (shell-16): drag / away / shortcut stay off in the column fallback.
@@ -145,6 +146,11 @@ else {
     const query: Record<string, string> = flagsToQuery(flags);
     if (mock) query.mock = '1';
     if (OPEN_ON_LAUNCH) query.open = '1';
+    // Film: KT_PERSON = this app's own person (entity id); KT_QUESTION_POLL_MS = collapsed question poll (default 90 s).
+    if (process.env.KT_PERSON) query.person = process.env.KT_PERSON;
+    if (process.env.KT_QUESTION_POLL_MS) query.qpoll = process.env.KT_QUESTION_POLL_MS;
+    // Film: KT_FILM_ARRIVE=1 = start away; arrive with a new question and open its card by himself.
+    if (process.env.KT_FILM_ARRIVE === '1') query.filmarrive = '1';
     win = createCompanionWindow({ serviceUrl, query, mode: flags.windowMode });
     shell = createShell({ getWindow: () => win, flags, resetDemo: () => void resetDemo() });
   });

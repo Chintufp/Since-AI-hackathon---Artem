@@ -707,7 +707,19 @@ export class QuestionCoordinator {
       if (c && !c.evidenceIds.includes(env.id)) this.store.put('case', { ...c, evidenceIds: [...c.evidenceIds, env.id], updatedAt: now });
       resolve.add(q.candidate.gapId);
     }
-    const answer: Answer = { id: answerId, orgId: state.orgId, questionId: q.id, personEntityId: q.personEntityId, value, ...(words ? { text: words } : {}), at: now, claimUpdates: [], evidenceId: env.id };
+    const claimUpdates: Answer['claimUpdates'] = [];
+    if (parsed?.kind === 'confirm' && value !== 'unknown') {
+      // The reporter's confirmation: an attributed observation on the case, the answer as evidence on the case, and
+      // (yes) dependent support on the reported symptom claim. The claim's own text and status are not changed.
+      condition = { key: 'case.confirmed', operator: 'eq', value: value === 'yes', origin: 'reported', evidence: [evRef], label: value === 'yes' ? 'Confirmed as a real problem (answered)' : 'Not a problem worth tracking (answered)' };
+      const c = this.store.get('case', parsed.caseId);
+      if (c && !c.evidenceIds.includes(env.id)) this.store.put('case', { ...c, evidenceIds: [...c.evidenceIds, env.id], updatedAt: now });
+      const claim = this.store.get('claim', parsed.detail);
+      if (claim && value === 'yes' && !claim.supporting.some((r) => r.evidenceId === env.id)) this.store.put('claim', { ...claim, supporting: [...claim.supporting, evRef], updatedAt: now });
+      if (claim) claimUpdates.push({ claimId: claim.id, change: value === 'yes' ? 'support' : 'no-change', note: value === 'yes' ? `${principal.displayName} confirmed this is a real problem worth tracking.` : `${principal.displayName} answered that this is not a problem worth tracking.` });
+      resolve.add(q.candidate.gapId);
+    }
+    const answer: Answer = { id: answerId, orgId: state.orgId, questionId: q.id, personEntityId: q.personEntityId, value, ...(words ? { text: words } : {}), at: now, claimUpdates, evidenceId: env.id };
     this.store.put('answer', answer);
     if (condition) this.store.put('observation', { id: stableId('obs', answerId), orgId: state.orgId, investigationId: state.id, ...(parsed ? { caseId: parsed.caseId } : {}), condition, reportedBy: actorOf(principal), at: now });
     const updated = this.store.put('question', { ...q, status: 'answered', answerId, previousStatus: q.status, updatedAt: now });
@@ -733,6 +745,10 @@ export class QuestionCoordinator {
     if (a) {
       this.store.delete('evidence', a.evidenceId);
       for (const c of this.store.list('case').filter((x) => x.evidenceIds.includes(a.evidenceId))) this.store.put('case', { ...c, evidenceIds: c.evidenceIds.filter((id) => id !== a.evidenceId) });
+      for (const u of a.claimUpdates) {
+        const cl = this.store.get('claim', u.claimId);
+        if (cl?.supporting.some((r) => r.evidenceId === a.evidenceId)) this.store.put('claim', { ...cl, supporting: cl.supporting.filter((r) => r.evidenceId !== a.evidenceId) });
+      }
     }
     state.gaps = state.gaps.map((g) => (g.resolvedBy?.answerId === answerId ? (({ resolvedBy: _r, ...rest }) => ({ ...rest, status: 'open' as const }))(g) : g));
     this.setLoop(state, 'question-open', this.waitingReason(q.personEntityId, state, q.candidate.gapId));

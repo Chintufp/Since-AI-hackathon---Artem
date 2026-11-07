@@ -379,6 +379,11 @@ export class Engine {
     this.wiring().coordinator.deliverDue();
   }
 
+  /** Film: the confirm threshold the standing-gaps pass uses (distinct supporting messages), undefined when off. */
+  confirmThreshold(): number | undefined {
+    return this.standingSettings().confirmAfterEvidence || undefined;
+  }
+
   private standingSettings(): StandingGapSettings {
     const { ask: _ask, ...rest } = this.opts.standingGaps ?? {};
     return { ...defaultStandingGapSettings, diagnosticActions: this.invSettings().diagnosticActions, ...rest };
@@ -394,7 +399,7 @@ export class Engine {
     const ctx = { store: this.store, settings: w.settings, directory: w.directory, clock: this.clock };
     const rank = (st: InvestigationState): number => {
       const kinds = st.gaps.filter((g) => g.status === 'open').map((g) => parseGapId(g.id)?.kind);
-      return kinds.includes('outcome') ? 0 : kinds.includes('pairing') ? 1 : 2;
+      return kinds.includes('confirm') ? -1 : kinds.includes('outcome') ? 0 : kinds.includes('pairing') ? 1 : 2;
     };
     const states = this.store.list('investigation').filter((st) => st.origin === 'standing' && st.gaps.some((g) => g.status === 'open'))
       .sort((a, b) => rank(a) - rank(b) || a.id.localeCompare(b.id));
@@ -1059,6 +1064,9 @@ export class Engine {
         : gapKind === 'pairing'
         ? value === 'yes' ? `${lead} The two cases are now linked, with your answer as the evidence.`
           : value === 'no' ? `${lead} The two cases stay separate and will not be suggested together again.` : `${lead} Nothing was linked.`
+        : gapKind === 'confirm'
+        ? value === 'yes' ? `${lead} The case is recorded as a confirmed problem, with your answer as the evidence.`
+          : value === 'no' ? `${lead} The case is recorded as not worth tracking.` : `${lead} Nothing was recorded.`
         : value === 'unknown' ? `${lead} No outcome was recorded.` : `${lead} The outcome is recorded on the case as your report.`;
       return { title: gapKind === 'missing-symptom' && value !== 'unknown' ? 'Recorded: your description' : label, detail, canUndo: true, ...(points ? { pointsAwarded: points } : {}) };
     }

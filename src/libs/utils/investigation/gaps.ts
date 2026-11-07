@@ -6,8 +6,8 @@ import type { HypothesisDetail } from './types.ts';
 import type { InvestigationSettings } from './settings.ts';
 
 /** 'missing-symptom' and 'pairing' (B1) are standing gaps recorded at capture time on a case, never by an investigation. */
-export type GapKind = 'missing' | 'outcome' | 'lasting' | 'missing-symptom' | 'pairing';
-const KINDS = new Set<string>(['missing', 'outcome', 'lasting', 'missing-symptom', 'pairing']);
+export type GapKind = 'missing' | 'outcome' | 'lasting' | 'missing-symptom' | 'pairing' | 'confirm';
+const KINDS = new Set<string>(['missing', 'outcome', 'lasting', 'missing-symptom', 'pairing', 'confirm']);
 
 /** B1: the per-case standing investigation that carries a case's capture-time gaps. */
 export const standingInvestigationId = (caseId: string): string => stableId('inv', 'standing', caseId);

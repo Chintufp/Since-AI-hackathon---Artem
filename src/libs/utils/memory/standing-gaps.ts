@@ -9,7 +9,10 @@
  *     its evidence was captured (ingestedAt: the capture time is known even when the message time is not);
  * (c) pairing: an orphan fix (a) and an open problem case on the same asset within a window (default 14 days), ranked by
  *     time proximity and then by trigram cosine of their texts; a pair already decided (Pattern confirmed or rejected) is
- *     never proposed again.
+ *     never proposed again;
+ * (d) confirm (film, 8 Nov; off unless confirmAfterEvidence is set): a case with a reported symptom and a stated cause
+ *     (hypothesis claim) whose live claims rest on at least `confirmAfterEvidence` distinct evidence records asks the
+ *     person who reported the symptom whether it is a real problem worth tracking. Asked once per case.
  */
 import type { Attempt, Case, Gap, InvestigationState, KnowledgeStore, Principal } from '../contracts/index.ts';
 import { freshId, stableId } from '../contracts/index.ts';
@@ -28,6 +31,13 @@ export interface StandingGapSettings {
   diagnosticActions: string[];
   /** Action verbs that set something up rather than correct a fault (never a fix): an installation has no symptom. */
   setupVerbs?: string[];
+  /**
+   * (d) confirm: the certainty threshold, as the number of distinct evidence records behind the case's live claims
+   * (symptom, conditions, hypothesis, actions, outcomes). Undefined or 0: no confirm gap is ever recorded.
+   */
+  confirmAfterEvidence?: number;
+  /** (d) only cases with evidence from a connection id starting with one of these (default: live Slack), never history imports. */
+  confirmConnections?: string[];
 }
 
 export const defaultStandingGapSettings: StandingGapSettings = {
@@ -64,6 +74,10 @@ interface CaseInfo {
   atKnown: boolean;
   text: string;
   symptom: string;
+  /** (d) distinct evidence records behind the live claims; the first observation claim; whether a hypothesis is stated. */
+  evidenceCount: number;
+  observationClaimId?: string;
+  hasHypothesis: boolean;
 }
 
 function infoOf(store: KnowledgeStore, c: Case, s: StandingGapSettings): CaseInfo {
@@ -77,6 +91,9 @@ function infoOf(store: KnowledgeStore, c: Case, s: StandingGapSettings): CaseInf
     atKnown: instantOf(c.startedAt) !== undefined,
     text: [c.title, ...claims.map((x) => x.statement)].join(' '),
     symptom: (title || obs[0]?.statement || 'reported problem').replace(/[.!?]+$/, ''),
+    evidenceCount: new Set(claims.flatMap((x) => x.supporting.map((r) => r.evidenceId))).size,
+    ...(obs[0] ? { observationClaimId: obs[0].id } : {}),
+    hasHypothesis: claims.some((x) => x.type === 'hypothesis'),
   };
 }
 
@@ -169,6 +186,20 @@ export function recordStandingGaps(store: KnowledgeStore, opts: { orgId: string;
           status: 'open',
         });
       }
+    }
+    // (d) confirm: enough evidence behind a stated problem and cause; asked once (an answered one is kept as resolved).
+    const confirmAt = s.confirmAfterEvidence ?? 0;
+    const live = (s.confirmConnections ?? ['slack-live:']).some((pre) => store.list('claim', { where: { caseId: c.id } })
+      .some((x) => x.supporting.some((r) => store.get('evidence', r.evidenceId)?.connectionId.startsWith(pre))));
+    if (confirmAt > 0 && live && info.observationClaimId && info.hasHypothesis && info.evidenceCount >= confirmAt) {
+      fresh.push({
+        id: makeGapId(invId, 'confirm', c.id, info.observationClaimId),
+        description: `${label}: ${info.evidenceCount} messages now support a reported problem and a stated cause; nobody has confirmed it is a real problem.`,
+        consequential: true,
+        whatAnswerChanges: 'Yes records the reporter\'s confirmation on the case (attributed evidence supporting the reported symptom); no records that it is not a problem worth tracking. Nothing else changes.',
+        targetClaimId: info.observationClaimId,
+        status: 'open',
+      });
     }
     // (a) missing symptom (lowest priority, the Later pile)
     if (orphan) {

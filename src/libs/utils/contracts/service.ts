@@ -187,6 +187,14 @@ export interface ApiRoutes {
   'GET /costs': { query: { personEntityId?: string; principalId?: string }; res: ExpertCostView };
   /** B3: the Context Layer page (text/html) for ?entity=<name>[&principalId=]; it fetches GET /context and POST /investigate (preview). */
   'GET /context.html': { query: { entity?: string; principalId?: string }; res: string };
+  /** Film proof: the B/W page showing one Slack channel through the pipeline stages; it polls GET /pipeline.json. */
+  'GET /pipeline': { res: string };
+  /** The page's data: raw messages, usefulness, case claims, hypotheses, the stored case record (vectors cut to 6). */
+  'GET /pipeline.json': { query: { connection?: string }; res: unknown };
+  /** Film proof: one question's algorithm stage by stage (inputs, open condition, candidates, who can know, answer, evidence, result). */
+  'GET /pipeline/questions': { res: string };
+  /** Its data, from the stored question, decision, eligibility, answer and claims (?question=<id>, default the latest answered). */
+  'GET /pipeline/questions.json': { query: { question?: string }; res: unknown };
   /** Settings -> Models: machine detection, the catalog per slot (merged with installed models) and a status chip per slot. */
   'GET /models': { res: ModelsView };
   /** Starts `ollama pull` for one model (only ever from a click); progress by polling GET /models/pull/:id. */

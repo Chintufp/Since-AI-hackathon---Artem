@@ -1,6 +1,6 @@
 /**
  * Knowledge Twin local service.
- *   node src/apps/service/main.ts [--port 47831] [--db path|:memory:] [--seed elisa|synthetic|empty] [--host 127.0.0.1]
+ *   node src/apps/service/main.ts [--port 47831] [--db path|:memory:] [--seed elisa|synthetic|empty] [--host 127.0.0.1] [--confirm-after N]
  * --seed runs the demo reset (clearing the database) before listening.
  */
 import { parseArgs } from 'node:util';
@@ -19,8 +19,14 @@ const { values } = parseArgs({
     'quiet-hours': { type: 'string', default: process.env.KT_QUIET_HOURS ?? 'default' },
     /** B1: 'default' asks capture-time standing gaps; 'off' only records them (also off with --org-policy none). */
     'standing-gaps': { type: 'string', default: process.env.KT_STANDING_GAPS ?? 'default' },
+    /** Film: ask the reporter to confirm a case once this many distinct messages support its symptom and cause (0 = off). */
+    'confirm-after': { type: 'string', default: process.env.KT_CONFIRM_AFTER ?? '0' },
     port: { type: 'string', default: String(DEFAULT_SERVICE_PORT) },
     host: { type: 'string', default: '127.0.0.1' },
+    /** Film, two machines: also serve on this machine's LAN IPv4 (one address, never 0.0.0.0). */
+    'lan-host': { type: 'string' },
+    /** Film: no cooldown, several open questions per person, a high daily limit (quiet hours: --quiet-hours off). */
+    film: { type: 'boolean', default: false },
     db: { type: 'string', default: DEFAULT_DB_PATH },
     seed: { type: 'string' },
   },
@@ -36,11 +42,12 @@ if (values.seed !== undefined && !['elisa', 'synthetic', 'empty'].includes(value
   process.exit(2);
 }
 
+const film = values.film ? { cooldownMinutes: 0, maxOpenQuestionsPerPerson: 10, dailyLimitPerPerson: 100 } : {};
 const engine = new Engine({
   dbPath: values.db,
   investigation: values['org-policy'] === 'none' ? {} : { observability: defaultObservabilityPolicy },
-  ...(values['org-policy'] === 'none' || values['quiet-hours'] === 'off' ? {} : { coordinator: { quietHours: defaultQuietHours } }),
-  ...(values['org-policy'] === 'none' || values['standing-gaps'] === 'off' ? {} : { standingGaps: defaultStandingGaps }),
+  ...(values['org-policy'] === 'none' || values['quiet-hours'] === 'off' ? (values.film ? { coordinator: film } : {}) : { coordinator: { quietHours: defaultQuietHours, ...film } }),
+  ...(values['org-policy'] === 'none' || values['standing-gaps'] === 'off' ? {} : { standingGaps: { ...defaultStandingGaps, ...(Number(values['confirm-after']) > 0 ? { confirmAfterEvidence: Number(values['confirm-after']) } : {}) } }),
   // The simulated activity stream (scripts/demo-play.ts) writes this file; the service only reads it.
   ...(process.env.KT_ACTIVITY_LOG ? { activityLogPath: process.env.KT_ACTIVITY_LOG } : {}),
   // Background model work (embedding refresh, warming a slot switched to local). With every slot on rules it does nothing.
@@ -55,9 +62,9 @@ if (values.seed) {
 let ownOrigin: string | undefined;
 // D-INT-20: the running service refuses every host its configured slots do not need (re-derived per call from live settings).
 installServiceGuard({ slots: () => engine.modelSlots(), ownOrigin: () => ownOrigin });
-const http = await startHttp({ engine, port, host: values.host });
+const http = await startHttp({ engine, port, host: values.host, ...(values['lan-host'] ? { lanHost: values['lan-host'] } : {}) });
 ownOrigin = new URL(http.url).origin;
-process.stdout.write(`Knowledge Twin service listening on ${http.url} (db: ${engine.dbPath})\n`);
+process.stdout.write(`Knowledge Twin service listening on ${http.url}${values['lan-host'] ? ` and http://${values['lan-host']}:${http.port}` : ''} (db: ${engine.dbPath})\n`);
 // App start: warm every slot set to local (start `ollama serve` if needed); rules/api slots start nothing.
 if (process.env.KT_AUTO_MODELS !== '0') {
   void engine.models.warmSlots(engine.modelSlots()).then((r) => {

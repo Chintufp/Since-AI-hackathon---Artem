@@ -59,6 +59,10 @@ const panel = createPanel({
   storage: shots ? null : undefined,
   entrance: params.get('entrance') !== '0',
   companion: flags,
+  // Film (KT_PERSON, KT_QUESTION_POLL_MS in main): this app's own person and a faster collapsed question poll.
+  ...(params.get('person') ? { person: params.get('person')! } : {}),
+  ...(Number(params.get('qpoll')) >= 500 ? { questionPollMs: Number(params.get('qpoll')) } : {}),
+  ...(params.get('filmarrive') === '1' ? { filmArrive: true } : {}),
   // B2: api keys go through the main process (safeStorage); the mock keeps them in the mock service's memory.
   keychain: !mock && window.kt?.saveModelKey ? { save: (vendor, key) => window.kt!.saveModelKey!(vendor, key) } : null,
   // B3: the case view's "Open the context layer" (hidden without the bridge, and in mock mode where there is no page).

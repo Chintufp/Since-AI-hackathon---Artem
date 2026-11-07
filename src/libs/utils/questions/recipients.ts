@@ -63,7 +63,13 @@ export function findRecipients(ctx: QuestionContext, state: InvestigationState, 
   };
   const recencyOf = (l: PersonWorkLink): string | undefined => (l.recency.known ? l.recency.iso : undefined);
 
-  if (state.origin === 'standing' || parsed.kind === 'missing-symptom' || parsed.kind === 'pairing') {
+  if (parsed.kind === 'confirm') {
+    // A confirm gap goes to the person who reported the problem on the case (firsthand 'reported-problem'), nobody else.
+    const c = cases.get(parsed.caseId);
+    for (const l of links.filter((x) => x.caseId === parsed.caseId && x.contribution === 'reported-problem')) {
+      add(l.personEntityId, `Firsthand: ${VERB[l.contribution]} in "${c?.title ?? parsed.caseId}"`, recencyOf(l), true, `${VERB[l.contribution]} in ${c ? shortCaseLabel(store, c) : 'that case'}`);
+    }
+  } else if (state.origin === 'standing' || parsed.kind === 'missing-symptom' || parsed.kind === 'pairing') {
     // B1 standing gaps go to the person who performed the fix (firsthand 'performed-action' on the case), nobody else.
     const c = cases.get(parsed.caseId);
     const attemptId = parsed.kind === 'pairing' ? undefined : parsed.detail;

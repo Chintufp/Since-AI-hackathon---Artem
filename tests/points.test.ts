@@ -32,9 +32,9 @@ async function openQuestion(text: string) {
   return { q, person, p: human(person.id, person.name), investigationId: r.investigationId as string };
 }
 
-test('routes: 42 (32 + GET /context + the seven B2 model routes + B3 GET /context.html and GET /costs), including the three points routes', async () => {
+test('routes: 46 (32 + GET /context + the seven B2 model routes + B3 GET /context.html and GET /costs + the four /pipeline routes), including the three points routes', async () => {
   const h = await svc.call('GET', '/health');
-  assert.equal(h.routes.length, 42);
+  assert.equal(h.routes.length, 46);
   for (const r of ['GET /participation/rating', 'GET /participation/:personEntityId/optin', 'PUT /participation/:personEntityId/optin']) assert.ok(h.routes.includes(r), r);
 });
 

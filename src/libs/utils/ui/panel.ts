@@ -91,6 +91,18 @@ export interface PanelOptions {
    * Default: `window.__ktFlags.demo`; absent = off, and the footer is the normal one.
    */
   demo?: boolean;
+  /**
+   * Film (two desktops on one service): this app's own person (entity id), kept on this app only, so two apps can be
+   * two people. Picking "You" then changes only this app. Absent = the service-wide setting, as before.
+   */
+  person?: string;
+  /** Film: the collapsed question poll in ms (default COLLAPSED_POLL_MS, 90 s). */
+  questionPollMs?: number;
+  /**
+   * Film (KT_FILM_ARRIVE=1): Lumi starts away at the edge and, when he arrives with a new question, opens that
+   * question's card by himself once he is at the perch (instead of waiting there for a click). Off by default.
+   */
+  filmArrive?: boolean;
 }
 
 /** desktop (R31..R36): harness / test surface of the companion (also `panel.status().companion`). */
@@ -714,6 +726,10 @@ export function createPanel(options: PanelOptions): Panel {
   }
   async function loadDirectory(): Promise<void> {
     try { directory = await api.directory(); } catch { /* older service or offline: guest only */ }
+    // Film: a KT_PERSON name resolves only once the directory is known; re-apply the last settings with it.
+    if (personOverride && rawSettings) applySettings(rawSettings);
+    // Not in the directory yet (the service has not imported them): look again shortly.
+    if (personOverride && !directory.some((d) => d.personEntityId === personOverride || d.name === personOverride)) setTimeout(() => void loadDirectory(), 3000);
     renderDemoChips();
   }
   /** Act as another directory person: Settings -> You and the B6 demo chips share this path. */
@@ -1065,8 +1081,13 @@ export function createPanel(options: PanelOptions): Panel {
     if (state.view === 'models') renderModels();
   }
 
+  let personOverride = options.person;
+  let rawSettings: UserSettings | null = null;
   function applySettings(s: UserSettings): void {
-    settings = s;
+    rawSettings = s;
+    // Film: KT_PERSON may be an entity id or a directory name ("Mark"); resolved against the directory when it is loaded.
+    const own = personOverride ? (directory.find((d) => d.personEntityId === personOverride || d.name === personOverride)?.personEntityId ?? personOverride) : undefined;
+    settings = own ? { ...s, currentPersonEntityId: own } : s;
     state.points = !!s.points;
     state.reducedSetting = !!s.reducedMotion;
     syncMotion();
@@ -1074,6 +1095,13 @@ export function createPanel(options: PanelOptions): Panel {
     renderDemoChips();
   }
   async function saveSetting(patch: Omit<Partial<UserSettings>, 'models'> & { models?: Partial<ModelSlots> }): Promise<void> {
+    if (personOverride && patch.currentPersonEntityId !== undefined) {
+      // Film: this app's person stays on this app; the other app sharing the service keeps its own.
+      personOverride = patch.currentPersonEntityId;
+      const { currentPersonEntityId: _mine, ...rest } = patch;
+      if (!Object.keys(rest).length) { if (settings) applySettings(settings); return; }
+      patch = rest;
+    }
     try { applySettings(await api.putSettings(patch)); } catch (e) { showError(e, () => void saveSetting(patch)); }
   }
 
@@ -1614,7 +1642,16 @@ export function createPanel(options: PanelOptions): Panel {
   updateSend();
   if (companionFlags) {
     // desktop (R31..R36): the companion owns the carrier from here; the entrance lands at his home spot.
-    const att = createAttention({ storage });
+    // Film (KT_FILM_ARRIVE): attention in memory only, started fresh whenever no question is open (a reset, all
+    // answered), so a retake's question (same deterministic id) arrives again. Otherwise unchanged.
+    let inner = createAttention({ storage: options.filmArrive ? null : storage });
+    const att: Attention = options.filmArrive
+      ? new Proxy({} as Attention, {
+        get: (_t, key: keyof Attention) => (key === 'observe'
+          ? (ids: readonly string[]) => { if (!ids.length) inner = createAttention({ storage: null }); inner.observe(ids); }
+          : (...a: unknown[]) => (inner[key] as (...x: unknown[]) => unknown)(...a)),
+      })
+      : inner;
     attention = att;
     const c = createCompanion({
       avatar,
@@ -1649,13 +1686,30 @@ export function createPanel(options: PanelOptions): Panel {
       refresh: refreshQuestions,
       collapsed: () => !state.panelOpen,
       hidden: () => !!document.hidden,
-      arrive: (id, kind) => c.arrive(id, kind),
+      arrive: (id, kind) => {
+        const ok = c.arrive(id, kind);
+        // Film: once at the perch, open the question he came with (the same path as a click on him there).
+        if (ok && options.filmArrive) {
+          const started = Date.now();
+          const t = setInterval(() => {
+            const s = c.status().state;
+            if (s === 'perched' || Date.now() - started > 8000) {
+              clearInterval(t);
+              if (s === 'perched' && !state.panelOpen) { state.active = id; setView('question'); }
+            }
+          }, 100);
+        }
+        return ok;
+      },
+      ...(options.questionPollMs ? { pollMs: options.questionPollMs } : {}),
     });
     root.dataset.ktCompanion = 'on';
     if (companionFlags.drag) root.dataset.ktDrag = 'on';
     detachCompanion = attachCompanion(c, { root, avatarButton, win: window });
     c.start();
     watch.sync();
+    // Film: start away at the edge, so a question makes him come in (after the launch entrance).
+    if (options.filmArrive && companionFlags.away) setTimeout(() => c.command('away'), 2500);
   }
   if (options.entrance !== false) avatar.playEntranceThenRest();
   void connect();

@@ -5,6 +5,8 @@ import { z, ZodError } from 'zod';
 import type { ApiRoutes } from '../../libs/utils/contracts/index.ts';
 import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/index.ts';
 import type { Engine } from './engine.ts';
+import { DEFAULT_LOCAL_MODELS } from './models.ts';
+import { pipelineData, pipelinePage, questionStagesData, questionsPage } from './pipeline-page.ts';
 import { ServiceError, toServiceError } from './errors.ts';
 import {
   activityQuerySchema, answerSchema, costsQuerySchema, cancelSchema, clockSchema, contextQuerySchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema,
@@ -93,6 +95,15 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
     'GET /demo/activity': (c) => engine.activity(parse(activityQuerySchema, q(c))),
     'GET /demo/activity.html': () => new HtmlResponse(engine.activityPage()),
     'GET /context.html': () => new HtmlResponse(engine.contextPage()),
+    // Film proof: one Slack channel through the real pipeline stages (pipeline-page.ts), read straight from the store.
+    'GET /pipeline': () => new HtmlResponse(pipelinePage()),
+    'GET /pipeline.json': (c) => pipelineData(engine.store, {
+      ...(q(c).connection ? { connection: q(c).connection } : {}),
+      ...(engine.confirmThreshold() ? { threshold: engine.confirmThreshold()! } : {}),
+      embedModels: [engine.modelSlots().embed.model ?? DEFAULT_LOCAL_MODELS.embed, DEFAULT_LOCAL_MODELS.embed],
+    }),
+    'GET /pipeline/questions': () => new HtmlResponse(questionsPage()),
+    'GET /pipeline/questions.json': (c) => questionStagesData(engine.store, q(c).question ? { questionId: q(c).question! } : {}),
     'GET /costs': (c) => engine.costs(parse(costsQuerySchema, q(c))),
     'GET /models': () => engine.modelsView(),
     'POST /models/pull': (c) => engine.pullModel(parse(modelPullSchema, c.body).model),
@@ -179,6 +190,11 @@ export interface HttpOptions {
   engine: Engine;
   port?: number;
   host?: string;
+  /**
+   * Film (two machines): also listen on this one LAN address (a specific IPv4, never 0.0.0.0 or ::) and serve requests
+   * addressed to it. Loopback keeps working. Off by default.
+   */
+  lanHost?: string;
   /** Request log sink (default stderr). Pass `() => {}` to silence. */
   log?: (line: string) => void;
 }
@@ -203,7 +219,11 @@ export function startHttp(opts: HttpOptions): Promise<RunningHttp> {
     res.end(text);
   };
 
-  const server = createServer(async (req, res) => {
+  if (opts.lanHost !== undefined && (!/^\d{1,3}(\.\d{1,3}){3}$/.test(opts.lanHost) || opts.lanHost === '0.0.0.0' || opts.lanHost.startsWith('127.'))) {
+    return Promise.reject(new Error(`--lan-host must be this machine's LAN IPv4 address (not 0.0.0.0 or loopback), got ${opts.lanHost}`));
+  }
+  const allowed = new Set([...LOCAL_HOSTS, ...(opts.lanHost ? [opts.lanHost] : [])]);
+  const handler = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     const started = Date.now();
     const method = req.method ?? 'GET';
     let status = 200;
@@ -213,7 +233,7 @@ export function startHttp(opts: HttpOptions): Promise<RunningHttp> {
       path = url.pathname;
       // DNS-rebinding guard: only answer requests addressed to a loopback host name.
       const host = (req.headers.host ?? '').replace(/:\d+$/, '');
-      if (!LOCAL_HOSTS.has(host)) throw new ServiceError(403, 'Only loopback host names are served');
+      if (!allowed.has(host)) throw new ServiceError(403, 'Only loopback host names are served');
       const pathMatches = routes.filter((r) => r.rx.test(path));
       const hit = pathMatches.find((r) => r.method === method);
       if (!hit) throw pathMatches.length ? new ServiceError(405, `Method ${method} not allowed for ${path}`) : new ServiceError(404, `No route ${method} ${path}`);
@@ -236,16 +256,24 @@ export function startHttp(opts: HttpOptions): Promise<RunningHttp> {
       send(res, status, { error: err.message });
     }
     log(`${method} ${path} ${status} ${Date.now() - started}ms`);
-  });
+  };
+  const server = createServer((req, res) => void handler(req, res));
+  const lan = opts.lanHost ? createServer((req, res) => void handler(req, res)) : undefined;
 
   return new Promise((resolve, reject) => {
     server.once('error', reject);
     server.listen(opts.port ?? DEFAULT_SERVICE_PORT, opts.host ?? '127.0.0.1', () => {
       const port = (server.address() as AddressInfo).port;
-      resolve({
+      const done = () => resolve({
         server, port, url: `http://127.0.0.1:${port}`,
-        close: () => new Promise<void>((r) => { server.closeAllConnections(); server.close(() => r()); }),
+        close: () => new Promise<void>((r) => {
+          lan?.closeAllConnections(); lan?.close();
+          server.closeAllConnections(); server.close(() => r());
+        }),
       });
+      if (!lan) return done();
+      lan.once('error', reject);
+      lan.listen(port, opts.lanHost, done);
     });
   });
 }

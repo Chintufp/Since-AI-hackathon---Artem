@@ -23,7 +23,9 @@
     "demo:judge": "node scripts/demo-judge.mjs",
     "demo:agent": "node scripts/mcp-demo.ts",
     "demo:slack": "node scripts/slack-demo.ts",
-    "demo:slack-poll": "node scripts/slack-poll.ts"
+    "demo:slack-poll": "node scripts/slack-poll.ts",
+    "film": "node scripts/film-run.ts",
+    "film:agent": "node scripts/film-agent.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

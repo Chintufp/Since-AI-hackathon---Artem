@@ -8,7 +8,7 @@ import { findRecipients, problemEntityIds } from './recipients.ts';
 import { instantOf } from '../memory/validity.ts';
 
 /** B1: standing gaps are asked one kind at a time, most useful first (the missing symptom is the Later pile). */
-const STANDING_PRIORITY = ['outcome', 'pairing', 'missing-symptom'];
+const STANDING_PRIORITY = ['confirm', 'outcome', 'pairing', 'missing-symptom'];
 const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /** "this morning" / "today" / "yesterday" / "on 6 Nov" relative to now, in `timeZone`; "earlier" when the time is unknown. */
@@ -43,7 +43,7 @@ function statedValue(state: InvestigationState, key: string): string | undefined
 /** What a candidate was built from: the input of the phrase slot and of its validator. Never stored. */
 export interface PhraseFacts {
   /** B1's standing kinds ('missing-symptom', 'pairing') are carried but never phrased: they keep the template wording. */
-  kind: 'missing' | 'outcome' | 'missing-symptom' | 'pairing';
+  kind: 'missing' | 'outcome' | 'missing-symptom' | 'pairing' | 'confirm';
   /** The asset the question names ("TRN-301", "RTR-117 and RTR-118", "this asset"). */
   asset: string;
   /** missing: the plain condition label the question asks about. */
@@ -101,7 +101,7 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
       const p = parseGapId(gap.id);
       if (!p || p.kind === 'lasting') continue;
       if (standingKind && p.kind !== standingKind) continue;
-      if (!standingKind && (p.kind === 'missing-symptom' || p.kind === 'pairing')) continue;
+      if (!standingKind && (p.kind === 'missing-symptom' || p.kind === 'pairing' || p.kind === 'confirm')) continue;
       const rawCase = store.get('case', p.caseId);
       // The question is built from what the requester may see of the case (never from evidence hidden from them).
       const c = rawCase && gate ? visibleCase(rawCase, gate) : rawCase;
@@ -118,7 +118,34 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
       let text: string, rationale: string, consequences: { yes: string; no: string }, scope: QuestionCandidate['scope'], dedup: string;
       let extra: Partial<QuestionCandidate> = state.origin === 'standing' ? { origin: 'standing' } : {};
       let conditionLabel: string | undefined, actionNoun: string | undefined;
-      if (p.kind === 'missing-symptom' || p.kind === 'pairing') {
+      if (p.kind === 'confirm') {
+        // Phrased from the evidence: the reported symptom as written, then the case's reported conditions.
+        const obs = store.get('claim', p.detail);
+        const ref = obs?.supporting[0];
+        const ev = ref ? store.get('evidence', ref.evidenceId) : undefined;
+        if (!obs || !ev || (gate && !gate.ref(ref!))) continue;
+        const said = (ref!.span ? ev.text.slice(ref!.span.start, ref!.span.end) : ref!.excerpt ?? obs.statement).trim().replace(/[.!?]+$/, '');
+        const symptom = said.toLowerCase().startsWith(caseLabel.toLowerCase()) ? said.slice(caseLabel.length).replace(/^[\s:,-]+/, '').replace(/^at [^:]+:\s*/, '') : said;
+        // Conditions as the messages put them ("older N5 unit, installed 2019"), one per message, not the symptom's own.
+        const condRefs = store.list('claim', { where: { caseId: c.id } }).filter((x) => x.type === 'condition' && (x.status === 'provisional' || x.status === 'supported'))
+          .flatMap((x) => x.supporting).filter((r) => r.evidenceId !== ref!.evidenceId && (!gate || gate.ref(r)));
+        const conds = [...new Map(condRefs.map((r) => [r.evidenceId, r])).values()].map((r) => {
+          const t = store.get('evidence', r.evidenceId)?.text ?? '';
+          return (r.span ? t.slice(r.span.start, r.span.end) : r.excerpt ?? '').trim().replace(/^(yes|no|yeah|yep)[,.!\s]+/i, '')
+            .replace(new RegExp(`^${caseLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s:,-]+`, 'i'), '').replace(/[.!?]+$/, '');
+        }).filter(Boolean);
+        // The hypothesis as stated in the case (the cause someone proposed), so the card is the hypothesis itself.
+        const hypo = store.list('claim', { where: { caseId: c.id } }).find((x) => x.type === 'hypothesis' && (x.status === 'provisional' || x.status === 'supported') && (!gate || x.supporting.some((r) => gate.ref(r))));
+        const cause = hypo ? ` ${hypo.statement.trim().replace(/([^.!?])$/, '$1.')}` : '';
+        const vars = { asset: caseLabel, symptom, conditions: conds.length ? `, ${conds.join(', ')}` : '', cause };
+        const tpl = '{asset}: {symptom}{conditions}.{cause} Is this a problem?';
+        if (!vars.symptom) continue;
+        text = tidy(fill(tpl, vars));
+        rationale = `${gap.description} ${gap.whatAnswerChanges}`;
+        consequences = { yes: `${caseLabel} is recorded as a confirmed problem, with your answer as the evidence.`, no: `${caseLabel} is recorded as not worth tracking.` };
+        dedup = normalizeKey(`confirm:${c.id}`);
+        scope = { entityIds: c.entityIds, caseId: c.id };
+      } else if (p.kind === 'missing-symptom' || p.kind === 'pairing') {
         const evidenceText = loadCaseFacts(store, c.id, state.id, settings, gate ?? undefined).evidenceText;
         const attempt = p.kind === 'missing-symptom'
           ? store.get('attempt', p.detail)

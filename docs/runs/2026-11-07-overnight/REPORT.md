@@ -17,7 +17,7 @@
 7. **API/MCP.** 25 HTTP routes and 8 MCP tools (`kt_investigate`, `kt_get_context`, `kt_request_clarification`, `kt_clarification_status`, `kt_cancel_clarification`, `kt_record_observation`, `kt_record_outcome`, `kt_find_people`) over the same engine, with stable decision/trace ids, identical permissions and question limits for human and agent callers (tested over HTTP and over a real stdio MCP child).
 8. **Desktop ↔ service.** Every UI action is a service event: send → `POST /investigate` (idempotent id), answer/defer/dismiss/undo/cancel, observations, outcomes, settings, demo reset, directory-backed identity ("You" in Settings). Points are off by default, deduplicated per contribution, credited equally for a useful No, never read by evidence or selection.
 
-**Tests:** 233 application tests + 77 benchmark/experiment tests pass; typecheck clean. All of it is on branch `run/2026-11-07-overnight` in small commits; `main` is untouched; nothing was pushed.
+**Tests:** 248 application tests + 78 benchmark/experiment tests pass; typecheck clean. An independent Opus integration review reproduced the setup, the HTTP and MCP paths, an access audit across every endpoint (zero private evidence reaching outsiders) and the desktop walkthrough; its three major findings were fixed afterwards (private-channel members now see their own channel; the parser keeps "no traffic" and equipment models; an answered question survives re-sending the same text). All of it is on branch `run/2026-11-07-overnight` in small commits; `main` is untouched; nothing was pushed.
 
 ## 2. How to launch
 
@@ -48,7 +48,7 @@ All on synthetic scenario families (10 families, 30 incoming problems; 2 demo / 
 | Usefulness classifier | Hashed logistic regression trained on train families (local, pure TypeScript) | Validation accuracy 26/32 vs majority 25/32: predicts almost everything useful. | Saved as an artifact; **not** wired into the app. |
 | E08 / E09 / E10 | Not run | No torch installed; no multi-step simulator validated; no preference stream. | — |
 
-**What the results do not show.** No real engineer benefit (U04): people are simulated. Denominators are tiny (one validation problem moves a rate by 0.17). Validation was touched once by extractor tuning (two words, removed; see R23). The test split was opened once, before tuning. Recommendation **kind** accuracy stayed at or below the majority-class baseline on every split (train 3/12 vs 6/12 majority) even after extraction improved: the assessor/applicability rules, not extraction, are now the binding constraint. Questions asked fell to 2/24 across the families; the question loop is exercised and verified on the demo data and in tests, but the synthetic families rarely trigger it, so E03/E05/E06 are uninformative.
+**What the results do not show.** No real engineer benefit (U04): people are simulated. Denominators are tiny (one validation problem moves a rate by 0.17). Validation was touched once by extractor tuning (two words, removed; see R23). The test split was opened once, before tuning. Recommendation **kind** accuracy stayed at or below the majority-class baseline on every split (train 3/12 vs 6/12 majority) even after extraction improved: the assessor/applicability rules, not extraction, are now the binding constraint. Questions asked are 4/24 across the families; the question loop is exercised and verified on the demo data and in tests, but the synthetic families rarely trigger it, so E03/E05/E06 are uninformative.
 
 ## 4. How well it works against our metrics
 
@@ -57,9 +57,9 @@ Scores are from the final E00 run (`experiments/RESULTS.md`), on synthetic data;
 | Metric family (handoff §6) | Measured | Reading |
 | --- | --- | --- |
 | Knowledge accuracy | claim recall 0.48 / 0.68 / 0.64; precision 0.41 / 0.55 / 0.41; false merges 1/3, 0/7, 1/4; false splits 0; attempt performer errors 0 on train and validation | Good for a rules extractor built in one night; precision is the weak side (hypothesis fragments). Copies are never counted as independent. |
-| Resolution accuracy | false "solved" 0/2, 0/4, 0/3; outcome recall 2/4, 9/9, 3/4; case status accuracy 7/7 train, 4/4 validation | The system never calls a reported recovery verified; lasting needs a separate later report. |
+| Resolution accuracy | false "solved" 0/3, 0/6, 0/4; outcome recall 2/4, 9/9, 3/4; case status accuracy 7/7 train, 4/4 validation | The system never calls a reported recovery verified; lasting needs a separate later report. |
 | Recommendation quality and coverage | kind accuracy 1/6, 3/12, 3/6 (majority 3/6, 6/12, 4/6); false advice 0, 3/9, 1/5; eligible coverage 1/5, 6/9, 4/5 | Coverage improved a lot; kind choice is still weak and false advice on train rose with coverage. This is the next thing to work on. |
-| Question value and burden | questions per investigation 0, 2/12, 0; wrong recipient rests on 1 question; hard-rule violations 0 everywhere | Rules (budgets, cooldowns, access, duplicates, self) never violated. Value cannot be estimated from these counts. |
+| Question value and burden | questions per investigation 0/6, 4/12, 0/6; wrong recipient 1/2 on train (all four simulated answers were "unknown"); hard-rule violations 0 everywhere | Rules (budgets, cooldowns, access, duplicates, self) never violated. Value cannot be estimated from these counts. |
 | Calibration | not scored | No probabilistic targets were defined (U06); nothing is presented as a probability. |
 | Efficiency | mean latency per investigation 0.9–6 ms; whole experiment queue under 3 s on this Mac; no tokens, no API calls | Trivially cheap; the app feels instant. |
 | Hard constraints | access leak found by E00 and closed; one residual that is not system-detectable (e-mail without ACL, R25); duplicate delivery 0; budget violations 0 | Gates hold outside the learned selector. |
@@ -76,12 +76,14 @@ The challenge: capture silent, human-generated contextual metadata (expert knowl
 - **Feasibility.** One TypeScript codebase, one local process, SQLite, no cloud, no model calls, 310 passing tests, all deterministic; the whole experiment queue runs in seconds. Replacing a rules stage with a model is a provider interface away. **Strong.**
 - **Agent suitability.** The same engine is an MCP server with investigate / context / clarification / observation / outcome tools, stable ids and the same limits as humans; an agent cannot see restricted evidence or bypass question budgets (tested). Exposure is logged separately from adoption. **Strong at the interface level; no real agent used it yet.**
 
-Honest overall: the prototype demonstrates the whole loop on the organizer's example and on synthetic data, with evidence-backed, qualified answers and a pleasant, fast companion. It does not yet show that its recommendations are right more often than a trivial baseline on unseen synthetic incidents, and it shows nothing about real engineers.
+Honest overall (and confirmed by the independent review): the prototype demonstrates the whole loop on the organizer's example and on synthetic data, with evidence-backed, qualified answers and a pleasant, fast companion. It does not yet show that its recommendations are right more often than a trivial baseline on unseen synthetic incidents, and it shows nothing about real engineers.
 
 ## 6. Limitations that remain
 
 - Slack: **fixture-tested, awaiting authorization**. Export and live-payload mapping are tested on fixtures; no workspace was read, no app installed.
 - No authentication: callers assert their identity; loopback only. `GET /investigations/:id` and `GET /questions/:id` accept an optional principal (reviewer finding, left as a contract-level follow-up).
+- Re-importing an identical record cannot tighten its access scope (deterministic ids deduplicate it); reset or revise instead. Channel memberships are additive and never revoked by later imports; only the Slack adapter emits them.
+- The TRN-042 demo case needs the git-ignored organizer files under `private/`; a fresh clone gets the synthetic demo families and the dev fixture only.
 - Extraction is lexical rules; paraphrases outside the cue lexicons are missed; hypothesis precision is low; person identity is by normalized display name.
 - Windows not built or tested; tray icon verified in code, not in the real menu bar; click-through uses forwarded mouse moves (macOS behavior).
 - No sounds; points are a separate record with a switch and a subtle burst only.

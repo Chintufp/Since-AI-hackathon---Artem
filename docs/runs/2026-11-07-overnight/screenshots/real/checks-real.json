@@ -1,5 +1,5 @@
 {
-  "startedAt": "2026-11-07T02:08:20.507Z",
+  "startedAt": "2026-11-07T02:34:41.796Z",
   "electron": "45.2.3",
   "chrome": "156.0.8078.80",
   "node": "24.22.2",
@@ -40,7 +40,7 @@
     "Tapio Lehto · NOC Engineer"
   ],
   "contactDraftFor": "Erkki Expert · Network Expert",
-  "contactDraftText": "Question: At site now. Replaced the SFP on TRN-088, an older unit from 2018… || Hi Erkki,\n\nI am looking into: \"At site now. Replaced the SFP on TRN-088, an older unit from 2018. Link is up, alarms cleared, RX power normal, but no traffic. Counters zero.\"\n\nWhat I see now:\n- Older unit\n- Installed year\n- Interface up\n- Alarms cleared\n- RX power normal\n- Traffic counters zero\n\nChecks already performed:\n- Component replaced\n\nStill unresolved:\n- Whether a past response I found applies to this case.\n\nCould you tell me what you saw, or point me to someone who did?\n\nThanks,\nVeikko Vikkelä",
+  "contactDraftText": "Question: At site now. Replaced the SFP on TRN-088, an older unit from 2018… || Hi Erkki,\n\nI am looking into: \"At site now. Replaced the SFP on TRN-088, an older unit from 2018. Link is up, alarms cleared, RX power normal, but no traffic. Counters zero.\"\n\nWhat I see now:\n- Link is up, alarms cleared, RX power normal, but no traffic\n- Older unit\n- Installed in 2018\n- Interface up\n- Alarms cleared\n- RX power normal\n- No traffic\n- Traffic counters zero\n\nChecks already performed:\n- Component replaced: sfp\n\nStill unresolved:\n- Whether a past response I found applies to this case.\n\nCould you tell me what you saw, or point me to someone who did?\n\nThanks,\nVeikko Vikkelä",
   "secondProblemAttempts": [
     {
       "text": "TRN-301: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.",
@@ -316,7 +316,7 @@
         "when": "09:25 (date unknown)"
       }
     ],
-    "caveat": "Recovery is reported, not verified (timing, cause and lasting unconfirmed); 8 independent of 9 source record(s).",
+    "caveat": "Recovery is reported, not verified (timing, cause and lasting unconfirmed); 8 of 9 source records are independent (copies and retellings are not counted).",
     "status": "delivered",
     "deferred": false
   },
@@ -331,7 +331,7 @@
   "sameInvestigation": true,
   "afterAnswerRows": [
     "People with relevant experience4",
-    "Existing evidence and your own observations settle the next step"
+    "The answer was used to update the recommendation"
   ],
   "afterAnswerTitle": "Check the traffic counters before replacing the SFP again.",
   "hitbox": {
@@ -398,7 +398,7 @@
       "width": 420,
       "file": "04-result-420.png",
       "view": "result",
-      "settleMs": 783,
+      "settleMs": 813,
       "hitbox": [
         321,
         596,
@@ -412,7 +412,7 @@
       "width": 420,
       "file": "05-result-node-expanded-420.png",
       "view": "result",
-      "settleMs": 193,
+      "settleMs": 190,
       "hitbox": [
         321,
         596,
@@ -426,7 +426,7 @@
       "width": 420,
       "file": "06-result-last-node-420.png",
       "view": "result",
-      "settleMs": 195,
+      "settleMs": 196,
       "hitbox": [
         321,
         596,
@@ -440,7 +440,7 @@
       "width": 420,
       "file": "07-people-420.png",
       "view": "people",
-      "settleMs": 197,
+      "settleMs": 199,
       "hitbox": [
         321,
         596,
@@ -496,7 +496,7 @@
       "width": 420,
       "file": "11-queue-420.png",
       "view": "queue",
-      "settleMs": 25,
+      "settleMs": 23,
       "hitbox": [
         321,
         596,
@@ -510,7 +510,7 @@
       "width": 420,
       "file": "12-question-420.png",
       "view": "question",
-      "settleMs": 1349,
+      "settleMs": 1342,
       "hitbox": [
         321,
         596,
@@ -524,7 +524,7 @@
       "width": 420,
       "file": "13-question-context-420.png",
       "view": "question",
-      "settleMs": 230,
+      "settleMs": 229,
       "hitbox": [
         321,
         596,
@@ -552,7 +552,7 @@
       "width": 420,
       "file": "15-undo-returns-to-question-420.png",
       "view": "question",
-      "settleMs": 205,
+      "settleMs": 22,
       "hitbox": [
         321,
         596,
@@ -604,5 +604,5 @@
       "reduced": false
     }
   ],
-  "finishedAt": "2026-11-07T02:08:38.347Z"
+  "finishedAt": "2026-11-07T02:34:59.434Z"
 }

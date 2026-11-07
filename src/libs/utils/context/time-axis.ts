@@ -1,7 +1,8 @@
 /**
  * B3: the Context Layer page's time axis, as a pure function. It never invents a date: known instants go on a calendar
- * segment, clock-only items ("09:14", date unknown) on a "same day, date unknown" segment per thread ordered by clock
- * minutes then sequence, and items with no usable time (unknown, date-only) in a '?' gutter. Segments are laid out left
+ * segment, clock-only items ("09:14", date unknown) on a "same day, date unknown" segment per thread in thread order
+ * (sequence; the clock text is the tick label and sets the spacing only while it agrees with that order), and items with
+ * no usable time (unknown, date-only) in a '?' gutter. Segments are laid out left
  * to right as: time-only threads, calendar, gutter (B1's rule: an undated source is valid from before any dated moment;
  * the gutter sits at the end because nothing places it in time). The slider's stops come from the same layout.
  *
@@ -52,7 +53,7 @@ export interface AxisLayout {
   breaks: number[];
 }
 
-export function layoutTimeAxis(items: AxisItem[], opts: { x0: number; x1: number; gap?: number; pad?: number }): AxisLayout {
+export function layoutTimeAxis(items: AxisItem[], opts: { x0: number; x1: number; gap?: number; pad?: number; firstDated?: string }): AxisLayout {
   const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const gap = opts.gap ?? 22;
   const pad = opts.pad ?? 14;
@@ -93,14 +94,18 @@ export function layoutTimeAxis(items: AxisItem[], opts: { x0: number; x1: number
     const inner1 = Math.max(inner0, seg.x1 - pad);
     if (part.kind === 'time-only') {
       seg.thread = part.thread;
+      // Thread order decides left to right (it is also what the gate follows); clock minutes only space the items, and
+      // only while they rise with the thread order (a thread crossing midnight is spaced evenly instead).
       const mine = timeOnly.filter((it) => (it.thread ?? '') === part.thread)
-        .sort((a, b) => minutes(a.position.raw) - minutes(b.position.raw) || seq(a) - seq(b));
+        .sort((a, b) => seq(a) - seq(b) || minutes(a.position.raw) - minutes(b.position.raw));
       const lo = minutes(mine[0]!.position.raw);
       const hi = minutes(mine[mine.length - 1]!.position.raw);
       const span = hi - lo;
+      const rising = mine.every((it, i) => i === 0 || minutes(it.position.raw) >= minutes(mine[i - 1]!.position.raw));
       let last = -Infinity;
-      for (const it of mine) {
-        const base = span > 0 ? inner0 + ((minutes(it.position.raw) - lo) / span) * (inner1 - inner0) : (inner0 + inner1) / 2;
+      for (const [i, it] of mine.entries()) {
+        const base = rising && span > 0 ? inner0 + ((minutes(it.position.raw) - lo) / span) * (inner1 - inner0)
+          : !rising ? inner0 + (i / Math.max(1, mine.length - 1)) * (inner1 - inner0) : (inner0 + inner1) / 2;
         // Same clock minute: keep thread order visible with a small nudge.
         const px = Math.max(base, last + 5);
         x[it.id] = px;
@@ -134,14 +139,18 @@ export function layoutTimeAxis(items: AxisItem[], opts: { x0: number; x1: number
 
   const order = Object.keys(x).sort((a, b) => x[a]! - x[b]!);
   const byId = new Map(items.map((it) => [it.id, it] as const));
-  const firstKnown = known.length ? Math.min(...known.map(ms)) : undefined;
-  // What is visible at each stop, with gateAt's rule: dated items by `at`; undated items only of the cutoff's thread up
-  // to it (time-only stops), every undated item at a calendar stop, everything at now.
+  // The earliest dated moment: on this axis, or anywhere the viewer can see (opts.firstDated, from GET /context), so a
+  // time-only stop's `at` lies before every dated source, not only before this entity's.
+  const firstDated = opts.firstDated ? Date.parse(opts.firstDated) : Number.NaN;
+  const firstMs = [...known.map(ms), ...(Number.isFinite(firstDated) ? [firstDated] : [])];
+  const firstKnown = firstMs.length ? Math.min(...firstMs) : undefined;
+  // What is visible at each stop, with gateAt's rule: at a time-only stop only the cutoff's thread up to it (dated or
+  // not); at a calendar stop dated items by `at` and every undated item; everything at now.
   const visibleAt = (stop: Omit<AxisStop, 'visible' | 'x' | 'label'>): string[] => items.filter((it) => {
     if (stop.kind === 'now') return true;
     const t = ms(it);
     const atMs = stop.at ? Date.parse(stop.at) : Number.POSITIVE_INFINITY;
-    if (it.position.kind === 'known' && Number.isFinite(t)) return t <= atMs;
+    if (it.position.kind === 'known' && Number.isFinite(t) && t > atMs) return false;
     if (stop.kind === 'calendar') return true;
     const cut = byId.get(stop.atEvidence ?? '');
     if (!cut) return false;

@@ -23,6 +23,7 @@ test('GET /context.html: 200 text/html, an svg, the open-bar label, the fetch pa
   const html = await res.text();
   assert.match(html, /<svg/);
   assert.match(html, /still believed true/);
+  assert.match(html, /' · holds for '/);
   assert.match(html, /'\/context\?'/);
   assert.match(html, /'\/investigate'/);
   assert.match(html, /preview: true/);
@@ -46,11 +47,16 @@ test('the page data: GET /context gives thread ids, routes and the bounding note
   for (const a of bounded) assert.ok(v.assertions.some((n: any) => n.claimId === a.conditionedBy), 'conditionedBy names a visible claim');
   const items: AxisItem[] = [];
   for (const a of v.assertions) if (!items.some((i) => i.id === a.source.evidenceId)) items.push({ id: a.source.evidenceId, position: a.source.position, thread: a.source.thread, stop: true });
-  const l = layoutTimeAxis(items, { x0: 128, x1: 760 });
+  // Review: the earliest dated source the viewer can see anywhere, so a time-only stop reads before all of them.
+  assert.ok(typeof v.earliestDated === 'string');
+  const allDated = svc.engine.store.list('evidence').filter((e) => e.eventTime.known && e.eventTime.iso && e.accessScope?.visibility === 'org').map((e) => Date.parse(e.eventTime.iso!));
+  assert.ok(Date.parse(v.earliestDated) <= Math.min(...allDated));
+  const l = layoutTimeAxis(items, { x0: 128, x1: 760, firstDated: v.earliestDated });
   assert.equal(l.segments[0]!.kind, 'time-only');
   assert.ok(l.segments.some((s) => s.kind === 'calendar'), 'the dated note sits on the calendar');
   const first = l.stops[0]!;
   assert.equal(first.kind, 'time-only');
+  assert.equal(first.at, new Date(Date.parse(v.earliestDated) - 1).toISOString());
   // What the page sends for the first stop: the agent is told nothing yet; at now the fix is reused or bounded.
   const principal = { id: 'context-page', displayName: 'Anonymous', groups: [], type: 'human' };
   const text = 'TRN-117: link up after the optics change, counters zero, no traffic.';
@@ -58,5 +64,8 @@ test('the page data: GET /context gives thread ids, routes and the bounding note
   assert.equal(early.recommendation.kind, 'none');
   const now = await svc.call('POST', '/investigate', { text, principal, entityIds: [v.entity.id], allowQuestions: false, preview: true });
   assert.notEqual(now.recommendation.kind, 'none');
+  // Review: one phrase for a bounded claim on the strip and the page; never "still believed true" next to "Superseded".
+  if (now.provenance && /bounded/.test(now.provenance.text)) assert.match(now.provenance.text, /bounded \S+ \S+ by .+ · holds for /);
+  assert.doesNotMatch(now.provenance?.text ?? '', /still believed true for/);
   assert.equal(svc.engine.store.list('investigation').filter((s) => s.origin !== 'standing').length, 0, 'the slider persisted nothing');
 });

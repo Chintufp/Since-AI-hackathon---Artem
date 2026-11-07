@@ -70,7 +70,8 @@ export function provenanceOf(store: KnowledgeStore, claim: Claim | undefined, ga
     // B1 D-B1-07: a "fixed in firmware X" note bounds the advice; it still holds inside the bound.
     bound = `bounded ${dated(note)} by ${nameOf(note) ?? 'a newer source'}`;
     stillBelievedTrue = true;
-    status = `still believed true for ${claim.validity.condition} (${bound})`;
+    // One phrase on the strip and the page (review): bounded, and where it still holds.
+    status = `${bound} · holds for ${claim.validity.condition}`;
   } else if (validAt(claim, now) || claim.status === 'superseded') {
     // A superseded claim whose newer claim the viewer may not see reads as it did before (B1, D-B1-39).
     stillBelievedTrue = true;

@@ -8,7 +8,7 @@ import type {
   Claim, ContextAssertion, ContextAssertionsView, ContextBinding, Entity, KnowledgeStore,
 } from '../contracts/index.ts';
 import { describeTime } from '../connectors/time.ts';
-import { canSee, evidenceGate, visibleCase, type PrincipalLike } from '../retrieval/access.ts';
+import { canSee, earliestDated, evidenceGate, visibleCase, type PrincipalLike } from '../retrieval/access.ts';
 import { defaultExtractionConfig } from './extraction-config.ts';
 import { modelProvenance } from './provenance.ts';
 import { timePosition, validAt } from './validity.ts';
@@ -94,5 +94,7 @@ export function contextAssertions(store: KnowledgeStore, entity: Entity, princip
       recorded: timePosition(c.validity.from), evidence: gate.refs(c.supporting),
     });
   }
-  return { entity: { id: entity.id, name: entity.name, type: entity.type }, ...(at ? { at } : {}), assertions: rows, bindings };
+  // B3: the earliest dated source the principal can see anywhere, so the page's time-only stops read before it.
+  const first = earliestDated(store, gate);
+  return { entity: { id: entity.id, name: entity.name, type: entity.type }, ...(at ? { at } : {}), assertions: rows, bindings, ...(first !== undefined ? { earliestDated: new Date(first).toISOString() } : {}) };
 }

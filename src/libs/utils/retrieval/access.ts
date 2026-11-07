@@ -76,9 +76,10 @@ export function visibleCase(c: Case, gate: EvidenceGate): Case | undefined {
  * B1: the same gate as seen at a moment: evidence whose event time is known and later than `atMs` is invisible;
  * evidence with an unknown or partial time stays visible (an undated source is "valid from before any dated moment").
  *
- * B3: with `atEvidence` (an evidence id), undated evidence is visible only when it belongs to that evidence's thread and
- * comes at or before it in thread order (sequence, then position); undated evidence of other threads is not visible.
- * Dated evidence follows `atMs` as above. This is how the Context Layer slider moves through a thread whose date is
+ * B3: with `atEvidence` (an evidence id), evidence is visible only when it belongs to that evidence's thread and comes
+ * at or before it in thread order (sequence, then position); evidence of every other thread, dated or not, is not
+ * visible (a moment inside an undated thread cannot be ordered against other sources). Dated evidence also follows
+ * `atMs` as above. This is how the Context Layer slider moves through a thread whose date is
  * unknown without inventing a date for it.
  */
 export function gateAt(store: Pick<KnowledgeStore, 'get'>, base: EvidenceGate, atMs: number, atEvidence?: string): EvidenceGate {
@@ -94,7 +95,7 @@ export function gateAt(store: Pick<KnowledgeStore, 'get'>, base: EvidenceGate, a
       const t = ev?.eventTime;
       const ms = t?.known && t.iso ? Date.parse(t.iso) : NaN;
       if (Number.isFinite(ms) && ms > atMs) ok = false;
-      if (ok && atEvidence !== undefined && !Number.isFinite(ms)) {
+      if (ok && atEvidence !== undefined) {
         if (!cut || !ev) ok = false;
         else if (ev.id !== cut.id) {
           const sameThread = ev.thread.threadId !== undefined && ev.thread.threadId === cut.thread.threadId;
@@ -113,4 +114,18 @@ export function gateAt(store: Pick<KnowledgeStore, 'get'>, base: EvidenceGate, a
     supported: (rs) => rs.length === 0 || rs.some(ref),
     scope: base.scope,
   };
+}
+
+/**
+ * B3: the earliest known event time (ms) among the evidence a gate lets through, or undefined. A time-only moment
+ * ("09:14", date unknown) is read just before it: an undated source is valid from before any dated moment (B1).
+ */
+export function earliestDated(store: Pick<KnowledgeStore, 'list'>, gate: EvidenceGate): number | undefined {
+  let first: number | undefined;
+  for (const e of store.list('evidence')) {
+    const ms = e.eventTime.known && e.eventTime.iso ? Date.parse(e.eventTime.iso) : Number.NaN;
+    if (!Number.isFinite(ms) || (first !== undefined && ms >= first)) continue;
+    if (gate.ref({ evidenceId: e.id })) first = ms;
+  }
+  return first;
 }

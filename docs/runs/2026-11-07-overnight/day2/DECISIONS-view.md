@@ -21,7 +21,9 @@ Reverse: drop `preview` from the schema and the branch at the top of `Engine.inv
 `retrieval/access.ts gateAt(store, base, atMs, atEvidence?)` then shows undated evidence (time-only, date-only, unknown)
 only when it belongs to the cutoff's thread (`thread.threadId`) and comes at or before it in thread order
 (`eventTime.sequence`, then `thread.position`); undated evidence of every other thread is hidden. Dated evidence follows
-`at` exactly as B1 built it (visible when at or before `at`). Without `at` the engine uses now as `at`; an unknown
+`at` exactly as B1 built it (visible when at or before `at`). (Changed in review, D-B3-12: with a cutoff, every other
+thread is hidden, dated or not; without `at` the moment is just before the earliest visible dated source; an id the
+requester may not see is a 400 like an unknown one.) Without `at` the engine uses now as `at`; an unknown
 evidence id is a 400. The cutoff is part of the problem id, and like `at` it never asks anyone. It is passed through
 `buildCorpus`, `HybridRetriever.search`, `loadCaseFacts` (assessor) and the investigation's own gate.
 Why: the Elisa TRN-042 thread has clock times and no date. B1's `at` keeps every undated item visible at every moment,
@@ -46,7 +48,7 @@ Reverse: inline a JavaScript copy in context-page.ts (and lose the test on what 
 ## D-B3-04 · Axis order: undated threads, calendar, '?' gutter; what each stop sends
 
 Segments left to right: one "same day, date unknown" segment per undated thread (clock minutes, then sequence; ticks
-are the raw clock text), the calendar for known instants (UTC short dates, as B1's `shortDate`), then a '?' gutter for
+are the raw clock text; changed in review to thread order, D-B3-13), the calendar for known instants (UTC short dates, as B1's `shortDate`), then a '?' gutter for
 items with no usable time (unknown, and date-only, whose raw text is not trusted onto a calendar). Undated threads come
 first because B1's validity rule treats an undated source as valid from before any dated moment; the gutter comes last
 because nothing places it in time. Stops: one per evidence item on a clock segment (`atEvidence` = that evidence,
@@ -185,3 +187,62 @@ Not run in this pass: the mock harness (`scripts/screenshot.mjs`), which would r
 day-1 panel PNG set; the strip and the cost row are in the mock (`POST /investigate` provenance, `GET /costs`) for its
 next run, and were checked here through the page and the tests, not through panel screenshots.
 Reverse: drop `contextShots` and the `KT_SHOTS_ONLY=context` branch.
+
+## Review (two independent reviewers, after 428fc29)
+
+### D-B3-12 · A time-only stop shows only its own thread, dated or not (major, fixed)
+
+Finding: at a time-only stop the page said "only this thread up to here counts", but `gateAt` hid only *undated*
+evidence of other threads; the stop's `at` was 1 ms before the earliest dated item *on the entity's axis*, so dated
+evidence of other threads before it stayed visible (18 items at TRN-042 09:14 on the Elisa store), and with no dated
+item on the axis no `at` was sent and the engine used now. Confirmed in the code.
+Fix, both halves: (1) `gateAt` with `atEvidence` now hides every evidence item outside the cutoff's thread, dated or
+not (a moment inside an undated thread cannot be ordered against any other source), so the page's label is what the
+gate does; the axis's `visibleAt` mirrors it. (2) The moment itself is read before every dated source the viewer can
+see: `access.ts earliestDated(store, gate)`; `GET /context` carries it as `earliestDated` (additive, through the
+viewer's gate), the page passes it to `layoutTimeAxis` (`opts.firstDated`), and every time-only stop sends
+`at` = 1 ms before min(axis, store) whenever any dated source exists; `Engine.investigate` with a cutoff and no `at`
+uses the same moment (else now). Claim validity at a time-only stop is therefore read before any dated change.
+Measured on the Elisa store after the fix: dated evidence of other threads visible at TRN-042 09:14 and RBS-310 14:02:
+0 and 0; every slider answer is unchanged (TRN-042 none -> check-first -> qualified -> superseded caveat after 14 Oct;
+RBS-310 none -> 5802 -> 7731). Tests: preview-at-evidence (dated evidence of another thread hidden; earliestDated;
+a cutoff without `at` = the cutoff with `at` just before the first dated source), time-axis (firstDated, an entity
+without dated items still sends `at`), context-page (`earliestDated` on GET /context, the first stop's `at`).
+Reverse: the `if (ok && atEvidence !== undefined)` branch in `gateAt` back to undated only, and drop `earliestDated`.
+
+### D-B3-13 · Undated threads are laid out in thread order (minor, fixed)
+
+Finding: time-only items were placed by clock minutes, visibility followed sequence; a thread crossing midnight put
+00:10 left of 23:50 and moving t right hid evidence. Fix: thread order (sequence, then minutes) decides left to right,
+as the gate does; clock minutes only set the spacing while they rise with that order, otherwise the items are spaced
+evenly; the tick labels stay the raw clock text. Test: time-axis (23:50, 00:10, 00:20: visible sets 1, 2, 3, 3).
+Reverse: the sort in the time-only branch of `layoutTimeAxis`.
+
+### D-B3-14 · Access facts: a hidden newer code does not close the old one (minor, fixed in B1 code)
+
+Finding: with the 6 Oct 7731 e-mail restricted, a non-member got "No barrier code for RBS-310 is on file." at now
+while the page showed 5802 "still believed true": `lookupAccessFacts` read the raw 5802 claim, whose validity was
+closed by the hidden 7731 claim, so the answer told a non-member that something newer exists. Fix:
+`lookupAccessFacts` presents a claim whose superseder the requester may not see as it was before it (no
+`supersededBy`, status provisional, no close time set by that claim), the same rule as context-assertions (B1
+D-B1-39). The non-member now gets the August code flagged as past its October change (check-first, as without the
+follow-up), never 7731, "6 Oct" or "no code". Test: access-facts.test.ts (fails without the fix).
+Reverse: drop `asSeen` in `access-facts.ts`.
+
+### D-B3-15 · atEvidence the requester may not see is a 400 like an unknown id (minor, fixed)
+
+Both reviewers: `Engine.investigate` checked the cutoff with `store.get` only, so a restricted id answered 200 and an
+unknown one 400, and an invisible item could become the cutoff. Fix: the id must exist and pass the requester's
+`evidenceGate`; otherwise the same 400 "Unknown atEvidence". Test: preview-at-evidence (same message for both; a member
+of the group gets 200).
+Reverse: the check in `Engine.investigate`.
+
+### D-B3-16 · One phrase for a bounded claim (minor, fixed)
+
+Finding: the card's strip said "still believed true for software.version < 4.2 (bounded 14 Oct by Erkki Expert)" right
+above B1's caveat "Superseded on 14 Oct ...", and the page said "superseded 14 Oct ... · still true for ...". Now both
+the strip and the page's status column say "bounded 14 Oct by Erkki Expert · holds for software.version < 4.2"
+(`ProvenanceView.stillBelievedTrue` stays true: the advice holds inside the bound). B1's caveat text is unchanged (for a
+problem on 4.2 the advice is superseded for that unit, which is what it says). Test: context-page (strip shape on the
+synthetic TRN-117 bounded advice; the page source carries the phrase). Supersedes the words in D-B3-05 and D-B3-06.
+Reverse: the two strings in `provenance-strip.ts` and `context-page.ts statusOf`.

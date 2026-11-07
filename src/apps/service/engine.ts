@@ -22,7 +22,7 @@ import {
 import { buildCaseView, contextAssertions, defaultStandingGapSettings, importFromPath, listCases, openStore, parseAt, recordStandingGaps, resolveContextEntity, type StandingGapSettings } from '../../libs/utils/memory/index.ts';
 import { evaluateEligibility, PhrasedQuestionGenerator, TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
 import { createSelector, LinUcb, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
-import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
+import { HybridRetriever, canSee, earliestDated, evidenceGate } from '../../libs/utils/retrieval/index.ts';
 import { buildPeople } from '../../libs/utils/investigation/index.ts';
 import type { CandidateMatch } from '../../libs/utils/contracts/investigation.ts';
 import { awardPoints, balanceOf, getOptIn, participates, rating, revokeContribution, setOptIn, type ParticipationKind } from '../../libs/utils/participation/index.ts';
@@ -611,11 +611,17 @@ export class Engine {
       if (ms === undefined) throw badRequest(`Invalid at: ${req.at} (ISO 8601 with a zone, e.g. 2026-10-20T12:00:00Z)`);
       at = new Date(ms).toISOString();
     }
-    // B3: an evidence cutoff is a point-in-time view too; without `at`, dated evidence counts up to now.
+    // B3: an evidence cutoff is a point-in-time view inside an undated thread. Only that thread up to the cutoff counts
+    // (gateAt); without `at` the moment is just before the earliest dated source the requester can see (else now), so
+    // claim validity is read before any dated change. An id the requester may not see is refused like an unknown one.
     const atEvidence = req.atEvidence;
     if (atEvidence !== undefined) {
-      if (!this.store.get('evidence', atEvidence)) throw badRequest(`Unknown atEvidence: ${atEvidence}`);
-      at ??= this.now().toISOString();
+      const gate = evidenceGate(this.store, principal);
+      if (!this.store.get('evidence', atEvidence) || !gate.ref({ evidenceId: atEvidence })) throw badRequest(`Unknown atEvidence: ${atEvidence}`);
+      if (at === undefined) {
+        const first = earliestDated(this.store, gate);
+        at = new Date(first !== undefined ? first - 1 : this.now().getTime()).toISOString();
+      }
     }
     const problemId = stableId('prob', this.orgId, principal.id, req.text.trim(), (req.entityIds ?? []).join(','), JSON.stringify(observations.map((o) => [o.key, o.operator, o.value ?? null])), (req.attachmentNames ?? []).join('|'), ...(at ? [`at:${at}`] : []), ...(atEvidence ? [`ev:${atEvidence}`] : []), ...(preview ? ['preview'] : []));
     const problem: Problem = {

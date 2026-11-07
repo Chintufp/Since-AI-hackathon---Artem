@@ -25,7 +25,7 @@ test('segments: time-only thread, then calendar, then the ? gutter; break marks 
   for (const id of ['mail', 'dateonly']) assert.ok(l.x[id]! >= gutter.x0 && l.x[id]! <= gutter.x1, id);
 });
 
-test('time-only items are ordered by clock minutes, then sequence; the same minute keeps thread order', () => {
+test('time-only items are in thread order (sequence); the same minute keeps thread order', () => {
   const l = layoutTimeAxis(items, { x0: 0, x1: 800 });
   const t = l.order.filter((id) => /^m\d/.test(id));
   assert.deepEqual(t, ['m1', 'm2', 'm3', 'm9']);
@@ -64,6 +64,28 @@ test('two undated threads get two clock segments; an empty input still has a now
   assert.deepEqual(l.segments.map((s) => s.thread), ['x', 'y']);
   assert.deepEqual(l.stops.find((s) => s.atEvidence === 'b')!.visible, ['b'], 'the other undated thread is not visible');
   assert.deepEqual(layoutTimeAxis([], { x0: 0, x1: 400 }).stops.map((s) => s.kind), ['now']);
+});
+
+test('review: a thread that crosses midnight stays in thread order, and moving t right never hides evidence', () => {
+  const l = layoutTimeAxis([T('a', '23:50', 1, 'x'), T('b', '00:10', 2, 'x'), T('c', '00:20', 3, 'x')], { x0: 0, x1: 400 });
+  assert.deepEqual(l.order, ['a', 'b', 'c']);
+  assert.ok(l.x.a! < l.x.b! && l.x.b! < l.x.c!);
+  const vis = l.stops.map((s) => s.visible.length);
+  assert.deepEqual(vis, [1, 2, 3, 3]);
+  assert.deepEqual(l.segments[0]!.ticks.map((t) => t.label), ['23:50', '00:10', '00:20']);
+});
+
+test('review: a time-only stop reads before the earliest dated source anywhere (firstDated), and always sends at when one exists', () => {
+  const l = layoutTimeAxis(items, { x0: 0, x1: 800, firstDated: '2026-03-12T08:00:00.000Z' });
+  for (const s of l.stops.filter((x) => x.kind === 'time-only')) {
+    assert.equal(s.at, '2026-03-12T07:59:59.999Z');
+    assert.ok(!s.visible.includes('early') && !s.visible.includes('note'), 'no dated item counts at a time-only stop');
+  }
+  // An entity with no dated item of its own still sends a moment before every dated source.
+  const only = layoutTimeAxis([T('a', '09:14', 1)], { x0: 0, x1: 400, firstDated: '2026-03-12T08:00:00.000Z' });
+  assert.equal(only.stops[0]!.at, '2026-03-12T07:59:59.999Z');
+  // A later firstDated never moves the stop after the axis's own first dated item.
+  assert.equal(layoutTimeAxis(items, { x0: 0, x1: 800, firstDated: '2026-12-01T00:00:00Z' }).stops[0]!.at, '2026-08-20T06:11:59.999Z');
 });
 
 test('the source text runs on its own (the page embeds layoutTimeAxis.toString())', () => {

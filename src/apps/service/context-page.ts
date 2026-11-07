@@ -182,7 +182,7 @@ export function contextPage(): string {
       if (!seen[a.source.evidenceId]) { seen[a.source.evidenceId] = 1; items.push({ id: a.source.evidenceId, position: a.source.position, thread: a.source.thread, stop: true }); }
       if (a.validTo && a.validTo.kind === 'known') items.push({ id: 'to:' + a.claimId, position: a.validTo });
     });
-    layout = layoutTimeAxis(items, { x0: X0, x1: X1 });
+    layout = layoutTimeAxis(items, { x0: X0, x1: X1, firstDated: data.earliestDated });
     stopIndex = layout.stops.length - 1;
   }
 
@@ -194,7 +194,7 @@ export function contextPage(): string {
     if (a.status === 'superseded') return { text: 'superseded', sup: true };
     if (a.validityCondition && a.conditionedBy && byClaim[a.conditionedBy]) {
       var c = byClaim[a.conditionedBy];
-      return { text: 'superseded ' + when(c.validFrom) + ' by ' + (c.assertedBy ? c.assertedBy.displayName : 'a note') + ' · still true for ' + a.validityCondition, sup: true, bound: c };
+      return { text: 'bounded ' + when(c.validFrom) + ' by ' + (c.assertedBy ? c.assertedBy.displayName : 'a note') + ' · holds for ' + a.validityCondition, sup: true, bound: c };
     }
     if (a.validityCondition) return { text: 'holds while ' + a.validityCondition, sup: false };
     if (a.status === 'contradicted' || a.status === 'retracted' || a.status === 'corrected') return { text: a.status, sup: true };

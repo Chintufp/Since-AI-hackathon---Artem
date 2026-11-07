@@ -1,4 +1,4 @@
-export { canSee, evidenceGate, visibleCase } from './access.ts';
+export { canSee, earliestDated, evidenceGate, visibleCase } from './access.ts';
 export type { PrincipalLike, EvidenceGate } from './access.ts';
 export { tokenize } from './text.ts';
 export { Bm25Index } from './bm25.ts';

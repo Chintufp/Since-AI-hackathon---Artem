@@ -161,4 +161,6 @@ export interface ContextAssertionsView {
   at?: Iso;
   assertions: ContextAssertion[];
   bindings: ContextBinding[];
+  /** B3: the earliest known event time among all evidence the principal may see (not only this entity's). */
+  earliestDated?: Iso;
 }

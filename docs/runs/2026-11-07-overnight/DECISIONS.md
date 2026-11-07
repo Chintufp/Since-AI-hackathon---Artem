@@ -88,3 +88,19 @@ Per-person daily limit 3, cooldown 30 minutes, max 1 open question per person, m
 ## R17 · DECISION — Question selector default is the rule baseline
 
 `selectorId: 'rules'` by default. The LinUCB contextual bandit is trained and compared in E03 but only replaces the baseline behind the setting if the predefined checks pass; U01 (next-choice vs whole-investigation) stays open and E09 is not claimed.
+
+## R18 · DECISION — Who "you" are in the desktop app is a setting backed by the visible directory
+
+The service exposes the organization directory (names, roles, groups, availability only). Settings has a "You" selector; your identity decides which questions you see and the access groups used for retrieval. If nobody is chosen, you can still ask as a labeled Guest, but a Guest can never answer questions (no invented identities). Demo reset picks a default person (the first available field engineer, so Veikko in the Elisa demo). **Why:** the question loop needs a real recipient, and switching identity in Settings is the simplest honest way to demo both sides (asking and answering) on one Mac. **Reverse:** `PUT /settings` or the Settings row.
+
+## R19 · DECISION — Installed year is not a distinguishing condition; hedged conditions never create questions
+
+On the Elisa demo, "installed around 2019" (hedged in the source) was treated as a decisive condition and produced a bogus gap. Now `unit.age` (older/newer, folded from years through a configurable cutoff) is the distinguishing key, and inferred or hedged case conditions cannot create consequential gaps. The distinguishing-key list is configuration in `src/libs/utils/investigation/settings.ts`.
+
+## R20 · DECISION — E01's "LLM arm" is a recorded Claude subagent, labeled as such
+
+The handoff's LLM extraction arm needs an authorized inference route. I ran a Claude Sonnet subagent once over the visible train/validation sources (never the hidden truth) and saved its proposals under `data/replays/e01-claude-arm/`. They are scored as route `claude-agent-arm`, never as the proposed small GPT generator, and the application never calls Claude.
+
+## R21 · DECISION — Case timelines are compacted for reading
+
+The raw TRN-042 case had 16 timeline nodes (five separate "Possible cause" fragments, two "Advised against", email duplicates). The case view now merges hypotheses into one node, checks into one node, keeps one node per performed attempt, and puts the preceding change (SFP replacement) under Reported conditions. All claims stay in the store; only the view is compacted.

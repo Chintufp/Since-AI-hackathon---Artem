@@ -27,6 +27,7 @@ One command: resets the demo data, starts the local service (`127.0.0.1:47831`),
 
 - Everything runs on this machine: no cloud, no model API, no real chat, mail or Slack. The stream is synthetic and labelled so.
 - Elisa's example files are read from the git-ignored `private/` folder when present; otherwise the synthetic TRN-117 case plays the same part.
+- The Context Layer: **http://127.0.0.1:47831/context.html?entity=TRN-042** (and `RBS-310`) draws what is known about a unit over time; drag the t line and the card shows what an agent is told at that moment ([DEMO.md](docs/DEMO.md#the-context-layer-what-an-agent-is-told-at-time-t-1-minute)). Erkki's cost (asked, answered, seconds, reuse by people and agents) is on the activity page and in Settings.
 - Trouble? `pnpm demo:reset` restores the data; `pnpm service` starts the service alone; the troubleshooting box in DEMO.md has the rest.
 
 ## Run it locally

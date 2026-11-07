@@ -53,6 +53,7 @@ Preload exposes `window.kt` = `{ serviceUrl, platform, setIgnoreMouse(flag), onS
 | `kt:state` | page → main | `{ away, question }` |
 | `kt:context-menu` | page → main | none (main pops the menu at the cursor, `Menu.popup({window})`) |
 | `kt:key-save` | page → main (invoke) | `{ vendor: 'anthropic' \| 'gemini', key }` → `{ present, stored }` (B2, `keychain.ts`: encrypted with `safeStorage` into `<userData>/model-keys.json`, handed to the service in memory with `POST /models/key`, and again after each service start; an empty key forgets) |
+| `kt:open-context` | page → main | `entityName` (B3: preload checks `isEntityName`; main accepts it only from the companion's own webContents and opens `contextPageUrl(serviceUrl, name)` = `<service>/context.html?entity=<name>`, http loopback only, in the system browser with `shell.openExternal`) |
 
 `renderer.ts` turns these into CustomEvents on `window` so the companion module never imports Electron:
 

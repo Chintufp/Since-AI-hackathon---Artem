@@ -261,3 +261,14 @@ the activity page). Reverse: the loop in `resetDemo`.
 
 The same test runs on the demo clock (`clock: undefined`, `POST /demo/clock`) and asserts `seconds.clock ===
 'simulated'`, "(simulated)" in the line and "simulated seconds" in the activity page's source.
+
+### D-B3-19 · DEMO.md and the README lead to the Context Layer page (major, fixed)
+
+Finding: no demo step or URL led a judge to `/context.html`, the slider or the cost card. Added a DEMO.md section
+"The Context Layer: what an agent is told at time t" (both URLs, the four rows, what to drag, a table of what the card
+says at 09:14-09:18, 09:19-09:22, 09:25 and 14 Oct / now for TRN-042, the RBS-310 story, `principalId`, `text`, the
+synthetic TRN-117 fallback, the screenshots, the strip and Erkki's cost) after the activity-stream section, and one
+bullet in the root README's judge quick start. The 3-minute script itself is unchanged (the page is an extra minute).
+The UI README (Settings cost row, provenance strip, `openContext`, `costs()`) and the desktop README (`kt:open-context`
+in the IPC table) were brought up to date as well (minor finding).
+Reverse: remove the section and the bullets.

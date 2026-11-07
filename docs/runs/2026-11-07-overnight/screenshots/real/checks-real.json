@@ -1,5 +1,5 @@
 {
-  "startedAt": "2026-11-07T01:11:45.723Z",
+  "startedAt": "2026-11-07T02:08:20.507Z",
   "electron": "45.2.3",
   "chrome": "156.0.8078.80",
   "node": "24.22.2",
@@ -7,12 +7,12 @@
   "arch": "arm64",
   "ids": {
     "investigationId": "inv_ac44f4f4a11fe66c6554",
-    "secondInvestigationId": "inv_25f5c7b0be96d7c72045",
-    "questionId": "q_1f32e2b70867c5a5265a",
+    "secondInvestigationId": "inv_483464c265f014fffd36",
+    "questionId": "q_63dd53ed2287f01c41ba",
     "recipient": {
-      "personEntityId": "ent_44b152574976d1f64446",
-      "name": "Ilmari Karjalainen",
-      "role": "Field Engineer"
+      "personEntityId": "ent_219a3364c47654f1cbbc",
+      "name": "Erkki Expert",
+      "role": "Network Expert"
     }
   },
   "settingsAtStart": {
@@ -32,7 +32,7 @@
   ],
   "firstResultTitle": "Check the traffic counters before replacing the SFP again.",
   "expandedNode": "Possible cause",
-  "lastNode": "Outcome unknown",
+  "lastNode": "Reported outcome",
   "peopleShown": [
     "Erkki Expert · Network Expert",
     "Aarne Koskela · Field Engineer",
@@ -44,172 +44,285 @@
   "secondProblemAttempts": [
     {
       "text": "TRN-301: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.",
-      "asked": false,
-      "investigationId": "inv_483464c265f014fffd36",
-      "loopReasonShown": "No one with firsthand knowledge is available to ask right now"
-    },
-    {
-      "text": "RBS-310 is flapping again with DC low alarms after the rectifier work",
       "asked": true,
-      "investigationId": "inv_25f5c7b0be96d7c72045",
+      "investigationId": "inv_483464c265f014fffd36",
       "loopReasonShown": null
     }
   ],
-  "secondText": "RBS-310 is flapping again with DC low alarms after the rectifier work",
+  "secondText": "TRN-301: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.",
   "secondResultRows": [
     "People with relevant experience4",
     "Asked a colleague with relevant experiencedelivered"
   ],
-  "secondResultTitle": "No supported response yet; RBS-310 gives weak support.",
+  "secondResultTitle": "Confirm the unit details (older unit) before disabling and re-enabling the interface.",
   "askedRowShown": true,
   "question": {
-    "questionId": "q_1f32e2b70867c5a5265a",
-    "investigationId": "inv_25f5c7b0be96d7c72045",
-    "caseLabel": "RBS-310 · flapping DC low alarms",
-    "text": "Did the problem clear right after the SFP replacement on RBS-310?",
+    "questionId": "q_63dd53ed2287f01c41ba",
+    "investigationId": "inv_483464c265f014fffd36",
+    "caseLabel": "TRN-042 · no traffic after SFP change",
+    "text": "Is TRN-301 an older unit?",
     "kind": "quick",
-    "why": "No recovery outcome is recorded after the SFP replacement in RBS-310. If recovery followed the SFP replacement, the response becomes supported and can be recommended (subject to applicability); if not, the hypothesis is contradicted and uncertainty is retained. Evidence: ev_971649b264690db9f47a, ev_4b64c1647617ad57aa37, ev_36270f7344c98afdd769, ev_10f3102cb25feadf38df.",
+    "why": "Hypothesis \"Sometimes after changing the SFP the interface comes up normally, but the forwarding state doesn't recover correctly.\" from TRN-042 applies only if older unit. If older unit holds here, the response from TRN-042 becomes applicable (currently qualified); if it does not, it becomes inapplicable and the recommendation reverts to retaining uncertainty.",
     "timeline": [
       {
-        "id": "claim_9dc25294a74d6f1c0c89",
+        "id": "claim_72ead440ccad29ef29d3",
         "kind": "problem",
         "stage": "observation",
         "label": "Reported problem",
-        "detail": "RBS-310 is flapping again with the same DC low alarms as the rectifier case last week.\nIlmari, RBS-310 keeps dropping off and coming back, roughly every 40 minutes since noon.\nReported by Marja Niemi, 2026-04-02T08:12:00.000Z.",
+        "detail": "TRN-042: Link is up and alarms cleared, but traffic is still not coming back.\nTRN-042: Link UP.\nTRN-042: RX power looks normal.\nTRN-042: Counters basically zero.\nReported by Veikko Vikkelä, 09:14 (date unknown).",
         "evidence": [
           {
-            "evidenceId": "ev_66d81ce6f146404f11f7",
+            "evidenceId": "ev_c1d10d289b53490e7500",
             "span": {
-              "start": 0,
-              "end": 86
+              "start": 77,
+              "end": 145
             },
-            "excerpt": "RBS-310 is flapping again with the same DC low alarms as the rectifier case last week."
+            "excerpt": "Link is up and alarms cleared, but traffic is still not coming back."
           }
         ],
-        "who": "Marja Niemi",
-        "when": "2026-04-02T08:12:00.000Z"
+        "who": "Veikko Vikkelä",
+        "when": "09:14 (date unknown)"
       },
       {
-        "id": "case_4e98489b4cfb92e8c980:conditions",
+        "id": "case_bfe94af54ee18df46e01:conditions",
         "kind": "step",
         "stage": "observation",
         "label": "Reported conditions",
-        "detail": "Installed around 2016; SFP replaced",
+        "detail": "Older unit (installed around 2019); SFP replaced before the problem; Interface up; Alarms cleared; Traffic absent; Optical level normal; Traffic counters zero\nReported as likely rather than certain: Older unit (installed around 2019); Optical level normal; Traffic counters zero.",
         "evidence": [
           {
-            "evidenceId": "ev_938aeec5ea5bffef7fb5",
+            "evidenceId": "ev_c1d10d289b53490e7500",
             "span": {
-              "start": 0,
-              "end": 39
+              "start": 31,
+              "end": 76
             },
-            "excerpt": "Yes, same cabinet type, installed 2016."
+            "excerpt": "Changed the SFP on transmission node TRN-042."
           },
           {
-            "evidenceId": "ev_10f3102cb25feadf38df",
+            "evidenceId": "ev_c1d10d289b53490e7500",
+            "span": {
+              "start": 77,
+              "end": 145
+            },
+            "excerpt": "Link is up and alarms cleared, but traffic is still not coming back."
+          },
+          {
+            "evidenceId": "ev_e11635b7f348c1140244",
+            "span": {
+              "start": 5,
+              "end": 13
+            },
+            "excerpt": "Link UP."
+          },
+          {
+            "evidenceId": "ev_c1d10d289b53490e7500",
+            "span": {
+              "start": 77,
+              "end": 145
+            },
+            "excerpt": "Link is up and alarms cleared, but traffic is still not coming back."
+          },
+          {
+            "evidenceId": "ev_c1d10d289b53490e7500",
+            "span": {
+              "start": 77,
+              "end": 145
+            },
+            "excerpt": "Link is up and alarms cleared, but traffic is still not coming back."
+          },
+          {
+            "evidenceId": "ev_4930f03dc5ba37c9820a",
             "span": {
               "start": 0,
-              "end": 17
+              "end": 35
             },
-            "excerpt": "Swapped module 2."
+            "excerpt": "Yes, installed around 2019 I think."
+          },
+          {
+            "evidenceId": "ev_4930f03dc5ba37c9820a",
+            "span": {
+              "start": 0,
+              "end": 35
+            },
+            "excerpt": "Yes, installed around 2019 I think."
+          },
+          {
+            "evidenceId": "ev_e11635b7f348c1140244",
+            "span": {
+              "start": 14,
+              "end": 36
+            },
+            "excerpt": "RX power looks normal."
           }
         ]
       },
       {
-        "id": "case_4e98489b4cfb92e8c980:causes",
+        "id": "case_bfe94af54ee18df46e01:causes",
         "kind": "step",
         "stage": "hypothesis",
         "label": "Possible cause",
-        "detail": "Stated as hypotheses, not confirmed:\nRisto Peltola: Sounds like module 2 is failing.\nRisto Peltola: Pirkko was out at that cabinet in the spring, I think, so she may have noted something.",
+        "detail": "Stated as hypotheses, not confirmed:\nErkki Expert: Sometimes after changing the SFP the interface comes up normally, but the forwarding state doesn't recover correctly.\nErkki Expert: Usually the SFP is fine.\nErkki Expert: If they stay at zero even though the interface is UP, it's probably the issue I've seen before.\nErkki Expert: These old units sometimes behave like this after an optical module replacement.",
         "evidence": [
           {
-            "evidenceId": "ev_971649b264690db9f47a",
+            "evidenceId": "ev_6880ecf5bce600264ebf",
             "span": {
-              "start": 0,
-              "end": 32
+              "start": 48,
+              "end": 165
             },
-            "excerpt": "Sounds like module 2 is failing."
+            "excerpt": "Sometimes after changing the SFP the interface comes up normally, but the forwarding state doesn't recover correctly."
           },
           {
-            "evidenceId": "ev_971649b264690db9f47a",
+            "evidenceId": "ev_4918c9dcf80ae7aae29b",
             "span": {
-              "start": 77,
-              "end": 164
+              "start": 4,
+              "end": 28
             },
-            "excerpt": "Pirkko was out at that cabinet in the spring, I think, so she may have noted something."
+            "excerpt": "Usually the SFP is fine."
+          },
+          {
+            "evidenceId": "ev_4918c9dcf80ae7aae29b",
+            "span": {
+              "start": 89,
+              "end": 184
+            },
+            "excerpt": "If they stay at zero even though the interface is UP, it's probably the issue I've seen before."
+          },
+          {
+            "evidenceId": "ev_1ddb362a76041b3bd3b5",
+            "span": {
+              "start": 6,
+              "end": 85
+            },
+            "excerpt": "These old units sometimes behave like this after an optical module replacement."
           }
         ],
-        "who": "Risto Peltola",
-        "when": "15:12 (date unknown)"
+        "who": "Erkki Expert",
+        "when": "09:18 (date unknown)"
       },
       {
-        "id": "case_4e98489b4cfb92e8c980:checks",
+        "id": "case_bfe94af54ee18df46e01:checks",
         "kind": "step",
         "stage": "check",
         "label": "Suggested checks",
-        "detail": "Advice, not confirmed to work:\nEino Salo: Do not drive around it, there is a reindeer fence on the side track.\nRisto Peltola: Ilmari, please check the breaker terminals and the DC bus bars before swapping anything else.\nRisto Peltola: Swap it, there are spares in the depot box.",
+        "detail": "Advice, not confirmed to work:\nErkki Expert: Don't trust the green link status on those.\nErkki Expert: Check whether the traffic counters are actually increasing.\nErkki Expert: Disable the interface, wait a little, then enable it again.\nErkki Expert: Don't reboot the whole unit unless that fails.",
         "evidence": [
           {
-            "evidenceId": "ev_4b64c1647617ad57aa37",
+            "evidenceId": "ev_6880ecf5bce600264ebf",
             "span": {
-              "start": 296,
-              "end": 364
+              "start": 4,
+              "end": 47
             },
-            "excerpt": "Do not drive around it, there is a reindeer fence on the side track."
+            "excerpt": "Don't trust the green link status on those."
           },
           {
-            "evidenceId": "ev_36270f7344c98afdd769",
+            "evidenceId": "ev_4918c9dcf80ae7aae29b",
             "span": {
-              "start": 39,
-              "end": 132
+              "start": 29,
+              "end": 88
             },
-            "excerpt": "Ilmari, please check the breaker terminals and the DC bus bars before swapping anything else."
+            "excerpt": "Check whether the traffic counters are actually increasing."
           },
           {
-            "evidenceId": "ev_971649b264690db9f47a",
+            "evidenceId": "ev_b98ecde63215176b1dac",
             "span": {
-              "start": 33,
-              "end": 76
+              "start": 11,
+              "end": 70
             },
-            "excerpt": "Swap it, there are spares in the depot box."
+            "excerpt": "Disable the interface, wait a little, then enable it again."
+          },
+          {
+            "evidenceId": "ev_b98ecde63215176b1dac",
+            "span": {
+              "start": 71,
+              "end": 117
+            },
+            "excerpt": "Don't reboot the whole unit unless that fails."
           }
         ],
-        "when": "2026-08-20T06:12:00.000Z"
+        "who": "Erkki Expert",
+        "when": "09:18 (date unknown)"
       },
       {
-        "id": "attempt_096f1f8bbf7af9bf6f95",
+        "id": "attempt_4373ebc50b64f7d5a02a",
         "kind": "step",
         "stage": "attempt",
-        "label": "Attempted SFP replacement",
-        "detail": "No advice recorded for this step. Performed by Ilmari Karjalainen as reported, not independently observed, 15:40 (date unknown).",
+        "label": "Attempted counter check",
+        "detail": "Advised by Erkki Expert. Performed by Veikko Vikkelä as reported, not independently observed, 09:21 (date unknown).",
         "evidence": [
           {
-            "evidenceId": "ev_10f3102cb25feadf38df",
+            "evidenceId": "ev_4918c9dcf80ae7aae29b",
             "span": {
-              "start": 0,
-              "end": 17
+              "start": 29,
+              "end": 88
             },
-            "excerpt": "Swapped module 2."
+            "excerpt": "Check whether the traffic counters are actually increasing."
+          },
+          {
+            "evidenceId": "ev_e11635b7f348c1140244",
+            "span": {
+              "start": 5,
+              "end": 13
+            },
+            "excerpt": "Link UP."
           }
         ],
-        "who": "Ilmari Karjalainen",
-        "when": "15:40 (date unknown)"
+        "who": "Veikko Vikkelä",
+        "when": "09:21 (date unknown)"
       },
       {
-        "id": "case_4e98489b4cfb92e8c980:outcome-unknown",
-        "kind": "unknown",
-        "stage": "unknown",
-        "label": "Outcome unknown",
-        "detail": "An action was reported as done, but no result was reported.",
-        "evidence": []
+        "id": "attempt_9c092c1b0c368cc6a555",
+        "kind": "step",
+        "stage": "attempt",
+        "label": "Attempted interface reset",
+        "detail": "Advised by Erkki Expert. Performed by Veikko Vikkelä as reported, not independently observed, 09:25 (date unknown).",
+        "evidence": [
+          {
+            "evidenceId": "ev_b98ecde63215176b1dac",
+            "span": {
+              "start": 11,
+              "end": 70
+            },
+            "excerpt": "Disable the interface, wait a little, then enable it again."
+          },
+          {
+            "evidenceId": "ev_0eb7a31dd9ad842fcc95",
+            "span": {
+              "start": 0,
+              "end": 9
+            },
+            "excerpt": "Did that."
+          }
+        ],
+        "who": "Veikko Vikkelä",
+        "when": "09:25 (date unknown)"
+      },
+      {
+        "id": "outcome_4f65590ca2ad89b166ee",
+        "kind": "reported",
+        "stage": "outcome",
+        "label": "Reported outcome",
+        "detail": "Veikko Vikkelä reported recovery after the interface reset. Timing, cause and whether it lasted are unconfirmed.",
+        "evidence": [
+          {
+            "evidenceId": "ev_0eb7a31dd9ad842fcc95",
+            "span": {
+              "start": 10,
+              "end": 28
+            },
+            "excerpt": "Traffic is back 👍"
+          }
+        ],
+        "who": "Veikko Vikkelä",
+        "when": "09:25 (date unknown)"
       }
     ],
-    "caveat": "No outcome has been reported; 7 independent of 7 source record(s).",
+    "caveat": "Recovery is reported, not verified (timing, cause and lasting unconfirmed); 8 independent of 9 source record(s).",
     "status": "delivered",
     "deferred": false
   },
   "badgeForRecipient": "1",
   "queueTexts": [
-    "RBS-310 · flapping DC low alarmsDid the problem clear right after the SFP replacement on RBS-310?"
+    "TRN-042 · no traffic after SFP changeIs TRN-301 an older unit?"
   ],
   "receiptNo": "Recorded: No",
   "receiptYes": "Recorded: Yes",
@@ -218,9 +331,9 @@
   "sameInvestigation": true,
   "afterAnswerRows": [
     "People with relevant experience4",
-    "Asked a colleague with relevant experiencedelivered"
+    "Existing evidence and your own observations settle the next step"
   ],
-  "afterAnswerTitle": "Confirm the unit details (older unit (installed 2016)) before replacing the SFP.",
+  "afterAnswerTitle": "Check the traffic counters before replacing the SFP again.",
   "hitbox": {
     "initial": [
       321,
@@ -285,7 +398,7 @@
       "width": 420,
       "file": "04-result-420.png",
       "view": "result",
-      "settleMs": 811,
+      "settleMs": 783,
       "hitbox": [
         321,
         596,
@@ -299,7 +412,7 @@
       "width": 420,
       "file": "05-result-node-expanded-420.png",
       "view": "result",
-      "settleMs": 175,
+      "settleMs": 193,
       "hitbox": [
         321,
         596,
@@ -313,7 +426,7 @@
       "width": 420,
       "file": "06-result-last-node-420.png",
       "view": "result",
-      "settleMs": 177,
+      "settleMs": 195,
       "hitbox": [
         321,
         596,
@@ -327,7 +440,7 @@
       "width": 420,
       "file": "07-people-420.png",
       "view": "people",
-      "settleMs": 193,
+      "settleMs": 197,
       "hitbox": [
         321,
         596,
@@ -383,7 +496,7 @@
       "width": 420,
       "file": "11-queue-420.png",
       "view": "queue",
-      "settleMs": 22,
+      "settleMs": 25,
       "hitbox": [
         321,
         596,
@@ -397,7 +510,7 @@
       "width": 420,
       "file": "12-question-420.png",
       "view": "question",
-      "settleMs": 1346,
+      "settleMs": 1349,
       "hitbox": [
         321,
         596,
@@ -411,7 +524,7 @@
       "width": 420,
       "file": "13-question-context-420.png",
       "view": "question",
-      "settleMs": 239,
+      "settleMs": 230,
       "hitbox": [
         321,
         596,
@@ -439,7 +552,7 @@
       "width": 420,
       "file": "15-undo-returns-to-question-420.png",
       "view": "question",
-      "settleMs": 208,
+      "settleMs": 205,
       "hitbox": [
         321,
         596,
@@ -491,5 +604,5 @@
       "reduced": false
     }
   ],
-  "finishedAt": "2026-11-07T01:12:04.996Z"
+  "finishedAt": "2026-11-07T02:08:38.347Z"
 }

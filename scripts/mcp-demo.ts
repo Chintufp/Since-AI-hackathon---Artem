@@ -28,7 +28,7 @@ const { values } = parseArgs({
 
 const principal = { id: values['agent-id'], displayName: values['agent-name'], groups: values['agent-groups'].split(',').map((s) => s.trim()).filter(Boolean) };
 const client = new Client({ name: 'kt-demo-agent', version: '0.1.0' });
-await client.connect(new StdioClientTransport({ command: process.execPath, args: [join(REPO_ROOT, 'src/apps/service/mcp.ts'), '--db', values.db], stderr: 'ignore' }));
+await client.connect(new StdioClientTransport({ command: process.execPath, args: [join(REPO_ROOT, 'src/apps/service/mcp.ts'), '--db', values.db, '--quiet-hours', 'off'], stderr: 'ignore' }));
 
 const say = (s: string): void => { process.stdout.write(s + '\n'); };
 const show = (label: string, v: unknown): void => { say(`\n## ${label}\n${values.json ? JSON.stringify(v, null, 2) : pretty(v)}`); };

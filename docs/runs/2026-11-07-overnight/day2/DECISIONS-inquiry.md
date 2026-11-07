@@ -143,4 +143,4 @@ the simulated night changes). Reverse: `--day` behaviour as the default.
   people, the call's exclusion list only makes it explicit.
 - Tests: `tests/inquiry.test.ts` runs each case on its own service and MCP process (budgets and cooldowns never leak);
   the three-gap batch seeds a third open gap (unit.age) on the basis case and three NOC engineers, because no fixture has
-  three open askable gaps for one problem (the brief allows seeding). 524 tests after B7 (511 before).
+  three open askable gaps for one problem (the brief allows seeding). 526 tests after B7 (511 before).

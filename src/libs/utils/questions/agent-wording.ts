@@ -73,6 +73,8 @@ export class AgentWordedGenerator implements QuestionGenerator {
   async generate(state: InvestigationState, maxCandidates: number): Promise<QuestionCandidate[]> {
     const out = await this.o.inner.generate(state, maxCandidates);
     this.last = this.o.inner.route;
+    // Cheap exit: the engine mirrors every proposal into the investigation's events (carried across rebuilds).
+    if (!state.events.some((e) => e.type === AGENT_WORDING_EVENT)) return out;
     const wordings = acceptedWordings(this.o.ctx.store, state.id);
     if (wordings.size === 0) return out;
     const detailed = await this.o.templates.generateDetailed(state, state.gaps.length + 1);

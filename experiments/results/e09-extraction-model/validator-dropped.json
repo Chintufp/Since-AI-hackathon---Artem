@@ -1,0 +1,78 @@
+{
+  "countByKindAndReason": {
+    "claim:excerpt-not-in-evidence": 1,
+    "claim:unknown-evidence": 4,
+    "entity:excerpt-not-in-evidence": 1,
+    "link:excerpt-not-in-evidence": 2,
+    "link:unknown-evidence": 3
+  },
+  "items": [
+    {
+      "kind": "claim",
+      "label": "Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks.",
+      "reason": "excerpt-not-in-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "claim",
+      "label": "Cleaned both connectors.",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "claim",
+      "label": "Errors dropped a lot but not to zero.",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "claim",
+      "label": "The patch cord looks fine to me, no kinks I can see.",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "entity",
+      "label": "SFP",
+      "reason": "excerpt-not-in-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "link",
+      "label": "person:teams:henrik sjöberg advised",
+      "reason": "excerpt-not-in-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "link",
+      "label": "person:teams:kimmo rautio performed-action",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "link",
+      "label": "person:teams:kimmo rautio reported-outcome",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "link",
+      "label": "person:teams:kimmo rautio reported-outcome",
+      "reason": "unknown-evidence",
+      "familyId": "cabling-pinch"
+    },
+    {
+      "kind": "link",
+      "label": "person:email:maija sundström reported-outcome",
+      "reason": "excerpt-not-in-evidence",
+      "familyId": "weak-mains-psu"
+    },
+    {
+      "kind": "claim",
+      "label": "The sessions are stable after the BFD interval raise.",
+      "reason": "unknown-evidence",
+      "familyId": "bgp-linecard-private"
+    }
+  ],
+  "threadsWhereTheModelOutputWasUnusable": []
+}

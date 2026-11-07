@@ -1,0 +1,244 @@
+{
+  "note": "Truth claims the model recovered (direct arm, and through the union commit) that the rules extractor missed. A statement here is the key statement.",
+  "direct": [
+    {
+      "split": "train",
+      "familyId": "config-rollback-private",
+      "id": "B#3",
+      "type": "advice",
+      "statement": "Do not roll back N5 units, apply the v7.1 patch that fixes the voice range typo"
+    },
+    {
+      "split": "train",
+      "familyId": "cabling-pinch",
+      "id": "A#10",
+      "type": "action",
+      "statement": "Seppo re-dressed the cabinet cabling and fitted a cable guard at the door edge"
+    },
+    {
+      "split": "validation",
+      "familyId": "weak-mains-psu",
+      "id": "A#2",
+      "type": "advice",
+      "statement": "Swap the PSU and keep an eye on the weak mains at that site"
+    }
+  ],
+  "union": [
+    {
+      "split": "train",
+      "familyId": "cabling-pinch",
+      "id": "A#10",
+      "type": "action",
+      "statement": "Seppo re-dressed the cabinet cabling and fitted a cable guard at the door edge"
+    },
+    {
+      "split": "validation",
+      "familyId": "weak-mains-psu",
+      "id": "A#2",
+      "type": "advice",
+      "statement": "Swap the PSU and keep an eye on the weak mains at that site"
+    }
+  ],
+  "modelOnlyClaimsCommitted": [
+    {
+      "familyId": "bgp-firmware-flaps",
+      "statement": "Three days have passed since the hold timer rollback on AGG-014. I watched the two peers from the NOC side the whole time and there have been no flaps.",
+      "type": "observation"
+    },
+    {
+      "familyId": "bgp-firmware-flaps",
+      "statement": "The BGP session is flapping due to CRC errors on the east link.",
+      "type": "hypothesis"
+    },
+    {
+      "familyId": "bgp-firmware-flaps",
+      "statement": "Replace the optic on the east link.",
+      "type": "advice"
+    },
+    {
+      "familyId": "bgp-firmware-flaps",
+      "statement": "The hold timers need to be rolled back to 90 seconds.",
+      "type": "hypothesis"
+    },
+    {
+      "familyId": "bgp-firmware-flaps",
+      "statement": "Vendor webinar on the 9.5 release is on Tuesday.",
+      "type": "observation"
+    },
+    {
+      "familyId": "fan-temperature",
+      "statement": "In spring, high inlet temperature on the 2015-build outdoor cabinets is usually a clogged dust filter.",
+      "type": "observation"
+    },
+    {
+      "familyId": "fan-temperature",
+      "statement": "Replace the dust filter to lower the temperature.",
+      "type": "advice"
+    },
+    {
+      "familyId": "fan-temperature",
+      "statement": "If the alarm comes back within a few days the filter was not the whole cause.",
+      "type": "hypothesis"
+    },
+    {
+      "familyId": "fan-temperature",
+      "statement": "The tray replacement only applies to cabinets with the FT-2 fan tray (2015 and 2016 builds).",
+      "type": "condition"
+    },
+    {
+      "familyId": "fan-temperature",
+      "statement": "Newer cabinets use FT-3 and should be escalated to me instead of swapping parts.",
+      "type": "condition"
+    },
+    {
+      "familyId": "fan-temperature",
+      "statement": "Still good at lunchtime, 43.",
+      "type": "observation"
+    },
+    {
+      "familyId": "fan-temperature",
+      "statement": "The dust filter on the door is clogging with pollen in spring.",
+      "type": "hypothesis"
+    },
+    {
+      "familyId": "fan-temperature",
+      "statement": "Temperature is dropping to 54 degrees.",
+      "type": "outcome"
+    },
+    {
+      "familyId": "config-rollback-private",
+      "statement": "Template v7 broke voice VLAN 210 on ACC-12.",
+      "type": "observation"
+    },
+    {
+      "familyId": "config-rollback-private",
+      "statement": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week.",
+      "type": "observation"
+    },
+    {
+      "familyId": "config-rollback-private",
+      "statement": "Rolled back to v6 on ACC-30.",
+      "type": "action"
+    },
+    {
+      "familyId": "config-rollback-private",
+      "statement": "v6 has no profile for the N5 port layout.",
+      "type": "hypothesis"
+    },
+    {
+      "familyId": "config-rollback-private",
+      "statement": "The network maintenance window on Saturday is 02:00 to 04:00, expect brief blips on the guest wifi.",
+      "type": "observation"
+    },
+    {
+      "familyId": "cabling-pinch",
+      "statement": "When I closed the cabinet door the patch cord was pinched by the door edge.",
+      "type": "observation"
+    },
+    {
+      "familyId": "cabling-pinch",
+      "statement": "I re-dressed the cabinet cabling and fitted a cable guard at the door edge.",
+      "type": "action"
+    },
+    {
+      "familyId": "cabling-pinch",
+      "statement": "CRC errors are still climbing, same burst pattern.",
+      "type": "observation"
+    },
+    {
+      "familyId": "cabling-pinch",
+      "statement": "Errors are at a low level for now.",
+      "type": "observation"
+    },
+    {
+      "familyId": "cabling-pinch",
+      "statement": "Does anyone know when the new rain jackets arrive? Mine leaks.",
+      "type": "observation"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "The forest road gate is locked with a padlock.",
+      "type": "condition"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "The key to the forest road gate is held by the forest owner, Tuomas Heiskanen.",
+      "type": "condition"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "The key to the forest road gate must be called at least 24 hours before the visit.",
+      "type": "condition"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "From 1 December to 30 April the forest road is not ploughed beyond the gate.",
+      "type": "condition"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "In the period from 1 December to 30 April, take the snowmobile from the Lampela cabin.",
+      "type": "condition"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "The cabin key is in the lockbox by the door, code 3290.",
+      "type": "condition"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "Outside winter, you can drive up to the site with the van.",
+      "type": "condition"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "The mains logger shows sags to 185 V in the evenings when the neighbouring sawmill starts.",
+      "type": "hypothesis"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "Replace the battery string and monitor the mains.",
+      "type": "advice"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "The battery string replacement resolved the input voltage issue.",
+      "type": "outcome"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "The long-haul hop towards the Salmijärvi tower is the issue.",
+      "type": "hypothesis"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "Swap the PSU. But the mains at that site is weak, so keep an eye on it.",
+      "type": "advice"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "statement": "Annual leave plans are due on Friday.",
+      "type": "observation"
+    },
+    {
+      "familyId": "bgp-linecard-private",
+      "statement": "Patch 11.2.1 was installed by Pasi without a reload.",
+      "type": "action"
+    },
+    {
+      "familyId": "bgp-linecard-private",
+      "statement": "The BGP sessions have been clean for two hours.",
+      "type": "outcome"
+    },
+    {
+      "familyId": "bgp-linecard-private",
+      "statement": "PE-09 is flapping after 11.2 but it has LC-3, so 11.1.1 should not be the answer.",
+      "type": "observation"
+    },
+    {
+      "familyId": "bgp-linecard-private",
+      "statement": "Vendor workaround: set the BFD interval to 300 ms on the affected sessions and it holds.",
+      "type": "observation"
+    }
+  ]
+}

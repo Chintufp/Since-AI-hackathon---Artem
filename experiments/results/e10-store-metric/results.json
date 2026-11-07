@@ -1,6 +1,6 @@
 {
   "manifestId": "e10-store-metric",
-  "finishedAt": "2026-11-07T14:01:07.340Z",
+  "finishedAt": "2026-11-07T16:41:46.303Z",
   "variants": [
     {
       "variantId": "rules@store-metric",
@@ -138,6 +138,7 @@
     "Per point = one percentage point of completeness x correctness. questions.perPointGained uses the same-case before/after gain; questions.perMeasuredPoint uses the sum of the per-answer deltas the coordinator measured on the touched cases (QuestionRecord.reward.delta). Either is null when nothing was gained.",
     "The product is multiplicative: a touched case with no supported claim has correctness 0, so an answer that fills a completeness slot there measures a delta of 0 and the reward is the burden alone (touchedCasesWithNoSupportedClaim in per-seed.json).",
     "Each seed starts from a fresh demo store and a fresh selector, so LinUCB learns only within one day; the rules selector is the fixed prior with the same reward written for comparison.",
+    "Where the negative deltas come from (probe of seed 2, D-B2-51): Every non-zero measured delta (-6.77 points) is a \"no\" answer to an applicability question (missing|unit.model: does the earlier unit share the current unit's model). The coordinator writes it as a contradict update on the case's claim, and store-health counts any contradict update on a claim still cited by a standing recommendation as a contradicted claim, so that case's correctness goes negative. Under the brief's 5.2 wording that is a contradicted claim still cited; the coordinator's own note says the historical claim is unchanged. The metric is left as the brief words it; the reading is open.",
     "B1 pairing links do not exist yet, so the correctness term \"links made without an answer\" counts 0 (store-health links hook)."
   ]
 }

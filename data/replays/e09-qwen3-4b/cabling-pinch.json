@@ -1,0 +1,561 @@
+{
+ "id": "generations",
+ "entries": {
+  "qwen3:4b|6c597b944ba5723f93ba8381": {
+   "inputHash": "d14c1dc6205411600e282f8e",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "When I closed the cabinet door the patch cord was pinched by the door edge.",
+       "subjectEntityNames": [
+        "patch cord"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_70c2b4a89803d3e8f719",
+         "excerpt": "When I closed the cabinet door the patch cord was pinched by the door edge."
+        }
+       ],
+       "assertedByActorId": "person:email:kimmo rautio"
+      },
+      {
+       "type": "action",
+       "statement": "Replaced the patch cord and rerouted it away from the hinge side.",
+       "subjectEntityNames": [
+        "patch cord"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_70c2b4a89803d3e8f719",
+         "excerpt": "I replaced the patch cord and rerouted it away from the hinge side."
+        }
+       ],
+       "assertedByActorId": "person:email:kimmo rautio"
+      },
+      {
+       "type": "outcome",
+       "statement": "Aila sees no CRC errors since 11:00.",
+       "subjectEntityNames": [
+        "HUB-07"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_70c2b4a89803d3e8f719",
+         "excerpt": "Aila sees no CRC errors since 11:00."
+        }
+       ],
+       "assertedByActorId": "person:email:kimmo rautio"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "HUB-07",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_70c2b4a89803d3e8f719",
+         "excerpt": "HUB-07"
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "patch cord",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_70c2b4a89803d3e8f719",
+         "excerpt": "patch cord"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:email:kimmo rautio",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_70c2b4a89803d3e8f719",
+         "excerpt": "When I closed the cabinet door the patch cord was pinched by the door edge."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:email:kimmo rautio",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_70c2b4a89803d3e8f719",
+         "excerpt": "I replaced the patch cord and rerouted it away from the hinge side."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:email:kimmo rautio",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_70c2b4a89803d3e8f719",
+         "excerpt": "Aila sees no CRC errors since 11:00."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:HUB-07",
+       "evidenceIds": [
+        "ev_70c2b4a89803d3e8f719"
+       ],
+       "title": "HUB-07 patch cord pinched by cabinet door"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_70c2b4a89803d3e8f719",
+       "label": "useful",
+       "reason": "Problem cause, action, and result."
+      }
+     ]
+    },
+    "ms": 32794
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|7361dbf0c67a498d1d9c5a70": {
+   "inputHash": "123e278eeeb387468e470454",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "The HUB-07 uplink to the core router shows CRC errors in bursts since about 05:00.",
+       "subjectEntityNames": [
+        "HUB-07"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_a49d5f9ba2dc47c4e280",
+         "excerpt": "Kimmo, the HUB-07 uplink to the core router shows CRC errors in bursts since about 05:00. The link stays up and most traffic flows, but customers report slowness."
+        }
+       ],
+       "assertedByActorId": "person:teams:aila nurmi"
+      },
+      {
+       "type": "advice",
+       "statement": "Swap the SFP on our side anyway, it's cheap and we have had bad batches.",
+       "subjectEntityNames": [
+        "SFP"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_802b397aa5538e644370",
+         "excerpt": "What does the optical level say?"
+        }
+       ],
+       "assertedByActorId": "person:teams:henrik sjöberg"
+      },
+      {
+       "type": "action",
+       "statement": "Swapped the SFP at HUB-07.",
+       "subjectEntityNames": [
+        "SFP"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_93c77136033159aca8d9",
+         "excerpt": "At HUB-07. Swapped the SFP, the link is up again."
+        }
+       ],
+       "assertedByActorId": "person:teams:kimmo rautio"
+      },
+      {
+       "type": "outcome",
+       "statement": "The link is up again after swapping the SFP.",
+       "subjectEntityNames": [
+        "HUB-07"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_93c77136033159aca8d9",
+         "excerpt": "Swapped the SFP, the link is up again."
+        }
+       ],
+       "assertedByActorId": "person:teams:kimmo rautio"
+      },
+      {
+       "type": "observation",
+       "statement": "CRC errors are still climbing, same burst pattern.",
+       "subjectEntityNames": [
+        "HUB-07"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_6e51a718c18aa11c9b49",
+         "excerpt": "CRC errors are still climbing, same burst pattern."
+        }
+       ],
+       "assertedByActorId": "person:teams:aila nurmi"
+      },
+      {
+       "type": "advice",
+       "statement": "Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks.",
+       "subjectEntityNames": [
+        "patch cord"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_76bd20b11d4795efb1a3",
+         "excerpt": "OK so not the SFP. Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks."
+        }
+       ],
+       "assertedByActorId": "person:teams:henrik sjöberg"
+      },
+      {
+       "type": "action",
+       "statement": "Cleaned both connectors.",
+       "subjectEntityNames": [
+        "connectors"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_8e51a718c18aa11c9b49",
+         "excerpt": "Cleaned both connectors."
+        }
+       ],
+       "assertedByActorId": "person:teams:kimmo rautio"
+      },
+      {
+       "type": "outcome",
+       "statement": "Errors dropped a lot but not to zero.",
+       "subjectEntityNames": [
+        "HUB-07"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_8e51a718c18aa11c9b49",
+         "excerpt": "Errors dropped a lot but not to zero."
+        }
+       ],
+       "assertedByActorId": "person:teams:kimmo rautio"
+      },
+      {
+       "type": "condition",
+       "statement": "The patch cord looks fine to me, no kinks I can see.",
+       "subjectEntityNames": [
+        "patch cord"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_8e51a718c18aa11c9b49",
+         "excerpt": "The patch cord looks fine to me, no kinks I can see."
+        }
+       ],
+       "assertedByActorId": "person:teams:kimmo rautio"
+      },
+      {
+       "type": "observation",
+       "statement": "Errors are at a low level for now.",
+       "subjectEntityNames": [
+        "HUB-07"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_ab8b777f56c55ae38269",
+         "excerpt": "OK, errors are at a low level for now."
+        }
+       ],
+       "assertedByActorId": "person:teams:aila nurmi"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "HUB-07",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_a49d5f9ba2dc47c4e280",
+         "excerpt": "HUB-07 uplink"
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "SFP",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_802b397aa5538e644370",
+         "excerpt": "SFP"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:teams:aila nurmi",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_a49d5f9ba2dc47c4e280",
+         "excerpt": "Kimmo, the HUB-07 uplink to the core router shows CRC errors in bursts since about 05:00. The link stays up and most traffic flows, but customers report slowness."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:teams:henrik sjöberg",
+       "contribution": "advised",
+       "evidence": [
+        {
+         "evidenceId": "ev_802b397aa5538e644370",
+         "excerpt": "What does the optical level say?"
+        }
+       ],
+       "firsthand": false
+      },
+      {
+       "personActorId": "person:teams:kimmo rautio",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_93c77136033159aca8d9",
+         "excerpt": "At HUB-07. Swapped the SFP, the link is up again."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:teams:aila nurmi",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_93c77136033159aca8d9",
+         "excerpt": "Swapped the SFP, the link is up again."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:teams:henrik sjöberg",
+       "contribution": "advised",
+       "evidence": [
+        {
+         "evidenceId": "ev_76bd20b11d4795efb1a3",
+         "excerpt": "OK so not the SFP. Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks."
+        }
+       ],
+       "firsthand": false
+      },
+      {
+       "personActorId": "person:teams:kimmo rautio",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_8e51a718c18aa11c9b49",
+         "excerpt": "Cleaned both connectors."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:teams:kimmo rautio",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_8e51a718c18aa11c9b49",
+         "excerpt": "Errors dropped a lot but not to zero."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:teams:kimmo rautio",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_8e51a718c18aa11c9b49",
+         "excerpt": "The patch cord looks fine to me, no kinks I can see."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:teams:aila nurmi",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_ab8b777f56c55ae38269",
+         "excerpt": "OK, errors are at a low level for now."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "HUB-07",
+       "evidenceIds": [
+        "ev_a49d5f9ba2dc47c4e280",
+        "ev_6e51a718c18aa11c9b49",
+        "ev_ab8b777f56c55ae38269"
+       ],
+       "title": "CRC errors"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_93c77136033159aca8d9",
+       "label": "useful",
+       "reason": "The link is up again after swapping the SFP."
+      }
+     ]
+    },
+    "ms": 86406
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|7c976079dd9dbeb34318db80": {
+   "inputHash": "7cfff0d87ec1453705b624ef",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "Does anyone know when the new rain jackets arrive? Mine leaks.",
+       "subjectEntityNames": [
+        "rain jackets"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_a669e6b60611fbcffa91",
+         "excerpt": "Does anyone know when the new rain jackets arrive? Mine leaks."
+        }
+       ],
+       "assertedByActorId": "person:slack:U605"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "rain jackets",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_a669e6b60611fbcffa91",
+         "excerpt": "Does anyone know when the new rain jackets arrive? Mine leaks."
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:slack:U605",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_a669e6b60611fbcffa91",
+         "excerpt": "Does anyone know when the new rain jackets arrive? Mine leaks."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:rain_jackets",
+       "evidenceIds": [
+        "ev_a669e6b60611fbcffa91"
+       ],
+       "title": "Rain jackets leak"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_a669e6b60611fbcffa91",
+       "label": "useful",
+       "reason": "Problem with rain jackets"
+      }
+     ]
+    },
+    "ms": 13523
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|b0538dcb97ec38b9b41c94ba": {
+   "inputHash": "2a9fe2e2d4fdde91eaba7de8",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "action",
+       "statement": "I re-dressed the cabinet cabling and fitted a cable guard at the door edge.",
+       "subjectEntityNames": [
+        "cabinet"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_9131f661ed4613dcecd3",
+         "excerpt": "I re-dressed the cabinet cabling and fitted a cable guard at the door edge."
+        }
+       ],
+       "assertedByActorId": "person:slack:U604"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "cabinet",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_9131f661ed4613dcecd3",
+         "excerpt": "I re-dressed the cabinet cabling"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:slack:U604",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_9131f661ed4613dcecd3",
+         "excerpt": "I re-dressed the cabinet cabling and fitted a cable guard at the door edge."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "cabinet:re-dressed",
+       "evidenceIds": [
+        "ev_9131f661ed4613dcecd3"
+       ],
+       "title": "Cabinet cabling re-dressed and cable guard fitted"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_9131f661ed4613dcecd3",
+       "label": "useful",
+       "reason": "Action performed on cabinet cabling."
+      }
+     ]
+    },
+    "ms": 14991
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  }
+ }
+}

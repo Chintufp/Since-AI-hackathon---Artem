@@ -45,9 +45,9 @@ export const E08_ID = 'e08-retrieval-embed';
 export const E09_ID = 'e09-extraction-model';
 export const E10_ID = 'e10-store-metric';
 
-/** The brief's models. qwen3:4b is the brief's extract model; the runner records with what is installed (see D-B2-40). */
+/** The brief's models: bge-m3 (embed) and qwen3:4b (extract), both recorded (D-B2-40, D-B2-50). */
 export const DEFAULT_EMBED_MODEL = 'bge-m3';
-export const DEFAULT_EXTRACT_MODEL = 'qwen3:8b';
+export const DEFAULT_EXTRACT_MODEL = 'qwen3:4b';
 const NOW = '2026-01-01T00:00:00.000Z';
 const LONG_MS = 600_000;
 
@@ -403,6 +403,7 @@ export async function runE09(opts: ModelRunOptions = {}): Promise<void> {
   const modelOnly: Array<{ familyId: string; type: string; statement: string }> = [];
   const failedThreads: Array<{ familyId: string; thread: string }> = [];
   const latencies: number[] = [];
+  const importMs: Record<string, number> = {};
   for (const split of SPLITS) {
     const entries: FamilyManifestEntry[] = familiesOf(split);
     const runs: E09FamilyRun[] = [];
@@ -413,6 +414,7 @@ export async function runE09(opts: ModelRunOptions = {}): Promise<void> {
       gen.save();
       if (gen.stats.missing) throw new Error(`E09 replay incomplete for ${f.id}: ${gen.stats.missing} prompts had no recording`);
       latencies.push(...gen.recordedLatencies());
+      importMs[f.id] = gen.recordedLatencies().reduce((n, x) => n + x, 0);
       if (mode === 'record') console.log(`  ${f.id}: ${gen.stats.recorded} recorded, ${gen.stats.served} served, ${((performance.now() - t0) / 1000).toFixed(0)} s`);
     }
     for (const key of E09_KEYS) {
@@ -439,7 +441,7 @@ export async function runE09(opts: ModelRunOptions = {}): Promise<void> {
     direct: found, union: foundUnion, modelOnlyClaimsCommitted: modelOnly,
   });
   writeExtra(E09_ID, 'validator-dropped.json', { countByKindAndReason: byReason, items: droppedAll, threadsWhereTheModelOutputWasUnusable: failedThreads });
-  writeExtra(E09_ID, 'latency.json', { calls: latencies.length, meanMs: Math.round(mean), maxMs: Math.max(0, ...latencies), over60s: over, msPerCall: latencies });
+  writeExtra(E09_ID, 'latency.json', { calls: latencies.length, meanMs: Math.round(mean), maxMs: Math.max(0, ...latencies), over60s: over, msPerCall: latencies, msPerImport: importMs, importsOver60s: Object.values(importMs).filter((ms) => ms > 60_000).length });
 
   const v = (split: string, id: string, m: string) => variants.find((x) => x.split === split && x.variantId === id)?.metrics[m];
   const line = (s: string) => `${s}: claim recall ${E09_KEYS.map((k) => `${k} ${fmt(v(s, V[k], 'claims.all.recall'))}`).join(', ')}; precision ${E09_KEYS.map((k) => `${k} ${fmt(v(s, V[k], 'claims.all.precision'))}`).join(', ')}; false merges ${E09_KEYS.map((k) => `${k} ${fmt(v(s, V[k], 'cases.falseMergeRate'))}`).join(', ')}`;
@@ -456,7 +458,7 @@ export async function runE09(opts: ModelRunOptions = {}): Promise<void> {
     manifestId: E09_ID, finishedAt: new Date().toISOString(), variants,
     notes: [
       `Model: ${model}. ${model === 'qwen3:4b' ? '' : 'The brief names qwen3:4b; it was not installed when the fixtures were recorded, so these numbers are for ' + model + ' (a larger model of the same family), not for qwen3:4b. '}Outputs are replayed from data/replays/${dir.split('/').pop()}/ (one recording pass, hash-checked on model + prompt + schema + seed); route 'replay'.`,
-      `Live latency (recorded): ${latencies.length} calls, mean ${(mean / 1000).toFixed(1)} s, max ${(Math.max(0, ...latencies) / 1000).toFixed(1)} s; ${over}/${latencies.length} calls alone exceed the extract slot's 60 s per-import budget, so with that budget most live imports would fall back to rules (enrich.ts is all-or-nothing per import). The experiment lifts the budget to score the model's output.`,
+      `Live latency (recorded): ${latencies.length} calls, mean ${(mean / 1000).toFixed(1)} s, max ${(Math.max(0, ...latencies) / 1000).toFixed(1)} s; ${over}/${latencies.length} calls alone exceed the extract slot's 60 s per-import budget, and summed per import (one family = one import, its threads in sequence) ${Object.values(importMs).filter((ms) => ms > 60_000).length}/${Object.keys(importMs).length} imports exceed it (${Object.entries(importMs).map(([f, ms]) => `${f} ${(ms / 1000).toFixed(0)} s`).join(', ')}), so with that budget those live imports fall back to rules (enrich.ts is all-or-nothing per import). The experiment lifts the budget to score the model's output.`,
       'Direct scoring (variant 2) uses the E01 converter: cases are the proposed incidents, attempts and outcomes are not derived. The commit arms derive them through commitProposal.',
       'The union arm is the shipped path: claims the rules produced keep the rules label; model-only claims carry the replay route; incidents are the rules ones (re-keyed), so the union cannot add a case split or merge of its own beyond what its extra claims cause.',
       'Claims are matched to truth by type and token Jaccard >= 0.5 on the statement; a correct paraphrase below the threshold counts as a miss and as unsupported.',
@@ -652,7 +654,7 @@ export async function runE10(seeds = [1, 2, 3]): Promise<void> {
     experiment: 'E10',
     hypothesis: manifest.hypothesis,
     criterion: manifest.acceptanceCriteria[1]!,
-    outcome: selectors.map((s) => `${s}: completeness ${vr(s).counts['store.completeness.before']} -> ${vr(s).counts['store.completeness.after.sameCases']}, correctness ${vr(s).counts['store.correctness.before']} -> ${vr(s).counts['store.correctness.after.sameCases']} (same ${vr(s).counts['store.cases.before']} cases, mean of ${seeds.length} seeds); gain ${vr(s).counts['store.product.gainPoints.mean']} points for ${vr(s).counts['questions.asked']} questions asked over ${seeds.length} days (${vr(s).counts['questions.perPointGained'] ?? 'n/a'} questions per point); answered ${fmt(vr(s).metrics['questions.answerRate'])}; mean reward ${vr(s).counts['reward.mean']}; measured per-answer deltas sum to ${vr(s).counts['reward.deltaPoints.sum']} points (${vr(s).counts['reward.deltas.positive']}/${vr(s).counts['rewards.measured']} positive)`).join('. ') + `. LinUCB gains more per question on ${wins}/${seeds.length} seeds.`,
+    outcome: selectors.map((s) => `${s}: completeness ${vr(s).counts['store.completeness.before']} -> ${vr(s).counts['store.completeness.after.sameCases']}, correctness ${vr(s).counts['store.correctness.before']} -> ${vr(s).counts['store.correctness.after.sameCases']} (same ${vr(s).counts['store.cases.before']} cases, mean of ${seeds.length} seeds); gain ${vr(s).counts['store.product.gainPoints.mean']} points for ${vr(s).counts['questions.asked']} questions asked over ${seeds.length} simulated days (one per seed) (${vr(s).counts['questions.perPointGained'] ?? 'n/a'} questions per point); answered ${fmt(vr(s).metrics['questions.answerRate'])}; mean reward ${vr(s).counts['reward.mean']}; measured per-answer deltas sum to ${vr(s).counts['reward.deltaPoints.sum']} points (${vr(s).counts['reward.deltas.positive']}/${vr(s).counts['rewards.measured']} positive)`).join('. ') + `. LinUCB gains more per question on ${wins}/${seeds.length} seeds.`,
     shipped: wins >= 2 ? 'LinUCB gained more per question on at least 2 of 3 seeds; the rules selector stays the default until the gain shows in a judge-visible run (Settings can switch to bandit).' : 'The rules selector stays the default; LinUCB did not gain more per question on 2 of 3 seeds.',
     detail: { wins: `${wins}/${seeds.length}` },
   };
@@ -667,6 +669,7 @@ export async function runE10(seeds = [1, 2, 3]): Promise<void> {
       'Per point = one percentage point of completeness x correctness. questions.perPointGained uses the same-case before/after gain; questions.perMeasuredPoint uses the sum of the per-answer deltas the coordinator measured on the touched cases (QuestionRecord.reward.delta). Either is null when nothing was gained.',
       'The product is multiplicative: a touched case with no supported claim has correctness 0, so an answer that fills a completeness slot there measures a delta of 0 and the reward is the burden alone (touchedCasesWithNoSupportedClaim in per-seed.json).',
       'Each seed starts from a fresh demo store and a fresh selector, so LinUCB learns only within one day; the rules selector is the fixed prior with the same reward written for comparison.',
+      'Where the negative deltas come from (probe of seed 2, D-B2-51): Every non-zero measured delta (-6.77 points) is a "no" answer to an applicability question (missing|unit.model: does the earlier unit share the current unit\'s model). The coordinator writes it as a contradict update on the case\'s claim, and store-health counts any contradict update on a claim still cited by a standing recommendation as a contradicted claim, so that case\'s correctness goes negative. Under the brief\'s 5.2 wording that is a contradicted claim still cited; the coordinator\'s own note says the historical claim is unchanged. The metric is left as the brief words it; the reading is open.',
       'B1 pairing links do not exist yet, so the correctness term "links made without an answer" counts 0 (store-health links hook).',
     ],
   });

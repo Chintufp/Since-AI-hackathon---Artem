@@ -1,0 +1,102 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ (through the scenario-dir importer)",
+    "people.json",
+    "data/replays/e09-qwen3-4b/<family>.json (the model's raw JSON per thread, recorded once from the local Ollama; replayed, hash-checked on model + prompt + schema)"
+  ],
+  "route": "mixed",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T16:40:58.475Z",
+  "id": "e09-extraction-model",
+  "hypothesis": "A local schema-constrained model (qwen3:4b, four few-shot examples, evidence-substring validator) recovers claims the rules extractor misses on the E01 families, and the union commit (rules first, model-only claims labelled with the model's route) raises claim recall without lowering precision or merging cases falsely.",
+  "splits": [
+    "train",
+    "validation"
+  ],
+  "variants": [
+    {
+      "id": "rules-extractor@current",
+      "description": "The real import path with the rules extractor (as E01 variant a)",
+      "route": "rules"
+    },
+    {
+      "id": "ollama-extract qwen3:4b (direct)",
+      "description": "qwen3:4b proposals after the validator, scored directly without memory/commit (as E01 variant b)",
+      "route": "replay"
+    },
+    {
+      "id": "ollama-extract qwen3:4b→commit",
+      "description": "the same proposals alone through the real commitProposal in an evidence-only store (as E01 variant c)",
+      "route": "replay"
+    },
+    {
+      "id": "rules ∪ qwen3:4b (union commit)",
+      "description": "what POST /import commits with extract=local: the rules commit, then enrichWithModel commits the model proposal re-keyed to the rules incidents (memory/enrich.ts)",
+      "route": "replay"
+    }
+  ],
+  "config": {
+    "model": "qwen3:4b",
+    "mode": "replay",
+    "families": {
+      "train": [
+        "bgp-firmware-flaps",
+        "fan-temperature",
+        "config-rollback-private",
+        "cabling-pinch"
+      ],
+      "validation": [
+        "weak-mains-psu",
+        "bgp-linecard-private"
+      ]
+    },
+    "fixtureSha256": {
+      "bgp-firmware-flaps": "8e12410c8ba3d85e",
+      "fan-temperature": "f6493e2669e774b2",
+      "config-rollback-private": "9e9f54eea78e3bb9",
+      "cabling-pinch": "43cea63db26f3cfa",
+      "weak-mains-psu": "478a0adfd14e7c1c",
+      "bgp-linecard-private": "229c13a45d4367cf"
+    },
+    "prompt": "memory/extractor-llm.ts buildExtractionPrompt (four few-shot examples, indexed messages with evidence and actor ids); Ollama format = the zod schema as JSON schema; think:false, temperature 0, seed 7",
+    "validator": "validateExtraction: drop any claim/entity/link citing an unknown message or an excerpt not in the message text (whitespace-tolerant); links to unknown people dropped",
+    "claimMatch": "same ClaimType and token Jaccard >= 0.5 (benchmarks/evaluator.ts), as E01",
+    "budget": "the live extract slot has one 60 s deadline per import; the experiment lifts it (600 s per call) so the model output is scored, and reports the recorded latencies against the 60 s budget",
+    "briefModel": "qwen3:4b is the brief's extract model; when it is not installed the runner records with the installed model named here (D-B2-40)",
+    "test": "test families are never read"
+  },
+  "seeds": [
+    7
+  ],
+  "metrics": [
+    "claims.all.precision",
+    "claims.all.recall",
+    "claims.observation.recall",
+    "claims.hypothesis.recall",
+    "claims.advice.recall",
+    "claims.action.recall",
+    "claims.outcome.recall",
+    "claims.condition.recall",
+    "entities.recall",
+    "cases.falseMergeRate",
+    "cases.falseSplitRate",
+    "attribution.claimPersonErrorRate",
+    "attribution.firsthandLinkErrorRate",
+    "attribution.attemptPerformerErrorRate",
+    "attribution.attemptPerformedStateErrorRate",
+    "attribution.outcomeReporterErrorRate",
+    "copies.overcountRate",
+    "copies.overcountRate.noLineage",
+    "usefulness.accuracy"
+  ],
+  "acceptanceCriteria": [
+    "Report all four arms side by side per split; no winner is declared (as E01).",
+    "The rules extractor remains the default extract route regardless of the result; extract=local stays opt-in.",
+    "List the truth claims the model recovered and the rules missed, and every item the validator dropped."
+  ],
+  "stopRule": "One recording pass per family; replay thereafter. A fallback or a missing recording in replay mode fails the run."
+}

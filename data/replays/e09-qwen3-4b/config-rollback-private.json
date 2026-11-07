@@ -1,0 +1,465 @@
+{
+ "id": "generations",
+ "entries": {
+  "qwen3:4b|2f83df11ed444711fa198952": {
+   "inputHash": "21b86744c0737cd9e8e67d8a",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "Jarmo, voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push. Phones on floor 3 are offline. The data VLAN is fine.",
+       "subjectEntityNames": [
+        "ACC-12"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_f3798159c02b3afe0acb",
+         "excerpt": "Jarmo, voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push. Phones on floor 3 are offline. The data VLAN is fine."
+        }
+       ],
+       "assertedByActorId": "person:teams:antti korhonen"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "ACC-12",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_f3798159c02b3afe0acb",
+         "excerpt": "voice VLAN 210 dropped on ACC-12"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:teams:antti korhonen",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_f3798159c02b3afe0acb",
+         "excerpt": "Jarmo, voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:ACC-12",
+       "evidenceIds": [
+        "ev_f3798159c02b3afe0acb"
+       ],
+       "title": "Voice VLAN 210 dropped on ACC-12"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_f3798159c02b3afe0acb",
+       "label": "useful",
+       "reason": "Initial problem report"
+      }
+     ]
+    },
+    "ms": 18363
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|36a0ca869fe2610f807c7ad7": {
+   "inputHash": "c7fd44f0c3aef14e0d87a005",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "Template v7 broke voice VLAN 210 on ACC-12.",
+       "subjectEntityNames": [
+        "ACC-12"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_d90614cb79089977cb1b",
+         "excerpt": "Template v7 broke voice VLAN 210 on ACC-12."
+        }
+       ],
+       "assertedByActorId": "person:email:jarmo heikkinen"
+      },
+      {
+       "type": "action",
+       "statement": "Rolled back the switch to template v6.",
+       "subjectEntityNames": [
+        "ACC-12"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_d90614cb79089977cb1b",
+         "excerpt": "The switch was rolled back to the v6 template and the config was saved to startup."
+        }
+       ],
+       "assertedByActorId": "person:email:jarmo heikkinen"
+      },
+      {
+       "type": "outcome",
+       "statement": "VLAN 210 is back and the phones on floor 3 registered again.",
+       "subjectEntityNames": [
+        "ACC-12"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_d90614cb79089977cb1b",
+         "excerpt": "VLAN 210 is back and the phones on floor 3 registered again."
+        }
+       ],
+       "assertedByActorId": "person:email:jarmo heikkinen"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "ACC-12",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_d90614cb79089977cb1b",
+         "excerpt": "ACC-12"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:email:jarmo heikkinen",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_d90614cb79089977cb1b",
+         "excerpt": "Template v7 broke voice VLAN 210 on ACC-12."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:email:jarmo heikkinen",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_d90614cb79089977cb1b",
+         "excerpt": "The switch was rolled back to the v6 template and the config was saved to startup."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:email:jarmo heikkinen",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_d90614cb79089977cb1b",
+         "excerpt": "VLAN 210 is back and the phones on floor 3 registered again."
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:ACC-12",
+       "evidenceIds": [
+        "ev_d90614cb79089977cb1b"
+       ],
+       "title": "ACC-12 template v7 rolled back"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_d90614cb79089977cb1b",
+       "label": "useful",
+       "reason": "Problem, action, and result for ACC-12 template change."
+      }
+     ]
+    },
+    "ms": 31024
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|61fe7b98b9f3177729744d10": {
+   "inputHash": "f9038f2db54b4e65c218dd67",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week.",
+       "subjectEntityNames": [
+        "ACC-30"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_6ed05fa375b56de71a8e",
+         "excerpt": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week. It's an N5 though."
+        }
+       ],
+       "assertedByActorId": "person:slack:U503"
+      },
+      {
+       "type": "action",
+       "statement": "Rolled back to v6 on ACC-30.",
+       "subjectEntityNames": [
+        "ACC-30"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_c82652e4bede9f87dd78",
+         "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+        }
+       ],
+       "assertedByActorId": "person:slack:U501"
+      },
+      {
+       "type": "hypothesis",
+       "statement": "v6 has no profile for the N5 port layout.",
+       "subjectEntityNames": [
+        "v6"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_c82652e4bede9f87dd78",
+         "excerpt": "v6 has no profile for the N5 port layout."
+        }
+       ],
+       "assertedByActorId": "person:slack:U501"
+      },
+      {
+       "type": "advice",
+       "statement": "Do not roll back N5 units. Apply the v7.1 patch that fixes the voice range typo instead.",
+       "subjectEntityNames": [
+        "v7.1 patch"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_8f1d6c4e3dd192b8726b",
+         "excerpt": "Do not roll back N5 units. The v6 template cannot address their port layout. Apply the v7.1 patch that fixes the voice range typo instead."
+        }
+       ],
+       "assertedByActorId": "person:slack:U502"
+      },
+      {
+       "type": "action",
+       "statement": "v7.1 patch applied on ACC-30.",
+       "subjectEntityNames": [
+        "ACC-30"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_a20678c3af375bd40dc9",
+         "excerpt": "v7.1 patch applied on ACC-30. Uplinks and VLAN 210 are back."
+        }
+       ],
+       "assertedByActorId": "person:slack:U501"
+      },
+      {
+       "type": "outcome",
+       "statement": "Uplinks and VLAN 210 are back after v7.1 patch.",
+       "subjectEntityNames": [
+        "ACC-30"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_a20678c3af375bd40dc9",
+         "excerpt": "Uplinks and VLAN 210 are back."
+        }
+       ],
+       "assertedByActorId": "person:slack:U501"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "ACC-30",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_6ed05fa375b56de71a8e",
+         "excerpt": "ACC-30 lost voice VLAN 210 after v7"
+        }
+       ]
+      },
+      {
+       "type": "asset",
+       "name": "ACC-12",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_6ed05fa375b56de71a8e",
+         "excerpt": "same as ACC-12 last week"
+        }
+       ]
+      },
+      {
+       "type": "component",
+       "name": "N5",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_6ed05fa375b56de71a8e",
+         "excerpt": "It's an N5 though."
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:slack:U503",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_6ed05fa375b56de71a8e",
+         "excerpt": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:slack:U501",
+       "contribution": "performed-action",
+       "evidence": [
+        {
+         "evidenceId": "ev_c82652e4bede9f87dd78",
+         "excerpt": "Rolled it back to v6 like on ACC-12."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:slack:U501",
+       "contribution": "reported-outcome",
+       "evidence": [
+        {
+         "evidenceId": "ev_a20678c3af375bd40dc9",
+         "excerpt": "Uplinks and VLAN 210 are back."
+        }
+       ],
+       "firsthand": true
+      },
+      {
+       "personActorId": "person:slack:U502",
+       "contribution": "advised",
+       "evidence": [
+        {
+         "evidenceId": "ev_8f1d6c4e3dd192b8726b",
+         "excerpt": "Do not roll back N5 units. The v6 template cannot address their port layout. Apply the v7.1 patch that fixes the voice range typo instead."
+        }
+       ],
+       "firsthand": false
+      }
+     ],
+     "incidents": [
+      {
+       "key": "asset:ACC-30",
+       "evidenceIds": [
+        "ev_6ed05fa375b56de71a8e",
+        "ev_c82652e4bede9f87dd78",
+        "ev_a20678c3af375bd40dc9"
+       ],
+       "title": "ACC-30 lost voice VLAN 210 after v7, resolved with v7.1 patch"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_6ed05fa375b56de71a8e",
+       "label": "useful",
+       "reason": "Initial problem report"
+      },
+      {
+       "evidenceId": "ev_c82652e4bede9f87dd78",
+       "label": "useful",
+       "reason": "Action taken and consequence"
+      },
+      {
+       "evidenceId": "ev_8f1d6c4e3dd192b8726b",
+       "label": "useful",
+       "reason": "Corrective advice"
+      },
+      {
+       "evidenceId": "ev_a20678c3af375bd40dc9",
+       "label": "useful",
+       "reason": "Resolution"
+      }
+     ]
+    },
+    "ms": 61584
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  },
+  "qwen3:4b|c3bdec78df79dc1923143653": {
+   "inputHash": "78ae9ca716b21ce37da043a5",
+   "output": {
+    "value": {
+     "claims": [
+      {
+       "type": "observation",
+       "statement": "The network maintenance window on Saturday is 02:00 to 04:00, expect brief blips on the guest wifi.",
+       "subjectEntityNames": [
+        "network maintenance window"
+       ],
+       "evidence": [
+        {
+         "evidenceId": "ev_1ae582f6f88d685733c6",
+         "excerpt": "Reminder: the network maintenance window on Saturday is 02:00 to 04:00, expect brief blips on the guest wifi."
+        }
+       ],
+       "assertedByActorId": "person:slack:U503"
+      }
+     ],
+     "entities": [
+      {
+       "type": "asset",
+       "name": "network maintenance window",
+       "aliases": [],
+       "evidence": [
+        {
+         "evidenceId": "ev_1ae582f6f88d685733c6",
+         "excerpt": "the network maintenance window on Saturday"
+        }
+       ]
+      }
+     ],
+     "links": [
+      {
+       "personActorId": "person:slack:U503",
+       "contribution": "reported-problem",
+       "evidence": [
+        {
+         "evidenceId": "ev_1ae582f6f88d685733c6",
+         "excerpt": "the network maintenance window on Saturday"
+        }
+       ],
+       "firsthand": true
+      }
+     ],
+     "incidents": [
+      {
+       "key": "network.maintenance.window",
+       "evidenceIds": [
+        "ev_1ae582f6f88d685733c6"
+       ],
+       "title": "Network maintenance window on Saturday: 02:00 to 04:00"
+      }
+     ],
+     "usefulness": [
+      {
+       "evidenceId": "ev_1ae582f6f88d685733c6",
+       "label": "useful",
+       "reason": "Maintenance window and expected guest wifi blips."
+      }
+     ]
+    },
+    "ms": 16100
+   },
+   "recordedBy": "ollama 0.40.9 qwen3:4b@359d7dd4bcda recorded 2026-11-07"
+  }
+ }
+}

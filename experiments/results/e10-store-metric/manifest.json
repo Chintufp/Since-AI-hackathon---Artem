@@ -10,7 +10,7 @@
     "maxWallSeconds": 600,
     "networkCalls": 0
   },
-  "startedAt": "2026-11-07T14:01:02.816Z",
+  "startedAt": "2026-11-07T16:41:41.079Z",
   "id": "e10-store-metric",
   "hypothesis": "A simulated day of questions answered by simulated colleagues raises the store metric (completeness x correctness, BUILD_BRIEF 5.1-5.2) of the demo store, and the LinUCB selector rewarded by the measured delta of that metric minus burden (5.4) gains at least as much per question asked as the rules selector on the same store and the same day.",
   "splits": [

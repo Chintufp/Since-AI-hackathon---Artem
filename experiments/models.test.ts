@@ -11,8 +11,9 @@ import { test } from 'node:test';
 import { ReplayMismatchError } from '../src/libs/utils/models/replay.ts';
 import { ProviderError } from '../src/libs/utils/models/providers/index.ts';
 import { installNetworkGuard } from '../src/libs/utils/models/routes.ts';
-import { RecordedEmbedder, RecordedGenerator } from './replay-models.ts';
-import { E08_VARIANTS, PARAPHRASES, paraphraseProbe, runE09Family, runE10Arm } from './runners-models.ts';
+import { fixtureDir, RecordedEmbedder, RecordedGenerator } from './replay-models.ts';
+import { familiesOf } from './common.ts';
+import { DEFAULT_EXTRACT_MODEL, E08_VARIANTS, PARAPHRASES, paraphraseProbe, runE09Family, runE10Arm } from './runners-models.ts';
 
 const tmp = () => mkdtempSync(join(tmpdir(), 'kt-e0810-'));
 
@@ -145,4 +146,15 @@ test('E08 paraphrase probe: every retriever ranks the demo store and the target 
   // The two extra paraphrases avoid every lexicon cue: the parser finds no condition in them.
   assert.deepEqual(rows[1]!.parsedConditions, []);
   assert.deepEqual(rows[2]!.parsedConditions, []);
+});
+
+test('E09 fixtures: the brief\'s qwen3:4b is the default and a recording exists for every train and validation family, made by that model', () => {
+  assert.equal(DEFAULT_EXTRACT_MODEL, 'qwen3:4b');
+  const dir = fixtureDir('e09', DEFAULT_EXTRACT_MODEL);
+  for (const f of [...familiesOf('train'), ...familiesOf('validation')]) {
+    const file = JSON.parse(readFileSync(join(dir, `${f.id}.json`), 'utf8')) as { entries: Record<string, { recordedBy: string }> };
+    const entries = Object.values(file.entries);
+    assert.ok(entries.length > 0, `${f.id}: empty recording`);
+    for (const e of entries) assert.match(e.recordedBy, /qwen3:4b@/, `${f.id}: recorded by ${e.recordedBy}`);
+  }
 });

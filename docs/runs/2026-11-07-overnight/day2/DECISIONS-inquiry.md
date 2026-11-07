@@ -177,3 +177,28 @@ accepted).
   delivered today and shows kt_list_gaps marks them blocked by 'budget' and the batch never picks them (the older
   batch assertion was vacuous, as the reviewers said). kt_propose_question by a principal that did not start the
   investigation is rejected (tested).
+
+## D-B7-15 · demo:agent after the walkthrough: the gate story, told plainly (review fix)
+A reviewer showed that DEMO.md's own order (Erkki answers "Is TRN-301 an older unit?" at 2:05, demo:agent at 2:50)
+makes the agent's preference for Erkki refused (24 h re-ask cooldown; 'duplicate' if he has not answered), so the
+question goes to Helmi Virtanen while the doc told the presenter to tap as Erkki. The gates are right; the doc was wrong.
+Decision: keep the gates and the order. The script prints a `>>> PRESENTER:` line naming who cannot be asked, why, and
+who to switch to in the companion; DEMO.md step 3 says the order matters, what the presenter then says, and how to
+get the Erkki version (fresh `pnpm demo:reset`, demo:agent before the walkthrough); steps 4 and 5 name "that person".
+Verified on a scratch database with the reviewer's steps: refused for Erkki (cooling down), Helmi asked, her simulated
+tap moves the recommendation from qualified to check-first. Reversal: give the agent sequence its own problem or gap
+so it never shares a dedupKey with the walkthrough (needs new fixture content).
+Also: `pretty()` prints a string as is (kt_find_people was one quoted JSON line in the transcript; the committed
+transcript's block is unescaped in place, same content), and `mcp.ts --clock` refuses a time without a zone (exit 2,
+tested), since it would be read in the machine's local zone.
+
+## Review (two reviewers, B7)
+All findings were verified against the code and confirmed; none rejected.
+- Major, agent wording reverses the meaning: fixed (D-B7-13).
+- Major, problem-text words widen the agent's allowed words: fixed (D-B7-13).
+- Major, DEMO.md order never reaches Erkki: fixed in the doc and the script output (D-B7-15), gates unchanged.
+- Minor, gapIds silently drops gapId / preferPersonEntityId: now a 400 (D-B7-14).
+- Minor, non-recipient preference with a question open is not refused: the reason now says so (D-B7-14).
+- Minor, unknown preferPersonEntityId refused with invented gates: now a 404 (D-B7-14).
+- Minor, vacuous batch daily-limit assertion and no outsider test for kt_propose_question: new tests (D-B7-14).
+- Minor, kt_find_people transcript as one quoted line, and --clock without a zone: fixed (D-B7-15).

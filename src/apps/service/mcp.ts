@@ -35,6 +35,11 @@ if (!['default', 'on', 'off'].includes(values['quiet-hours'])) {
 }
 const demoClock = createDemoClock();
 if (values.clock) {
+  // A time without a zone would be read in the machine's local zone and shift quiet hours on a judge's laptop.
+  if (!/(?:Z|[+-]\d{2}:?\d{2})$/i.test(values.clock.trim())) {
+    process.stderr.write(`Invalid --clock ${values.clock}: give a zone (Z or +hh:mm), e.g. 2026-11-08T01:00:00Z\n`);
+    process.exit(2);
+  }
   try {
     demoClock.set({ now: values.clock });
   } catch (e) {

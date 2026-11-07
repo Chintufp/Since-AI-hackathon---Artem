@@ -5,6 +5,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -407,5 +408,16 @@ test('03:00 -> 07:30 on the demo clock: the preferred person\'s question is queu
   } finally {
     await r.svc.call('POST', '/demo/clock', {}).catch(() => undefined);
     await r.close();
+  }
+});
+
+test('mcp.ts --clock without a zone is refused (it would be read in the local zone and shift quiet hours)', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'kt-inquiry-clock-'));
+  try {
+    const r = spawnSync(process.execPath, [join(ROOT, 'src/apps/service/mcp.ts'), '--db', join(dir, 'kt.sqlite'), '--clock', '2026-11-08T03:00:00'], { encoding: 'utf8', input: '' });
+    assert.equal(r.status, 2);
+    assert.match(r.stderr, /give a zone/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
 });

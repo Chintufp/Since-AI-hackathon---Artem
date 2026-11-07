@@ -107,7 +107,7 @@ function pretty(v: unknown): string {
     }
     return lines.join('\n');
   }
-  return JSON.stringify(v, null, 2);
+  return typeof v === 'string' ? v : JSON.stringify(v, null, 2);
 }
 
 /** The service on KT_PORT, when it serves the same database file (else it is somebody else's and is left alone). */
@@ -170,7 +170,13 @@ try {
     let clar = await call('kt_request_clarification', { investigationId, gapId: gap.id, ...(wanted ? { preferPersonEntityId: wanted.personEntityId } : {}), principal });
     show('kt_request_clarification', clar);
     if (clar.status === 'refused' && clar.wouldAsk) {
+      const who = clar.refused?.name ?? values.prefer;
+      const instead = clar.wouldAsk.name ?? clar.wouldAsk.personEntityId;
       say(`\nRefused: ${clar.reason}\nThe agent takes the engine's suggestion.`);
+      // Presenter note: after the judge walkthrough Erkki has already been asked this question (nobody is asked the
+      // same thing twice within 24 h), so the tap moves to someone else; say who, plainly (D-B7-15).
+      say(`\n>>> PRESENTER: ${who} cannot be asked now (${(clar.refused?.why ?? []).join('; ') || 'a gate blocks it'}). If you did the walkthrough, ${who} was already asked this question.`);
+      say(`>>> The tap moves to ${instead}: in the companion switch You to ${instead}. For ${who}, run on a fresh database: pnpm demo:reset, then pnpm demo:agent first.`);
       clar = await call('kt_request_clarification', { investigationId, gapId: gap.id, preferPersonEntityId: clar.wouldAsk.personEntityId, principal });
       show('kt_request_clarification', clar);
     }

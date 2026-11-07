@@ -49,7 +49,11 @@ The agent chooses the gap that decides applicability: Unknown for this problem: 
 → kt_find_people({"investigationId":"inv_b2df60e5a46f361cb07d","principal":{"id":"agent:claude-code","displayName":"Claude Code (judge)","groups":["noc"]}})
 
 ## kt_find_people
-"Veikko Vikkelä · Field Engineer (ent_bfc503c11994c003a9cd): Performed the interface reset and reported recovery in TRN-042; Ran the traffic counter check in TRN-042; Reported the problem in TRN-042\nErkki Expert · Network Expert (ent_219a3364c47654f1cbbc): Advised the interface reset in TRN-042\nAarne Koskela · Field Engineer (ent_f07bace092572f3cc4cc): Performed the interface reset and reported recovery in TRN-117; Reported the problem in TRN-117; Observed the situation in TRN-117\nHelmi Virtanen · Network Expert (ent_7f60cb0970891a3c15af): Performed the SFP replacement in TRN-117; Advised the interface reset in TRN-117; Reported the problem in TRN-117\nTapio Lehto · NOC Engineer (ent_bbeca410476231840212): Reported the outcome of the SFP replacement in TRN-117"
+Veikko Vikkelä · Field Engineer (ent_bfc503c11994c003a9cd): Performed the interface reset and reported recovery in TRN-042; Ran the traffic counter check in TRN-042; Reported the problem in TRN-042
+Erkki Expert · Network Expert (ent_219a3364c47654f1cbbc): Advised the interface reset in TRN-042
+Aarne Koskela · Field Engineer (ent_f07bace092572f3cc4cc): Performed the interface reset and reported recovery in TRN-117; Reported the problem in TRN-117; Observed the situation in TRN-117
+Helmi Virtanen · Network Expert (ent_7f60cb0970891a3c15af): Performed the SFP replacement in TRN-117; Advised the interface reset in TRN-117; Reported the problem in TRN-117
+Tapio Lehto · NOC Engineer (ent_bbeca410476231840212): Reported the outcome of the SFP replacement in TRN-117
 
 → kt_request_clarification({"investigationId":"inv_b2df60e5a46f361cb07d","gapId":"gap|inv_b2df60e5a46f361cb07d|missing|case_bfe94af54ee18df46e01|unit.age","preferPersonEntityId":"ent_219a3364c47654f1cbbc","principal":{"id":"agent:claude-code","displayName":"Claude Code (judge)","groups":["noc"]}})
 

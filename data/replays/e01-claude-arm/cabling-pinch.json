@@ -1,0 +1,747 @@
+{
+ "route": {
+  "route": "claude-agent-arm",
+  "version": "claude-sonnet-subagent-2026-11-07"
+ },
+ "familyId": "cabling-pinch",
+ "inputs": [
+  "data/scenarios/cabling-pinch/people.json",
+  "data/scenarios/cabling-pinch/sources/teams.json",
+  "data/scenarios/cabling-pinch/sources/email-01.txt",
+  "data/scenarios/cabling-pinch/sources/slack-export/channels.json",
+  "data/scenarios/cabling-pinch/sources/slack-export/users.json",
+  "data/scenarios/cabling-pinch/sources/slack-export/field-chat/2026-06-12.json"
+ ],
+ "entities": [
+  {
+   "type": "asset",
+   "name": "HUB-07",
+   "aliases": [
+    "HUB-07"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Kimmo, the HUB-07 uplink to the core router shows CRC errors in bursts since about 05:00. The link stays up and most traffic flows, but customers report slowness."
+    },
+    {
+     "evidenceId": "email:<f06-hub07-cause@kalevanet.example>",
+     "excerpt": "Hi Henrik, Back at HUB-07 this morning. When I closed the cabinet door the patch cord was pinched by the door edge. That only happens with the door fully shut, which is why it looked fine with the door open yesterday. I replaced the patch cord and rerouted it away from the hinge side. Aila sees no CRC errors since 11:00. Kimmo"
+    },
+    {
+     "evidenceId": "slack:1781272800.000100",
+     "excerpt": "HUB-07: I re-dressed the cabinet cabling and fitted a cable guard at the door edge. The same cabinet type is at HUB-09 and HUB-12, I will check them in July."
+    }
+   ]
+  },
+  {
+   "type": "asset",
+   "name": "HUB-09",
+   "aliases": [
+    "HUB-09"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781272800.000100",
+     "excerpt": "HUB-07: I re-dressed the cabinet cabling and fitted a cable guard at the door edge. The same cabinet type is at HUB-09 and HUB-12, I will check them in July."
+    }
+   ]
+  },
+  {
+   "type": "asset",
+   "name": "HUB-12",
+   "aliases": [
+    "HUB-12"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781272800.000100",
+     "excerpt": "HUB-07: I re-dressed the cabinet cabling and fitted a cable guard at the door edge. The same cabinet type is at HUB-09 and HUB-12, I will check them in July."
+    }
+   ]
+  },
+  {
+   "type": "other",
+   "name": "HUB-07 uplink to core router",
+   "aliases": [
+    "uplink",
+    "HUB-07 uplink"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Kimmo, the HUB-07 uplink to the core router shows CRC errors in bursts since about 05:00. The link stays up and most traffic flows, but customers report slowness."
+    }
+   ]
+  },
+  {
+   "type": "component",
+   "name": "HUB-07 SFP",
+   "aliases": [
+    "SFP"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "Then swap the SFP on our side anyway, it's cheap and we have had bad batches. Kimmo, can you do that on your way?"
+    },
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "At HUB-07. Swapped the SFP, the link is up again."
+    }
+   ]
+  },
+  {
+   "type": "component",
+   "name": "HUB-07 patch cord (SFP to ODF)",
+   "aliases": [
+    "patch cord",
+    "patch cord between the SFP and the ODF"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "OK so not the SFP. Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks."
+    },
+    {
+     "evidenceId": "email:<f06-hub07-cause@kalevanet.example>",
+     "excerpt": "Hi Henrik, Back at HUB-07 this morning. When I closed the cabinet door the patch cord was pinched by the door edge. That only happens with the door fully shut, which is why it looked fine with the door open yesterday. I replaced the patch cord and rerouted it away from the hinge side. Aila sees no CRC errors since 11:00. Kimmo"
+    }
+   ]
+  },
+  {
+   "type": "component",
+   "name": "HUB-07 cabinet door",
+   "aliases": [
+    "cabinet door",
+    "door edge"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f06-hub07-cause@kalevanet.example>",
+     "excerpt": "Hi Henrik, Back at HUB-07 this morning. When I closed the cabinet door the patch cord was pinched by the door edge. That only happens with the door fully shut, which is why it looked fine with the door open yesterday. I replaced the patch cord and rerouted it away from the hinge side. Aila sees no CRC errors since 11:00. Kimmo"
+    },
+    {
+     "evidenceId": "slack:1781272800.000100",
+     "excerpt": "HUB-07: I re-dressed the cabinet cabling and fitted a cable guard at the door edge. The same cabinet type is at HUB-09 and HUB-12, I will check them in July."
+    }
+   ]
+  },
+  {
+   "type": "component",
+   "name": "Cable guard",
+   "aliases": [
+    "cable guard"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781272800.000100",
+     "excerpt": "HUB-07: I re-dressed the cabinet cabling and fitted a cable guard at the door edge. The same cabinet type is at HUB-09 and HUB-12, I will check them in July."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Aila Nurmi",
+   "aliases": [
+    "Aila Nurmi",
+    "Aila Nurmi",
+    "U602",
+    "aila.nurmi@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Kimmo, the HUB-07 uplink to the core router shows CRC errors in bursts since about 05:00. The link stays up and most traffic flows, but customers report slowness."
+    },
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "Receive power is normal on both ends."
+    },
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "CRC errors are still climbing, same burst pattern."
+    },
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "OK, errors are at a low level for now. I will keep watching."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Henrik Sjöberg",
+   "aliases": [
+    "Henrik Sjöberg",
+    "Henrik Sjöberg",
+    "U603",
+    "henrik.sjoberg@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "Then swap the SFP on our side anyway, it's cheap and we have had bad batches. Kimmo, can you do that on your way?"
+    },
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "OK so not the SFP. Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Kimmo Rautio",
+   "aliases": [
+    "Kimmo Rautio",
+    "Kimmo Rautio",
+    "U601",
+    "kimmo.rautio@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f06-hub07-cause@kalevanet.example>",
+     "excerpt": "Hi Henrik, Back at HUB-07 this morning. When I closed the cabinet door the patch cord was pinched by the door edge. That only happens with the door fully shut, which is why it looked fine with the door open yesterday. I replaced the patch cord and rerouted it away from the hinge side. Aila sees no CRC errors since 11:00. Kimmo"
+    },
+    {
+     "evidenceId": "slack:1781273100.000200",
+     "excerpt": "Thanks Seppo, good to know."
+    },
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "At HUB-07. Swapped the SFP, the link is up again."
+    },
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Cleaned both connectors. Errors dropped a lot but not to zero. The patch cord looks fine to me, no kinks I can see. I have to leave for the next job, I'll come back tomorrow with a spare cord."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Seppo Lahti",
+   "aliases": [
+    "Seppo Lahti",
+    "U604",
+    "seppo.lahti@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781272800.000100",
+     "excerpt": "HUB-07: I re-dressed the cabinet cabling and fitted a cable guard at the door edge. The same cabinet type is at HUB-09 and HUB-12, I will check them in July."
+    },
+    {
+     "evidenceId": "slack:1781273400.000300",
+     "excerpt": "I am on leave from tomorrow until 10 August."
+    }
+   ]
+  }
+ ],
+ "claims": [
+  {
+   "type": "observation",
+   "statement": "HUB-07 uplink to the core router shows CRC errors in bursts since about 05:00; link stays up, most traffic flows, customers report slowness.",
+   "subjectEntityNames": [
+    "HUB-07",
+    "HUB-07 uplink to core router"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Kimmo, the HUB-07 uplink to the core router shows CRC errors in bursts since about 05:00. The link stays up and most traffic flows, but customers report slowness."
+    }
+   ],
+   "assertedByActorId": "person:directory:aila-nurmi",
+   "condition": {
+    "key": "traffic.state",
+    "operator": "eq",
+    "value": "degraded",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:1",
+      "excerpt": "Kimmo, the HUB-07 uplink to the core router shows CRC errors in bursts since about 05:00. The link stays up and most traffic flows, but customers report slowness."
+     }
+    ],
+    "label": "Link up, traffic degraded by CRC bursts"
+   }
+  },
+  {
+   "type": "observation",
+   "statement": "Receive optical power is normal on both ends of the HUB-07 uplink.",
+   "subjectEntityNames": [
+    "HUB-07 uplink to core router"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "Receive power is normal on both ends."
+    }
+   ],
+   "assertedByActorId": "person:directory:aila-nurmi",
+   "condition": {
+    "key": "optical.level",
+    "operator": "eq",
+    "value": "normal",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:3",
+      "excerpt": "Receive power is normal on both ends."
+     }
+    ],
+    "label": "RX power normal both ends"
+   }
+  },
+  {
+   "type": "advice",
+   "statement": "Swap the SFP on the near side anyway: cheap, and bad batches have been seen. Asks Kimmo to do it on the way.",
+   "subjectEntityNames": [
+    "HUB-07 SFP",
+    "HUB-07"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "Then swap the SFP on our side anyway, it's cheap and we have had bad batches. Kimmo, can you do that on your way?"
+    }
+   ],
+   "assertedByActorId": "person:directory:henrik-sjoberg"
+  },
+  {
+   "type": "action",
+   "statement": "Kimmo swapped the SFP at HUB-07; the link is up again.",
+   "subjectEntityNames": [
+    "HUB-07 SFP",
+    "HUB-07"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "At HUB-07. Swapped the SFP, the link is up again."
+    }
+   ],
+   "assertedByActorId": "person:directory:kimmo-rautio",
+   "condition": {
+    "key": "component.replaced",
+    "operator": "eq",
+    "value": "sfp",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:5",
+      "excerpt": "At HUB-07. Swapped the SFP, the link is up again."
+     }
+    ],
+    "label": "SFP replaced"
+   }
+  },
+  {
+   "type": "outcome",
+   "statement": "CRC errors still climbing after the SFP swap, same burst pattern: SFP swap did not fix it.",
+   "subjectEntityNames": [
+    "HUB-07"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "CRC errors are still climbing, same burst pattern."
+    }
+   ],
+   "assertedByActorId": "person:directory:aila-nurmi"
+  },
+  {
+   "type": "hypothesis",
+   "statement": "Henrik concludes it is not the SFP and suspects the patch cord between SFP and ODF or its connectors.",
+   "subjectEntityNames": [
+    "HUB-07 patch cord (SFP to ODF)"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "OK so not the SFP. Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks."
+    }
+   ],
+   "assertedByActorId": "person:directory:henrik-sjoberg"
+  },
+  {
+   "type": "advice",
+   "statement": "Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks.",
+   "subjectEntityNames": [
+    "HUB-07 patch cord (SFP to ODF)"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "OK so not the SFP. Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks."
+    }
+   ],
+   "assertedByActorId": "person:directory:henrik-sjoberg"
+  },
+  {
+   "type": "action",
+   "statement": "Kimmo cleaned both connectors on the patch cord.",
+   "subjectEntityNames": [
+    "HUB-07 patch cord (SFP to ODF)"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Cleaned both connectors. Errors dropped a lot but not to zero. The patch cord looks fine to me, no kinks I can see. I have to leave for the next job, I'll come back tomorrow with a spare cord."
+    }
+   ],
+   "assertedByActorId": "person:directory:kimmo-rautio"
+  },
+  {
+   "type": "observation",
+   "statement": "After cleaning, errors dropped a lot but not to zero; the patch cord looks fine to Kimmo, no kinks seen (with the door open).",
+   "subjectEntityNames": [
+    "HUB-07",
+    "HUB-07 patch cord (SFP to ODF)"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Cleaned both connectors. Errors dropped a lot but not to zero. The patch cord looks fine to me, no kinks I can see. I have to leave for the next job, I'll come back tomorrow with a spare cord."
+    }
+   ],
+   "assertedByActorId": "person:directory:kimmo-rautio"
+  },
+  {
+   "type": "action",
+   "statement": "Kimmo leaves for the next job and plans to return the next day with a spare cord.",
+   "subjectEntityNames": [
+    "HUB-07"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Cleaned both connectors. Errors dropped a lot but not to zero. The patch cord looks fine to me, no kinks I can see. I have to leave for the next job, I'll come back tomorrow with a spare cord."
+    }
+   ],
+   "assertedByActorId": "person:directory:kimmo-rautio"
+  },
+  {
+   "type": "outcome",
+   "statement": "Errors are at a low level for now; Aila will keep watching (partial improvement, not resolved).",
+   "subjectEntityNames": [
+    "HUB-07"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "OK, errors are at a low level for now. I will keep watching."
+    }
+   ],
+   "assertedByActorId": "person:directory:aila-nurmi"
+  },
+  {
+   "type": "observation",
+   "statement": "The patch cord was pinched by the cabinet door edge when the door is fully shut; invisible with the door open, so it looked fine the day before.",
+   "subjectEntityNames": [
+    "HUB-07 patch cord (SFP to ODF)",
+    "HUB-07 cabinet door"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f06-hub07-cause@kalevanet.example>",
+     "excerpt": "Hi Henrik, Back at HUB-07 this morning. When I closed the cabinet door the patch cord was pinched by the door edge. That only happens with the door fully shut, which is why it looked fine with the door open yesterday. I replaced the patch cord and rerouted it away from the hinge side. Aila sees no CRC errors since 11:00. Kimmo"
+    }
+   ],
+   "assertedByActorId": "person:directory:kimmo-rautio"
+  },
+  {
+   "type": "action",
+   "statement": "Kimmo replaced the patch cord and rerouted it away from the hinge side.",
+   "subjectEntityNames": [
+    "HUB-07 patch cord (SFP to ODF)"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f06-hub07-cause@kalevanet.example>",
+     "excerpt": "Hi Henrik, Back at HUB-07 this morning. When I closed the cabinet door the patch cord was pinched by the door edge. That only happens with the door fully shut, which is why it looked fine with the door open yesterday. I replaced the patch cord and rerouted it away from the hinge side. Aila sees no CRC errors since 11:00. Kimmo"
+    }
+   ],
+   "assertedByActorId": "person:directory:kimmo-rautio",
+   "condition": {
+    "key": "component.replaced",
+    "operator": "eq",
+    "value": "patch cord",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "email:<f06-hub07-cause@kalevanet.example>",
+      "excerpt": "Hi Henrik, Back at HUB-07 this morning. When I closed the cabinet door the patch cord was pinched by the door edge. That only happens with the door fully shut, which is why it looked fine with the door open yesterday. I replaced the patch cord and rerouted it away from the hinge side. Aila sees no CRC errors since 11:00. Kimmo"
+     }
+    ],
+    "label": "Patch cord replaced and rerouted"
+   }
+  },
+  {
+   "type": "outcome",
+   "statement": "Aila sees no CRC errors since 11:00 on the day of the fix (observation window short, a few hours at the time of writing).",
+   "subjectEntityNames": [
+    "HUB-07"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f06-hub07-cause@kalevanet.example>",
+     "excerpt": "Hi Henrik, Back at HUB-07 this morning. When I closed the cabinet door the patch cord was pinched by the door edge. That only happens with the door fully shut, which is why it looked fine with the door open yesterday. I replaced the patch cord and rerouted it away from the hinge side. Aila sees no CRC errors since 11:00. Kimmo"
+    }
+   ],
+   "assertedByActorId": "person:directory:kimmo-rautio"
+  },
+  {
+   "type": "action",
+   "statement": "Seppo re-dressed the cabinet cabling at HUB-07 and fitted a cable guard at the door edge.",
+   "subjectEntityNames": [
+    "HUB-07",
+    "Cable guard"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781272800.000100",
+     "excerpt": "HUB-07: I re-dressed the cabinet cabling and fitted a cable guard at the door edge. The same cabinet type is at HUB-09 and HUB-12, I will check them in July."
+    }
+   ],
+   "assertedByActorId": "person:directory:seppo-lahti"
+  },
+  {
+   "type": "observation",
+   "statement": "The same cabinet type is at HUB-09 and HUB-12; Seppo plans to check them in July (planned, not done).",
+   "subjectEntityNames": [
+    "HUB-09",
+    "HUB-12"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781272800.000100",
+     "excerpt": "HUB-07: I re-dressed the cabinet cabling and fitted a cable guard at the door edge. The same cabinet type is at HUB-09 and HUB-12, I will check them in July."
+    }
+   ],
+   "assertedByActorId": "person:directory:seppo-lahti"
+  },
+  {
+   "type": "condition",
+   "statement": "Seppo is on leave from the next day until 10 August (so the July check of HUB-09/HUB-12 falls in his leave period).",
+   "subjectEntityNames": [],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781273400.000300",
+     "excerpt": "I am on leave from tomorrow until 10 August."
+    }
+   ],
+   "assertedByActorId": "person:directory:seppo-lahti"
+  },
+  {
+   "type": "other",
+   "statement": "Kimmo thanks Seppo for the information.",
+   "subjectEntityNames": [
+    "HUB-07"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781273100.000200",
+     "excerpt": "Thanks Seppo, good to know."
+    }
+   ],
+   "assertedByActorId": "person:directory:kimmo-rautio"
+  }
+ ],
+ "links": [
+  {
+   "personActorId": "person:directory:aila-nurmi",
+   "contribution": "reported-problem",
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Kimmo, the HUB-07 uplink to the core router shows CRC errors in bursts since about 05:00. The link stays up and most traffic flows, but customers report slowness."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:aila-nurmi",
+   "contribution": "observed-condition",
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "Receive power is normal on both ends."
+    },
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "CRC errors are still climbing, same burst pattern."
+    },
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "OK, errors are at a low level for now. I will keep watching."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:henrik-sjoberg",
+   "contribution": "advised",
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "Then swap the SFP on our side anyway, it's cheap and we have had bad batches. Kimmo, can you do that on your way?"
+    },
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "OK so not the SFP. Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks."
+    }
+   ],
+   "firsthand": false
+  },
+  {
+   "personActorId": "person:directory:kimmo-rautio",
+   "contribution": "performed-action",
+   "evidence": [
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "At HUB-07. Swapped the SFP, the link is up again."
+    },
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Cleaned both connectors. Errors dropped a lot but not to zero. The patch cord looks fine to me, no kinks I can see. I have to leave for the next job, I'll come back tomorrow with a spare cord."
+    },
+    {
+     "evidenceId": "email:<f06-hub07-cause@kalevanet.example>",
+     "excerpt": "Hi Henrik, Back at HUB-07 this morning. When I closed the cabinet door the patch cord was pinched by the door edge. That only happens with the door fully shut, which is why it looked fine with the door open yesterday. I replaced the patch cord and rerouted it away from the hinge side. Aila sees no CRC errors since 11:00. Kimmo"
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:kimmo-rautio",
+   "contribution": "reported-outcome",
+   "evidence": [
+    {
+     "evidenceId": "email:<f06-hub07-cause@kalevanet.example>",
+     "excerpt": "Hi Henrik, Back at HUB-07 this morning. When I closed the cabinet door the patch cord was pinched by the door edge. That only happens with the door fully shut, which is why it looked fine with the door open yesterday. I replaced the patch cord and rerouted it away from the hinge side. Aila sees no CRC errors since 11:00. Kimmo"
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:seppo-lahti",
+   "contribution": "performed-action",
+   "evidence": [
+    {
+     "evidenceId": "slack:1781272800.000100",
+     "excerpt": "HUB-07: I re-dressed the cabinet cabling and fitted a cable guard at the door edge. The same cabinet type is at HUB-09 and HUB-12, I will check them in July."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:seppo-lahti",
+   "contribution": "mentioned",
+   "evidence": [
+    {
+     "evidenceId": "slack:1781273400.000300",
+     "excerpt": "I am on leave from tomorrow until 10 August."
+    }
+   ],
+   "firsthand": true
+  }
+ ],
+ "incidents": [
+  {
+   "key": "hub07-crc-pinch",
+   "evidenceIds": [
+    "teams:1",
+    "teams:2",
+    "teams:3",
+    "teams:4",
+    "teams:5",
+    "teams:6",
+    "teams:7",
+    "teams:8",
+    "teams:9",
+    "email:<f06-hub07-cause@kalevanet.example>",
+    "slack:1781272800.000100",
+    "slack:1781273100.000200",
+    "slack:1781273400.000300"
+   ],
+   "title": "HUB-07 uplink CRC bursts: SFP swap no help, patch cord pinched by cabinet door"
+  }
+ ],
+ "usefulness": [
+  {
+   "evidenceId": "teams:1",
+   "label": "useful",
+   "reason": "Initial symptom with timing and customer impact."
+  },
+  {
+   "evidenceId": "teams:2",
+   "label": "uncertain",
+   "reason": "Question only."
+  },
+  {
+   "evidenceId": "teams:3",
+   "label": "useful",
+   "reason": "Rules out optical level."
+  },
+  {
+   "evidenceId": "teams:4",
+   "label": "useful",
+   "reason": "Advice to swap the SFP with rationale."
+  },
+  {
+   "evidenceId": "teams:5",
+   "label": "useful",
+   "reason": "SFP swap performed."
+  },
+  {
+   "evidenceId": "teams:6",
+   "label": "useful",
+   "reason": "SFP swap failed."
+  },
+  {
+   "evidenceId": "teams:7",
+   "label": "useful",
+   "reason": "Revised hypothesis and advice about the patch cord."
+  },
+  {
+   "evidenceId": "teams:8",
+   "label": "useful",
+   "reason": "Cleaning action, partial result, follow-up plan."
+  },
+  {
+   "evidenceId": "teams:9",
+   "label": "useful",
+   "reason": "Partial-improvement observation."
+  },
+  {
+   "evidenceId": "teams:10",
+   "label": "irrelevant",
+   "reason": "Parking permit complaint."
+  },
+  {
+   "evidenceId": "email:<f06-hub07-cause@kalevanet.example>",
+   "label": "useful",
+   "reason": "Root cause: pinched cord; fix and outcome."
+  },
+  {
+   "evidenceId": "slack:1781272800.000100",
+   "label": "useful",
+   "reason": "Related cabling work at HUB-07 and same-cabinet-type risk at HUB-09/HUB-12."
+  },
+  {
+   "evidenceId": "slack:1781273100.000200",
+   "label": "uncertain",
+   "reason": "Courtesy reply with no operational content."
+  },
+  {
+   "evidenceId": "slack:1781273400.000300",
+   "label": "useful",
+   "reason": "Availability constraint relevant to planned follow-up."
+  },
+  {
+   "evidenceId": "slack:1781278200.000400",
+   "label": "irrelevant",
+   "reason": "Rain jackets."
+  }
+ ]
+}

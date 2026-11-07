@@ -1,0 +1,896 @@
+{
+ "route": {
+  "route": "claude-agent-arm",
+  "version": "claude-sonnet-subagent-2026-11-07"
+ },
+ "familyId": "bgp-firmware-flaps",
+ "inputs": [
+  "data/scenarios/bgp-firmware-flaps/people.json",
+  "data/scenarios/bgp-firmware-flaps/sources/teams.json",
+  "data/scenarios/bgp-firmware-flaps/sources/email-01.txt",
+  "data/scenarios/bgp-firmware-flaps/sources/slack-export/channels.json",
+  "data/scenarios/bgp-firmware-flaps/sources/slack-export/users.json",
+  "data/scenarios/bgp-firmware-flaps/sources/slack-export/core-ops/2026-06-18.json"
+ ],
+ "entities": [
+  {
+   "type": "asset",
+   "name": "AGG-014",
+   "aliases": [
+    "AGG-014"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Lauri, AGG-014 has two BGP peers flapping, up for about five minutes and then down again. It started right after the firmware upgrade at 09:40."
+    },
+    {
+     "evidenceId": "email:<f03-agg014-stable@kalevanet.example>",
+     "excerpt": "Hi Lauri, Three days have passed since the hold timer rollback on AGG-014. I watched the two peers from the NOC side the whole time and there have been no flaps. I think we can close the ticket. Hanna"
+    }
+   ],
+   "attributes": {
+    "location": {
+     "value": "aggregation router",
+     "evidence": [
+      {
+       "evidenceId": "teams:1",
+       "excerpt": "Lauri, AGG-014 has two BGP peers flapping, up for about five minutes and then down again. It started right after the firmware upgrade at 09:40."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "type": "asset",
+   "name": "AGG-031",
+   "aliases": [
+    "AGG-031"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781773800.000100",
+     "excerpt": "AGG-031 BGP to the east peer is flapping since the 9.4.2 upgrade last night. Same as AGG-014 in May?"
+    }
+   ]
+  },
+  {
+   "type": "software",
+   "name": "Firmware 9.4.2",
+   "aliases": [
+    "9.4.2"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "9.4.2. It was 9.3.7 before."
+    },
+    {
+     "evidenceId": "slack:1781773800.000100",
+     "excerpt": "AGG-031 BGP to the east peer is flapping since the 9.4.2 upgrade last night. Same as AGG-014 in May?"
+    }
+   ]
+  },
+  {
+   "type": "software",
+   "name": "Firmware 9.3.7",
+   "aliases": [
+    "9.3.7"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "9.4.2. It was 9.3.7 before."
+    }
+   ]
+  },
+  {
+   "type": "component",
+   "name": "BGP hold timers",
+   "aliases": [
+    "hold timer",
+    "hold timers"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "Yes, the bundle carried new hold timers, 30 seconds instead of the old 90."
+    },
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "That is probably it. The peers behind the long-haul link need 90. Roll back the timer part of the config and leave the firmware as it is."
+    }
+   ]
+  },
+  {
+   "type": "component",
+   "name": "AGG-031 east link optic",
+   "aliases": [
+    "east link optic",
+    "optic on the east link"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781783100.000400",
+     "excerpt": "Replaced the optic on the east link. The session is steady now."
+    }
+   ]
+  },
+  {
+   "type": "other",
+   "name": "AGG-031 east link port",
+   "aliases": [
+    "east link",
+    "east link port"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781774040.000200",
+     "excerpt": "No config bundle went to AGG-031, only the firmware. The timers are untouched. CRC errors are climbing on the east link though."
+    },
+    {
+     "evidenceId": "slack:1781774400.000300",
+     "excerpt": "Confirmed, CRC errors are high on the east link port, about 2100 in the last hour."
+    }
+   ]
+  },
+  {
+   "type": "organization",
+   "name": "Vendor (router firmware)",
+   "aliases": [
+    "the vendor"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:10",
+     "excerpt": "Good. I will tell the vendor that the default changed."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Hanna Kallio",
+   "aliases": [
+    "Hanna Kallio",
+    "Hanna Kallio",
+    "U302",
+    "hanna.kallio@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f03-agg014-stable@kalevanet.example>",
+     "excerpt": "Hi Lauri, Three days have passed since the hold timer rollback on AGG-014. I watched the two peers from the NOC side the whole time and there have been no flaps. I think we can close the ticket. Hanna"
+    },
+    {
+     "evidenceId": "slack:1781774400.000300",
+     "excerpt": "Confirmed, CRC errors are high on the east link port, about 2100 in the last hour."
+    },
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Lauri, AGG-014 has two BGP peers flapping, up for about five minutes and then down again. It started right after the firmware upgrade at 09:40."
+    },
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "9.4.2. It was 9.3.7 before."
+    },
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "Yes, the bundle carried new hold timers, 30 seconds instead of the old 90."
+    },
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "Still up after ten minutes, no flaps and the counters look clean."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Lauri Ahonen",
+   "aliases": [
+    "Lauri Ahonen",
+    "Lauri Ahonen",
+    "U301",
+    "lauri.ahonen@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:10",
+     "excerpt": "Good. I will tell the vendor that the default changed."
+    },
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "That is probably it. The peers behind the long-haul link need 90. Roll back the timer part of the config and leave the firmware as it is."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Toivo Aaltonen",
+   "aliases": [
+    "Toivo Aaltonen",
+    "Toivo Aaltonen",
+    "U303",
+    "toivo.aaltonen@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781774040.000200",
+     "excerpt": "No config bundle went to AGG-031, only the firmware. The timers are untouched. CRC errors are climbing on the east link though."
+    },
+    {
+     "evidenceId": "slack:1781774400.000300",
+     "excerpt": "Confirmed, CRC errors are high on the east link port, about 2100 in the last hour."
+    },
+    {
+     "evidenceId": "slack:1781783100.000400",
+     "excerpt": "Replaced the optic on the east link. The session is steady now."
+    },
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Rolling back the hold timers on AGG-014 now."
+    },
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Done. Both sessions are up."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Aino Hirvonen",
+   "aliases": [
+    "Aino Hirvonen",
+    "U305",
+    "aino.hirvonen@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781773800.000100",
+     "excerpt": "AGG-031 BGP to the east peer is flapping since the 9.4.2 upgrade last night. Same as AGG-014 in May?"
+    }
+   ]
+  }
+ ],
+ "claims": [
+  {
+   "type": "observation",
+   "statement": "Two BGP peers on AGG-014 flap: up for about five minutes, then down again, starting right after the firmware upgrade at 09:40.",
+   "subjectEntityNames": [
+    "AGG-014"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Lauri, AGG-014 has two BGP peers flapping, up for about five minutes and then down again. It started right after the firmware upgrade at 09:40."
+    }
+   ],
+   "assertedByActorId": "person:directory:hanna-kallio",
+   "condition": {
+    "key": "bgp.session",
+    "operator": "eq",
+    "value": "flapping",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:1",
+      "excerpt": "Lauri, AGG-014 has two BGP peers flapping, up for about five minutes and then down again. It started right after the firmware upgrade at 09:40."
+     }
+    ],
+    "label": "BGP peers flapping"
+   }
+  },
+  {
+   "type": "observation",
+   "statement": "AGG-014 was upgraded from firmware 9.3.7 to 9.4.2.",
+   "subjectEntityNames": [
+    "AGG-014",
+    "Firmware 9.4.2",
+    "Firmware 9.3.7"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "9.4.2. It was 9.3.7 before."
+    }
+   ],
+   "assertedByActorId": "person:directory:hanna-kallio",
+   "condition": {
+    "key": "software.version",
+    "operator": "eq",
+    "value": "9.4.2",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:3",
+      "excerpt": "9.4.2. It was 9.3.7 before."
+     }
+    ],
+    "label": "Firmware 9.4.2"
+   }
+  },
+  {
+   "type": "observation",
+   "statement": "The upgrade bundle carried new BGP hold timers, 30 seconds instead of the old 90, i.e. a config change came with the firmware.",
+   "subjectEntityNames": [
+    "AGG-014",
+    "BGP hold timers"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "Yes, the bundle carried new hold timers, 30 seconds instead of the old 90."
+    }
+   ],
+   "assertedByActorId": "person:directory:hanna-kallio",
+   "condition": {
+    "key": "config.changed",
+    "operator": "eq",
+    "value": true,
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:5",
+      "excerpt": "Yes, the bundle carried new hold timers, 30 seconds instead of the old 90."
+     }
+    ],
+    "label": "Hold timers changed in the upgrade bundle"
+   }
+  },
+  {
+   "type": "condition",
+   "statement": "The peers behind the long-haul link need a 90 second hold timer.",
+   "subjectEntityNames": [
+    "AGG-014",
+    "BGP hold timers"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "That is probably it. The peers behind the long-haul link need 90. Roll back the timer part of the config and leave the firmware as it is."
+    }
+   ],
+   "assertedByActorId": "person:directory:lauri-ahonen"
+  },
+  {
+   "type": "hypothesis",
+   "statement": "Lauri thinks the changed hold-timer default (30 s vs 90 s) is probably the cause of the flaps (\"probably it\"); not independently confirmed at that point.",
+   "subjectEntityNames": [
+    "AGG-014",
+    "BGP hold timers"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "That is probably it. The peers behind the long-haul link need 90. Roll back the timer part of the config and leave the firmware as it is."
+    }
+   ],
+   "assertedByActorId": "person:directory:lauri-ahonen"
+  },
+  {
+   "type": "advice",
+   "statement": "Roll back only the hold-timer part of the config and leave the firmware as it is.",
+   "subjectEntityNames": [
+    "AGG-014",
+    "BGP hold timers"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "That is probably it. The peers behind the long-haul link need 90. Roll back the timer part of the config and leave the firmware as it is."
+    }
+   ],
+   "assertedByActorId": "person:directory:lauri-ahonen"
+  },
+  {
+   "type": "action",
+   "statement": "Toivo rolled back the hold timers on AGG-014 (started).",
+   "subjectEntityNames": [
+    "AGG-014",
+    "BGP hold timers"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Rolling back the hold timers on AGG-014 now."
+    }
+   ],
+   "assertedByActorId": "person:directory:toivo-aaltonen"
+  },
+  {
+   "type": "outcome",
+   "statement": "Rollback of the hold timers done on AGG-014; both sessions are up.",
+   "subjectEntityNames": [
+    "AGG-014"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Done. Both sessions are up."
+    }
+   ],
+   "assertedByActorId": "person:directory:toivo-aaltonen",
+   "condition": {
+    "key": "bgp.session",
+    "operator": "eq",
+    "value": "up",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:8",
+      "excerpt": "Done. Both sessions are up."
+     }
+    ],
+    "label": "Both BGP sessions up after rollback"
+   }
+  },
+  {
+   "type": "outcome",
+   "statement": "Ten minutes after the rollback AGG-014 is still up, no flaps, counters look clean (short observation window).",
+   "subjectEntityNames": [
+    "AGG-014"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "Still up after ten minutes, no flaps and the counters look clean."
+    }
+   ],
+   "assertedByActorId": "person:directory:hanna-kallio",
+   "condition": {
+    "key": "bgp.session",
+    "operator": "eq",
+    "value": "up",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:9",
+      "excerpt": "Still up after ten minutes, no flaps and the counters look clean."
+     }
+    ],
+    "label": "No flaps after 10 minutes"
+   }
+  },
+  {
+   "type": "action",
+   "statement": "Lauri will tell the vendor that the hold-timer default changed (announced, not reported as done).",
+   "subjectEntityNames": [
+    "Vendor (router firmware)",
+    "BGP hold timers"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:10",
+     "excerpt": "Good. I will tell the vendor that the default changed."
+    }
+   ],
+   "assertedByActorId": "person:directory:lauri-ahonen"
+  },
+  {
+   "type": "outcome",
+   "statement": "Three days after the hold timer rollback AGG-014 has had no flaps on either peer, watched from the NOC; proposes closing the ticket.",
+   "subjectEntityNames": [
+    "AGG-014"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f03-agg014-stable@kalevanet.example>",
+     "excerpt": "Hi Lauri, Three days have passed since the hold timer rollback on AGG-014. I watched the two peers from the NOC side the whole time and there have been no flaps. I think we can close the ticket. Hanna"
+    }
+   ],
+   "assertedByActorId": "person:directory:hanna-kallio",
+   "condition": {
+    "key": "bgp.session",
+    "operator": "eq",
+    "value": "up",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "email:<f03-agg014-stable@kalevanet.example>",
+      "excerpt": "Hi Lauri, Three days have passed since the hold timer rollback on AGG-014. I watched the two peers from the NOC side the whole time and there have been no flaps. I think we can close the ticket. Hanna"
+     }
+    ],
+    "label": "Stable three days after rollback"
+   }
+  },
+  {
+   "type": "observation",
+   "statement": "BGP to the east peer on AGG-031 has been flapping since the 9.4.2 upgrade the previous night; Aino asks whether it is the same as AGG-014 in May (a question, not a finding).",
+   "subjectEntityNames": [
+    "AGG-031",
+    "Firmware 9.4.2"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781773800.000100",
+     "excerpt": "AGG-031 BGP to the east peer is flapping since the 9.4.2 upgrade last night. Same as AGG-014 in May?"
+    }
+   ],
+   "assertedByActorId": "person:directory:aino-hirvonen",
+   "condition": {
+    "key": "bgp.session",
+    "operator": "eq",
+    "value": "flapping",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1781773800.000100",
+      "excerpt": "AGG-031 BGP to the east peer is flapping since the 9.4.2 upgrade last night. Same as AGG-014 in May?"
+     }
+    ],
+    "label": "East peer flapping"
+   }
+  },
+  {
+   "type": "observation",
+   "statement": "No config bundle was sent to AGG-031, only the firmware, so the timers are untouched; CRC errors are climbing on the east link.",
+   "subjectEntityNames": [
+    "AGG-031",
+    "AGG-031 east link port"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781774040.000200",
+     "excerpt": "No config bundle went to AGG-031, only the firmware. The timers are untouched. CRC errors are climbing on the east link though."
+    }
+   ],
+   "assertedByActorId": "person:directory:toivo-aaltonen",
+   "condition": {
+    "key": "config.changed",
+    "operator": "eq",
+    "value": false,
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1781774040.000200",
+      "excerpt": "No config bundle went to AGG-031, only the firmware. The timers are untouched. CRC errors are climbing on the east link though."
+     }
+    ],
+    "label": "No config change, firmware only"
+   }
+  },
+  {
+   "type": "observation",
+   "statement": "CRC errors are high on the east link port of AGG-031, about 2100 in the last hour (confirms Toivo).",
+   "subjectEntityNames": [
+    "AGG-031",
+    "AGG-031 east link port"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781774400.000300",
+     "excerpt": "Confirmed, CRC errors are high on the east link port, about 2100 in the last hour."
+    }
+   ],
+   "assertedByActorId": "person:directory:hanna-kallio"
+  },
+  {
+   "type": "action",
+   "statement": "Toivo replaced the optic on the east link of AGG-031.",
+   "subjectEntityNames": [
+    "AGG-031",
+    "AGG-031 east link optic"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781783100.000400",
+     "excerpt": "Replaced the optic on the east link. The session is steady now."
+    }
+   ],
+   "assertedByActorId": "person:directory:toivo-aaltonen",
+   "condition": {
+    "key": "component.replaced",
+    "operator": "eq",
+    "value": "sfp",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1781783100.000400",
+      "excerpt": "Replaced the optic on the east link. The session is steady now."
+     }
+    ],
+    "label": "Optic replaced"
+   }
+  },
+  {
+   "type": "outcome",
+   "statement": "After the optic replacement the AGG-031 east session is steady (no observation window given).",
+   "subjectEntityNames": [
+    "AGG-031"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781783100.000400",
+     "excerpt": "Replaced the optic on the east link. The session is steady now."
+    }
+   ],
+   "assertedByActorId": "person:directory:toivo-aaltonen",
+   "condition": {
+    "key": "bgp.session",
+    "operator": "eq",
+    "value": "up",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1781783100.000400",
+      "excerpt": "Replaced the optic on the east link. The session is steady now."
+     }
+    ],
+    "label": "Session steady"
+   }
+  },
+  {
+   "type": "other",
+   "statement": "AGG-031 case differs from AGG-014: same firmware, similar symptom, but no config change and a CRC-error link, so cause is a bad link/optic rather than the hold timer.",
+   "subjectEntityNames": [
+    "AGG-031",
+    "AGG-014"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1781774040.000200",
+     "excerpt": "No config bundle went to AGG-031, only the firmware. The timers are untouched. CRC errors are climbing on the east link though."
+    },
+    {
+     "evidenceId": "slack:1781774400.000300",
+     "excerpt": "Confirmed, CRC errors are high on the east link port, about 2100 in the last hour."
+    },
+    {
+     "evidenceId": "slack:1781783100.000400",
+     "excerpt": "Replaced the optic on the east link. The session is steady now."
+    }
+   ],
+   "assertedByActorId": "person:directory:toivo-aaltonen"
+  }
+ ],
+ "links": [
+  {
+   "personActorId": "person:directory:hanna-kallio",
+   "contribution": "reported-problem",
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Lauri, AGG-014 has two BGP peers flapping, up for about five minutes and then down again. It started right after the firmware upgrade at 09:40."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:hanna-kallio",
+   "contribution": "observed-condition",
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "9.4.2. It was 9.3.7 before."
+    },
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "Yes, the bundle carried new hold timers, 30 seconds instead of the old 90."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:hanna-kallio",
+   "contribution": "reported-outcome",
+   "evidence": [
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "Still up after ten minutes, no flaps and the counters look clean."
+    },
+    {
+     "evidenceId": "email:<f03-agg014-stable@kalevanet.example>",
+     "excerpt": "Hi Lauri, Three days have passed since the hold timer rollback on AGG-014. I watched the two peers from the NOC side the whole time and there have been no flaps. I think we can close the ticket. Hanna"
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:lauri-ahonen",
+   "contribution": "advised",
+   "evidence": [
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "That is probably it. The peers behind the long-haul link need 90. Roll back the timer part of the config and leave the firmware as it is."
+    }
+   ],
+   "firsthand": false
+  },
+  {
+   "personActorId": "person:directory:lauri-ahonen",
+   "contribution": "mentioned",
+   "evidence": [
+    {
+     "evidenceId": "teams:10",
+     "excerpt": "Good. I will tell the vendor that the default changed."
+    }
+   ],
+   "firsthand": false
+  },
+  {
+   "personActorId": "person:directory:toivo-aaltonen",
+   "contribution": "performed-action",
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Rolling back the hold timers on AGG-014 now."
+    },
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Done. Both sessions are up."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:toivo-aaltonen",
+   "contribution": "observed-condition",
+   "evidence": [
+    {
+     "evidenceId": "slack:1781774040.000200",
+     "excerpt": "No config bundle went to AGG-031, only the firmware. The timers are untouched. CRC errors are climbing on the east link though."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:toivo-aaltonen",
+   "contribution": "performed-action",
+   "evidence": [
+    {
+     "evidenceId": "slack:1781783100.000400",
+     "excerpt": "Replaced the optic on the east link. The session is steady now."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:toivo-aaltonen",
+   "contribution": "reported-outcome",
+   "evidence": [
+    {
+     "evidenceId": "slack:1781783100.000400",
+     "excerpt": "Replaced the optic on the east link. The session is steady now."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:aino-hirvonen",
+   "contribution": "reported-problem",
+   "evidence": [
+    {
+     "evidenceId": "slack:1781773800.000100",
+     "excerpt": "AGG-031 BGP to the east peer is flapping since the 9.4.2 upgrade last night. Same as AGG-014 in May?"
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:hanna-kallio",
+   "contribution": "observed-condition",
+   "evidence": [
+    {
+     "evidenceId": "slack:1781774400.000300",
+     "excerpt": "Confirmed, CRC errors are high on the east link port, about 2100 in the last hour."
+    }
+   ],
+   "firsthand": true
+  }
+ ],
+ "incidents": [
+  {
+   "key": "agg014-hold-timer",
+   "evidenceIds": [
+    "teams:1",
+    "teams:2",
+    "teams:3",
+    "teams:4",
+    "teams:5",
+    "teams:6",
+    "teams:7",
+    "teams:8",
+    "teams:9",
+    "teams:10",
+    "email:<f03-agg014-stable@kalevanet.example>"
+   ],
+   "title": "AGG-014 BGP flaps after 9.4.2 upgrade, fixed by hold-timer rollback"
+  },
+  {
+   "key": "agg031-crc-optic",
+   "evidenceIds": [
+    "slack:1781773800.000100",
+    "slack:1781774040.000200",
+    "slack:1781774400.000300",
+    "slack:1781783100.000400"
+   ],
+   "title": "AGG-031 east BGP flaps after 9.4.2 upgrade, CRC errors, optic replaced"
+  }
+ ],
+ "usefulness": [
+  {
+   "evidenceId": "teams:1",
+   "label": "useful",
+   "reason": "Reports symptom, time and trigger on AGG-014."
+  },
+  {
+   "evidenceId": "teams:2",
+   "label": "uncertain",
+   "reason": "Question only; context for version but no fact."
+  },
+  {
+   "evidenceId": "teams:3",
+   "label": "useful",
+   "reason": "Firmware versions before/after."
+  },
+  {
+   "evidenceId": "teams:4",
+   "label": "uncertain",
+   "reason": "Question only."
+  },
+  {
+   "evidenceId": "teams:5",
+   "label": "useful",
+   "reason": "Reveals config change in bundle: hold timers 30 vs 90."
+  },
+  {
+   "evidenceId": "teams:6",
+   "label": "useful",
+   "reason": "Hypothesis plus advice for rollback of timers only."
+  },
+  {
+   "evidenceId": "teams:7",
+   "label": "useful",
+   "reason": "Who performed the rollback."
+  },
+  {
+   "evidenceId": "teams:8",
+   "label": "useful",
+   "reason": "Action completed, sessions up."
+  },
+  {
+   "evidenceId": "teams:9",
+   "label": "useful",
+   "reason": "Short-window outcome."
+  },
+  {
+   "evidenceId": "teams:10",
+   "label": "useful",
+   "reason": "Vendor follow-up and confirmation of the default-changed finding."
+  },
+  {
+   "evidenceId": "teams:11",
+   "label": "irrelevant",
+   "reason": "Lost phone charger."
+  },
+  {
+   "evidenceId": "email:<f03-agg014-stable@kalevanet.example>",
+   "label": "useful",
+   "reason": "Three-day stability outcome; retells AGG-014 incident."
+  },
+  {
+   "evidenceId": "slack:1781773800.000100",
+   "label": "useful",
+   "reason": "Reports AGG-031 flapping and links to AGG-014 as a question."
+  },
+  {
+   "evidenceId": "slack:1781774040.000200",
+   "label": "useful",
+   "reason": "Distinguishing condition: no config change, CRC errors."
+  },
+  {
+   "evidenceId": "slack:1781774400.000300",
+   "label": "useful",
+   "reason": "Confirms CRC errors with count."
+  },
+  {
+   "evidenceId": "slack:1781783100.000400",
+   "label": "useful",
+   "reason": "Fix action and outcome for AGG-031."
+  },
+  {
+   "evidenceId": "slack:1781784000.000500",
+   "label": "irrelevant",
+   "reason": "Vendor webinar announcement."
+  }
+ ]
+}

@@ -1,0 +1,875 @@
+{
+ "route": {
+  "route": "claude-agent-arm",
+  "version": "claude-sonnet-subagent-2026-11-07"
+ },
+ "familyId": "weak-mains-psu",
+ "inputs": [
+  "data/scenarios/weak-mains-psu/people.json",
+  "data/scenarios/weak-mains-psu/sources/teams.json",
+  "data/scenarios/weak-mains-psu/sources/email-01.txt",
+  "data/scenarios/weak-mains-psu/sources/slack-export/channels.json",
+  "data/scenarios/weak-mains-psu/sources/slack-export/users.json",
+  "data/scenarios/weak-mains-psu/sources/slack-export/noc-ops/2026-05-12.json",
+  "data/scenarios/weak-mains-psu/sources/slack-export/noc-ops/2026-05-13.json"
+ ],
+ "entities": [
+  {
+   "type": "asset",
+   "name": "MW-77",
+   "aliases": [
+    "MW-77",
+    "MW-77 radio link"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Tauno, the MW-77 radio link went down for about four minutes, twice this evening. No weather alarms, but an 'input voltage low' power alarm at the same moments. Can you check tomorrow morning?"
+    },
+    {
+     "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+     "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+    },
+    {
+     "evidenceId": "slack:1778620200.000100",
+     "excerpt": "MW-77 was down again for six minutes at 21:05, input voltage low. That is three weeks after the PSU swap."
+    }
+   ]
+  },
+  {
+   "type": "site",
+   "name": "MW-77 site",
+   "aliases": [
+    "MW-77 site",
+    "that site"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "Swap the PSU. But the mains at that site is weak, so keep an eye on it."
+    },
+    {
+     "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+     "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+    }
+   ]
+  },
+  {
+   "type": "other",
+   "name": "Salmijärvi tower hop",
+   "aliases": [
+    "long-haul hop",
+    "Salmijärvi tower"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "Long-haul hop towards the Salmijärvi tower."
+    }
+   ]
+  },
+  {
+   "type": "component",
+   "name": "MW-77 48 V PSU",
+   "aliases": [
+    "PSU",
+    "48 V PSU",
+    "old PSU"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "On site. The 48 V PSU output has a ripple on the scope, about 3 volts peak to peak. Looks like it is dying."
+    },
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "PSU swapped. Output is clean and the link is up with good margin."
+    },
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "Log the old PSU as faulty please. And do not forget the safety refresher course next week."
+    }
+   ]
+  },
+  {
+   "type": "component",
+   "name": "MW-77 battery string",
+   "aliases": [
+    "battery string",
+    "2018 battery string"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1778620800.000200",
+     "excerpt": "So the PSU was not the cause, or not the only one. The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts. The 2018 battery string cannot bridge that."
+    },
+    {
+     "evidenceId": "slack:1778668200.000300",
+     "excerpt": "Replaced the battery string and left a note to monitor the mains. Link is fine."
+    }
+   ]
+  },
+  {
+   "type": "other",
+   "name": "Site mains supply",
+   "aliases": [
+    "mains"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "Swap the PSU. But the mains at that site is weak, so keep an eye on it."
+    },
+    {
+     "evidenceId": "slack:1778620800.000200",
+     "excerpt": "So the PSU was not the cause, or not the only one. The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts. The 2018 battery string cannot bridge that."
+    }
+   ]
+  },
+  {
+   "type": "other",
+   "name": "Sawmill neighbour",
+   "aliases": [
+    "neighbouring sawmill"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1778620800.000200",
+     "excerpt": "So the PSU was not the cause, or not the only one. The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts. The 2018 battery string cannot bridge that."
+    }
+   ]
+  },
+  {
+   "type": "location",
+   "name": "Forest road gate",
+   "aliases": [
+    "forest road gate",
+    "gate"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+     "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+    }
+   ]
+  },
+  {
+   "type": "location",
+   "name": "Lampela cabin",
+   "aliases": [
+    "Lampela cabin",
+    "cabin"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+     "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Tuomas Heiskanen",
+   "aliases": [
+    "Tuomas Heiskanen",
+    "forest owner"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+     "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Anneli Koivisto",
+   "aliases": [
+    "Anneli Koivisto",
+    "Anneli Koivisto",
+    "U702",
+    "anneli.koivisto@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1778620200.000100",
+     "excerpt": "MW-77 was down again for six minutes at 21:05, input voltage low. That is three weeks after the PSU swap."
+    },
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Tauno, the MW-77 radio link went down for about four minutes, twice this evening. No weather alarms, but an 'input voltage low' power alarm at the same moments. Can you check tomorrow morning?"
+    },
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "Long-haul hop towards the Salmijärvi tower."
+    },
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "The link is stable from our side, no alarms."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Tauno Hiltunen",
+   "aliases": [
+    "Tauno Hiltunen",
+    "Tauno Hiltunen",
+    "U701",
+    "tauno.hiltunen@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1778668200.000300",
+     "excerpt": "Replaced the battery string and left a note to monitor the mains. Link is fine."
+    },
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "On site. The 48 V PSU output has a ripple on the scope, about 3 volts peak to peak. Looks like it is dying."
+    },
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "PSU swapped. Output is clean and the link is up with good margin."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Olavi Rinne",
+   "aliases": [
+    "Olavi Rinne",
+    "Olavi Rinne",
+    "U703",
+    "olavi.rinne@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1778620800.000200",
+     "excerpt": "So the PSU was not the cause, or not the only one. The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts. The 2018 battery string cannot bridge that."
+    },
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "Swap the PSU. But the mains at that site is weak, so keep an eye on it."
+    },
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "Log the old PSU as faulty please. And do not forget the safety refresher course next week."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Maija Sundström",
+   "aliases": [
+    "Maija Sundström",
+    "U704",
+    "maija.sundstrom@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+     "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+    }
+   ]
+  }
+ ],
+ "claims": [
+  {
+   "type": "observation",
+   "statement": "The MW-77 radio link went down for about four minutes, twice in the evening; no weather alarms, but an input-voltage-low power alarm at the same moments.",
+   "subjectEntityNames": [
+    "MW-77"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Tauno, the MW-77 radio link went down for about four minutes, twice this evening. No weather alarms, but an 'input voltage low' power alarm at the same moments. Can you check tomorrow morning?"
+    }
+   ],
+   "assertedByActorId": "person:directory:anneli-koivisto",
+   "condition": {
+    "key": "power.state",
+    "operator": "eq",
+    "value": "unstable",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:1",
+      "excerpt": "Tauno, the MW-77 radio link went down for about four minutes, twice this evening. No weather alarms, but an 'input voltage low' power alarm at the same moments. Can you check tomorrow morning?"
+     }
+    ],
+    "label": "Input voltage low alarms coincide with outages"
+   }
+  },
+  {
+   "type": "observation",
+   "statement": "The affected hop is the long-haul hop towards the Salmijärvi tower.",
+   "subjectEntityNames": [
+    "MW-77",
+    "Salmijärvi tower hop"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "Long-haul hop towards the Salmijärvi tower."
+    }
+   ],
+   "assertedByActorId": "person:directory:anneli-koivisto"
+  },
+  {
+   "type": "observation",
+   "statement": "On site, the 48 V PSU output shows about 3 V peak-to-peak ripple on the scope; Tauno thinks it is dying (interpretation).",
+   "subjectEntityNames": [
+    "MW-77 48 V PSU",
+    "MW-77"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "On site. The 48 V PSU output has a ripple on the scope, about 3 volts peak to peak. Looks like it is dying."
+    }
+   ],
+   "assertedByActorId": "person:directory:tauno-hiltunen"
+  },
+  {
+   "type": "advice",
+   "statement": "Swap the PSU, but the mains at that site is weak, so keep an eye on it.",
+   "subjectEntityNames": [
+    "MW-77 48 V PSU",
+    "Site mains supply"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "Swap the PSU. But the mains at that site is weak, so keep an eye on it."
+    }
+   ],
+   "assertedByActorId": "person:directory:olavi-rinne"
+  },
+  {
+   "type": "condition",
+   "statement": "The mains supply at the MW-77 site is weak.",
+   "subjectEntityNames": [
+    "Site mains supply",
+    "MW-77 site"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "Swap the PSU. But the mains at that site is weak, so keep an eye on it."
+    }
+   ],
+   "assertedByActorId": "person:directory:olavi-rinne",
+   "condition": {
+    "key": "power.state",
+    "operator": "eq",
+    "value": "unstable",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:5",
+      "excerpt": "Swap the PSU. But the mains at that site is weak, so keep an eye on it."
+     }
+    ],
+    "label": "Weak mains at site"
+   }
+  },
+  {
+   "type": "action",
+   "statement": "Tauno swapped the PSU; output is clean and the link is up with good margin.",
+   "subjectEntityNames": [
+    "MW-77 48 V PSU",
+    "MW-77"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "PSU swapped. Output is clean and the link is up with good margin."
+    }
+   ],
+   "assertedByActorId": "person:directory:tauno-hiltunen",
+   "condition": {
+    "key": "component.replaced",
+    "operator": "eq",
+    "value": "psu",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:6",
+      "excerpt": "PSU swapped. Output is clean and the link is up with good margin."
+     }
+    ],
+    "label": "PSU replaced"
+   }
+  },
+  {
+   "type": "outcome",
+   "statement": "Link is stable from the NOC side, no alarms (right after the swap; temporary as later recurrence shows).",
+   "subjectEntityNames": [
+    "MW-77"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "The link is stable from our side, no alarms."
+    }
+   ],
+   "assertedByActorId": "person:directory:anneli-koivisto",
+   "condition": {
+    "key": "alarms.state",
+    "operator": "eq",
+    "value": "cleared",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:7",
+      "excerpt": "The link is stable from our side, no alarms."
+     }
+    ],
+    "label": "No alarms after PSU swap"
+   }
+  },
+  {
+   "type": "advice",
+   "statement": "Log the old PSU as faulty.",
+   "subjectEntityNames": [
+    "MW-77 48 V PSU"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "Log the old PSU as faulty please. And do not forget the safety refresher course next week."
+    }
+   ],
+   "assertedByActorId": "person:directory:olavi-rinne"
+  },
+  {
+   "type": "observation",
+   "statement": "MW-77 was down again for six minutes at 21:05 with input voltage low, three weeks after the PSU swap (recurrence).",
+   "subjectEntityNames": [
+    "MW-77"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1778620200.000100",
+     "excerpt": "MW-77 was down again for six minutes at 21:05, input voltage low. That is three weeks after the PSU swap."
+    }
+   ],
+   "assertedByActorId": "person:directory:anneli-koivisto",
+   "condition": {
+    "key": "power.state",
+    "operator": "eq",
+    "value": "unstable",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1778620200.000100",
+      "excerpt": "MW-77 was down again for six minutes at 21:05, input voltage low. That is three weeks after the PSU swap."
+     }
+    ],
+    "label": "Input voltage low, recurrence"
+   }
+  },
+  {
+   "type": "hypothesis",
+   "statement": "The PSU was not the cause, or not the only one (Olavi).",
+   "subjectEntityNames": [
+    "MW-77 48 V PSU",
+    "MW-77"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1778620800.000200",
+     "excerpt": "So the PSU was not the cause, or not the only one. The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts. The 2018 battery string cannot bridge that."
+    }
+   ],
+   "assertedByActorId": "person:directory:olavi-rinne"
+  },
+  {
+   "type": "observation",
+   "statement": "The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts.",
+   "subjectEntityNames": [
+    "Site mains supply",
+    "Sawmill neighbour"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1778620800.000200",
+     "excerpt": "So the PSU was not the cause, or not the only one. The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts. The 2018 battery string cannot bridge that."
+    }
+   ],
+   "assertedByActorId": "person:directory:olavi-rinne",
+   "condition": {
+    "key": "power.state",
+    "operator": "eq",
+    "value": "unstable",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1778620800.000200",
+      "excerpt": "So the PSU was not the cause, or not the only one. The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts. The 2018 battery string cannot bridge that."
+     }
+    ],
+    "label": "Mains sags to 185 V in evenings"
+   }
+  },
+  {
+   "type": "hypothesis",
+   "statement": "The 2018 battery string cannot bridge the mains sags (cause suggested, not confirmed at that point).",
+   "subjectEntityNames": [
+    "MW-77 battery string",
+    "Site mains supply"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1778620800.000200",
+     "excerpt": "So the PSU was not the cause, or not the only one. The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts. The 2018 battery string cannot bridge that."
+    }
+   ],
+   "assertedByActorId": "person:directory:olavi-rinne"
+  },
+  {
+   "type": "action",
+   "statement": "Tauno replaced the battery string and left a note to monitor the mains.",
+   "subjectEntityNames": [
+    "MW-77 battery string",
+    "MW-77"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1778668200.000300",
+     "excerpt": "Replaced the battery string and left a note to monitor the mains. Link is fine."
+    }
+   ],
+   "assertedByActorId": "person:directory:tauno-hiltunen",
+   "condition": {
+    "key": "component.replaced",
+    "operator": "eq",
+    "value": "battery string",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1778668200.000300",
+      "excerpt": "Replaced the battery string and left a note to monitor the mains. Link is fine."
+     }
+    ],
+    "label": "Battery string replaced"
+   }
+  },
+  {
+   "type": "outcome",
+   "statement": "After the battery replacement the link is fine (no observation window given).",
+   "subjectEntityNames": [
+    "MW-77"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1778668200.000300",
+     "excerpt": "Replaced the battery string and left a note to monitor the mains. Link is fine."
+    }
+   ],
+   "assertedByActorId": "person:directory:tauno-hiltunen"
+  },
+  {
+   "type": "access-fact",
+   "statement": "The forest road gate to MW-77 is locked with a padlock; the key is held by the forest owner Tuomas Heiskanen, to be called at least 24 hours before the visit.",
+   "subjectEntityNames": [
+    "Forest road gate",
+    "Tuomas Heiskanen",
+    "MW-77 site"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+     "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+    }
+   ],
+   "assertedByActorId": "person:directory:maija-sundstrom",
+   "condition": {
+    "key": "site.access",
+    "operator": "eq",
+    "value": "key",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+      "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+     }
+    ],
+    "label": "Gate padlock, key held by forest owner, 24 h notice"
+   }
+  },
+  {
+   "type": "access-fact",
+   "statement": "From 1 December to 30 April the forest road is not ploughed beyond the gate; in that period use the snowmobile from the Lampela cabin.",
+   "subjectEntityNames": [
+    "Forest road gate",
+    "Lampela cabin",
+    "MW-77 site"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+     "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+    }
+   ],
+   "assertedByActorId": "person:directory:maija-sundstrom",
+   "condition": {
+    "key": "site.access",
+    "operator": "eq",
+    "value": "barrier",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+      "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+     }
+    ],
+    "label": "Winter: snowmobile from Lampela cabin"
+   }
+  },
+  {
+   "type": "access-fact",
+   "statement": "The Lampela cabin key is in the lockbox by the door, code 3290.",
+   "subjectEntityNames": [
+    "Lampela cabin"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+     "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+    }
+   ],
+   "assertedByActorId": "person:directory:maija-sundstrom",
+   "condition": {
+    "key": "site.access",
+    "operator": "eq",
+    "value": "code",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+      "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+     }
+    ],
+    "label": "Cabin lockbox code"
+   }
+  },
+  {
+   "type": "access-fact",
+   "statement": "Outside winter the site can be reached by van.",
+   "subjectEntityNames": [
+    "MW-77 site"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+     "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+    }
+   ],
+   "assertedByActorId": "person:directory:maija-sundstrom"
+  }
+ ],
+ "links": [
+  {
+   "personActorId": "person:directory:anneli-koivisto",
+   "contribution": "reported-problem",
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Tauno, the MW-77 radio link went down for about four minutes, twice this evening. No weather alarms, but an 'input voltage low' power alarm at the same moments. Can you check tomorrow morning?"
+    },
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "Long-haul hop towards the Salmijärvi tower."
+    },
+    {
+     "evidenceId": "slack:1778620200.000100",
+     "excerpt": "MW-77 was down again for six minutes at 21:05, input voltage low. That is three weeks after the PSU swap."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:anneli-koivisto",
+   "contribution": "reported-outcome",
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "The link is stable from our side, no alarms."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:tauno-hiltunen",
+   "contribution": "performed-check",
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "On site. The 48 V PSU output has a ripple on the scope, about 3 volts peak to peak. Looks like it is dying."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:tauno-hiltunen",
+   "contribution": "performed-action",
+   "evidence": [
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "PSU swapped. Output is clean and the link is up with good margin."
+    },
+    {
+     "evidenceId": "slack:1778668200.000300",
+     "excerpt": "Replaced the battery string and left a note to monitor the mains. Link is fine."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:tauno-hiltunen",
+   "contribution": "reported-outcome",
+   "evidence": [
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "PSU swapped. Output is clean and the link is up with good margin."
+    },
+    {
+     "evidenceId": "slack:1778668200.000300",
+     "excerpt": "Replaced the battery string and left a note to monitor the mains. Link is fine."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:olavi-rinne",
+   "contribution": "advised",
+   "evidence": [
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "Swap the PSU. But the mains at that site is weak, so keep an eye on it."
+    },
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "Log the old PSU as faulty please. And do not forget the safety refresher course next week."
+    }
+   ],
+   "firsthand": false
+  },
+  {
+   "personActorId": "person:directory:olavi-rinne",
+   "contribution": "observed-condition",
+   "evidence": [
+    {
+     "evidenceId": "slack:1778620800.000200",
+     "excerpt": "So the PSU was not the cause, or not the only one. The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts. The 2018 battery string cannot bridge that."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:maija-sundstrom",
+   "contribution": "advised",
+   "evidence": [
+    {
+     "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+     "excerpt": "Hi Tauno, Access instructions for MW-77: - The forest road gate is locked with a padlock. The key is held by the forest owner, Tuomas Heiskanen. Call him at least 24 hours before the visit. - From 1 December to 30 April the forest road is not ploughed beyond the gate. In that period take the snowmobile from the Lampela cabin. The cabin key is in the lockbox by the door, code 3290. - Outside winter you can drive up to the site with the van. Maija"
+    }
+   ],
+   "firsthand": false
+  }
+ ],
+ "incidents": [
+  {
+   "key": "mw77-power",
+   "evidenceIds": [
+    "teams:1",
+    "teams:2",
+    "teams:3",
+    "teams:4",
+    "teams:5",
+    "teams:6",
+    "teams:7",
+    "teams:8",
+    "teams:9",
+    "slack:1778620200.000100",
+    "slack:1778620800.000200",
+    "slack:1778668200.000300"
+   ],
+   "title": "MW-77 link drops from low input voltage: PSU swap, recurrence, weak mains and battery string"
+  }
+ ],
+ "usefulness": [
+  {
+   "evidenceId": "teams:1",
+   "label": "useful",
+   "reason": "Symptom with power alarm correlation."
+  },
+  {
+   "evidenceId": "teams:2",
+   "label": "uncertain",
+   "reason": "Question only."
+  },
+  {
+   "evidenceId": "teams:3",
+   "label": "useful",
+   "reason": "Identifies the hop."
+  },
+  {
+   "evidenceId": "teams:4",
+   "label": "useful",
+   "reason": "Field measurement."
+  },
+  {
+   "evidenceId": "teams:5",
+   "label": "useful",
+   "reason": "Advice with weak-mains caveat."
+  },
+  {
+   "evidenceId": "teams:6",
+   "label": "useful",
+   "reason": "PSU swap and result."
+  },
+  {
+   "evidenceId": "teams:7",
+   "label": "useful",
+   "reason": "Stability confirmation."
+  },
+  {
+   "evidenceId": "teams:8",
+   "label": "irrelevant",
+   "reason": "Weather and coffee remark."
+  },
+  {
+   "evidenceId": "teams:9",
+   "label": "uncertain",
+   "reason": "Logging instruction for the old PSU; safety course remark is irrelevant."
+  },
+  {
+   "evidenceId": "email:<f07-access-mw77@kalevanet.example>",
+   "label": "useful",
+   "reason": "Site access instructions; not part of the incident but operational fact."
+  },
+  {
+   "evidenceId": "slack:1778620200.000100",
+   "label": "useful",
+   "reason": "Recurrence after PSU swap."
+  },
+  {
+   "evidenceId": "slack:1778620800.000200",
+   "label": "useful",
+   "reason": "Root-cause evidence from mains logger."
+  },
+  {
+   "evidenceId": "slack:1778668200.000300",
+   "label": "useful",
+   "reason": "Battery replacement and result."
+  },
+  {
+   "evidenceId": "slack:1778670000.000400",
+   "label": "irrelevant",
+   "reason": "Leave plan reminder."
+  }
+ ]
+}

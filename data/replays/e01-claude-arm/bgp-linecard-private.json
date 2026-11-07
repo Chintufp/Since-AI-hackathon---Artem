@@ -1,0 +1,915 @@
+{
+ "route": {
+  "route": "claude-agent-arm",
+  "version": "claude-sonnet-subagent-2026-11-07"
+ },
+ "familyId": "bgp-linecard-private",
+ "inputs": [
+  "data/scenarios/bgp-linecard-private/people.json",
+  "data/scenarios/bgp-linecard-private/sources/teams.json",
+  "data/scenarios/bgp-linecard-private/sources/email-01.txt",
+  "data/scenarios/bgp-linecard-private/sources/slack-export/channels.json",
+  "data/scenarios/bgp-linecard-private/sources/slack-export/users.json",
+  "data/scenarios/bgp-linecard-private/sources/slack-export/core-private/2026-08-11.json",
+  "data/scenarios/bgp-linecard-private/sources/slack-export/noc-alerts/2026-08-04.json"
+ ],
+ "entities": [
+  {
+   "type": "asset",
+   "name": "PE-05",
+   "aliases": [
+    "PE-05"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Ville, PE-05 BGP sessions to both upstreams are flapping since the 11.2 firmware upgrade at 13:50. The line card ports are logging link flaps too."
+    },
+    {
+     "evidenceId": "email:<f08-pe05-writeup@kalevanet.example>",
+     "excerpt": "Hi, Write-up for PE-05. After the 11.2 upgrade the BGP sessions and the LC-2 line card ports were flapping. Patch 11.2.1 was installed by Pasi without a reload and Pasi reports the sessions have been clean for two hours. Ville"
+    },
+    {
+     "evidenceId": "slack:1785852660.000100",
+     "excerpt": "PE-05 BGP is going down and up repeatedly since the upgrade, I have opened a ticket."
+    }
+   ]
+  },
+  {
+   "type": "asset",
+   "name": "PE-09",
+   "aliases": [
+    "PE-09"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786438800.000300",
+     "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default."
+    }
+   ]
+  },
+  {
+   "type": "component",
+   "name": "Line card LC-2",
+   "aliases": [
+    "LC-2"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "LC-2, installed 2020."
+    },
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "That matches the vendor note for 11.2 on LC-2: port flaps until patch 11.2.1 is installed. Pasi, can you put the patch on PE-05? It needs no reload."
+    },
+    {
+     "evidenceId": "email:<f08-pe05-writeup@kalevanet.example>",
+     "excerpt": "Hi, Write-up for PE-05. After the 11.2 upgrade the BGP sessions and the LC-2 line card ports were flapping. Patch 11.2.1 was installed by Pasi without a reload and Pasi reports the sessions have been clean for two hours. Ville"
+    }
+   ],
+   "attributes": {
+    "unit.installed_year": {
+     "value": 2020,
+     "evidence": [
+      {
+       "evidenceId": "teams:3",
+       "excerpt": "LC-2, installed 2020."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "type": "component",
+   "name": "Line card LC-3",
+   "aliases": [
+    "LC-3"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786438800.000300",
+     "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default."
+    }
+   ]
+  },
+  {
+   "type": "software",
+   "name": "Firmware 11.2",
+   "aliases": [
+    "11.2"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Ville, PE-05 BGP sessions to both upstreams are flapping since the 11.2 firmware upgrade at 13:50. The line card ports are logging link flaps too."
+    },
+    {
+     "evidenceId": "slack:1786438800.000300",
+     "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default."
+    }
+   ]
+  },
+  {
+   "type": "software",
+   "name": "Patch 11.2.1",
+   "aliases": [
+    "11.2.1"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "That matches the vendor note for 11.2 on LC-2: port flaps until patch 11.2.1 is installed. Pasi, can you put the patch on PE-05? It needs no reload."
+    },
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Patch 11.2.1 installed on PE-05."
+    },
+    {
+     "evidenceId": "slack:1786440300.000400",
+     "excerpt": "I installed 11.2.1 on PE-09 anyway. No change."
+    }
+   ]
+  },
+  {
+   "type": "software",
+   "name": "BFD interval setting",
+   "aliases": [
+    "BFD interval",
+    "BFD default"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786438800.000300",
+     "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default."
+    },
+    {
+     "evidenceId": "slack:1786441800.000500",
+     "excerpt": "Vendor workaround: set the BFD interval to 300 ms on the affected sessions and it holds."
+    }
+   ]
+  },
+  {
+   "type": "other",
+   "name": "Vendor advisory (NDA)",
+   "aliases": [
+    "vendor advisory"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786438800.000300",
+     "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default."
+    },
+    {
+     "evidenceId": "slack:1786444200.000700",
+     "excerpt": "Please do not share the advisory outside core until the vendor publishes it."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Anssi Heikura",
+   "aliases": [
+    "Anssi Heikura",
+    "Anssi Heikura",
+    "U805",
+    "anssi.heikura@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Ville, PE-05 BGP sessions to both upstreams are flapping since the 11.2 firmware upgrade at 13:50. The line card ports are logging link flaps too."
+    },
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "LC-2, installed 2020."
+    },
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Sessions have been up for 15 minutes, no port flaps."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Ville Laakso",
+   "aliases": [
+    "Ville Laakso",
+    "Ville Laakso",
+    "U801",
+    "ville.laakso@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f08-pe05-writeup@kalevanet.example>",
+     "excerpt": "Hi, Write-up for PE-05. After the 11.2 upgrade the BGP sessions and the LC-2 line card ports were flapping. Patch 11.2.1 was installed by Pasi without a reload and Pasi reports the sessions have been clean for two hours. Ville"
+    },
+    {
+     "evidenceId": "slack:1786438800.000300",
+     "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default."
+    },
+    {
+     "evidenceId": "slack:1786441800.000500",
+     "excerpt": "Vendor workaround: set the BFD interval to 300 ms on the affected sessions and it holds."
+    },
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "That matches the vendor note for 11.2 on LC-2: port flaps until patch 11.2.1 is installed. Pasi, can you put the patch on PE-05? It needs no reload."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Pasi Tuomi",
+   "aliases": [
+    "Pasi Tuomi",
+    "Pasi Tuomi",
+    "U802",
+    "pasi.tuomi@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786440300.000400",
+     "excerpt": "I installed 11.2.1 on PE-09 anyway. No change."
+    },
+    {
+     "evidenceId": "slack:1786443600.000600",
+     "excerpt": "BFD interval raised on PE-09, the sessions are stable."
+    },
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "On it."
+    },
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Patch 11.2.1 installed on PE-05."
+    },
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "Two hours now and still clean."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Rauni Forsman",
+   "aliases": [
+    "Rauni Forsman",
+    "U806",
+    "rauni.forsman@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1785852660.000100",
+     "excerpt": "PE-05 BGP is going down and up repeatedly since the upgrade, I have opened a ticket."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Oskari Nieminen",
+   "aliases": [
+    "Oskari Nieminen",
+    "U803",
+    "oskari.nieminen@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786444200.000700",
+     "excerpt": "Please do not share the advisory outside core until the vendor publishes it."
+    }
+   ]
+  }
+ ],
+ "claims": [
+  {
+   "type": "observation",
+   "statement": "PE-05 BGP sessions to both upstreams flap since the 11.2 firmware upgrade at 13:50; the line card ports also log link flaps.",
+   "subjectEntityNames": [
+    "PE-05",
+    "Firmware 11.2"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Ville, PE-05 BGP sessions to both upstreams are flapping since the 11.2 firmware upgrade at 13:50. The line card ports are logging link flaps too."
+    }
+   ],
+   "assertedByActorId": "person:directory:anssi-heikura",
+   "condition": {
+    "key": "bgp.session",
+    "operator": "eq",
+    "value": "flapping",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:1",
+      "excerpt": "Ville, PE-05 BGP sessions to both upstreams are flapping since the 11.2 firmware upgrade at 13:50. The line card ports are logging link flaps too."
+     }
+    ],
+    "label": "BGP flapping, port flaps"
+   }
+  },
+  {
+   "type": "condition",
+   "statement": "PE-05 line card is LC-2, installed 2020.",
+   "subjectEntityNames": [
+    "PE-05",
+    "Line card LC-2"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "LC-2, installed 2020."
+    }
+   ],
+   "assertedByActorId": "person:directory:anssi-heikura",
+   "condition": {
+    "key": "unit.revision",
+    "operator": "eq",
+    "value": "LC-2",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:3",
+      "excerpt": "LC-2, installed 2020."
+     }
+    ],
+    "label": "Line card LC-2"
+   }
+  },
+  {
+   "type": "hypothesis",
+   "statement": "The symptoms match the vendor note for 11.2 on LC-2: port flaps until patch 11.2.1 is installed.",
+   "subjectEntityNames": [
+    "PE-05",
+    "Line card LC-2",
+    "Patch 11.2.1"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "That matches the vendor note for 11.2 on LC-2: port flaps until patch 11.2.1 is installed. Pasi, can you put the patch on PE-05? It needs no reload."
+    }
+   ],
+   "assertedByActorId": "person:directory:ville-laakso"
+  },
+  {
+   "type": "advice",
+   "statement": "Install patch 11.2.1 on PE-05; it needs no reload.",
+   "subjectEntityNames": [
+    "PE-05",
+    "Patch 11.2.1"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "That matches the vendor note for 11.2 on LC-2: port flaps until patch 11.2.1 is installed. Pasi, can you put the patch on PE-05? It needs no reload."
+    }
+   ],
+   "assertedByActorId": "person:directory:ville-laakso",
+   "condition": {
+    "key": "software.version",
+    "operator": "eq",
+    "value": "11.2",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:4",
+      "excerpt": "That matches the vendor note for 11.2 on LC-2: port flaps until patch 11.2.1 is installed. Pasi, can you put the patch on PE-05? It needs no reload."
+     }
+    ],
+    "label": "Firmware 11.2 on LC-2"
+   }
+  },
+  {
+   "type": "action",
+   "statement": "Pasi acknowledged and installed patch 11.2.1 on PE-05.",
+   "subjectEntityNames": [
+    "PE-05",
+    "Patch 11.2.1"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:5",
+     "excerpt": "On it."
+    },
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Patch 11.2.1 installed on PE-05."
+    }
+   ],
+   "assertedByActorId": "person:directory:pasi-tuomi"
+  },
+  {
+   "type": "outcome",
+   "statement": "15 minutes after the patch the sessions are up with no port flaps.",
+   "subjectEntityNames": [
+    "PE-05"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Sessions have been up for 15 minutes, no port flaps."
+    }
+   ],
+   "assertedByActorId": "person:directory:anssi-heikura",
+   "condition": {
+    "key": "bgp.session",
+    "operator": "eq",
+    "value": "up",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:8",
+      "excerpt": "Sessions have been up for 15 minutes, no port flaps."
+     }
+    ],
+    "label": "No flaps after 15 minutes"
+   }
+  },
+  {
+   "type": "outcome",
+   "statement": "Two hours after the patch PE-05 is still clean.",
+   "subjectEntityNames": [
+    "PE-05"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "Two hours now and still clean."
+    }
+   ],
+   "assertedByActorId": "person:directory:pasi-tuomi",
+   "condition": {
+    "key": "bgp.session",
+    "operator": "eq",
+    "value": "up",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:9",
+      "excerpt": "Two hours now and still clean."
+     }
+    ],
+    "label": "Clean after two hours"
+   }
+  },
+  {
+   "type": "outcome",
+   "statement": "Write-up: after the 11.2 upgrade BGP sessions and LC-2 ports flapped; patch 11.2.1 installed by Pasi without reload; Pasi reports sessions clean for two hours (retelling of the Teams thread; clean-ness is Pasi-reported).",
+   "subjectEntityNames": [
+    "PE-05",
+    "Line card LC-2",
+    "Patch 11.2.1"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f08-pe05-writeup@kalevanet.example>",
+     "excerpt": "Hi, Write-up for PE-05. After the 11.2 upgrade the BGP sessions and the LC-2 line card ports were flapping. Patch 11.2.1 was installed by Pasi without a reload and Pasi reports the sessions have been clean for two hours. Ville"
+    }
+   ],
+   "assertedByActorId": "person:directory:ville-laakso"
+  },
+  {
+   "type": "observation",
+   "statement": "PE-05 BGP is going down and up repeatedly since the upgrade; ticket opened.",
+   "subjectEntityNames": [
+    "PE-05"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1785852660.000100",
+     "excerpt": "PE-05 BGP is going down and up repeatedly since the upgrade, I have opened a ticket."
+    }
+   ],
+   "assertedByActorId": "person:directory:rauni-forsman",
+   "condition": {
+    "key": "bgp.session",
+    "operator": "eq",
+    "value": "flapping",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1785852660.000100",
+      "excerpt": "PE-05 BGP is going down and up repeatedly since the upgrade, I have opened a ticket."
+     }
+    ],
+    "label": "BGP flapping"
+   }
+  },
+  {
+   "type": "observation",
+   "statement": "PE-09 is flapping after 11.2 but has LC-3, so patch 11.2.1 should not be the answer.",
+   "subjectEntityNames": [
+    "PE-09",
+    "Line card LC-3",
+    "Patch 11.2.1"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786438800.000300",
+     "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default."
+    }
+   ],
+   "assertedByActorId": "person:directory:ville-laakso",
+   "condition": {
+    "key": "unit.revision",
+    "operator": "eq",
+    "value": "LC-3",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1786438800.000300",
+      "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default."
+     }
+    ],
+    "label": "Line card LC-3"
+   }
+  },
+  {
+   "type": "condition",
+   "statement": "A vendor advisory, still under NDA, says LC-3 is affected through the BFD default.",
+   "subjectEntityNames": [
+    "Vendor advisory (NDA)",
+    "Line card LC-3",
+    "BFD interval setting"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786438800.000300",
+     "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default."
+    }
+   ],
+   "assertedByActorId": "person:directory:ville-laakso"
+  },
+  {
+   "type": "action",
+   "statement": "Pasi installed 11.2.1 on PE-09 anyway; no change.",
+   "subjectEntityNames": [
+    "PE-09",
+    "Patch 11.2.1"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786440300.000400",
+     "excerpt": "I installed 11.2.1 on PE-09 anyway. No change."
+    }
+   ],
+   "assertedByActorId": "person:directory:pasi-tuomi",
+   "condition": {
+    "key": "action.performed",
+    "operator": "eq",
+    "value": "other",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1786440300.000400",
+      "excerpt": "I installed 11.2.1 on PE-09 anyway. No change."
+     }
+    ],
+    "label": "Patch 11.2.1 installed"
+   }
+  },
+  {
+   "type": "outcome",
+   "statement": "Installing 11.2.1 on PE-09 did not change anything (no-change outcome).",
+   "subjectEntityNames": [
+    "PE-09",
+    "Patch 11.2.1"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786440300.000400",
+     "excerpt": "I installed 11.2.1 on PE-09 anyway. No change."
+    }
+   ],
+   "assertedByActorId": "person:directory:pasi-tuomi"
+  },
+  {
+   "type": "advice",
+   "statement": "Vendor workaround: set the BFD interval to 300 ms on the affected sessions and it holds.",
+   "subjectEntityNames": [
+    "PE-09",
+    "BFD interval setting"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786441800.000500",
+     "excerpt": "Vendor workaround: set the BFD interval to 300 ms on the affected sessions and it holds."
+    }
+   ],
+   "assertedByActorId": "person:directory:ville-laakso"
+  },
+  {
+   "type": "action",
+   "statement": "Pasi raised the BFD interval on PE-09.",
+   "subjectEntityNames": [
+    "PE-09",
+    "BFD interval setting"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786443600.000600",
+     "excerpt": "BFD interval raised on PE-09, the sessions are stable."
+    }
+   ],
+   "assertedByActorId": "person:directory:pasi-tuomi"
+  },
+  {
+   "type": "outcome",
+   "statement": "After raising the BFD interval the PE-09 sessions are stable (no window given).",
+   "subjectEntityNames": [
+    "PE-09"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786443600.000600",
+     "excerpt": "BFD interval raised on PE-09, the sessions are stable."
+    }
+   ],
+   "assertedByActorId": "person:directory:pasi-tuomi",
+   "condition": {
+    "key": "bgp.session",
+    "operator": "eq",
+    "value": "up",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1786443600.000600",
+      "excerpt": "BFD interval raised on PE-09, the sessions are stable."
+     }
+    ],
+    "label": "Sessions stable after BFD change"
+   }
+  },
+  {
+   "type": "other",
+   "statement": "Restriction: do not share the vendor advisory outside the core team until the vendor publishes it.",
+   "subjectEntityNames": [
+    "Vendor advisory (NDA)"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1786444200.000700",
+     "excerpt": "Please do not share the advisory outside core until the vendor publishes it."
+    }
+   ],
+   "assertedByActorId": "person:directory:oskari-nieminen"
+  }
+ ],
+ "links": [
+  {
+   "personActorId": "person:directory:anssi-heikura",
+   "contribution": "reported-problem",
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Ville, PE-05 BGP sessions to both upstreams are flapping since the 11.2 firmware upgrade at 13:50. The line card ports are logging link flaps too."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:anssi-heikura",
+   "contribution": "observed-condition",
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "LC-2, installed 2020."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:anssi-heikura",
+   "contribution": "reported-outcome",
+   "evidence": [
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Sessions have been up for 15 minutes, no port flaps."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:ville-laakso",
+   "contribution": "advised",
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "That matches the vendor note for 11.2 on LC-2: port flaps until patch 11.2.1 is installed. Pasi, can you put the patch on PE-05? It needs no reload."
+    },
+    {
+     "evidenceId": "slack:1786441800.000500",
+     "excerpt": "Vendor workaround: set the BFD interval to 300 ms on the affected sessions and it holds."
+    }
+   ],
+   "firsthand": false
+  },
+  {
+   "personActorId": "person:directory:ville-laakso",
+   "contribution": "reported-problem",
+   "evidence": [
+    {
+     "evidenceId": "slack:1786438800.000300",
+     "excerpt": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:ville-laakso",
+   "contribution": "mentioned",
+   "evidence": [
+    {
+     "evidenceId": "email:<f08-pe05-writeup@kalevanet.example>",
+     "excerpt": "Hi, Write-up for PE-05. After the 11.2 upgrade the BGP sessions and the LC-2 line card ports were flapping. Patch 11.2.1 was installed by Pasi without a reload and Pasi reports the sessions have been clean for two hours. Ville"
+    }
+   ],
+   "firsthand": false
+  },
+  {
+   "personActorId": "person:directory:pasi-tuomi",
+   "contribution": "performed-action",
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Patch 11.2.1 installed on PE-05."
+    },
+    {
+     "evidenceId": "slack:1786440300.000400",
+     "excerpt": "I installed 11.2.1 on PE-09 anyway. No change."
+    },
+    {
+     "evidenceId": "slack:1786443600.000600",
+     "excerpt": "BFD interval raised on PE-09, the sessions are stable."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:pasi-tuomi",
+   "contribution": "reported-outcome",
+   "evidence": [
+    {
+     "evidenceId": "teams:9",
+     "excerpt": "Two hours now and still clean."
+    },
+    {
+     "evidenceId": "slack:1786440300.000400",
+     "excerpt": "I installed 11.2.1 on PE-09 anyway. No change."
+    },
+    {
+     "evidenceId": "slack:1786443600.000600",
+     "excerpt": "BFD interval raised on PE-09, the sessions are stable."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:rauni-forsman",
+   "contribution": "reported-problem",
+   "evidence": [
+    {
+     "evidenceId": "slack:1785852660.000100",
+     "excerpt": "PE-05 BGP is going down and up repeatedly since the upgrade, I have opened a ticket."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:oskari-nieminen",
+   "contribution": "mentioned",
+   "evidence": [
+    {
+     "evidenceId": "slack:1786444200.000700",
+     "excerpt": "Please do not share the advisory outside core until the vendor publishes it."
+    }
+   ],
+   "firsthand": false
+  }
+ ],
+ "incidents": [
+  {
+   "key": "pe05-lc2-patch",
+   "evidenceIds": [
+    "teams:1",
+    "teams:2",
+    "teams:3",
+    "teams:4",
+    "teams:5",
+    "teams:7",
+    "teams:8",
+    "teams:9",
+    "teams:10",
+    "email:<f08-pe05-writeup@kalevanet.example>",
+    "slack:1785852660.000100"
+   ],
+   "title": "PE-05 BGP/port flaps after 11.2 on LC-2, fixed by patch 11.2.1"
+  },
+  {
+   "key": "pe09-lc3-bfd",
+   "evidenceIds": [
+    "slack:1786438800.000300",
+    "slack:1786440300.000400",
+    "slack:1786441800.000500",
+    "slack:1786443600.000600",
+    "slack:1786444200.000700"
+   ],
+   "title": "PE-09 flaps after 11.2 on LC-3: 11.2.1 no change, BFD interval workaround (private channel, NDA)"
+  }
+ ],
+ "usefulness": [
+  {
+   "evidenceId": "teams:1",
+   "label": "useful",
+   "reason": "Symptom, trigger and timing."
+  },
+  {
+   "evidenceId": "teams:2",
+   "label": "uncertain",
+   "reason": "Question only."
+  },
+  {
+   "evidenceId": "teams:3",
+   "label": "useful",
+   "reason": "Line card identity."
+  },
+  {
+   "evidenceId": "teams:4",
+   "label": "useful",
+   "reason": "Hypothesis and patch advice."
+  },
+  {
+   "evidenceId": "teams:5",
+   "label": "uncertain",
+   "reason": "Acknowledgement only."
+  },
+  {
+   "evidenceId": "teams:6",
+   "label": "irrelevant",
+   "reason": "Football chatter."
+  },
+  {
+   "evidenceId": "teams:7",
+   "label": "useful",
+   "reason": "Patch installed."
+  },
+  {
+   "evidenceId": "teams:8",
+   "label": "useful",
+   "reason": "Short-window outcome."
+  },
+  {
+   "evidenceId": "teams:9",
+   "label": "useful",
+   "reason": "Two-hour outcome."
+  },
+  {
+   "evidenceId": "teams:10",
+   "label": "uncertain",
+   "reason": "Announces write-up only."
+  },
+  {
+   "evidenceId": "email:<f08-pe05-writeup@kalevanet.example>",
+   "label": "useful",
+   "reason": "Write-up retelling PE-05; relays Pasi-reported outcome."
+  },
+  {
+   "evidenceId": "slack:1785852660.000100",
+   "label": "useful",
+   "reason": "Alert report of PE-05 flapping; ticket opened."
+  },
+  {
+   "evidenceId": "slack:1785855600.000200",
+   "label": "irrelevant",
+   "reason": "Coffee machine."
+  },
+  {
+   "evidenceId": "slack:1786438800.000300",
+   "label": "useful",
+   "reason": "Second case with different line card and NDA advisory."
+  },
+  {
+   "evidenceId": "slack:1786440300.000400",
+   "label": "useful",
+   "reason": "11.2.1 fails on LC-3."
+  },
+  {
+   "evidenceId": "slack:1786441800.000500",
+   "label": "useful",
+   "reason": "Vendor workaround."
+  },
+  {
+   "evidenceId": "slack:1786443600.000600",
+   "label": "useful",
+   "reason": "Workaround applied with result."
+  },
+  {
+   "evidenceId": "slack:1786444200.000700",
+   "label": "useful",
+   "reason": "Confidentiality constraint on the advisory."
+  }
+ ]
+}

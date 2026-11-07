@@ -1,0 +1,922 @@
+{
+ "route": {
+  "route": "claude-agent-arm",
+  "version": "claude-sonnet-subagent-2026-11-07"
+ },
+ "familyId": "config-rollback-private",
+ "inputs": [
+  "data/scenarios/config-rollback-private/people.json",
+  "data/scenarios/config-rollback-private/sources/teams.json",
+  "data/scenarios/config-rollback-private/sources/email-01.txt",
+  "data/scenarios/config-rollback-private/sources/slack-export/channels.json",
+  "data/scenarios/config-rollback-private/sources/slack-export/users.json",
+  "data/scenarios/config-rollback-private/sources/slack-export/change-review/2026-07-09.json",
+  "data/scenarios/config-rollback-private/sources/slack-export/noc-general/2026-07-09.json"
+ ],
+ "entities": [
+  {
+   "type": "asset",
+   "name": "ACC-12",
+   "aliases": [
+    "ACC-12"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Jarmo, voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push. Phones on floor 3 are offline. The data VLAN is fine."
+    },
+    {
+     "evidenceId": "email:<f05-change-note-acc12@kalevanet.example>",
+     "excerpt": "Hi, Change note for the record. Template v7 broke voice VLAN 210 on ACC-12. The switch was rolled back to the v6 template and the config was saved to startup. VLAN 210 is back and the phones on floor 3 registered again. Jarmo"
+    }
+   ],
+   "attributes": {
+    "unit.model": {
+     "value": "N3",
+     "evidence": [
+      {
+       "evidenceId": "teams:3",
+       "excerpt": "The old one, N3, installed 2019."
+      }
+     ]
+    },
+    "unit.installed_year": {
+     "value": 2019,
+     "evidence": [
+      {
+       "evidenceId": "teams:3",
+       "excerpt": "The old one, N3, installed 2019."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "type": "asset",
+   "name": "ACC-30",
+   "aliases": [
+    "ACC-30"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783587600.000100",
+     "excerpt": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week. It's an N5 though."
+    }
+   ],
+   "attributes": {
+    "unit.model": {
+     "value": "N5",
+     "evidence": [
+      {
+       "evidenceId": "slack:1783587600.000100",
+       "excerpt": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week. It's an N5 though."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "type": "software",
+   "name": "Config template v7",
+   "aliases": [
+    "template v7",
+    "v7"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Jarmo, voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push. Phones on floor 3 are offline. The data VLAN is fine."
+    },
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "v7 changed the voice VLAN range. Tuula approved the change last week so it was meant to be safe, but let's roll ACC-12 back to the v6 template."
+    },
+    {
+     "evidenceId": "email:<f05-change-note-acc12@kalevanet.example>",
+     "excerpt": "Hi, Change note for the record. Template v7 broke voice VLAN 210 on ACC-12. The switch was rolled back to the v6 template and the config was saved to startup. VLAN 210 is back and the phones on floor 3 registered again. Jarmo"
+    }
+   ]
+  },
+  {
+   "type": "software",
+   "name": "Config template v6",
+   "aliases": [
+    "template v6",
+    "v6"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "v7 changed the voice VLAN range. Tuula approved the change last week so it was meant to be safe, but let's roll ACC-12 back to the v6 template."
+    },
+    {
+     "evidenceId": "slack:1783587900.000200",
+     "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+    }
+   ]
+  },
+  {
+   "type": "software",
+   "name": "Config patch v7.1",
+   "aliases": [
+    "v7.1 patch",
+    "v7.1"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783588320.000300",
+     "excerpt": "Do not roll back N5 units. The v6 template cannot address their port layout. Apply the v7.1 patch that fixes the voice range typo instead."
+    },
+    {
+     "evidenceId": "slack:1783590000.000400",
+     "excerpt": "v7.1 patch applied on ACC-30. Uplinks and VLAN 210 are back."
+    }
+   ]
+  },
+  {
+   "type": "other",
+   "name": "Voice VLAN 210",
+   "aliases": [
+    "VLAN 210",
+    "voice VLAN"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Jarmo, voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push. Phones on floor 3 are offline. The data VLAN is fine."
+    }
+   ]
+  },
+  {
+   "type": "other",
+   "name": "Switch model N3",
+   "aliases": [
+    "N3"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "The old one, N3, installed 2019."
+    }
+   ]
+  },
+  {
+   "type": "other",
+   "name": "Switch model N5",
+   "aliases": [
+    "N5"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783587600.000100",
+     "excerpt": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week. It's an N5 though."
+    }
+   ]
+  },
+  {
+   "type": "other",
+   "name": "ACC-30 uplink ports",
+   "aliases": [
+    "uplink ports"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783587900.000200",
+     "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Antti Korhonen",
+   "aliases": [
+    "Antti Korhonen",
+    "Antti Korhonen",
+    "U503",
+    "antti.korhonen@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783587600.000100",
+     "excerpt": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week. It's an N5 though."
+    },
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Jarmo, voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push. Phones on floor 3 are offline. The data VLAN is fine."
+    },
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "The old one, N3, installed 2019."
+    },
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Phones are registering again, confirmed on floor 3."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Jarmo Heikkinen",
+   "aliases": [
+    "Jarmo Heikkinen",
+    "Jarmo Heikkinen",
+    "U501",
+    "jarmo.heikkinen@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f05-change-note-acc12@kalevanet.example>",
+     "excerpt": "Hi, Change note for the record. Template v7 broke voice VLAN 210 on ACC-12. The switch was rolled back to the v6 template and the config was saved to startup. VLAN 210 is back and the phones on floor 3 registered again. Jarmo"
+    },
+    {
+     "evidenceId": "slack:1783587900.000200",
+     "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+    },
+    {
+     "evidenceId": "slack:1783590000.000400",
+     "excerpt": "v7.1 patch applied on ACC-30. Uplinks and VLAN 210 are back."
+    },
+    {
+     "evidenceId": "teams:10",
+     "excerpt": "Ha, yes. I will write the change note."
+    },
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "v7 changed the voice VLAN range. Tuula approved the change last week so it was meant to be safe, but let's roll ACC-12 back to the v6 template."
+    },
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "I'll do it from the controller, give me five minutes."
+    },
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Rolled back to v6 and saved it to the startup config. VLAN 210 is back on all ports."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Sirkka Lindholm",
+   "aliases": [
+    "Sirkka Lindholm",
+    "U502",
+    "sirkka.lindholm@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783587900.000200",
+     "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+    },
+    {
+     "evidenceId": "slack:1783588320.000300",
+     "excerpt": "Do not roll back N5 units. The v6 template cannot address their port layout. Apply the v7.1 patch that fixes the voice range typo instead."
+    }
+   ]
+  },
+  {
+   "type": "person",
+   "name": "Tuula Salmi",
+   "aliases": [
+    "Tuula Salmi",
+    "U504",
+    "tuula.salmi@kalevanet.example"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783590300.000500",
+     "excerpt": "Please add it to the change record. I will hold v7 for the remaining N5 units until v7.1 is rolled out."
+    },
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "v7 changed the voice VLAN range. Tuula approved the change last week so it was meant to be safe, but let's roll ACC-12 back to the v6 template."
+    }
+   ]
+  }
+ ],
+ "claims": [
+  {
+   "type": "observation",
+   "statement": "Voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push; phones on floor 3 offline; data VLAN fine.",
+   "subjectEntityNames": [
+    "ACC-12",
+    "Voice VLAN 210",
+    "Config template v7"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Jarmo, voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push. Phones on floor 3 are offline. The data VLAN is fine."
+    }
+   ],
+   "assertedByActorId": "person:directory:antti-korhonen",
+   "condition": {
+    "key": "config.changed",
+    "operator": "eq",
+    "value": true,
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:1",
+      "excerpt": "Jarmo, voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push. Phones on floor 3 are offline. The data VLAN is fine."
+     }
+    ],
+    "label": "Template v7 pushed shortly before"
+   }
+  },
+  {
+   "type": "condition",
+   "statement": "ACC-12 is the old switch model N3, installed 2019.",
+   "subjectEntityNames": [
+    "ACC-12",
+    "Switch model N3"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "The old one, N3, installed 2019."
+    }
+   ],
+   "assertedByActorId": "person:directory:antti-korhonen",
+   "condition": {
+    "key": "unit.model",
+    "operator": "eq",
+    "value": "N3",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:3",
+      "excerpt": "The old one, N3, installed 2019."
+     }
+    ],
+    "label": "Switch model N3"
+   }
+  },
+  {
+   "type": "observation",
+   "statement": "Template v7 changed the voice VLAN range; the change had been approved by Tuula the week before and was meant to be safe.",
+   "subjectEntityNames": [
+    "Config template v7",
+    "Voice VLAN 210"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "v7 changed the voice VLAN range. Tuula approved the change last week so it was meant to be safe, but let's roll ACC-12 back to the v6 template."
+    }
+   ],
+   "assertedByActorId": "person:directory:jarmo-heikkinen"
+  },
+  {
+   "type": "advice",
+   "statement": "Roll ACC-12 back to the v6 template.",
+   "subjectEntityNames": [
+    "ACC-12",
+    "Config template v6"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "v7 changed the voice VLAN range. Tuula approved the change last week so it was meant to be safe, but let's roll ACC-12 back to the v6 template."
+    }
+   ],
+   "assertedByActorId": "person:directory:jarmo-heikkinen"
+  },
+  {
+   "type": "action",
+   "statement": "Jarmo offered to do the rollback himself from the controller.",
+   "subjectEntityNames": [
+    "ACC-12"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:6",
+     "excerpt": "I'll do it from the controller, give me five minutes."
+    }
+   ],
+   "assertedByActorId": "person:directory:jarmo-heikkinen"
+  },
+  {
+   "type": "action",
+   "statement": "Jarmo rolled ACC-12 back to v6 and saved it to the startup config.",
+   "subjectEntityNames": [
+    "ACC-12",
+    "Config template v6"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Rolled back to v6 and saved it to the startup config. VLAN 210 is back on all ports."
+    }
+   ],
+   "assertedByActorId": "person:directory:jarmo-heikkinen",
+   "condition": {
+    "key": "action.performed",
+    "operator": "eq",
+    "value": "config.rollback",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "teams:7",
+      "excerpt": "Rolled back to v6 and saved it to the startup config. VLAN 210 is back on all ports."
+     }
+    ],
+    "label": "Rolled back to v6"
+   }
+  },
+  {
+   "type": "outcome",
+   "statement": "After the rollback VLAN 210 is back on all ports of ACC-12.",
+   "subjectEntityNames": [
+    "ACC-12",
+    "Voice VLAN 210"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Rolled back to v6 and saved it to the startup config. VLAN 210 is back on all ports."
+    }
+   ],
+   "assertedByActorId": "person:directory:jarmo-heikkinen"
+  },
+  {
+   "type": "outcome",
+   "statement": "Phones are registering again on floor 3, confirmed by the NOC.",
+   "subjectEntityNames": [
+    "ACC-12"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Phones are registering again, confirmed on floor 3."
+    }
+   ],
+   "assertedByActorId": "person:directory:antti-korhonen"
+  },
+  {
+   "type": "outcome",
+   "statement": "Change note: v7 broke voice VLAN 210 on ACC-12; rolled back to v6 and saved to startup; VLAN back and phones on floor 3 registered again (a retelling of the Teams thread).",
+   "subjectEntityNames": [
+    "ACC-12",
+    "Config template v7",
+    "Config template v6"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "email:<f05-change-note-acc12@kalevanet.example>",
+     "excerpt": "Hi, Change note for the record. Template v7 broke voice VLAN 210 on ACC-12. The switch was rolled back to the v6 template and the config was saved to startup. VLAN 210 is back and the phones on floor 3 registered again. Jarmo"
+    }
+   ],
+   "assertedByActorId": "person:directory:jarmo-heikkinen"
+  },
+  {
+   "type": "action",
+   "statement": "Jarmo says he will write the change note (later sent as the email).",
+   "subjectEntityNames": [
+    "ACC-12"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "teams:10",
+     "excerpt": "Ha, yes. I will write the change note."
+    }
+   ],
+   "assertedByActorId": "person:directory:jarmo-heikkinen"
+  },
+  {
+   "type": "observation",
+   "statement": "ACC-30 lost voice VLAN 210 after v7, same symptom as ACC-12 the week before; it is an N5 model.",
+   "subjectEntityNames": [
+    "ACC-30",
+    "Voice VLAN 210",
+    "Config template v7",
+    "Switch model N5"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783587600.000100",
+     "excerpt": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week. It's an N5 though."
+    }
+   ],
+   "assertedByActorId": "person:directory:antti-korhonen",
+   "condition": {
+    "key": "unit.model",
+    "operator": "eq",
+    "value": "N5",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1783587600.000100",
+      "excerpt": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week. It's an N5 though."
+     }
+    ],
+    "label": "Switch model N5"
+   }
+  },
+  {
+   "type": "action",
+   "statement": "Jarmo rolled ACC-30 back to v6 as on ACC-12.",
+   "subjectEntityNames": [
+    "ACC-30",
+    "Config template v6"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783587900.000200",
+     "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+    }
+   ],
+   "assertedByActorId": "person:directory:jarmo-heikkinen",
+   "condition": {
+    "key": "action.performed",
+    "operator": "eq",
+    "value": "config.rollback",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1783587900.000200",
+      "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+     }
+    ],
+    "label": "Rolled back to v6"
+   }
+  },
+  {
+   "type": "outcome",
+   "statement": "After the rollback the uplink ports on ACC-30 are down; v6 has no profile for the N5 port layout (rollback made it worse).",
+   "subjectEntityNames": [
+    "ACC-30",
+    "ACC-30 uplink ports",
+    "Config template v6"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783587900.000200",
+     "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+    }
+   ],
+   "assertedByActorId": "person:directory:jarmo-heikkinen",
+   "condition": {
+    "key": "interface.status",
+    "operator": "eq",
+    "value": "down",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1783587900.000200",
+      "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+     }
+    ],
+    "label": "Uplink ports down after rollback"
+   }
+  },
+  {
+   "type": "advice",
+   "statement": "Do not roll back N5 units: the v6 template cannot address their port layout. Apply the v7.1 patch that fixes the voice range typo instead.",
+   "subjectEntityNames": [
+    "Switch model N5",
+    "Config template v6",
+    "Config patch v7.1"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783588320.000300",
+     "excerpt": "Do not roll back N5 units. The v6 template cannot address their port layout. Apply the v7.1 patch that fixes the voice range typo instead."
+    }
+   ],
+   "assertedByActorId": "person:directory:sirkka-lindholm",
+   "condition": {
+    "key": "unit.model",
+    "operator": "eq",
+    "value": "N5",
+    "origin": "reported",
+    "evidence": [
+     {
+      "evidenceId": "slack:1783588320.000300",
+      "excerpt": "Do not roll back N5 units. The v6 template cannot address their port layout. Apply the v7.1 patch that fixes the voice range typo instead."
+     }
+    ],
+    "label": "Applies to N5: no rollback, use v7.1"
+   }
+  },
+  {
+   "type": "condition",
+   "statement": "Template v6 cannot address the N5 port layout.",
+   "subjectEntityNames": [
+    "Config template v6",
+    "Switch model N5"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783588320.000300",
+     "excerpt": "Do not roll back N5 units. The v6 template cannot address their port layout. Apply the v7.1 patch that fixes the voice range typo instead."
+    },
+    {
+     "evidenceId": "slack:1783587900.000200",
+     "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+    }
+   ],
+   "assertedByActorId": "person:directory:sirkka-lindholm"
+  },
+  {
+   "type": "action",
+   "statement": "Jarmo applied the v7.1 patch on ACC-30.",
+   "subjectEntityNames": [
+    "ACC-30",
+    "Config patch v7.1"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783590000.000400",
+     "excerpt": "v7.1 patch applied on ACC-30. Uplinks and VLAN 210 are back."
+    }
+   ],
+   "assertedByActorId": "person:directory:jarmo-heikkinen"
+  },
+  {
+   "type": "outcome",
+   "statement": "After v7.1, uplinks and VLAN 210 are back on ACC-30.",
+   "subjectEntityNames": [
+    "ACC-30",
+    "Voice VLAN 210"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783590000.000400",
+     "excerpt": "v7.1 patch applied on ACC-30. Uplinks and VLAN 210 are back."
+    }
+   ],
+   "assertedByActorId": "person:directory:jarmo-heikkinen"
+  },
+  {
+   "type": "advice",
+   "statement": "Add the ACC-30 case to the change record.",
+   "subjectEntityNames": [
+    "ACC-30"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783590300.000500",
+     "excerpt": "Please add it to the change record. I will hold v7 for the remaining N5 units until v7.1 is rolled out."
+    }
+   ],
+   "assertedByActorId": "person:directory:tuula-salmi"
+  },
+  {
+   "type": "action",
+   "statement": "Tuula will hold v7 for the remaining N5 units until v7.1 is rolled out (stated intention).",
+   "subjectEntityNames": [
+    "Config template v7",
+    "Config patch v7.1",
+    "Switch model N5"
+   ],
+   "evidence": [
+    {
+     "evidenceId": "slack:1783590300.000500",
+     "excerpt": "Please add it to the change record. I will hold v7 for the remaining N5 units until v7.1 is rolled out."
+    }
+   ],
+   "assertedByActorId": "person:directory:tuula-salmi"
+  }
+ ],
+ "links": [
+  {
+   "personActorId": "person:directory:antti-korhonen",
+   "contribution": "reported-problem",
+   "evidence": [
+    {
+     "evidenceId": "teams:1",
+     "excerpt": "Jarmo, voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push. Phones on floor 3 are offline. The data VLAN is fine."
+    },
+    {
+     "evidenceId": "slack:1783587600.000100",
+     "excerpt": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week. It's an N5 though."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:antti-korhonen",
+   "contribution": "observed-condition",
+   "evidence": [
+    {
+     "evidenceId": "teams:3",
+     "excerpt": "The old one, N3, installed 2019."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:antti-korhonen",
+   "contribution": "reported-outcome",
+   "evidence": [
+    {
+     "evidenceId": "teams:8",
+     "excerpt": "Phones are registering again, confirmed on floor 3."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:jarmo-heikkinen",
+   "contribution": "advised",
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "v7 changed the voice VLAN range. Tuula approved the change last week so it was meant to be safe, but let's roll ACC-12 back to the v6 template."
+    }
+   ],
+   "firsthand": false
+  },
+  {
+   "personActorId": "person:directory:jarmo-heikkinen",
+   "contribution": "performed-action",
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Rolled back to v6 and saved it to the startup config. VLAN 210 is back on all ports."
+    },
+    {
+     "evidenceId": "slack:1783587900.000200",
+     "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+    },
+    {
+     "evidenceId": "slack:1783590000.000400",
+     "excerpt": "v7.1 patch applied on ACC-30. Uplinks and VLAN 210 are back."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:jarmo-heikkinen",
+   "contribution": "reported-outcome",
+   "evidence": [
+    {
+     "evidenceId": "teams:7",
+     "excerpt": "Rolled back to v6 and saved it to the startup config. VLAN 210 is back on all ports."
+    },
+    {
+     "evidenceId": "email:<f05-change-note-acc12@kalevanet.example>",
+     "excerpt": "Hi, Change note for the record. Template v7 broke voice VLAN 210 on ACC-12. The switch was rolled back to the v6 template and the config was saved to startup. VLAN 210 is back and the phones on floor 3 registered again. Jarmo"
+    },
+    {
+     "evidenceId": "slack:1783587900.000200",
+     "excerpt": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout."
+    },
+    {
+     "evidenceId": "slack:1783590000.000400",
+     "excerpt": "v7.1 patch applied on ACC-30. Uplinks and VLAN 210 are back."
+    }
+   ],
+   "firsthand": true
+  },
+  {
+   "personActorId": "person:directory:sirkka-lindholm",
+   "contribution": "advised",
+   "evidence": [
+    {
+     "evidenceId": "slack:1783588320.000300",
+     "excerpt": "Do not roll back N5 units. The v6 template cannot address their port layout. Apply the v7.1 patch that fixes the voice range typo instead."
+    }
+   ],
+   "firsthand": false
+  },
+  {
+   "personActorId": "person:directory:tuula-salmi",
+   "contribution": "advised",
+   "evidence": [
+    {
+     "evidenceId": "slack:1783590300.000500",
+     "excerpt": "Please add it to the change record. I will hold v7 for the remaining N5 units until v7.1 is rolled out."
+    }
+   ],
+   "firsthand": false
+  },
+  {
+   "personActorId": "person:directory:tuula-salmi",
+   "contribution": "mentioned",
+   "evidence": [
+    {
+     "evidenceId": "teams:4",
+     "excerpt": "v7 changed the voice VLAN range. Tuula approved the change last week so it was meant to be safe, but let's roll ACC-12 back to the v6 template."
+    }
+   ],
+   "firsthand": false
+  }
+ ],
+ "incidents": [
+  {
+   "key": "acc12-v7-n3",
+   "evidenceIds": [
+    "teams:1",
+    "teams:2",
+    "teams:3",
+    "teams:4",
+    "teams:5",
+    "teams:6",
+    "teams:7",
+    "teams:8",
+    "teams:10",
+    "email:<f05-change-note-acc12@kalevanet.example>"
+   ],
+   "title": "ACC-12 (N3) voice VLAN loss after template v7, fixed by rollback to v6"
+  },
+  {
+   "key": "acc30-v7-n5",
+   "evidenceIds": [
+    "slack:1783587600.000100",
+    "slack:1783587900.000200",
+    "slack:1783588320.000300",
+    "slack:1783590000.000400",
+    "slack:1783590300.000500"
+   ],
+   "title": "ACC-30 (N5) voice VLAN loss after v7; rollback failed, v7.1 patch worked (private channel)"
+  }
+ ],
+ "usefulness": [
+  {
+   "evidenceId": "teams:1",
+   "label": "useful",
+   "reason": "Symptom, trigger and affected VLAN."
+  },
+  {
+   "evidenceId": "teams:2",
+   "label": "uncertain",
+   "reason": "Question only."
+  },
+  {
+   "evidenceId": "teams:3",
+   "label": "useful",
+   "reason": "Switch model and install year."
+  },
+  {
+   "evidenceId": "teams:4",
+   "label": "useful",
+   "reason": "Cause hint and rollback advice."
+  },
+  {
+   "evidenceId": "teams:5",
+   "label": "uncertain",
+   "reason": "Question about who performs rollback."
+  },
+  {
+   "evidenceId": "teams:6",
+   "label": "useful",
+   "reason": "Who will perform the rollback."
+  },
+  {
+   "evidenceId": "teams:7",
+   "label": "useful",
+   "reason": "Rollback performed and result."
+  },
+  {
+   "evidenceId": "teams:8",
+   "label": "useful",
+   "reason": "Independent confirmation of recovery."
+  },
+  {
+   "evidenceId": "teams:9",
+   "label": "irrelevant",
+   "reason": "Social event."
+  },
+  {
+   "evidenceId": "teams:10",
+   "label": "uncertain",
+   "reason": "Announces change note; little fact."
+  },
+  {
+   "evidenceId": "email:<f05-change-note-acc12@kalevanet.example>",
+   "label": "useful",
+   "reason": "Change note retelling the ACC-12 incident."
+  },
+  {
+   "evidenceId": "slack:1783587600.000100",
+   "label": "useful",
+   "reason": "Second case with different model N5."
+  },
+  {
+   "evidenceId": "slack:1783587900.000200",
+   "label": "useful",
+   "reason": "Rollback failure on N5."
+  },
+  {
+   "evidenceId": "slack:1783588320.000300",
+   "label": "useful",
+   "reason": "Model-specific lesson: do not roll back N5, use v7.1."
+  },
+  {
+   "evidenceId": "slack:1783590000.000400",
+   "label": "useful",
+   "reason": "Confirms v7.1 fix."
+  },
+  {
+   "evidenceId": "slack:1783590300.000500",
+   "label": "useful",
+   "reason": "Change-record request and v7 hold decision."
+  },
+  {
+   "evidenceId": "slack:1783593000.000600",
+   "label": "irrelevant",
+   "reason": "Maintenance window reminder, unrelated to the incident."
+  }
+ ]
+}

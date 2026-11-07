@@ -1,0 +1,11 @@
+From: Eino Salo <eino.salo@kalevanet.example>
+To: Ilmari Karjalainen <ilmari.karjalainen@kalevanet.example>
+Date: Tue, 6 Oct 2026 08:40:00 +0300
+Subject: RBS-310 barrier code
+Message-ID: <followup-b1-rbs310-barrier@kalevanet.example>
+
+Hi Ilmari,
+
+Barrier code at RBS-310 is now 7731, the landlord changed the lock.
+
+Eino

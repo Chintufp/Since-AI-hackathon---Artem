@@ -86,3 +86,14 @@ Reverse: remove `applyBounds` from `recommend()`.
 
 `DEFAULT_LEXICON` gains `software-version` ("firmware 4.2", "on 4.2", "running 4.2", "fw 4.2", "version 4.2"; not followed by a unit such as dB or %) and `software-version-after` ("4.2 firmware").
 Reverse: delete the two rules.
+
+## D-B1-15 · A closed value takes its sentence's companion claim with it
+
+When the newer-value rule closes a code claim, the other claim of the same type cut from the same passage (the `site.access` fact "Road barrier code: 5802." next to its `site.access_code` claim) closes too, with `supersededBy` pointing at the newer passage's companion when there is one.
+Why: otherwise GET /context shows "Road barrier code: 5802." as still believed true next to the closed code.
+Reverse: remove the companion loop in `applySupersession`.
+
+## D-B1-16 · Generated follow-ups are imported by every non-empty demo reset
+
+`data/demo/followups/` (README, Erkki's 14 Oct Teams note, Eino's 6 Oct e-mail, problems.json) is imported as a `scenario-dir` after Elisa's files, the demo families and the developer fixture, for seeds `elisa` and `synthetic` (`EngineOptions.followupsDir` overrides the path). `problems.json` and the README are not sources (`listScenarioSources` reads `teams*.json` and `.txt/.eml` only). Verified on a reset demo database: TRN-088 still gets "Check the traffic counters before replacing the SFP again.", the firmware 4.2 problem gets the superseded caveat, 5802 is closed by 7731 on 6 Oct; tests/e2e, elisa-text, fixes-4, identity pass with the follow-ups imported.
+Reverse: delete the follow-ups block in `service/demo.ts`.

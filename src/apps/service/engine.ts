@@ -71,6 +71,8 @@ export interface EngineOptions {
   /** Directory holding families.json + family folders. */
   scenariosDir?: string;
   fixturesDir?: string;
+  /** B1: generated dated follow-ups imported by the demo reset (default data/demo/followups). */
+  followupsDir?: string;
 }
 
 export interface ClarificationResult {

@@ -1,0 +1,27 @@
+{
+  "note": "Two problems that use the generated follow-ups (synthetic, day-2 B1 build). Expected answers describe the engine's behaviour on a freshly reset demo database; they are not ground truth from Elisa.",
+  "problems": [
+    {
+      "id": "followup-firmware-42",
+      "text": "TRN-077 older unit on firmware 4.2: replaced the SFP, link up, counters zero, no traffic.",
+      "expect": {
+        "recommendationKind": "qualified",
+        "caveat": "Superseded on 14 Oct by Erkki Expert: fixed in firmware 4.2",
+        "ask": "Erkki Expert",
+        "why": "Erkki's 14 Oct note says the 4.2 firmware fixes the forwarding-state bug, so his TRN-042 advice is bounded to units below 4.2. Without a stated version (TRN-088) the advice stands."
+      }
+    },
+    {
+      "id": "followup-barrier-code",
+      "text": "Driving to RBS-310 Thursday, what is the barrier code?",
+      "expect": {
+        "accessCode": "7731",
+        "assertedBy": "Eino Salo",
+        "since": "2026-10-06",
+        "replaces": { "code": "5802", "since": "2026-08-20" },
+        "validityCondition": "changes every October",
+        "why": "Eino's 6 Oct email closes the 20 Aug code through the newer-value rule on site.access_code. Returning access facts from an investigation is the second half of B1; today GET /context?entity=RBS-310 shows both codes with their windows."
+      }
+    }
+  ]
+}

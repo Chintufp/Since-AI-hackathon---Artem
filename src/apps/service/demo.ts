@@ -10,7 +10,8 @@ export const DEFAULT_ELISA_DIR = join(REPO_ROOT, 'private', 'Elisa_SinceAI2026',
  * Demo reset: clear the store (settings are kept), then import
  *  - the organizer's Elisa example when it is present on this machine ('elisa' or no seed),
  *  - every 'demo' split family (sources/ and people.json only; truth.json and incoming.json are never read),
- *  - the developer fixture data/fixtures/dev-family-01 when present.
+ *  - the developer fixture data/fixtures/dev-family-01 when present,
+ *  - the generated dated follow-ups in data/demo/followups (B1) when present.
  * seed 'empty' only clears.
  */
 export type DemoResetResult = { ok: true; imported: ImportResponse[]; defaultPersonEntityId?: string };
@@ -53,5 +54,8 @@ export async function resetDemo(engine: Engine, seed: 'elisa' | 'synthetic' | 'e
   }
   const fixture = join(opts.fixturesDir ?? join(REPO_ROOT, 'data', 'fixtures'), 'dev-family-01');
   if (existsSync(fixture)) imported.push(engine.importData({ format: 'scenario-dir', path: fixture }));
+  // B1: generated, dated follow-ups (Erkki's 14 Oct firmware note, Eino's 6 Oct barrier code); see data/demo/followups/README.md.
+  const followups = opts.followupsDir ?? join(REPO_ROOT, 'data', 'demo', 'followups');
+  if (existsSync(followups)) imported.push(engine.importData({ format: 'scenario-dir', path: followups }));
   return finish();
 }

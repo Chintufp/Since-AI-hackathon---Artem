@@ -53,6 +53,7 @@ export interface OllamaInstaller {
   run(brew: string, onLine: (line: string) => void): Promise<void>;
 }
 
+export const NO_HOSTED_EMBED = 'no hosted embedding model; rules used';
 export const NO_API_REASON = 'hosted models are off in this run';
 export const OLLAMA_DOWNLOAD_URL = 'https://ollama.com/download';
 const MAX_LOG_LINES = 200;
@@ -89,7 +90,7 @@ const gb = (bytes?: number): string => (bytes === undefined ? '' : bytes >= 1e9 
 interface PullJob extends PullJobView { controller: AbortController }
 
 export class ModelManager {
-  readonly local: ModelProvider;
+  private localProvider: ModelProvider | undefined;
   readonly cache = new EmbeddingCache();
   private readonly opts: ModelManagerOptions;
   private readonly loaded = new Map<string, { embedding: boolean; timer?: ReturnType<typeof setTimeout> }>();
@@ -98,13 +99,20 @@ export class ModelManager {
   private readonly jobs = new Map<string, PullJob>();
   private readonly keys: Partial<Record<ApiVendor, string>> = {};
   private server: ChildProcess | undefined;
+  private warming: Promise<unknown> = Promise.resolve();
   private jobSeq = 0;
   private install: InstallJobView = { state: 'idle', brew: false, log: [], downloadUrl: OLLAMA_DOWNLOAD_URL, setup: SETUP };
   private lastDetect: DetectResult | undefined;
 
   constructor(opts: ModelManagerOptions = {}) {
     this.opts = opts;
-    this.local = opts.local ?? new OllamaProvider({ onUse: (m) => this.touch(m) });
+    this.localProvider = opts.local;
+  }
+
+  /** The local provider, built on first use: with every slot on rules nothing is constructed. */
+  get local(): ModelProvider {
+    this.localProvider ??= new OllamaProvider({ onUse: (m, o) => this.touch(m, o?.embedding) });
+    return this.localProvider;
   }
 
   private now(): string {
@@ -184,14 +192,22 @@ export class ModelManager {
    * then load the model with one empty request (keep_alive 30m). Slots on rules or api start nothing.
    * Returns what was warmed; failures go to the slot's status chip and never throw.
    */
-  async warmSlots(slots: ModelSlots): Promise<Array<{ slot: ModelSlotName; model: string; ok: boolean; reason?: string }>> {
+  warmSlots(slots: ModelSlots): Promise<Array<{ slot: ModelSlotName; model: string; ok: boolean; reason?: string }>> {
+    // Serialized: slot toggles during a slow start wait for the first warm-up instead of spawning more servers.
+    const run = this.warming.then(() => this.warmNow(slots));
+    this.warming = run.catch(() => undefined);
+    return run;
+  }
+
+  private async warmNow(slots: ModelSlots): Promise<Array<{ slot: ModelSlotName; model: string; ok: boolean; reason?: string }>> {
     const local = SLOTS.filter((s) => slots[s].provider === 'local');
     if (!local.length) return [];
     let d = await this.detect();
     if (!d.running && d.installed) {
-      this.server = (this.opts.startServer ?? defaultStartServer)();
+      // One `ollama serve` per service: reuse a child that is still alive.
+      if (!this.server || this.server.exitCode !== null) this.server = (this.opts.startServer ?? defaultStartServer)();
       for (let i = 0; i < 20 && !d.running; i++) {
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => { const t = setTimeout(r, 500); t.unref?.(); });
         d = await this.detect();
       }
     }
@@ -262,6 +278,8 @@ export class ModelManager {
     const failure = this.failures.get(slot);
     if (choice.provider === 'api') {
       if (this.opts.noApi) return { choice, state: 'failed', chip: `failed: ${NO_API_REASON}`, reason: NO_API_REASON };
+      // No hosted embedding model is wired (D-B2-06): the trigram list is used and the route says so.
+      if (slot === 'embed') return { choice, state: 'failed', chip: `failed: ${NO_HOSTED_EMBED}`, reason: NO_HOSTED_EMBED };
       const model = choice.model ?? API_DEFAULT_MODELS.anthropic;
       const vendor: ApiVendor = /^gemini/i.test(model) ? 'gemini' : 'anthropic';
       if (!this.keys[vendor]) return { choice, state: 'failed', chip: `failed: no ${vendor} key`, reason: `no ${vendor} key` };

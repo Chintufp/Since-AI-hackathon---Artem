@@ -115,6 +115,8 @@ test('a failing or slow embedder falls back to trigrams for that call, labelled;
   assert.match(h2.route.version, /embed\[fallback:timeout\]$/);
   assert.equal(failures.length, 1);
   const mem = buildSyntheticStore();
+  // a store without a vector table (the in-memory test store has one since D-B2-59; drop it here)
+  Object.defineProperty(mem, 'embeddings', { value: undefined });
   const h3 = new HybridRetriever(mem, { embedding: { index: new EmbeddingIndex(mem, good, 'fake-embed') } });
   assert.equal((await h3.search(q('link is up but counters zero')))[0]!.caseId, CASE_REF);
   assert.match(h3.route.version, /embed\[fallback:no-table\]$/);

@@ -272,7 +272,7 @@ export class Engine {
     const index = this.embeddingIndex();
     const retriever = new HybridRetriever(this.store, index
       ? { ...settings, embedding: { index, onFailure: (reason, code) => this.models.recordFailure('embed', reason, code), skip: () => this.models.cooling('embed') } }
-      : settings);
+      : this.modelSlots().embed.provider === 'api' ? { ...settings, embedUnavailable: 'unsupported' } : settings);
     const assessor = new RulesAssessor({ store: this.store, settings });
     const qctx = { store: this.store, settings, directory, clock: this.clock };
     const templates = new TemplateQuestionGenerator(qctx);

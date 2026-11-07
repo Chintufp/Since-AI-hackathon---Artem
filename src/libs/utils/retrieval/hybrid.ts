@@ -52,6 +52,8 @@ export interface RetrieverOptions extends CompareOptions {
     /** A reason to skip the query embedding now (the slot is cooling down after a timeout): the trigram list stands in, labelled 'cooldown'. */
     skip?: () => string | undefined;
   };
+  /** The embed slot names a model that cannot serve it (embed=api): no embedding list, the route says `+embed[fallback:<code>]`. */
+  embedUnavailable?: string;
 }
 
 const queryText = (q: RetrievalQuery): string => [q.text, ...q.conditions.map(conditionLabel)].join('\n');
@@ -180,7 +182,7 @@ export class HybridRetriever extends Base {
     this.route =
       opts.vector === false
         ? { route: 'rules', version: 'hybrid-rrf@1(bm25+exact-id)' }
-        : { route: 'local', version: 'hybrid-rrf@1(bm25+exact-id+trigram-hash[local,not-learned])' };
+        : { route: 'local', version: `hybrid-rrf@1(bm25+exact-id+trigram-hash[local,not-learned])${!opts.embedding && opts.embedUnavailable ? `+embed[fallback:${opts.embedUnavailable}]` : ''}` };
   }
   protected lists(docs: CorpusDoc[], q: RetrievalQuery, entityIds: string[]): RankedList[] {
     const w = this.opts.weights ?? {};

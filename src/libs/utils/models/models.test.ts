@@ -113,3 +113,17 @@ test('in-memory store: put/get isolation, where, orderBy, limit, searchText, tra
   assert.throws(() => s.put('case', { ...c1, id: '' }));
   void ORG;
 });
+
+test('InMemoryStore mirrors the embedding table: unchanged hash skips, list in write order, deleteRef and clear', () => {
+  const s = new InMemoryStore();
+  const t = s.embeddings;
+  assert.equal(t.upsert({ kind: 'case', refId: 'b', model: 'm', textHash: 'h1', vector: Float32Array.from([1, 2]) }), 'written');
+  assert.equal(t.upsert({ kind: 'case', refId: 'a', model: 'm', textHash: 'h2', vector: Float32Array.from([3, 4]) }), 'written');
+  assert.equal(t.upsert({ kind: 'case', refId: 'b', model: 'm', textHash: 'h1', vector: Float32Array.from([9, 9]) }), 'unchanged');
+  assert.deepEqual(t.list('case', 'm').map((r) => [r.refId, r.dims, [...r.vector]]), [['b', 2, [1, 2]], ['a', 2, [3, 4]]]);
+  assert.equal(t.get('case', 'a', 'm')!.id, 'case:m:a');
+  assert.equal(t.count('m'), 2);
+  assert.equal(t.deleteRef('case', 'a'), 1);
+  s.clear();
+  assert.equal(t.count(), 0);
+});

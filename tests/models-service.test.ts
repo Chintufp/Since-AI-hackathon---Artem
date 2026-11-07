@@ -216,6 +216,55 @@ test('lifecycle: warm local slots at start (empty request, keep_alive 30m), idle
   m3.dispose();
 });
 
+test('lifecycle: concurrent warm-ups spawn one `ollama serve` and shutdown stops it; the provider is built only when used', async () => {
+  let n = 0;
+  const local = fakeLocal();
+  const detect = local.detect.bind(local);
+  // every warm-up first sees Ollama down, then up
+  local.detect = async () => (++n % 2 === 1 ? { installed: true, running: false, models: [] } : detect());
+  const kills: string[] = [];
+  let spawned = 0;
+  const child = { exitCode: null, kill: (sig: string) => { kills.push(sig); return true; } } as unknown as import('node:child_process').ChildProcess;
+  const m = new ModelManager({ local, startServer: () => { spawned++; return child; } });
+  const slots = { embed: { provider: 'rules' }, extract: { provider: 'rules' }, phrase: { provider: 'local' } } as const;
+  await Promise.all([m.warmSlots(slots), m.warmSlots(slots), m.warmSlots(slots)]);
+  assert.equal(spawned, 1);
+  await m.shutdown();
+  assert.deepEqual(kills, ['SIGTERM']);
+  // lazily built: a manager that is never asked for its local provider constructs none
+  assert.equal(Reflect.get(new ModelManager(), 'localProvider'), undefined);
+});
+
+test('lifecycle: an embedding model used by a call (not warmed) is unloaded through /api/embed', async () => {
+  const { OllamaProvider } = await import('../src/libs/utils/models/providers/index.ts');
+  const used: Array<[string, boolean | undefined]> = [];
+  const fetch = async () => new Response(JSON.stringify({ embeddings: [[0.1, 0.2]] }), { status: 200 });
+  const p = new OllamaProvider({ fetch, onUse: (model, o) => used.push([model, o?.embedding]) });
+  await p.embed('bge-m3', ['green light']);
+  assert.deepEqual(used, [['bge-m3', true]]);
+  const local = fakeLocal();
+  const unloads: Array<[string, boolean | undefined]> = [];
+  local.unload = async (model, o) => { unloads.push([model, o?.embedding]); };
+  const m = new ModelManager({ local });
+  m.touch('bge-m3', true);
+  await m.unload('bge-m3');
+  assert.deepEqual(unloads, [['bge-m3', true]]);
+});
+
+test('embed=api: the chip says no hosted embedding model and the retrieval route carries the fallback label', async () => {
+  const svc = await startService({ modelManager: { local: fakeLocal() } });
+  try {
+    await svc.call('POST', '/import', { format: 'scenario-dir', path: DEV_FIXTURE });
+    await svc.call('POST', '/models/key', { provider: 'anthropic', key: 'sk-test-not-a-real-key-789' });
+    await svc.call('PUT', '/settings', { models: { embed: { provider: 'api' } } });
+    assert.equal((await svc.call('GET', '/models')).slots.embed.chip, 'failed: no hosted embedding model; rules used');
+    const r = await svc.call('POST', '/investigate', { text: 'green light, nothing flowing', principal: human('person:test:emb', 'Emb', ['noc']) });
+    assert.ok(r.routes.some((x: { version: string }) => x.version.endsWith('+embed[fallback:unsupported]')));
+  } finally {
+    await svc.close();
+  }
+});
+
 test('embed=local: imports index evidence, claims and case cards; a paraphrase is found by meaning; demo reset rebuilds the rows', async () => {
   const local = fakeLocal();
   const svc = await startService({ modelManager: { local }, autoModels: true });

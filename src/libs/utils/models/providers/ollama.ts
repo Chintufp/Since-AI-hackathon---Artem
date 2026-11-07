@@ -37,8 +37,8 @@ export interface OllamaOptions {
   baseUrl?: string;
   fetch?: FetchFn;
   system?: OllamaSystem;
-  /** Called with the model name after every successful call (the service's idle timer). */
-  onUse?: (model: string) => void;
+  /** Called with the model name after every successful call (the service's idle timer); `embedding` for /api/embed. */
+  onUse?: (model: string, o?: { embedding?: boolean }) => void;
 }
 
 export class OllamaProvider implements ModelProvider {
@@ -46,7 +46,7 @@ export class OllamaProvider implements ModelProvider {
   readonly baseUrl: string;
   private readonly fetchFn: FetchFn;
   private readonly system: OllamaSystem;
-  private readonly onUse: ((model: string) => void) | undefined;
+  private readonly onUse: ((model: string, o?: { embedding?: boolean }) => void) | undefined;
 
   constructor(opts: OllamaOptions = {}) {
     this.baseUrl = (opts.baseUrl ?? OLLAMA_URL).replace(/\/+$/, '');
@@ -88,7 +88,7 @@ export class OllamaProvider implements ModelProvider {
     const res = await this.post('/api/embed', { model, input: texts, keep_alive: opts.keepAlive ?? DEFAULT_KEEP_ALIVE }, opts.timeoutMs ?? SLOT_TIMEOUT_MS.embed);
     const j = await this.json<{ embeddings?: number[][] }>(res, '/api/embed');
     if (!Array.isArray(j.embeddings) || j.embeddings.length !== texts.length) throw new ProviderError('bad-response', `ollama /api/embed: expected ${texts.length} embeddings`);
-    this.onUse?.(model);
+    this.onUse?.(model, { embedding: true });
     return j.embeddings.map((v) => Float32Array.from(v));
   }
 

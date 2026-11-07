@@ -89,7 +89,7 @@ export interface KnowledgeStore {
   transaction<R>(fn: () => R): R;
   /** Remove every record (demo reset), embeddings included. */
   clear(): void;
-  /** Vector rows (SQLite store only). Callers check for presence; the in-memory test store has none. */
+  /** Vector rows (SQLite store and the in-memory test store). Callers check for presence. */
   readonly embeddings?: EmbeddingTable;
   close(): void;
 }

@@ -190,3 +190,12 @@ Review measured 45 s for one POST /investigate with embed and phrase on a model 
 
 ## D-B2-58 · demo:judge keeps hosted models out (KT_NO_API=1); the key file stays out of data/ (review fix)
 Review found nothing in the demo:judge path stopped a slot left on `api` from an earlier session (settings survive the demo reset) and the desktop handed stored keys back to the service. Now demo:judge sets `KT_NO_API=1` for the service and the desktop. The service then builds its ModelManager with `noApi`: `/models/key` stores nothing (present false), `api()` is undefined, an api slot is unavailable with the reason "hosted models are off in this run" (chip and fallback route say so). The desktop skips `restoreKeys` under the flag. When demo:judge finds a service already running (not started with the flag), it moves any slot on `api` back to rules with PUT /settings and logs which. Separately, the encrypted key file is written to `appData/<app name>/model-keys.json`, which is the default userData but does not follow demo:judge's `--user-data-dir=data/local/electron`, so it never lands in the repo's data/. Reverse: drop the env and the `noApi` option; key path back to `app.getPath('userData')`.
+
+## D-B2-59 · Lifecycle review fixes: one `ollama serve`, embed unload, lazy provider, embed=api labelled, in-memory embeddings
+- `warmSlots` is serialized and reuses a started `ollama serve` while it is alive, so slot toggles during a slow start spawn one server and shutdown stops it; its poll timers are unref'd.
+- `OllamaProvider.embed` reports embedding use (`onUse(model, {embedding: true})`), so a model loaded by a call (not a warm-up) is unloaded through /api/embed, as D-B2-05 intends.
+- `ModelManager.local` is built on first use: with every slot on rules no provider object exists (GET /models still builds one to detect Ollama; that is a user action).
+- embed=api: the chip says "failed: no hosted embedding model; rules used" and the retrieval route ends in `+embed[fallback:unsupported]`, as D-B2-06 said. PUT /settings still accepts it (no contract narrowing).
+- `InMemoryStore` has a Map-backed `embeddings` table with the SQLite rules (key, unchanged hash, write order), so embed=local behaves the same on the test store.
+- ModelManager gets the engine clock (`now: this.clock`), so pull and install job times follow the demo clock.
+Reverse: each is local to `apps/service/models.ts`, `providers/ollama.ts`, `retrieval/hybrid.ts`, `testing/in-memory-store.ts`.

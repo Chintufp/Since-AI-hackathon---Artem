@@ -119,6 +119,15 @@ test('an agent asking for a person who is not a recipient is refused, told who w
     assert.equal(ok.status, 'question-open');
     assert.equal(ok.personEntityId, c.wouldAsk.personEntityId);
     assert.equal(ok.gapId, gap.id);
+    // With that question open, preferring Maria again returns the open question and still says she cannot be asked.
+    const open = await r.tool('kt_request_clarification', { investigationId, gapId: gap.id, preferPersonEntityId: maria, principal: AGENT });
+    assert.equal(open.status, 'question-open');
+    assert.equal(open.questionId, ok.questionId);
+    assert.match(open.reason, /Maria Koskinen cannot be asked about this gap: not a recipient/);
+    // An id nobody has is an error, not a person with invented gates; batch mode refuses a gapId or a preference.
+    await assert.rejects(r.tool('kt_request_clarification', { investigationId, gapId: gap.id, preferPersonEntityId: 'ent_doesnotexist', principal: AGENT }), /Unknown person ent_doesnotexist/);
+    await assert.rejects(r.tool('kt_request_clarification', { investigationId, gapIds: [gap.id], gapId: gap.id, principal: AGENT }), /cannot be combined/);
+    await assert.rejects(r.tool('kt_request_clarification', { investigationId, gapIds: [gap.id], preferPersonEntityId: maria, principal: AGENT }), /cannot be combined/);
   } finally {
     await r.close();
   }
@@ -129,6 +138,7 @@ test('a hallucinated wording is rejected and the template is asked', async () =>
   try {
     const { investigationId } = await r.tool('kt_investigate', { text: TEXT, principal: AGENT });
     const gap = applicabilityGap((await r.tool('kt_list_gaps', { investigationId, principal: AGENT })).gaps) as any;
+    await assert.rejects(r.tool('kt_propose_question', { investigationId, gapId: gap.id, text: 'Is RTR-203 also running software version 4.2.1?', principal: { id: 'agent:other', displayName: 'Other', groups: ['noc'] } }), /did not start/);
     const p = await r.tool('kt_propose_question', { investigationId, gapId: gap.id, text: 'Did Matti replace card X-9 on 14 October?', principal: AGENT });
     assert.equal(p.accepted, false);
     assert.ok(p.reasons.length > 0);
@@ -259,6 +269,42 @@ test('batch: three gaps go to three people in one call, nobody over a budget, an
     assert.ok(people.includes(single.personEntityId));
     // At most three gaps per call (the tool's schema refuses a fourth).
     await assert.rejects(r.tool('kt_request_clarification', { investigationId, gapIds: [...askable, 'gap|x|missing|y|z'], principal: AGENT }));
+  } finally {
+    await r.close();
+  }
+});
+
+test('batch: a person who already had three questions today is never picked', async () => {
+  const r = await rig({ importDev: false });
+  try {
+    const noc = ['Noora Noc', 'Niko Noc', 'Nea Noc', 'Nils Noc'].map((name, i) => ({ id: `person:directory:noc-${i}`, name, role: 'NOC Engineer', groups: ['noc'], actorIds: [], available: true }));
+    r.svc.engine.importData({ format: 'scenario-dir', path: DEV_FIXTURE, directory: { people: noc } });
+    const { investigationId } = await r.tool('kt_investigate', { text: TEXT, principal: AGENT });
+    const g0 = await r.tool('kt_list_gaps', { investigationId, principal: AGENT });
+    const gaps = g0.gaps.filter((x: { askable: boolean }) => x.askable);
+    assert.ok(gaps.length >= 1);
+    // The person the engine would ask first for the first gap has already answered three questions today.
+    const first = gaps[0].whoCouldAnswer.find((p: { askableNow: boolean }) => p.askableNow);
+    assert.ok(first, 'someone is askable before the seeding');
+    const x: string = first.personEntityId;
+    for (const h of ['08', '09', '10']) {
+      const at = `2026-11-07T${h}:00:00.000Z`;
+      r.svc.engine.store.put('question', {
+        id: `q-seed-${h}`, orgId: 'org', personEntityId: x, decisionId: `d-seed-${h}`, status: 'answered', createdAt: at, updatedAt: at, deliveredAt: at,
+        candidate: { id: `c-seed-${h}`, investigationId: 'inv-elsewhere', gapId: `gap-elsewhere-${h}`, kind: 'quick', text: 'Seeded earlier question?', dedupKey: `seed-${h}`, recipientIds: [x] },
+      } as any);
+    }
+    const g1 = await r.tool('kt_list_gaps', { investigationId, principal: AGENT });
+    for (const gap of g1.gaps) {
+      const them = gap.whoCouldAnswer.find((p: { personEntityId: string }) => p.personEntityId === x);
+      if (them) { assert.equal(them.askableNow, false); assert.ok(them.blockedBy.includes('budget')); }
+    }
+    const c = await r.tool('kt_request_clarification', { investigationId, gapIds: gaps.map((y: { id: string }) => y.id), principal: AGENT });
+    assert.ok(!c.questions.some((q: { personEntityId?: string }) => q.personEntityId === x), JSON.stringify(c.questions));
+    assert.ok(c.questions.some((q: { status: string }) => q.status === 'question-open'), 'someone else was asked');
+    for (const q of c.questions) if (q.status === 'deferred') assert.match(q.reason, /Nobody eligible|budget|limit/);
+    const theirs = r.svc.engine.store.list('question', { where: { personEntityId: x } });
+    assert.equal(theirs.filter((q) => q.deliveredAt?.startsWith('2026-11-07')).length, 3, 'still three: nothing more today');
   } finally {
     await r.close();
   }

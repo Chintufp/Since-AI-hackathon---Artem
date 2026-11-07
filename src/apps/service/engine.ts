@@ -693,9 +693,14 @@ export class Engine {
     const principal = this.effective(principalIn);
     const state0 = this.owned(investigationId, principal.id);
     const w = this.wiring();
-    if (opts.gapIds?.length) return this.requestBatch(state0, opts.gapIds, w);
+    if (opts.gapIds?.length) {
+      // Batch mode picks each gap's own best person: a single gap or a preferred person would be silently dropped (D-B7-14).
+      if (opts.gapId !== undefined || opts.preferPersonEntityId !== undefined) throw badRequest('gapIds (batch mode) cannot be combined with gapId or preferPersonEntityId: pass either gapIds, or gapId with an optional preferPersonEntityId');
+      return this.requestBatch(state0, opts.gapIds, w);
+    }
     const dir = w.directory;
     const pref = opts.preferPersonEntityId !== undefined ? (dir.resolve(opts.preferPersonEntityId) ?? opts.preferPersonEntityId) : undefined;
+    if (pref !== undefined && !dir.get(pref)) throw notFound(`Unknown person ${opts.preferPersonEntityId}: not in the directory (kt_find_people or kt_list_gaps list who could answer)`);
     if (opts.gapId !== undefined) {
       const gap = state0.gaps.find((g) => g.id === opts.gapId);
       if (!gap) throw notFound(`Unknown gap ${opts.gapId} in investigation ${investigationId}`);
@@ -730,7 +735,15 @@ export class Engine {
       const held = q.status === 'queued' && q.deliverAfter ? ` It is held by quiet hours until ${q.deliverAfter} (${r.state.loopReason ?? 'nobody is woken at night'}).` : '';
       const other = (opts.gapId && q.candidate.gapId !== opts.gapId) || (pref && q.personEntityId !== pref)
         ? ' This is the question already open for this investigation (one at a time); cancel it with kt_cancel_clarification to ask another, or use gapIds for several gaps at once.' : '';
-      return { state: r.state, question: q, status: 'question-open', reason: `Question ${q.id} is ${q.status}.${held}${other}` };
+      // The preference was not used because a question is already open: still say whether that person could be asked (D-B7-14).
+      let prefNote = '';
+      if (pref && q.personEntityId !== pref) {
+        const p = await w.coordinator.plan(r.state, { ...(opts.gapId ? { gapId: opts.gapId } : {}), preferPersonEntityId: pref });
+        prefNote = p.preferred && !p.preferred.eligible
+          ? ` ${nameOf(pref)} cannot be asked about ${opts.gapId ? 'this gap' : 'any open gap'}: ${violationWords(p.preferred.violations).join('; ')}.`
+          : ` ${nameOf(pref)} could be asked once this question is answered or cancelled.`;
+      }
+      return { state: r.state, question: q, status: 'question-open', reason: `Question ${q.id} is ${q.status}.${held}${other}${prefNote}` };
     }
     const violations = [...new Set(r.eligibility.flatMap((e) => e.violations))];
     const why = r.decision?.reason ?? '';

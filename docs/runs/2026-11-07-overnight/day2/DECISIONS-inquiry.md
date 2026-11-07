@@ -162,3 +162,18 @@ meaning words is crude but closed and testable offline. Reversal: drop the list 
 the template with a model judge, or only accept wordings whose words are a permutation of the template's plus glue.
 Tests: tests/inquiry.test.ts (five inverted wordings rejected; five smuggled wordings rejected, a plain rewrite still
 accepted).
+
+## D-B7-14 · kt_request_clarification: no silent drops, no invented gates (review fixes)
+- `gapIds` together with `gapId` or `preferPersonEntityId` is a 400 (MCP tool error) instead of silently running batch
+  mode without them. Reason: batch mode picks each gap's own best person, so a preference has no single meaning there.
+  Reversal: honour the preference for the first gap it is eligible for.
+- An unknown `preferPersonEntityId` (neither resolvable nor in the directory) is a 404 "Unknown person", like an
+  unknown gapId, instead of a refusal listing gates of a person who does not exist.
+- When the investigation already has an open question and a preference names someone else, the result stays
+  `question-open` (the one-at-a-time rule and its reply are unchanged), and the reason now adds whether the preferred
+  person could be asked: "X cannot be asked about this gap: not a recipient ..." (a pure `plan()`, nothing written)
+  or "X could be asked once this question is answered or cancelled". Reversal: return 'refused' instead.
+- Tests: the refusal test covers all three; a new batch test seeds the first askable person with three questions
+  delivered today and shows kt_list_gaps marks them blocked by 'budget' and the batch never picks them (the older
+  batch assertion was vacuous, as the reviewers said). kt_propose_question by a principal that did not start the
+  investigation is rejected (tested).

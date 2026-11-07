@@ -52,9 +52,9 @@ export const COMPANION = {
   /** R33: leaving rolls out; returning / arriving hops in (each direction one constant). */
   LEAVE_MOTION: 'roll' as TravelMotion,
   RETURN_MOTION: 'hop' as TravelMotion,
-  /** R33: the hop act (16 fps, 18 frames) and its airborne frames 4..11, when he travels sideways. */
+  /** R33: the hop act (16 fps, 18 frames) and its airborne frames 4..10 (frame 11 = the touchdown squash: no sideways slide on the floor). */
   HOP_MS: 1125,
-  HOP_AIR_MS: [250, 750] as const,
+  HOP_AIR_MS: [250, 687.5] as const,
   /** R33: the longest single hop; a longer way in rolls first and hops the last stretch. */
   HOP_REACH_PX: 200,
   /** R33: the panel's own open spring (critically damped) for the make-room slide and the peek. */
@@ -68,6 +68,13 @@ export const COMPANION = {
   FIDGET_MIN_MS: 4 * 60 * 1000,
   FIDGET_MAX_MS: 8 * 60 * 1000,
   STORE_KEY: 'kt-companion.v1',
+  /**
+   * R33 (ux fix M2): a travel / slide / watcher / fall that gets no frame for this long is completed
+   * at once in its end state (frames starved: niced launch, occluded or hidden window).
+   */
+  FRAME_WATCHDOG_MS: 1000,
+  /** R33 (ux fix M2): on focus / visible / pageshow, a job whose last frame is older than this is completed. */
+  RESUME_STALE_MS: 250,
 } as const;
 
 /**
@@ -277,6 +284,8 @@ export interface Companion {
   panelClosed(): void;
   /** The unseen-question state may have changed (re-emits `kt-companion:state` when it did). */
   questionsChanged(): void;
+  /** Window focus / visible / pageshow: complete any motion whose frames stopped (ux fix M2). */
+  resume(): void;
   /** A question wants him (arrival / reminder); true when he goes (only from away). */
   arrive(id: string, kind: 'arrival' | 'reminder'): boolean;
   setFidgets(on: boolean): void;
@@ -309,6 +318,8 @@ export function createCompanion(deps: CompanionDeps): Companion {
   let homeFromRight = saved.homeFromRight;
   let side: Side = saved.awaySide ?? 'right';
   let fidgetsOn = saved.fidgets ?? flags.fidgets;
+  /** fidelity-05: only a Settings choice is stored; otherwise the FIDGETS flag stays the reversing switch. */
+  let fidgetsExplicit = saved.fidgets !== undefined;
 
   let W = 0;
   let H = 0;
@@ -335,6 +346,14 @@ export function createCompanion(deps: CompanionDeps): Companion {
   let lastAlive = clock.now();
   let lastState = { away: false, question: false };
   let destroyed = false;
+  /** A gesture cancelled internally (command / lock): the native pointerup + click that follow are swallowed. */
+  let swallowUp = false;
+  /** goHome() started from an edge state and has not called onReturn yet. */
+  let returningFromEdge = false;
+  /** Bumped on every release / catch: callbacks of an older fall are ignored. */
+  let fallToken = 0;
+  let fallStepAt = 0;
+  let fallForce: (() => void) | null = null;
 
   interface Gesture { x0: number; y0: number; t0: number; bodyX0: number; lift0: number; from: CompanionState; lastX: number; gaze: -1 | 0 | 1; happy: boolean; pointerX: number }
   let gesture: Gesture | null = null;
@@ -363,60 +382,116 @@ export function createCompanion(deps: CompanionDeps): Companion {
 
   let animId = 0;
   let animKind: string | null = null;
+  /** The running rAF job: `finish` puts the end state (position) in place when its frames stop. */
+  interface Job { finish: () => void; done?: () => void }
+  let job: Job | null = null;
+  let lastTick = clock.now();
+  const watchers = new Map<string, { id: number; then: () => void }>();
+  /**
+   * ux fix M2: a frame watchdog, armed while a job or watcher runs and re-armed on every frame. When
+   * no rAF tick arrives for FRAME_WATCHDOG_MS (a starved / suspended renderer) everything pending is
+   * completed at once in its end state, like the reduced-motion paths.
+   */
+  const armWatchdog = (): void => {
+    lastTick = clock.now();
+    timer('frame-watchdog', COMPANION.FRAME_WATCHDOG_MS, flush);
+  };
+  const syncWatchdog = (): void => {
+    if (!job && watchers.size === 0) clear('frame-watchdog');
+  };
   const stopAnim = (): void => {
     if (animId) raf.cancel(animId);
     animId = 0;
     animKind = null;
+    job = null;
+    syncWatchdog();
   };
-  /** One rAF job at a time: `step(elapsedMs)` returns true when done. */
-  const animate = (kind: string, step: (elapsed: number, dt: number) => boolean, done?: () => void): void => {
+  /** One rAF job at a time: `step(elapsedMs)` returns true when done; `finish` jumps to its end (watchdog). */
+  const animate = (kind: string, step: (elapsed: number, dt: number) => boolean, done?: () => void, finish: () => void = () => {}): void => {
     stopAnim();
     animKind = kind;
+    const j: Job = { finish, done };
+    job = j;
     let t0: number | undefined;
     let prev: number | undefined;
     const frame = (t: number): void => {
       animId = 0;
-      if (destroyed) return;
+      if (destroyed || job !== j) return;
       t0 ??= t;
       const dt = prev === undefined ? 1 / 60 : Math.min(0.032, Math.max(0, (t - prev) / 1000));
       prev = t;
       if (step(t - t0, dt)) {
+        job = null;
         animKind = null;
+        syncWatchdog();
         done?.();
         return;
       }
+      armWatchdog();
       animId = raf.request(frame);
     };
+    armWatchdog();
     animId = raf.request(frame);
   };
   // Independent watchers ('launch' end, 'panel' spring settle): poll once per frame only while they run.
-  const watchers = new Map<string, number>();
   const watch = (name: string, until: () => boolean, then: () => void): void => {
     stopWatch(name);
     const frame = (): void => {
       watchers.delete(name);
       if (destroyed) return;
       if (until()) {
+        syncWatchdog();
         then();
         return;
       }
-      watchers.set(name, raf.request(frame));
+      watchers.set(name, { id: raf.request(frame), then });
+      armWatchdog();
     };
-    watchers.set(name, raf.request(frame));
+    watchers.set(name, { id: raf.request(frame), then });
+    armWatchdog();
   };
   const stopWatch = (...names: string[]): void => {
     for (const n of names.length ? names : [...watchers.keys()]) {
-      const id = watchers.get(n);
-      if (id) raf.cancel(id);
+      const w = watchers.get(n);
+      if (w) raf.cancel(w.id);
       watchers.delete(n);
     }
+    syncWatchdog();
   };
+  /** ux fix M2: complete the running job (and any job its `done` chains) and every watcher now. */
+  function flush(): void {
+    clear('frame-watchdog');
+    for (let n = 0; n < 16 && !destroyed && (job || watchers.size > 0); n++) {
+      const j = job;
+      if (j) {
+        if (animId) raf.cancel(animId);
+        animId = 0;
+        animKind = null;
+        job = null;
+        j.finish();
+        j.done?.();
+        continue;
+      }
+      const [name, w] = [...watchers][0]!;
+      raf.cancel(w.id);
+      watchers.delete(name);
+      w.then();
+    }
+    syncWatchdog();
+  }
+  /** ux fix M2: focus / visible / pageshow: whatever stopped getting frames completes now. */
+  function resume(): void {
+    if (destroyed) return;
+    const now = clock.now();
+    if ((job || watchers.size > 0) && now - lastTick > COMPANION.RESUME_STALE_MS) flush();
+    if (fallForce && st === 'airborne' && now - fallStepAt > COMPANION.RESUME_STALE_MS) fallForce();
+  }
 
   // ---- geometry and output ----
   const homeX = (): number => homeXFor(W, homeFromRight);
   const persist = (): void => {
     try {
-      deps.storage?.setItem(COMPANION.STORE_KEY, JSON.stringify({ version: 1, homeFromRight, awaySide: AWAY_STATES.has(st) ? side : null, fidgets: fidgetsOn } satisfies Placement));
+      deps.storage?.setItem(COMPANION.STORE_KEY, JSON.stringify({ version: 1, homeFromRight, awaySide: AWAY_STATES.has(st) ? side : null, ...(fidgetsExplicit ? { fidgets: fidgetsOn } : {}) } satisfies Placement));
     } catch {
       /* optional */
     }
@@ -431,6 +506,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
   };
   const isAway = (): boolean => AWAY_STATES.has(st);
   const emitState = (): void => {
+    if (destroyed) return;
     const next = { away: isAway(), question: panel.hasQuestion() };
     if (next.away === lastState.away && next.question === lastState.question) return;
     lastState = next;
@@ -456,6 +532,13 @@ export function createCompanion(deps: CompanionDeps): Companion {
     const g = deps.reduced() || !flags.gaze ? 0 : gaze;
     return g ? { gaze: g, view: g > 0 ? 'quarter' : 'front' } : {};
   };
+  /**
+   * ux fix M3 (R33 deviation): the authored question glyph sits right of his body, so on the RIGHT
+   * sliver it would be outside the window. That one still (tucked at the right edge) draws the
+   * authored glyph rects mirrored to the left of the body; the glyph is shown only while a question
+   * is unseen (the avatar's hasQuestion), every other still keeps the authored place.
+   */
+  const awaySpec = (): HeldSpec => (side === 'right' ? { ...heldSpec(), glyphSide: 'left' } : heldSpec());
 
   // ---- leave timer (R33: LEAVE_AFTER_IDLE_MS without interaction; launch uses its own delay) ----
   const canLeave = (): boolean => awayOn && st === 'in' && !panel.isOpen() && !gesture && !pointerNear;
@@ -502,7 +585,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
       avatar.pose({ kind: 'roll', turn: r.turn });
       place(from + r.x, 0);
       return r.done;
-    }, done);
+    }, done, () => place(to, 0));
   }
   /** One hop (the authored act on the drop surface) carrying him sideways during its airborne frames. */
   function hop(to: number, done: () => void): void {
@@ -518,7 +601,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
       const p = clamp((ms - a) / (b - a), 0, 1);
       place(from + (to - from) * p * p * (3 - 2 * p), 0);
       return ms >= COMPANION.HOP_MS;
-    }, done);
+    }, done, () => place(to, 0));
   }
   function travel(to: number, motion: TravelMotion, done: () => void): void {
     if (motion === 'roll' || deps.reduced()) {
@@ -553,7 +636,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
       }
       place(x, 0);
       return false;
-    }, done);
+    }, done, () => place(to, 0));
   }
   /** Two-frame settle (crouch, low) moving to `to`, then `done`. */
   function tuck(to: number, done: () => void): void {
@@ -576,7 +659,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
         place(i === 0 ? from + (to - from) / 2 : to, 0);
       }
       return false;
-    }, done);
+    }, done, () => place(to, 0));
   }
 
   // ---- leaving / away / returning ----
@@ -587,7 +670,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
     setState('away');
     pointerNear = nearNow();
     peekArmed = !pointerNear;
-    avatar.hold(heldSpec());
+    avatar.hold(awaySpec());
   }
   function leave(to: Side = nearerSide(bodyX, W)): void {
     if (!awayOn || destroyed) return;
@@ -610,17 +693,21 @@ export function createCompanion(deps: CompanionDeps): Companion {
   function goHome(options: { hello?: boolean; open?: boolean } = {}): void {
     clear('idle', 'dwell', 'retreat', 'perch');
     stopWatch('launch', 'panel');
-    const fromEdge = EDGE_STATES.has(st);
+    const fromEdge = EDGE_STATES.has(st) && (st !== 'returning' || returningFromEdge);
+    returningFromEdge = fromEdge;
     setState('returning');
     avatar.hold(null);
     const finish = (): void => {
       setState('in');
       if (options.hello !== false) avatar.play('hello');
-      if (fromEdge) deps.onReturn?.();
+      if (returningFromEdge) {
+        returningFromEdge = false;
+        deps.onReturn?.();
+      }
       if (options.open && !panel.isOpen()) panel.open();
       syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
     };
-    travel(panel.isOpen() ? roomX(homeX(), W) : homeX(), COMPANION.RETURN_MOTION, finish);
+    travel(panel.isOpen() || options.open ? roomX(homeX(), W) : homeX(), COMPANION.RETURN_MOTION, finish);
   }
   function peek(): void {
     clear('retreat');
@@ -717,9 +804,12 @@ export function createCompanion(deps: CompanionDeps): Companion {
     if (destroyed) return false;
     const caught = st === 'airborne';
     const from = st;
-    clear('idle', 'gaze', 'dwell', 'retreat', 'happy', 'perch');
+    clear('idle', 'gaze', 'dwell', 'retreat', 'happy', 'perch', 'fall');
     stopAnim();
     stopWatch('launch');
+    swallowUp = false;
+    fallToken++;
+    fallForce = null;
     const l = caught ? lift : 0;
     gesture = { x0: x, y0: y, t0: clock.now(), bodyX0: bodyX, lift0: l, from, lastX: x, gaze: 0, happy: false, pointerX: x };
     if (caught) {
@@ -776,12 +866,20 @@ export function createCompanion(deps: CompanionDeps): Companion {
       case 'perched':
       case 'arriving':
         // A click on him at the perch is a request: open (make-room brings him in with the hop).
+        // fidelity-03: when his spot is farther than one hop, he travels in first and the panel opens on arrival.
         st = from;
         if (panel.isOpen()) goHome({ hello: true });
+        else if (Math.abs(roomX(homeX(), W) - bodyX) > COMPANION.HOP_REACH_PX) goHome({ hello: true, open: true });
         else panel.open();
         return;
       default: {
+        pointerNear = nearNow();
         setState('in');
+        if (returningFromEdge) {
+          // statemachine-makeroom-skips-onreturn: the press cut goHome's finish; still refresh on return.
+          returningFromEdge = false;
+          deps.onReturn?.();
+        }
         panel.toggle();
         // make-room plays the hop while it slides; otherwise the tap continues from frame 2.
         if (animKind !== 'room') avatar.run('click', 2);
@@ -802,27 +900,72 @@ export function createCompanion(deps: CompanionDeps): Companion {
     }
     st = 'airborne';
     emitState();
+    // statemachine-fall-onsettled-dropped / ux fix M2: the fall is the avatar's; a 'fall' guard re-armed on
+    // every step completes it on the floor when its steps stop (frames starved, or a panel reaction cut it).
+    const token = ++fallToken;
+    let over = false;
+    let landing = '';
+    const live = (): boolean => !over && token === fallToken && !destroyed;
     const settled = (): void => {
+      if (!live()) return;
+      over = true;
+      fallForce = null;
+      clear('fall');
       if (st !== 'landing' && st !== 'airborne') return;
+      if (lift > 0) place(bodyX, 0);
       if (pushed) {
         st = 'in';
         leave(pushed);
         return;
       }
+      pointerNear = nearNow();
       setState('in');
       if (panel.isOpen()) makeRoom();
       syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
     };
+    const signature = (): string => {
+      const a = avatar.status();
+      return a.reactionPlaying ? `${a.mode}:${a.lastFrame}` : '';
+    };
+    const guard = (): void => {
+      if (!live()) return;
+      // On the floor a landing act may still be drawing: wait while its frames advance.
+      const now = signature();
+      if (st === 'landing' && now && now !== landing) {
+        landing = now;
+        timer('fall', COMPANION.FRAME_WATCHDOG_MS, guard);
+        return;
+      }
+      settled();
+    };
+    const tick = (): void => {
+      fallStepAt = clock.now();
+      timer('fall', COMPANION.FRAME_WATCHDOG_MS, guard);
+    };
+    fallForce = settled;
+    tick();
     avatar.fallFrom(lift, () => {
+      if (!live()) return;
+      tick();
+      landing = signature();
       if (st === 'airborne') st = 'landing';
     }, {
-      onStep: (l) => place(bodyX, l),
+      onStep: (l) => {
+        if (!live()) return;
+        tick();
+        place(bodyX, l);
+      },
       onSettled: settled,
     });
   }
   function pointerUp(_x: number, _y: number): boolean {
     const g = gesture;
-    if (!g) return false;
+    if (!g) {
+      // statemachine-internal-cancel-no-click-suppress: a command / lock cancelled this press; swallow its click.
+      const swallow = swallowUp;
+      swallowUp = false;
+      return swallow;
+    }
     if (st === 'pressed') {
       gesture = null;
       click(g.from);
@@ -846,10 +989,15 @@ export function createCompanion(deps: CompanionDeps): Companion {
     }
     gesture = null;
     // Pressed and cancelled: back to where he was.
-    if (AWAY_STATES.has(g.from)) {
+    if (g.from === 'perched' || g.from === 'arriving') {
+      // statemachine-cancel-consumes-arrival: back on the perch with the glyph and a fresh wait (the act is not replayed).
+      st = 'arriving';
+      atPerch(false);
+    } else if (AWAY_STATES.has(g.from)) {
       toAway();
     } else {
       st = 'in';
+      pointerNear = nearNow();
       avatar.run('click', 2);
       syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
     }
@@ -861,15 +1009,25 @@ export function createCompanion(deps: CompanionDeps): Companion {
   function makeRoom(): boolean {
     if (destroyed || gesture) return false;
     clear('idle', 'dwell', 'retreat', 'perch');
-    const edge = EDGE_STATES.has(st) || st === 'launching';
-    const base = edge && st !== 'launching' ? homeX() : bodyX;
-    const to = roomX(base, W);
-    if (edge && st !== 'launching') {
+    const fromEdge = EDGE_STATES.has(st);
+    const to = roomX(fromEdge ? homeX() : bodyX, W);
+    if (fromEdge) {
       stopAnim();
       avatar.hold(null);
-      const wasEdge = st !== 'returning';
+      const refresh = st !== 'returning' || returningFromEdge;
+      returningFromEdge = false;
+      if (Math.abs(to - bodyX) > COMPANION.HOP_REACH_PX) {
+        // fidelity-03: farther than one hop he travels in (roll, then the last hop), never the spring zip.
+        setState('returning');
+        travel(to, COMPANION.RETURN_MOTION, () => {
+          setState('in');
+          syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
+        });
+        if (refresh) deps.onReturn?.();
+        return true;
+      }
       setState('in');
-      if (wasEdge) deps.onReturn?.();
+      if (refresh) deps.onReturn?.();
     }
     if (st === 'airborne' || st === 'landing') return false;
     if (Math.abs(to - bodyX) < 0.5 && lift === 0) return false;
@@ -889,6 +1047,9 @@ export function createCompanion(deps: CompanionDeps): Companion {
       if (Math.abs(bodyX - home) >= 1) {
         setState('returning');
         roll(home, () => {
+          // statemachine-roll-home-leaves-roll-pose: hand the roll pose back (hello, then the base mode;
+          // run() keeps a processing base, unlike rest()).
+          avatar.run('hello');
           setState('in');
           syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
         });
@@ -900,14 +1061,14 @@ export function createCompanion(deps: CompanionDeps): Companion {
   }
 
   // ---- questions ----
-  function atPerch(): void {
+  function atPerch(act = true): void {
     if (st !== 'arriving') return;
     stopAnim();
     place(perchX(side, W), 0);
     st = 'perched';
     emitState();
     avatar.hold({ question: true });
-    if (!deps.reduced()) avatar.run('question');
+    if (act && !deps.reduced()) avatar.run('question');
     timer('perch', COMPANION.PERCH_WAIT_MS, () => {
       if (st !== 'perched') return;
       if (perchedId) deps.onIgnored?.(perchedId);
@@ -926,9 +1087,14 @@ export function createCompanion(deps: CompanionDeps): Companion {
   }
 
   // ---- commands, power, area ----
+  function cancelInternally(): void {
+    if (!gesture) return;
+    pointerCancel();
+    swallowUp = true;
+  }
   function command(c: CompanionCommand): void {
     if (destroyed) return;
-    if (gesture) pointerCancel();
+    cancelInternally();
     const away = isAway();
     if (c === 'reset-position') {
       homeFromRight = GEOMETRY.HOME_FROM_RIGHT;
@@ -949,7 +1115,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
   function power(e: CompanionPower): void {
     if (e === 'lock-screen') {
       lockedAt = clock.now();
-      if (gesture) pointerCancel();
+      cancelInternally();
       return;
     }
     const since = lockedAt ?? lastAlive;
@@ -980,6 +1146,10 @@ export function createCompanion(deps: CompanionDeps): Companion {
         stopAnim();
         place(homeX(), 0);
         setState('in');
+        if (returningFromEdge) {
+          returningFromEdge = false;
+          deps.onReturn?.();
+        }
         break;
       default: {
         const x = panel.isOpen() ? roomX(homeX(), W) : homeX();
@@ -1012,9 +1182,11 @@ export function createCompanion(deps: CompanionDeps): Companion {
     panelOpened,
     panelClosed,
     questionsChanged: emitState,
+    resume,
     arrive,
     setFidgets(on) {
       fidgetsOn = on;
+      fidgetsExplicit = true;
       persist();
       armFidget();
     },
@@ -1035,6 +1207,8 @@ export function createCompanion(deps: CompanionDeps): Companion {
       question: perchedId,
     }),
     destroy() {
+      if (destroyed) return;
+      if (gesture || st === 'carried') render.carried(false);
       destroyed = true;
       clearAll();
       stopAnim();
@@ -1101,7 +1275,18 @@ export function attachCompanion(c: Companion, { root, avatarButton, win }: Compa
   const onLeave = (): void => c.pointer(null);
   const onContext = (e: MouseEvent): void => {
     e.preventDefault();
+    // statemachine-gesture-survives-blur-and-contextmenu: a ctrl-click press ends here (the menu takes the mouseup).
+    if (c.pointerCancel()) armSuppress();
     c.contextMenu();
+  };
+  // The window lost focus mid-gesture (main forces click-through on blur): end the gesture.
+  const onBlur = (): void => {
+    if (c.pointerCancel()) armSuppress();
+  };
+  // ux fix M2: frames come back (or never stopped): complete whatever stopped getting them.
+  const onResume = (): void => c.resume();
+  const onVisibility = (): void => {
+    if (doc.visibilityState === 'visible') c.resume();
   };
   const onCommand = (e: Event): void => {
     const command = (e as CustomEvent<{ command?: unknown } | undefined>).detail?.command;
@@ -1126,6 +1311,10 @@ export function attachCompanion(c: Companion, { root, avatarButton, win }: Compa
   win.addEventListener('kt-power', onPower);
   win.addEventListener('kt-area', onArea);
   win.addEventListener('resize', onArea);
+  win.addEventListener('blur', onBlur);
+  win.addEventListener('focus', onResume);
+  win.addEventListener('pageshow', onResume);
+  doc.addEventListener('visibilitychange', onVisibility);
   return () => {
     if (suppressTimer) clearTimeout(suppressTimer);
     avatarButton.removeEventListener('pointerdown', onDown);
@@ -1141,5 +1330,9 @@ export function attachCompanion(c: Companion, { root, avatarButton, win }: Compa
     win.removeEventListener('kt-power', onPower);
     win.removeEventListener('kt-area', onArea);
     win.removeEventListener('resize', onArea);
+    win.removeEventListener('blur', onBlur);
+    win.removeEventListener('focus', onResume);
+    win.removeEventListener('pageshow', onResume);
+    doc.removeEventListener('visibilitychange', onVisibility);
   };
 }

@@ -179,3 +179,52 @@ test('question watch: wake refreshes at once; a reminder only after >= 20 min aw
   t.w.handle(['q1']);
   assert.equal(t.arrivals.length, 2, 'one reminder per id');
 });
+
+// ---- ux fixes ----
+
+test('prune never forgets an id that is still open (no second arrival)', () => {
+  let now = 0;
+  const a = createAttention({ now: () => now });
+  a.observe(['old']);
+  a.markAnnounced('old');
+  for (let i = 0; i < ATTENTION.MAX_IDS + 10; i++) {
+    now++;
+    a.observe(['old', 'q' + i]);
+  }
+  assert.ok(a.get('old')?.announced !== undefined, 'the oldest open id keeps its mark');
+  assert.equal(a.nextArrival(['old']), null);
+  assert.equal(a.get('q0'), undefined, 'closed ids are dropped instead');
+});
+
+test('question watch: a reminder he refuses stays armed for the next refresh', () => {
+  const t = watchSetup();
+  t.w.handle(['q1']); // arrival
+  t.w.wake('unlock-screen', ATTENTION.REMIND_AFTER_AWAY_MS);
+  t.ui.accept = false; // he is in / peeking / mid-roll
+  t.w.handle(['q1']);
+  assert.deepEqual(t.arrivals.at(-1), ['q1', 'reminder']);
+  assert.equal(t.w.status().pendingReminder, true, 'not consumed');
+  assert.equal(t.attention.get('q1')?.reminded, undefined);
+  t.ui.accept = true;
+  t.w.handle(['q1']);
+  assert.ok(t.attention.get('q1')?.reminded !== undefined);
+  assert.equal(t.w.status().pendingReminder, false);
+  t.w.wake('unlock-screen', ATTENTION.REMIND_AFTER_AWAY_MS);
+  t.w.handle([]);
+  assert.equal(t.w.status().pendingReminder, false, 'nothing left to remind: disarmed');
+});
+
+test('question watch: hidden window: wake does not refresh and no arrival is used up', () => {
+  const t = watchSetup({ hidden: true });
+  t.w.wake('unlock-screen', ATTENTION.REMIND_AFTER_AWAY_MS);
+  assert.equal(t.refreshes, 0);
+  assert.equal(t.w.status().pendingReminder, true, 'armed for the refresh on show');
+  t.w.handle(['q1']);
+  assert.deepEqual(t.arrivals, []);
+  assert.equal(t.attention.get('q1')?.announced, undefined);
+  t.ui.hidden = false;
+  t.w.wake('show');
+  assert.equal(t.refreshes, 1);
+  t.w.handle(['q1']);
+  assert.deepEqual(t.arrivals, [['q1', 'arrival']]);
+});

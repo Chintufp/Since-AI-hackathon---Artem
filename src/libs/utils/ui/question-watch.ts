@@ -76,11 +76,15 @@ export function createQuestionWatch(o: QuestionWatchOptions): QuestionWatch {
     wake(reason, awayForMs = 0) {
       if (destroyed) return;
       if ((reason === 'resume' || reason === 'unlock-screen') && awayForMs >= ATTENTION.REMIND_AFTER_AWAY_MS) pendingReminder = true;
+      // shell-05: hidden ("Hide completely"): no refresh; the reminder stays armed for the refresh on show.
+      if (o.hidden()) return;
       void o.refresh();
     },
     handle(ids) {
       if (destroyed) return;
       o.attention.observe(ids);
+      // shell-05: nobody can see an arrival while hidden; it must not use up the id's one arrival.
+      if (o.hidden()) return;
       const arrival = o.attention.nextArrival(ids);
       if (arrival) {
         if (o.arrive(arrival, 'arrival')) o.attention.markAnnounced(arrival);
@@ -88,8 +92,12 @@ export function createQuestionWatch(o: QuestionWatchOptions): QuestionWatch {
       }
       if (!pendingReminder) return;
       const reminder = o.attention.nextReminder(ids);
-      pendingReminder = false;
-      if (reminder && o.arrive(reminder, 'reminder')) o.attention.markReminded(reminder);
+      // statemachine-reminder-dropped-when-refused: keep it armed until he actually goes (or nothing is left to remind).
+      if (!reminder) pendingReminder = false;
+      else if (o.arrive(reminder, 'reminder')) {
+        o.attention.markReminded(reminder);
+        pendingReminder = false;
+      }
     },
     status: () => ({ polling: timer !== null, pendingReminder, polls }),
     destroy() {

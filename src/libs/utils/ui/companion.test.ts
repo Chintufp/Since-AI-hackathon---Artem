@@ -8,10 +8,10 @@ import type { ActKey, AvatarStatus, CompanionAvatar, FallOptions, PoseSpec } fro
 import type { HeldSpec, LookView } from '../motion/poses.ts';
 import type { LandingTier } from '../motion/physics.ts';
 import {
-  COMPANION, GEOMETRY, carrierTransform, classifyGesture, createCompanion, homeXFor, inEdgeZone, loadPlacement, nearBody,
+  COMPANION, GEOMETRY, attachCompanion, carrierTransform, classifyGesture, createCompanion, homeXFor, inEdgeZone, loadPlacement, nearBody,
   nextGaze, perchX, pushedSide, roomX, sliverX,
 } from './companion.ts';
-import type { CompanionFlags } from './companion.ts';
+import type { Companion, CompanionFlags } from './companion.ts';
 
 const W = 1512;
 const H = 872;
@@ -44,7 +44,17 @@ function fakeEnv() {
       for (const [, cb] of round) cb(now);
     }
   };
-  return { clock, raf, advance, timers, rafs, get rafCount() { return rafCount; }, get now() { return now; } };
+  /** Advance only the clock (timers run, rAF callbacks never do): a starved / suspended renderer. */
+  const starve = (ms: number): void => {
+    const end = now + ms;
+    while (now < end) {
+      now = Math.min(end, now + 16);
+      for (const [id, t] of [...timers].sort((a, b) => a[1].at - b[1].at)) {
+        if (t.at <= now && timers.has(id)) { timers.delete(id); t.fn(); }
+      }
+    }
+  };
+  return { clock, raf, advance, starve, timers, rafs, get rafCount() { return rafCount; }, get now() { return now; } };
 }
 
 class FakeAvatar implements CompanionAvatar {
@@ -231,7 +241,7 @@ test('launch: carrier at home before the entrance, D0 = window height, "in" afte
   assert.equal(s.bodyX, sliverX('right', W));
   assert.ok(t.avatar.calls.some((x) => x === 'pose:roll'), 'rolled');
   assert.ok(t.avatar.calls.includes('pose:settle0') && t.avatar.calls.includes('pose:settle1'), '2-frame tuck');
-  assert.equal(t.avatar.calls.at(-1), 'hold:{}');
+  assert.equal(t.avatar.calls.at(-1), 'hold:{"glyphSide":"left"}', 'right sliver: the glyph (if any) is mirrored inside the window');
   assert.equal(s.rafActive, false, 'no rAF while away');
   assert.deepEqual(s.timers, [], 'no timers while away');
   assert.deepEqual(t.states().at(-1), { away: true, question: false });
@@ -668,7 +678,7 @@ test('pointer cancel during a press restores the state; during a carry it drops 
   t.c.pointerDown(W - 5, H - 40);
   assert.equal(t.c.pointerCancel(), true);
   assert.equal(t.c.status().state, 'away');
-  assert.equal(t.avatar.calls.at(-1), 'hold:{}');
+  assert.equal(t.avatar.calls.at(-1), 'hold:{"glyphSide":"left"}');
 
   const u = setup();
   u.c.start();
@@ -688,4 +698,332 @@ test('every carrier move dispatches kt-companion:moved; nothing runs after destr
   t.env.advance(10000);
   assert.equal(t.env.rafs.size, 0);
   assert.equal(t.env.timers.size, 0);
+});
+
+// ---- ux fixes ----
+
+test('M2 watchdog: a leave whose frames stop completes at the sliver after FRAME_WATCHDOG_MS', () => {
+  const t = setup();
+  t.c.start();
+  t.env.advance(32);
+  t.c.command('away');
+  t.env.advance(48); // a few frames of the roll, then rAF stops (niced launch / occluded window)
+  assert.equal(t.c.status().state, 'leaving');
+  assert.equal(t.avatar.mode, 'pose:roll', 'frozen mid-roll');
+  t.env.starve(COMPANION.FRAME_WATCHDOG_MS - 100);
+  assert.equal(t.c.status().state, 'leaving', 'not before the watchdog');
+  t.env.starve(200);
+  const s = t.c.status();
+  assert.equal(s.state, 'away');
+  assert.equal(s.bodyX, sliverX('right', W));
+  assert.equal(s.rafActive, false);
+  assert.deepEqual(s.timers, []);
+  assert.equal(t.avatar.calls.at(-1), 'hold:{"glyphSide":"left"}', 'held still, not the roll pose');
+  assert.equal(t.env.rafs.size, 0, 'the pending rAF was cancelled');
+});
+
+test('M2 watchdog: returning, arriving, peeking and make-room slides complete in their end states', () => {
+  // returning (roll + hop chain)
+  const r = setup({ stored: JSON.stringify({ version: 1, homeFromRight: 900, awaySide: 'right' }) });
+  launchedAway(r);
+  r.c.command('return');
+  r.env.advance(32);
+  r.env.starve(COMPANION.FRAME_WATCHDOG_MS + 50);
+  assert.equal(r.c.status().state, 'in');
+  assert.equal(r.c.status().bodyX, W - 900);
+  assert.equal(r.avatar.calls.at(-1), 'play:hello');
+  assert.equal(r.c.status().rafActive, false);
+  assert.equal(r.hooks.returned, 1);
+
+  // arriving -> perched with the question
+  const a = launchedAway();
+  a.c.arrive('q1', 'arrival');
+  a.env.starve(COMPANION.FRAME_WATCHDOG_MS + 50);
+  assert.equal(a.c.status().state, 'perched');
+  assert.equal(a.c.status().bodyX, perchX('right', W));
+  assert.deepEqual(a.c.status().timers, ['perch']);
+
+  // peeking slide -> at the perch
+  const p = launchedAway();
+  p.c.pointer(W - 120, H - 50);
+  assert.equal(p.c.status().anim, 'peek');
+  p.env.starve(COMPANION.PEEK_DWELL_MS - 50);
+  p.c.pointer(200, 200); // the pointer leaves before the dwell
+  p.env.starve(COMPANION.FRAME_WATCHDOG_MS);
+  assert.equal(p.c.status().anim, null);
+  assert.equal(p.c.status().bodyX, perchX('right', W));
+
+  // make-room slide (the dt-clamped spring cannot finish by itself without frames)
+  const m = setup({ stored: JSON.stringify({ version: 1, homeFromRight: W - 100, awaySide: null }) });
+  m.c.start();
+  m.env.advance(32);
+  m.c.pointerDown(100, H - 40);
+  m.c.pointerUp(100, H - 40);
+  assert.equal(m.c.status().anim, 'room');
+  m.env.starve(COMPANION.FRAME_WATCHDOG_MS + 50);
+  assert.equal(m.c.status().bodyX, 345);
+  assert.equal(m.c.status().anim, null);
+});
+
+test('M2 watchdog: frames that keep coming never trip it; a launch watcher with no frames completes', () => {
+  const t = setup();
+  t.c.start();
+  t.env.advance(32);
+  t.c.command('away');
+  let sawWatchdog = false;
+  for (let i = 0; i < 100; i++) { t.env.advance(16); if (t.c.status().timers.includes('frame-watchdog')) sawWatchdog = true; }
+  assert.ok(sawWatchdog, 'armed while the roll runs');
+  assert.equal(t.c.status().state, 'away');
+  assert.deepEqual(t.c.status().timers, [], 'cleared on completion');
+
+  const l = setup();
+  l.c.start();
+  l.avatar.playEntranceThenRest();
+  l.env.starve(COMPANION.FRAME_WATCHDOG_MS + 50);
+  assert.equal(l.c.status().state, 'in', 'launch watcher completed');
+  assert.equal(l.c.status().rafActive, false);
+});
+
+test('M2 resume: focus / visible / pageshow complete a job whose frames are stale, not a running one', () => {
+  const t = setup();
+  t.c.start();
+  t.env.advance(32);
+  t.c.command('away');
+  t.env.advance(48);
+  t.c.resume();
+  assert.equal(t.c.status().state, 'leaving', 'frames are fresh: keeps rolling');
+  t.env.starve(COMPANION.RESUME_STALE_MS + 50);
+  t.c.resume();
+  assert.equal(t.c.status().state, 'away');
+  assert.equal(t.c.status().bodyX, sliverX('right', W));
+});
+
+test('M2 + fall: a fall whose steps stop (or a panel reaction that cut it) lands him on the floor, "in"', () => {
+  const t = setup();
+  t.c.start();
+  t.env.advance(32);
+  t.c.pointerDown(800, H - 40);
+  t.c.pointerMove(800, H - 340);
+  t.c.pointerUp(800, H - 340);
+  t.avatar.fall!.options.onStep!(200);
+  t.avatar.play('result'); // the real avatar drops the pending fall here: no more steps, no onSettled
+  assert.equal(t.c.status().state, 'airborne');
+  t.env.starve(COMPANION.FRAME_WATCHDOG_MS + 50);
+  const s = t.c.status();
+  assert.equal(s.state, 'in');
+  assert.equal(s.lift, 0);
+  assert.deepEqual(t.carrier.at(-1), carrierTransform(s.bodyX, 0, 2), 'carrier on the floor');
+  assert.deepEqual(s.timers, ['idle']);
+  // a late step / settle from the abandoned fall changes nothing
+  t.avatar.fall!.options.onStep!(120);
+  assert.equal(t.c.status().lift, 0);
+
+  // landing: the act is still drawing (frames advance) -> wait; it stops -> settle
+  const u = setup();
+  u.c.start();
+  u.env.advance(32);
+  u.c.pointerDown(800, H - 40);
+  u.c.pointerMove(800, H - 340);
+  u.c.pointerUp(800, H - 340);
+  const f = u.avatar.fall!;
+  f.options.onStep!(0);
+  u.avatar.reaction = true;
+  u.avatar.mode = 'hop';
+  f.onLand!('hop');
+  assert.equal(u.c.status().state, 'landing');
+  u.avatar.mode = 'hop:12'; // the landing act advanced
+  u.env.starve(COMPANION.FRAME_WATCHDOG_MS + 50);
+  assert.equal(u.c.status().state, 'landing', 'still drawing');
+  u.env.starve(COMPANION.FRAME_WATCHDOG_MS + 50);
+  assert.equal(u.c.status().state, 'in', 'frames stopped');
+  f.options.onSettled!();
+  assert.equal(u.c.status().state, 'in', 'onSettled after the guard is a no-op');
+});
+
+test('M3: tucked at the right edge the held still asks for the glyph on the left; the left sliver keeps the authored place', () => {
+  const t = launchedAway();
+  t.ui.question = true;
+  t.c.questionsChanged();
+  assert.equal(t.c.arrive('q1', 'arrival'), true);
+  t.env.advance(COMPANION.HOP_MS + 100);
+  assert.equal(t.avatar.calls.includes('hold:{"question":true}'), true, 'perch: authored place (whole canvas inside)');
+  t.env.advance(COMPANION.PERCH_WAIT_MS + 500);
+  assert.equal(t.c.status().state, 'away');
+  assert.equal(t.avatar.calls.at(-1), 'hold:{"glyphSide":"left"}', 'right sliver: mirrored glyph');
+
+  const u = setup({ stored: JSON.stringify({ version: 1, homeFromRight: W - 200, awaySide: null }) });
+  launchedAway(u);
+  assert.equal(u.c.status().side, 'left');
+  assert.equal(u.avatar.calls.at(-1), 'hold:{}', 'left sliver: authored glyph place is inside');
+});
+
+test('roll back home after make-room hands the roll pose back (statemachine-roll-home-leaves-roll-pose)', () => {
+  const t = setup({ stored: JSON.stringify({ version: 1, homeFromRight: W - 100, awaySide: null }) });
+  t.c.start();
+  t.env.advance(32);
+  t.c.pointerDown(100, H - 40);
+  t.c.pointerUp(100, H - 40);
+  t.env.advance(600);
+  t.ui.open = false;
+  t.c.panelClosed();
+  t.env.advance(1500);
+  assert.equal(t.c.status().state, 'in');
+  assert.notEqual(t.avatar.mode, 'pose:roll');
+  assert.equal(t.avatar.calls.at(-1), 'run:hello:0');
+});
+
+test('fidelity-03: from a far perch a click travels in and opens on arrival; a programmatic open travels too', () => {
+  // the left side with the home spot on the right: push him off the left edge
+  const u = setup();
+  u.c.start();
+  u.env.advance(32);
+  u.c.pointerDown(W - 79, H - 40);
+  u.c.pointerMove(2, H - 60);
+  u.c.pointerUp(2, H - 60);
+  u.avatar.land();
+  u.env.advance(1500);
+  assert.equal(u.c.status().side, 'left');
+  assert.equal(u.c.status().homeX, W - 79, 'the home spot is kept');
+  u.c.arrive('q1', 'arrival');
+  u.env.advance(COMPANION.HOP_MS + 100);
+  assert.equal(u.c.status().state, 'perched');
+  u.c.pointerDown(44, H - 40);
+  u.c.pointerUp(44, H - 40);
+  assert.deepEqual(u.panelCalls, [], 'not opened mid-trip');
+  assert.equal(u.c.status().state, 'returning');
+  assert.equal(u.c.status().anim, 'roll');
+  let prev = u.c.status().bodyX;
+  let maxStep = 0;
+  for (let i = 0; i < 400 && u.c.status().state === 'returning'; i++) {
+    u.env.advance(16);
+    maxStep = Math.max(maxStep, Math.abs(u.c.status().bodyX - prev));
+    prev = u.c.status().bodyX;
+  }
+  assert.ok(maxStep < 40, `no zip (max ${maxStep} px per frame)`);
+  assert.equal(u.c.status().state, 'in');
+  assert.deepEqual(u.panelCalls, ['open']);
+
+  // programmatic open while far away: travels in, state 'returning' first
+  const v = setup();
+  v.c.start();
+  v.env.advance(32);
+  v.c.pointerDown(W - 79, H - 40);
+  v.c.pointerMove(2, H - 60);
+  v.c.pointerUp(2, H - 60);
+  v.avatar.land();
+  v.env.advance(1500);
+  assert.equal(v.c.makeRoom(), true);
+  assert.equal(v.c.status().state, 'returning');
+  assert.equal(v.hooks.returned, 1);
+  v.env.advance(4000);
+  assert.equal(v.c.status().state, 'in');
+  assert.equal(v.c.status().bodyX, roomX(W - 79, W));
+});
+
+test('fidelity-05: fidgets are stored only once chosen in Settings', () => {
+  const t = launchedAway();
+  assert.equal('fidgets' in JSON.parse(t.store.get(COMPANION.STORE_KEY)!), false);
+  t.c.setFidgets(false);
+  assert.equal(JSON.parse(t.store.get(COMPANION.STORE_KEY)!).fidgets, false);
+});
+
+test('fidelity-07: the sideways hop stops at the touchdown frame (11 of 16 fps)', () => {
+  assert.deepEqual(COMPANION.HOP_AIR_MS, [250, 687.5]);
+  assert.equal(COMPANION.HOP_AIR_MS[1], (11 / 16) * 1000);
+});
+
+test('internal cancel (command / lock) swallows the click of the release that follows', () => {
+  const t = setup();
+  t.c.start();
+  t.env.advance(32);
+  t.c.pointerDown(W - 79, H - 40);
+  t.c.command('toggle-away');
+  assert.equal(t.c.status().state, 'leaving');
+  assert.equal(t.c.pointerUp(W - 79, H - 40), true, 'the native click is suppressed');
+  assert.equal(t.c.pointerUp(W - 79, H - 40), false, 'only once');
+  assert.deepEqual(t.panelCalls, []);
+});
+
+test('a cancelled press at the perch keeps the perch, the glyph and the wait (the arrival is not used up)', () => {
+  const t = launchedAway();
+  t.c.arrive('q1', 'arrival');
+  t.env.advance(COMPANION.HOP_MS + 100);
+  t.avatar.calls = [];
+  t.c.pointerDown(W - 44, H - 40);
+  t.c.power('lock-screen');
+  const s = t.c.status();
+  assert.equal(s.state, 'perched');
+  assert.equal(s.question, 'q1');
+  assert.deepEqual(s.timers, ['perch']);
+  assert.ok(t.avatar.calls.includes('hold:{"question":true}'));
+  assert.ok(!t.avatar.calls.includes('run:question:0'), 'the act is not replayed');
+  t.env.advance(COMPANION.PERCH_WAIT_MS + 500);
+  assert.deepEqual(t.hooks.ignored, ['q1']);
+});
+
+test('proximity is recomputed after a release, so the idle leave can start', () => {
+  const t = setup();
+  t.c.start();
+  t.env.advance(32);
+  t.c.pointer(W - 79, H - 40);
+  assert.equal(t.c.status().pointerNear, true);
+  t.c.pointerDown(W - 79, H - 40);
+  t.c.pointerMove(600, H - 140);
+  t.c.pointer(null); // the pointer leaves the window during the drag
+  t.c.pointerUp(600, H - 140);
+  t.avatar.land();
+  assert.equal(t.c.status().pointerNear, false);
+  assert.deepEqual(t.c.status().timers, ['idle']);
+});
+
+test('a press during the return from the edge still refreshes questions (onReturn)', () => {
+  const t = launchedAway();
+  t.c.command('return');
+  t.env.advance(100);
+  assert.equal(t.c.status().state, 'returning');
+  t.c.pointerDown(t.c.status().bodyX, H - 40);
+  t.c.pointerUp(t.c.status().bodyX, H - 40);
+  assert.equal(t.hooks.returned, 1);
+  assert.deepEqual(t.panelCalls, ['toggle']);
+});
+
+test('destroy ends a carry and emits nothing afterwards', () => {
+  const t = setup();
+  t.c.start();
+  t.env.advance(32);
+  t.c.pointerDown(600, H - 40);
+  t.c.pointerMove(600, H - 140);
+  const before = t.events.length;
+  t.c.destroy();
+  t.c.questionsChanged();
+  assert.equal(t.events.length, before);
+});
+
+test('attachCompanion: focus / visible / pageshow resume; blur and the context menu end a gesture', () => {
+  const calls: string[] = [];
+  let cancelResult = true;
+  const c = new Proxy({} as Companion, {
+    get: (_t, k: string) => (...args: unknown[]) => { calls.push(k + (args.length && k === 'command' ? ':' + String(args[0]) : '')); return k === 'pointerCancel' ? cancelResult : k === 'pointerUp' ? false : true; },
+  });
+  const doc = Object.assign(new EventTarget(), { documentElement: new EventTarget(), visibilityState: 'hidden' as DocumentVisibilityState });
+  const win = Object.assign(new EventTarget(), { document: doc });
+  const avatarButton = Object.assign(new EventTarget(), { setPointerCapture: () => {} });
+  const root = new EventTarget();
+  const detach = attachCompanion(c, { root: root as unknown as HTMLElement, avatarButton: avatarButton as unknown as HTMLElement, win: win as unknown as Window });
+  win.dispatchEvent(new Event('focus'));
+  win.dispatchEvent(new Event('pageshow'));
+  doc.dispatchEvent(new Event('visibilitychange'));
+  doc.visibilityState = 'visible';
+  doc.dispatchEvent(new Event('visibilitychange'));
+  assert.deepEqual(calls, ['resume', 'resume', 'resume'], 'hidden -> no resume; visible -> resume');
+  calls.length = 0;
+  win.dispatchEvent(new Event('blur'));
+  avatarButton.dispatchEvent(new Event('contextmenu', { cancelable: true }));
+  assert.deepEqual(calls, ['pointerCancel', 'pointerCancel', 'contextMenu']);
+  cancelResult = false;
+  detach();
+  calls.length = 0;
+  win.dispatchEvent(new Event('focus'));
+  win.dispatchEvent(new Event('blur'));
+  assert.deepEqual(calls, []);
 });

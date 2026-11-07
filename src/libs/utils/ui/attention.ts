@@ -126,11 +126,13 @@ export function createAttention(options: AttentionOptions = {}): Attention {
   };
   const isSnoozed = (m: QuestionMark | undefined): boolean => m?.snoozedUntil !== undefined && m.snoozedUntil > now();
   const ensure = (id: string): QuestionMark => (q[id] ??= { waitingSince: now() });
-  const prune = (): void => {
-    const ids = Object.keys(q);
-    if (ids.length <= ATTENTION.MAX_IDS) return;
+  /** Forget the oldest marks beyond MAX_IDS, never one of the ids still open (statemachine-prune-reenables-arrival). */
+  const prune = (open: ReadonlySet<string>): void => {
+    const ids = Object.keys(q).filter((id) => !open.has(id));
+    const excess = Object.keys(q).length - ATTENTION.MAX_IDS;
+    if (excess <= 0) return;
     ids.sort((a, b) => q[a]!.waitingSince - q[b]!.waitingSince);
-    for (const id of ids.slice(0, ids.length - ATTENTION.MAX_IDS)) delete q[id];
+    for (const id of ids.slice(0, excess)) delete q[id];
   };
 
   const has = (v: number | undefined): boolean => v !== undefined;
@@ -146,7 +148,7 @@ export function createAttention(options: AttentionOptions = {}): Attention {
         }
       }
       if (changed) {
-        prune();
+        prune(new Set(ids));
         save();
       }
     },

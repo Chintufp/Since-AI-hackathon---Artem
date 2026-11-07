@@ -25,6 +25,8 @@ import { createAttention } from './attention.ts';
 import type { Attention, EngagementCounters } from './attention.ts';
 import { createQuestionWatch } from './question-watch.ts';
 import type { QuestionWatch } from './question-watch.ts';
+import { focusOptions, trackModality } from './focus.ts';
+import type { InputModality } from './focus.ts';
 
 export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'receipt' | 'result' | 'people' | 'case' | 'contact';
 const RESTORABLE: ViewName[] = ['input', 'queue', 'settings'];
@@ -255,6 +257,8 @@ export function createPanel(options: PanelOptions): Panel {
   let timers: Array<ReturnType<typeof setTimeout>> = [];
   let pollTimer: ReturnType<typeof setInterval> | 0 = 0;
   let destroyed = false;
+  // desktop (ux fix M1): focus moved after a mouse action never shows the keyboard focus ring.
+  const modality = trackModality(document);
 
   const isReduced = (): boolean => state.reducedSetting || systemReduced;
   // desktop (R31..R36): companion, attention and the collapsed question watch (null = the R28 panel).
@@ -406,6 +410,7 @@ export function createPanel(options: PanelOptions): Panel {
     }
     try {
       const list = await api.questions({ personEntityId: settings?.currentPersonEntityId });
+      if (destroyed) return; // statemachine-refresh-after-destroy: a request in flight at destroy changes nothing
       open = list.filter((q) => ['queued', 'delivered', 'deferred'].includes(q.status));
       list.forEach((q) => cache.set(q.questionId, q));
       state.serviceDown = false;
@@ -419,7 +424,7 @@ export function createPanel(options: PanelOptions): Panel {
   }
   /** desktop (R34): after every refresh the attention rules may send him to the perch; the glyph may change. */
   function afterQuestions(): void {
-    if (!companion) return;
+    if (!companion || destroyed) return;
     watch?.handle(openIds());
     syncGlyph();
   }
@@ -618,16 +623,16 @@ export function createPanel(options: PanelOptions): Panel {
     else if ((!state.panelOpen || destroyed) && pollTimer) { clearInterval(pollTimer); pollTimer = 0; }
     watch?.sync();
   }
-  function closePanel(animate = true): void {
+  function closePanel(animate = true, via: InputModality = modality.current()): void {
     state.panelOpen = false;
     syncPoll();
     syncPanelA11y();
     motion.panel(false, animate);
     avatar.refresh();
-    avatarButton.focus({ preventScroll: true });
+    avatarButton.focus(focusOptions(via)); // ux fix M1: no ring after a mouse close; Escape keeps it
     companion?.panelClosed(); // desktop (R33): the idle timer starts; a displaced Snowbally rolls back to his spot
   }
-  function focusFor(view: ViewName): void {
+  function focusFor(view: ViewName, via: InputModality = modality.current()): void {
     const target =
       view === 'input' ? field
       : view === 'question' ? root.querySelector<HTMLElement>('[data-action="yes"]')
@@ -635,10 +640,10 @@ export function createPanel(options: PanelOptions): Panel {
       : view === 'queue' ? root.querySelector<HTMLElement>('.rf-question-item') ?? $('.rf-view[data-view="queue"] [data-action="input"]')
       : view === 'settings' ? $('.rf-view[data-view="settings"] [data-action="input"]')
       : viewEl(view).querySelector<HTMLElement>('button:not([disabled])');
-    target?.focus({ preventScroll: true });
+    target?.focus(focusOptions(via));
   }
   /** `user`: a direct click / key on Snowbally. Programmatic opens never move focus (desktop R33). */
-  function openPanel(user = false): void {
+  function openPanel(user = false, via: InputModality = modality.current()): void {
     if (state.serviceDown) {
       showError(new ApiError('unreachable', 'GET /health', 'Couldn’t reach the service'), () => void retryConnect());
     } else if (!state.panelOpen) {
@@ -648,7 +653,7 @@ export function createPanel(options: PanelOptions): Panel {
         if (state.active !== waiting) { state.openNodes.question = null; state.expanded = false; }
         state.active = waiting;
         setView('question');
-        focusFor('question');
+        focusFor('question', via);
         return;
       }
       companion?.makeRoom(); // desktop (R33): slide to where the card fits (with the hop) before it opens
@@ -659,7 +664,7 @@ export function createPanel(options: PanelOptions): Panel {
       else if (state.view === 'question') renderQuestion();
       syncPanelA11y();
       motion.panel(true);
-      if (user) focusFor(state.view);
+      if (user) focusFor(state.view, via);
       avatar.refresh(); // v009: opening itself is quiet; a direct click adds the Springy tap, programmatic opens do not
       persist();
       companion?.panelOpened();
@@ -701,12 +706,14 @@ export function createPanel(options: PanelOptions): Panel {
     const unreachable = e instanceof ApiError && (e.code === 'unreachable' || e.code === 'timeout');
     state.busy = false;
     setBusy(false);
-    avatar.play('error');
     showReceipt(
       unreachable ? 'Couldn’t reach the service' : 'Something went wrong',
       unreachable ? (keptDraft ? 'Nothing was lost; your draft is still here.' : 'Nothing was changed. Try again when the service is back.') : e instanceof Error ? e.message : 'Please try again.',
       { label: 'Retry', run: retry },
     );
+    // statemachine-showerror-open-skips-makeroom: after showReceipt (whose setView opens the panel and runs
+    // make-room, with its hop), so the error reaction is not replaced by the make-room hop.
+    avatar.play('error');
     if (!state.panelOpen) { state.panelOpen = true; syncPoll(); syncPanelA11y(); motion.panel(true); }
   }
 
@@ -723,7 +730,9 @@ export function createPanel(options: PanelOptions): Panel {
       const rc = res.receipt;
       attention?.record(value === 'later' ? 'deferred' : value === 'dismiss' ? 'dismissed' : 'answered', q.questionId);
       showReceipt(rc.title, rc.detail, rc.canUndo ? { label: 'Undo', run: () => void undo(q.questionId) } : null, rc.pointsAwarded ?? 0);
-      react(state.points && (rc.pointsAwarded ?? 0) > 0 ? 'hop' : REACTIONS[value]);
+      // fidelity-08: the R35 reaction map only with the companion; the R28 column fallback keeps v009's 'result'.
+      if (companion) react(state.points && (rc.pointsAwarded ?? 0) > 0 ? 'hop' : REACTIONS[value]);
+      else avatar.play('result');
       void refreshQuestions();
     } catch (e) {
       showError(e, () => { setView('question'); void respond(value); });
@@ -738,7 +747,7 @@ export function createPanel(options: PanelOptions): Panel {
       await refreshQuestions();
       setView('question');
       focusFor('question');
-      react(REACTIONS.undo);
+      if (companion) react(REACTIONS.undo); // fidelity-08: v009 had no undo reaction
     } catch (e) { showError(e, () => void undo(id)); }
   }
   /** desktop (R35): play a reaction from REACTIONS ('settle' = the composed crouch, low settle). */
@@ -873,11 +882,11 @@ export function createPanel(options: PanelOptions): Panel {
         if (a === 'queue') void refreshQuestions();
         setView(a);
         focusFor(a);
-        if (a === 'queue' && state.active) root.querySelector<HTMLElement>(`.rf-question-item[data-question="${CSS.escape(state.active)}"]`)?.focus({ preventScroll: true });
+        if (a === 'queue' && state.active) root.querySelector<HTMLElement>(`.rf-question-item[data-question="${CSS.escape(state.active)}"]`)?.focus(focusOptions(modality.current()));
         return;
       case 'attach':
         if (state.view === 'input') $<HTMLInputElement>('.rf-files').click();
-        else { setView('input'); field.focus({ preventScroll: true }); avatar.play('hello'); }
+        else { setView('input'); field.focus(focusOptions(modality.current())); avatar.play('hello'); }
         return;
       case 'context': setExpanded(!state.expanded); return;
       case 'node': {
@@ -967,7 +976,7 @@ export function createPanel(options: PanelOptions): Panel {
     else { const text = e.dataTransfer?.getData('text/plain'); if (text) field.value += (field.value ? '\n' : '') + text; updateSend(); persist(); }
   });
   const onKey = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && state.panelOpen) { event.preventDefault(); closePanel(); }
+    if (event.key === 'Escape' && state.panelOpen) { event.preventDefault(); closePanel(true, 'keyboard'); }
     if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && state.panelOpen && state.view === 'input' && !send.disabled) { event.preventDefault(); void submit(); }
   };
   document.addEventListener('keydown', onKey);
@@ -1011,9 +1020,10 @@ export function createPanel(options: PanelOptions): Panel {
       storage,
       panel: {
         isOpen: () => state.panelOpen,
-        toggle: () => (state.panelOpen ? closePanel() : openPanel(true)),
-        open: () => { if (!state.panelOpen) openPanel(true); },
-        close: () => { if (state.panelOpen) closePanel(); },
+        // ux fix M1: these come from his pointer gesture, the tray or the global shortcut: never the ring.
+        toggle: () => (state.panelOpen ? closePanel(true, 'pointer') : openPanel(true, 'pointer')),
+        open: () => { if (!state.panelOpen) openPanel(true, 'pointer'); },
+        close: () => { if (state.panelOpen) closePanel(true, 'pointer'); },
         busy: () => state.busy,
         motionActive: () => motion.status().active,
         hasQuestion: unseenWaiting,
@@ -1097,6 +1107,7 @@ export function createPanel(options: PanelOptions): Panel {
       timers.forEach(clearTimeout);
       syncPoll();
       detachCompanion();
+      modality.detach();
       companion?.destroy();
       watch?.destroy();
       document.removeEventListener('keydown', onKey);

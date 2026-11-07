@@ -1,0 +1,91 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ (through the scenario-dir importer)",
+    "people.json",
+    "incoming problem text",
+    "incoming observations"
+  ],
+  "route": "mixed",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T01:47:08.446Z",
+  "id": "e03-selectors",
+  "hypothesis": "A LinUCB contextual bandit selects more beneficial question-person pairs than the rule selector with identical candidate pools and hard gates.",
+  "splits": [
+    "train",
+    "validation"
+  ],
+  "variants": [
+    {
+      "id": "rules",
+      "description": "deterministic rule selector (baseline)",
+      "route": "rules"
+    },
+    {
+      "id": "epsilon-greedy",
+      "description": "non-contextual per-recipient running mean, epsilon 0.1 (simulator only)",
+      "route": "local"
+    },
+    {
+      "id": "linucb",
+      "description": "LinUCB alpha 0.5; simulator learns online; family arm trained on train families per seed, frozen artifact scored on validation",
+      "route": "local"
+    },
+    {
+      "id": "random",
+      "description": "uniform random reference (simulator only)",
+      "route": "local"
+    }
+  ],
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "config": {
+    "simulatorArm": {
+      "steps": 300,
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "source": "src/libs/utils/models/testing/simulator.ts (hidden knowledge stays in the simulator)",
+      "provenance": "simulated"
+    },
+    "familyArm": {
+      "trainFamilies": [
+        "bgp-firmware-flaps",
+        "fan-temperature",
+        "config-rollback-private",
+        "cabling-pinch"
+      ],
+      "learning": "LinUCB.update from harness-labelled EvaluationRecords; assessedBenefit = 1 if the answer moved the recommendation to the key expected class, 0 if answered without that change, null if unanswered",
+      "seedsMean": "LinUCB is deterministic given its data; the seed sets the ORDER of training families",
+      "artifacts": [
+        "data/models/linucb-e03-seed1.json",
+        "data/models/linucb-e03-seed2.json",
+        "data/models/linucb-e03-seed3.json"
+      ],
+      "retriever": "hybrid",
+      "assessor": "separate"
+    },
+    "benefitDefinition": "mean over investigations of the labelled benefit of their questions (unanswered and no-question investigations contribute 0 to the numerator; the denominator is all investigations)"
+  },
+  "metrics": [
+    "benefit.meanPerInvestigation",
+    "question.wrongRecipientRate",
+    "question.questionsPerInvestigation",
+    "question.hardRuleViolations",
+    "question.missedConsequentialGaps",
+    "sim.meanBenefitPerInvestigation"
+  ],
+  "acceptanceCriteria": [
+    "bandit ships behind the setting only if mean benefit on validation > rules by >= 0.05 with all 3 seeds above rules (each by >= 0.05) and 0 hard-rule violations; else rules stay (EXPERIMENT_PLAN.md E03)",
+    "simulator arm: 0 ineligible selections asserted for every selector and seed"
+  ],
+  "stopRule": "stop if simulator rewards leak hidden truth into features (selectors see only eligible pairs and visible features)"
+}

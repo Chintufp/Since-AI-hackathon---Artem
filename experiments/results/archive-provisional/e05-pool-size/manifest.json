@@ -1,0 +1,58 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ (through the scenario-dir importer)",
+    "people.json",
+    "incoming problem text",
+    "incoming observations"
+  ],
+  "route": "rules",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T01:11:59.252Z",
+  "id": "e05-pool-size",
+  "hypothesis": "Template generation with a validated small pool (<= 2 candidates) finds the consequential gap as often as a larger pool with less burden.",
+  "splits": [
+    "train",
+    "validation"
+  ],
+  "variants": [
+    {
+      "id": "pool-1",
+      "description": "template generator emits at most 1 candidate question(s) per request",
+      "route": "rules"
+    },
+    {
+      "id": "pool-2",
+      "description": "template generator emits at most 2 candidate question(s) per request",
+      "route": "rules"
+    },
+    {
+      "id": "pool-4",
+      "description": "template generator emits at most 4 candidate question(s) per request",
+      "route": "rules"
+    }
+  ],
+  "config": {
+    "pooled": "train+validation (nothing is fitted in this experiment, so train families are not a leak); same gaps, retriever and assessor for every size",
+    "retriever": "hybrid",
+    "selector": "rules",
+    "primary": "question.gapFoundRate"
+  },
+  "seeds": [
+    0
+  ],
+  "metrics": [
+    "question.gapFoundRate",
+    "question.questionsPerInvestigation",
+    "burden.duplicateQuestions",
+    "question.wrongRecipientRate",
+    "question.unnecessaryQuestionRate"
+  ],
+  "acceptanceCriteria": [
+    "smallest pool whose consequential-gap-found rate is within 0.02 of the best -> ship (EXPERIMENT_PLAN.md E05)"
+  ],
+  "stopRule": "deterministic; none"
+}

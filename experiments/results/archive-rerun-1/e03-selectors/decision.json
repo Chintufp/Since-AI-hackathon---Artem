@@ -1,0 +1,18 @@
+{
+  "experiment": "E03",
+  "hypothesis": "A LinUCB bandit selects more beneficial question-person pairs than the rule selector with identical candidate pools and hard gates.",
+  "criterion": "Family arm on validation: LinUCB mean benefit exceeds rules by >= 0.05 on ALL 3 seeds with 0 hard-rule violations -> bandit may ship behind the setting; else rules stay. The simulator arm is reported (mean +- range over 3 seeds, 300 steps) with 0 ineligible selections asserted.",
+  "outcome": "Family arm: rules benefit 0.000; LinUCB minus rules per seed 0.000, 0.000, 0.000; hard-rule violations 0/0/0/0 -> criterion UNTESTABLE: no arm asked a single question on the validation families (questions asked per arm: 0/0/0/0), so benefit is 0 for every selector by construction and this says nothing about LinUCB versus rules. Simulator arm (not the shipping criterion): LinUCB minus rules per seed 0.100, 0.140, 0.080 -> above rules by >= 0.05 on all seeds.",
+  "shipped": "rules (criterion untestable on the family arm: 0 questions asked on validation; not a negative result for LinUCB)",
+  "detail": {
+    "sim rules": "mean benefit 0.336 (range 0.287 to 0.430), ineligible selections 0",
+    "sim epsilon-greedy": "mean benefit 0.222 (range 0.170 to 0.277), ineligible selections 0",
+    "sim linucb": "mean benefit 0.442 (range 0.370 to 0.570), ineligible selections 0",
+    "sim random": "mean benefit 0.178 (range 0.153 to 0.213), ineligible selections 0",
+    "family-rules": "benefit 0.000 (0/6); wrong recipient n/a; questions/investigation 0.000 (0/6); violations 0; missed consequential gaps 3",
+    "family-linucb-seed1": "benefit 0.000 (0/6); wrong recipient n/a; questions/investigation 0.000 (0/6); violations 0; missed consequential gaps 3",
+    "family-linucb-seed2": "benefit 0.000 (0/6); wrong recipient n/a; questions/investigation 0.000 (0/6); violations 0; missed consequential gaps 3",
+    "family-linucb-seed3": "benefit 0.000 (0/6); wrong recipient n/a; questions/investigation 0.000 (0/6); violations 0; missed consequential gaps 3",
+    "training": "seed 1: cabling-pinch > fan-temperature > bgp-firmware-flaps > config-rollback-private; 2 updates, 0 unanswered skipped | seed 2: fan-temperature > cabling-pinch > bgp-firmware-flaps > config-rollback-private; 2 updates, 0 unanswered skipped | seed 3: fan-temperature > cabling-pinch > bgp-firmware-flaps > config-rollback-private; 2 updates, 0 unanswered skipped"
+  }
+}

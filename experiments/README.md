@@ -6,8 +6,8 @@ Runner skeleton and result conventions for the experiment queue in the technical
 
 | ID | Comparison | Status |
 | --- | --- | --- |
-| E00 | Real-system rules baseline on demo+train+validation (`results/e00-baseline`) | **done** (3 access checks fail: see RESULTS.md, findings in `src/`) |
-| E01 | Extraction/linking: structured baseline vs context-aware proposals | not run (no replay fixtures recorded) |
+| E00 | Real-system rules baseline on demo+train+validation (`results/e00-baseline`) | **done**, 17/17 checks pass after the src/ fixes (one documented truth-only residual on demo, tolerated as a known limitation; first provisional run archived in `results/archive-provisional/`) |
+| E01 | Extraction/linking: rules extractor vs a recorded Claude-agent arm (replay fixtures, scored directly and committed) | **done** (`results/e01-extraction`; re-run after extractor tuning) |
 | E02 | Retrieval: lexical / exact / local trigram / hybrid | **done**, one-shot test confirmation in `results/e02-test` |
 | E03 | Question selection: rules vs epsilon-greedy vs LinUCB (simulator arm and family arm) | **done**, rules stay; artifacts in `data/models/` |
 | E04 | Assessment: combined vs separate | **done**, one-shot test confirmation in `results/e04-test` |
@@ -24,8 +24,8 @@ Read `RESULTS.md` (generated from `results/`) for tables, outcomes against the f
 
 ```
 node experiments/run.ts                 list experiments
-node experiments/run.ts all             E00, E02, E04, E03, E05, E06, E07, usefulness, then the report (about 3 s; test split closed)
-node experiments/run.ts e00|e02|e03|e04|e05|e06|e07|usefulness
+node experiments/run.ts all             E00, E01, E02, E04, E03, E05, E06, E07, usefulness, then the report (about 3 s; test split closed)
+node experiments/run.ts e00|e01|e02|e03|e04|e05|e06|e07|usefulness
 node experiments/run.ts e00-reference   evaluator sanity references (hand-built from truth; not a system)
 node experiments/run.ts test-final      one-shot test-split confirmation of the E02/E04 choices (refuses to run again)
 node experiments/run.ts report          regenerate RESULTS.md
@@ -40,6 +40,7 @@ node --test 'experiments/**/*.test.ts'  harness, frozen decision rules, simulato
 | `scoring.ts` | Scores harness runs with `benchmarks/evaluator.ts` (plus linking@k, lookalike top-1, access checks). |
 | `common.ts` | Variant running, pooled variants, harness-side extra metrics, decision records. |
 | `config.ts` | Organization configuration (observability policy for E06), frozen before scoring. |
+| `e01-convert.ts`, `runners-e01.ts`, `e01.test.ts` | E01: replay-id -> stored-evidence mapping, recorded proposals -> `SystemKnowledge` (direct) or a committable proposal, the three-variant runner, tests. The arm is one recorded Claude Sonnet subagent, never the small GPT and never an application route. |
 | `runners-core.ts`, `runners-learning.ts` | E00/E02/E04/test-final and E03/E05/E06/E07/usefulness runners. |
 | `report.ts` | Generates `RESULTS.md`. |
 

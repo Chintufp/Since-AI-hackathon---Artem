@@ -11,7 +11,7 @@
     "maxWallSeconds": 600,
     "networkCalls": 0
   },
-  "startedAt": "2026-11-07T01:06:46.863Z",
+  "startedAt": "2026-11-07T02:02:52.312Z",
   "id": "e02-retrieval",
   "hypothesis": "Hybrid lexical+exact retrieval beats lexical alone on relevant-case recall@3 without raising lookalike selection (same cases, same access filters, same assessor and question settings).",
   "splits": [

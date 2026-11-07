@@ -1,0 +1,11 @@
+{
+  "experiment": "E01",
+  "hypothesis": "Structured rules extraction recovers claim types/links; a Claude-agent arm on the same visible threads may differ (recorded, labeled, not a small-GPT result).",
+  "criterion": "Report both arms; rules remain the default; the agent arm informs lexicon fixes only (no winner is declared).",
+  "outcome": "train: claim recall rules 0.213 (10/47) vs arm 0.532 (25/47) vs arm-committed 0.532 (25/47); precision rules 0.227 (10/44) vs arm 0.446 (25/56) vs arm-committed 0.446 (25/56). validation: claim recall rules 0.182 (4/22) vs arm 0.591 (13/22) vs arm-committed 0.591 (13/22); precision rules 0.154 (4/26) vs arm 0.481 (13/27) vs arm-committed 0.481 (13/27). 27 truth claims were recovered by the arm and missed by the rules extractor (action 10, outcome 2, condition 4, advice 4, observation 5, access-fact 2).",
+  "shipped": "The rules extractor stays the default route. The recorded arm is one Claude Sonnet subagent on visible sources; it is not the proposed small GPT, not an application route, and not evidence about either.",
+  "detail": {
+    "lexiconGaps": "27",
+    "fixtures": "6"
+  }
+}

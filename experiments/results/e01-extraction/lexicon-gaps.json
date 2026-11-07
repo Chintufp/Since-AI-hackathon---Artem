@@ -1,0 +1,79 @@
+{
+  "note": "Truth claims the Claude-agent arm matched (variant b) and the rules extractor missed. Candidate lexicon/cue fixes; a statement here is the key statement, not an extraction rule.",
+  "countByType": {
+    "condition": 2,
+    "advice": 4,
+    "observation": 1,
+    "action": 1,
+    "access-fact": 2,
+    "outcome": 1
+  },
+  "gaps": [
+    {
+      "familyId": "fan-temperature",
+      "id": "A#1",
+      "type": "condition",
+      "statement": "OLT-210 is an outdoor cabinet of 2015 build"
+    },
+    {
+      "familyId": "fan-temperature",
+      "id": "A#2",
+      "type": "advice",
+      "statement": "Check and replace the dust filter first because the cabinet type clogs with pollen in spring"
+    },
+    {
+      "familyId": "config-rollback-private",
+      "id": "A#3",
+      "type": "advice",
+      "statement": "Roll ACC-12 back to the v6 template"
+    },
+    {
+      "familyId": "config-rollback-private",
+      "id": "B#0",
+      "type": "observation",
+      "statement": "ACC-30 lost voice VLAN 210 after template v7, an N5 model"
+    },
+    {
+      "familyId": "config-rollback-private",
+      "id": "B#2",
+      "type": "condition",
+      "statement": "The v6 template has no profile for the N5 port layout"
+    },
+    {
+      "familyId": "config-rollback-private",
+      "id": "B#3",
+      "type": "advice",
+      "statement": "Do not roll back N5 units, apply the v7.1 patch that fixes the voice range typo"
+    },
+    {
+      "familyId": "cabling-pinch",
+      "id": "A#10",
+      "type": "action",
+      "statement": "Seppo re-dressed the cabinet cabling and fitted a cable guard at the door edge"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "id": "A#2",
+      "type": "advice",
+      "statement": "Swap the PSU and keep an eye on the weak mains at that site"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "id": "C#0",
+      "type": "access-fact",
+      "statement": "MW-77 forest road gate key is held by the forest owner who must be called 24 hours before a visit"
+    },
+    {
+      "familyId": "weak-mains-psu",
+      "id": "C#2",
+      "type": "access-fact",
+      "statement": "Outside winter the van can drive to the MW-77 site"
+    },
+    {
+      "familyId": "bgp-linecard-private",
+      "id": "A#4",
+      "type": "outcome",
+      "statement": "PE-05 sessions stayed up with no port flaps for two hours after the patch"
+    }
+  ]
+}

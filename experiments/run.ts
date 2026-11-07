@@ -3,8 +3,9 @@
  *   node experiments/run.ts                list experiments and status
  *   node experiments/run.ts e00            E00: real-system rules baseline on demo+train+validation (results/e00-baseline)
  *   node experiments/run.ts e00-reference  evaluator sanity references (results/e00-reference)
+ *   node experiments/run.ts e01            E01: rules extractor vs recorded Claude-agent arm (results/e01-extraction)
  *   node experiments/run.ts e02|e03|e04|e05|e06|e07|usefulness
- *   node experiments/run.ts all [--continue-despite-e00]   E00,E02,E04,E03,E05,E06,E07 (+ usefulness, report) in order; stops if E00 fails (override is recorded); test split stays closed
+ *   node experiments/run.ts all [--continue-despite-e00]   E00,E01,E02,E04,E03,E05,E06,E07 (+ usefulness, report) in order; stops if E00 fails (override is recorded); test split stays closed
  *   node experiments/run.ts test-final     one-shot test-split confirmation of the E02/E04 choices (refuses to run twice)
  *   node experiments/run.ts report         regenerate experiments/RESULTS.md from experiments/results/
  *
@@ -37,7 +38,7 @@ export interface ExperimentEntry {
 
 export const EXPERIMENTS: ExperimentEntry[] = [
   { id: 'E00', title: 'Frozen scenarios, evaluator and transparent end-to-end baseline', status: 'ready', needs: 'Done: node experiments/run.ts e00 (results/e00-baseline); evaluator sanity references via e00-reference.' },
-  { id: 'E01', title: 'Extraction/linking: exact identifiers + structured baseline vs context-aware proposals', status: 'pending harness', needs: 'Not run tonight: the harness now produces SystemKnowledge, but the replay / claude-agent-arm extraction fixtures were not recorded (data/replays is empty).' },
+  { id: 'E01', title: 'Extraction/linking: exact identifiers + structured baseline vs context-aware proposals', status: 'ready', needs: 'Done: rules extractor vs the recorded Claude-agent arm (data/replays/e01-claude-arm, scored directly and committed) on train and validation (results/e01-extraction); rerun after extractor tuning.' },
   { id: 'E02', title: 'Retrieval: lexical baseline vs embeddings/hybrid on identical cases and filters', status: 'ready', needs: 'Done: lexical / exact / local trigram / hybrid on the real system (results/e02-retrieval, one-shot e02-test).' },
   { id: 'E03', title: 'Question selection: rules vs ranker vs contextual bandit on identical pools and gates', status: 'ready', needs: 'Done: simulator arm and family arm with trained LinUCB artifacts (results/e03-selectors, data/models/linucb-e03-seed*.json).' },
   { id: 'E04', title: 'Assessment: combined vs separate support/applicability assessors', status: 'ready', needs: 'Done: combined vs separate rules assessor (results/e04-assessor, one-shot e04-test).' },
@@ -134,6 +135,7 @@ async function runOne(id: string): Promise<number> {
       break;
     }
     case 'e00-reference': runE00Reference(); break;
+    case 'e01': await (await import('./runners-e01.ts')).runE01(); break;
     case 'e02': await core.runE02(['demo', 'train', 'validation']); break;
     case 'e04': await core.runE04(['demo', 'train', 'validation']); break;
     case 'e03': await learn.runE03(); break;
@@ -154,7 +156,7 @@ async function main(cmd: string | undefined): Promise<void> {
   const lock = testFamiliesUntouched();
   if (!lock.untouched) throw new Error(`test families changed since freeze: ${lock.changed.join(',')}`);
   if (cmd === 'all') {
-    const order = ['e00', 'e02', 'e04', 'e03', 'e05', 'e06', 'e07', 'usefulness'];
+    const order = ['e00', 'e01', 'e02', 'e04', 'e03', 'e05', 'e06', 'e07', 'usefulness'];
     const override = process.argv.includes('--continue-despite-e00');
     const times: Record<string, number> = {};
     let e00StopRuleFired = false;
@@ -176,7 +178,7 @@ async function main(cmd: string | undefined): Promise<void> {
     await runOne('report');
     return;
   }
-  const known = ['e00', 'e00-reference', 'e02', 'e03', 'e04', 'e05', 'e06', 'e07', 'usefulness', 'test-final', 'report'];
+  const known = ['e00', 'e00-reference', 'e01', 'e02', 'e03', 'e04', 'e05', 'e06', 'e07', 'usefulness', 'test-final', 'report'];
   if (!known.includes(cmd.toLowerCase())) {
     const e = EXPERIMENTS.find((x) => x.id.toLowerCase() === cmd.toLowerCase());
     console.error(e ? `${e.id} is '${e.status}': ${e.needs}` : `unknown experiment ${cmd}`);

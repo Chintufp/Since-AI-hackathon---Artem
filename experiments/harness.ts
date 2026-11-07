@@ -224,7 +224,7 @@ export function collectKnowledge(store: KnowledgeStore, evidenceSourceIds: Recor
 }
 
 /** Independent supporting sources the system itself counts: supporters that are not copies/retellings of another supporter. */
-function independentSupportOf(store: KnowledgeStore, evidenceIds: string[]): number {
+export function independentSupportOf(store: KnowledgeStore, evidenceIds: string[]): number {
   const ids = [...new Set(evidenceIds)];
   const ev = ids.map((i) => store.get('evidence', i)).filter((e): e is NonNullable<typeof e> => !!e);
   const dependent = (e: (typeof ev)[number]) => ev.some((o) => o.id !== e.id && (e.lineage.copiedFrom?.includes(o.id) || (e.metadata?.retellingOf as { evidenceIds?: string[] } | undefined)?.evidenceIds?.includes(o.id)));

@@ -1,0 +1,12 @@
+{
+  "experiment": "E05",
+  "hypothesis": "A validated small pool (<= 2) finds the consequential gap as often as a larger pool with less burden.",
+  "criterion": "Smallest pool whose gap-found rate is within 0.02 of the best pool -> ship.",
+  "outcome": "gap-found rate by pool size 1: 0.000 (0/7); 2: 0.000 (0/7); 4: 0.000 (0/7); best 0.000 -> smallest within 0.02 is pool 1.",
+  "shipped": "pool size 1",
+  "detail": {
+    "pool-1": "gapFound 0.000 (0/7); questions/investigation 0.389 (7/18); duplicates 0; wrongRecipient 0.750 (3/4); unnecessary 0.300 (3/10)",
+    "pool-2": "gapFound 0.000 (0/7); questions/investigation 0.389 (7/18); duplicates 0; wrongRecipient 0.750 (3/4); unnecessary 0.300 (3/10)",
+    "pool-4": "gapFound 0.000 (0/7); questions/investigation 0.389 (7/18); duplicates 0; wrongRecipient 0.750 (3/4); unnecessary 0.300 (3/10)"
+  }
+}

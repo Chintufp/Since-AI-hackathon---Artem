@@ -73,3 +73,13 @@ test('budget layer: the daily limit is never exceeded', () => {
     for (const limit of [1, 3]) assert.ok(budgetSim(limit, 30, seed).maxPerPersonPerDay <= limit);
   }
 });
+
+test('E00 tolerates only the listed undetectable leak sources, each with a reason', async () => {
+  const { KNOWN_UNDETECTABLE_LEAKS } = await import('./runners-core.ts');
+  assert.ok(KNOWN_UNDETECTABLE_LEAKS.length >= 1);
+  for (const k of KNOWN_UNDETECTABLE_LEAKS) {
+    assert.ok(['demo', 'train', 'validation'].includes(k.split));
+    assert.match(k.sourceId, /^[a-z]+:.+/);
+    assert.ok(k.why.length > 20);
+  }
+});

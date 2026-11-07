@@ -1,0 +1,96 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ (through the scenario-dir importer)",
+    "people.json",
+    "incoming problem text",
+    "incoming observations"
+  ],
+  "route": "rules",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T01:47:09.063Z",
+  "id": "e06-eligibility",
+  "hypothesis": "Question-dependent broader eligibility (observers of current conditions by directory group) answers more gaps than direct-contributors-only without more wrong recipients.",
+  "splits": [
+    "train",
+    "validation"
+  ],
+  "variants": [
+    {
+      "id": "baseline-default",
+      "description": "library default: firsthand case/entity links, empty observability policy (reference, not part of the rule)",
+      "route": "rules"
+    },
+    {
+      "id": "direct-only",
+      "description": "empty observability policy; recipients restricted to people with a firsthand link to the question's own case",
+      "route": "rules"
+    },
+    {
+      "id": "question-dependent",
+      "description": "configured observability policy by directory group (experiments/config.ts) on top of firsthand links",
+      "route": "rules"
+    }
+  ],
+  "config": {
+    "pooled": "train+validation (rules only, nothing fitted)",
+    "retriever": "hybrid",
+    "observabilityPolicy": {
+      "groups": {
+        "planning": [
+          "unit.model",
+          "unit.revision",
+          "unit.installed_year",
+          "unit.age",
+          "software.version"
+        ],
+        "change-board": [
+          "config.changed",
+          "config.saved_startup",
+          "config.rollback_supported",
+          "software.version"
+        ],
+        "field": [
+          "unit.revision",
+          "unit.installed_year",
+          "unit.model",
+          "unit.age",
+          "component.replaced",
+          "cable.condition",
+          "cable.guard_fitted",
+          "site.access",
+          "site.access_code_current"
+        ],
+        "access": [
+          "site.access",
+          "site.access_code_current"
+        ],
+        "power": [
+          "power.mains_sag",
+          "power.scope",
+          "power.breaker_inspected_at_first_visit"
+        ]
+      },
+      "roles": {}
+    },
+    "policyNote": "written from group names visible in people.json before running; never tuned",
+    "directOnly": "wrapper generator filters candidate recipients to personLink.caseId === gap case, firsthand"
+  },
+  "seeds": [
+    0
+  ],
+  "metrics": [
+    "routing.answerableRoutingRate",
+    "question.wrongRecipientRate",
+    "question.gapFoundRate",
+    "question.questionsPerInvestigation",
+    "burden.maxQuestionsToOnePersonPerFamily"
+  ],
+  "acceptanceCriteria": [
+    "question-dependent ships if its wrong-recipient rate does not rise by more than 0.02 over direct-only (a null rate, no questions, is read as 0) (EXPERIMENT_PLAN.md E06)"
+  ],
+  "stopRule": "deterministic; none"
+}

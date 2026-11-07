@@ -11,7 +11,7 @@
     "maxWallSeconds": 600,
     "networkCalls": 0
   },
-  "startedAt": "2026-11-07T01:12:06.827Z",
+  "startedAt": "2026-11-07T02:02:51.896Z",
   "id": "e00-baseline",
   "hypothesis": "The real system with every stage on its deterministic rules route (rules extraction, hybrid retrieval with local trigram vectors, separate rules assessor, template questions, rules selector) produces complete traces, no access leakage and a reproducible reference baseline on demo, train and validation families.",
   "splits": [

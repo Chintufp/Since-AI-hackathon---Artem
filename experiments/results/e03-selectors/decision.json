@@ -13,6 +13,6 @@
     "family-linucb-seed1": "benefit 0.000 (0/6); wrong recipient n/a; questions/investigation 0.000 (0/6); violations 0; missed consequential gaps 3",
     "family-linucb-seed2": "benefit 0.000 (0/6); wrong recipient n/a; questions/investigation 0.000 (0/6); violations 0; missed consequential gaps 3",
     "family-linucb-seed3": "benefit 0.000 (0/6); wrong recipient n/a; questions/investigation 0.000 (0/6); violations 0; missed consequential gaps 3",
-    "training": "seed 1: cabling-pinch > fan-temperature > bgp-firmware-flaps > config-rollback-private; 7 updates, 0 unanswered skipped | seed 2: fan-temperature > cabling-pinch > bgp-firmware-flaps > config-rollback-private; 7 updates, 0 unanswered skipped | seed 3: fan-temperature > cabling-pinch > bgp-firmware-flaps > config-rollback-private; 7 updates, 0 unanswered skipped"
+    "training": "seed 1: cabling-pinch > fan-temperature > bgp-firmware-flaps > config-rollback-private; 2 updates, 0 unanswered skipped | seed 2: fan-temperature > cabling-pinch > bgp-firmware-flaps > config-rollback-private; 2 updates, 0 unanswered skipped | seed 3: fan-temperature > cabling-pinch > bgp-firmware-flaps > config-rollback-private; 2 updates, 0 unanswered skipped"
   }
 }

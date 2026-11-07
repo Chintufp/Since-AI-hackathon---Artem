@@ -1,0 +1,110 @@
+[
+  {
+    "selector": "rules",
+    "seed": 1,
+    "meanBenefit": 0.2866666666666667,
+    "answeredMean": 0.40186915887850466,
+    "unanswered": 70,
+    "deferrals": 16,
+    "ineligible": 0
+  },
+  {
+    "selector": "rules",
+    "seed": 2,
+    "meanBenefit": 0.43,
+    "answeredMean": 0.5863636363636363,
+    "unanswered": 56,
+    "deferrals": 24,
+    "ineligible": 0
+  },
+  {
+    "selector": "rules",
+    "seed": 3,
+    "meanBenefit": 0.29,
+    "answeredMean": 0.4416243654822335,
+    "unanswered": 85,
+    "deferrals": 18,
+    "ineligible": 0
+  },
+  {
+    "selector": "epsilon-greedy",
+    "seed": 1,
+    "meanBenefit": 0.17,
+    "answeredMean": 0.23943661971830985,
+    "unanswered": 87,
+    "deferrals": 0,
+    "ineligible": 0
+  },
+  {
+    "selector": "epsilon-greedy",
+    "seed": 2,
+    "meanBenefit": 0.27666666666666667,
+    "answeredMean": 0.3562231759656652,
+    "unanswered": 67,
+    "deferrals": 0,
+    "ineligible": 0
+  },
+  {
+    "selector": "epsilon-greedy",
+    "seed": 3,
+    "meanBenefit": 0.22,
+    "answeredMean": 0.3188405797101449,
+    "unanswered": 93,
+    "deferrals": 0,
+    "ineligible": 0
+  },
+  {
+    "selector": "linucb",
+    "seed": 1,
+    "meanBenefit": 0.38666666666666666,
+    "answeredMean": 0.5296803652968036,
+    "unanswered": 81,
+    "deferrals": 0,
+    "ineligible": 0
+  },
+  {
+    "selector": "linucb",
+    "seed": 2,
+    "meanBenefit": 0.57,
+    "answeredMean": 0.6895161290322581,
+    "unanswered": 52,
+    "deferrals": 0,
+    "ineligible": 0
+  },
+  {
+    "selector": "linucb",
+    "seed": 3,
+    "meanBenefit": 0.37,
+    "answeredMean": 0.5692307692307692,
+    "unanswered": 105,
+    "deferrals": 0,
+    "ineligible": 0
+  },
+  {
+    "selector": "random",
+    "seed": 1,
+    "meanBenefit": 0.16666666666666666,
+    "answeredMean": 0.228310502283105,
+    "unanswered": 81,
+    "deferrals": 0,
+    "ineligible": 0
+  },
+  {
+    "selector": "random",
+    "seed": 2,
+    "meanBenefit": 0.21333333333333335,
+    "answeredMean": 0.2895927601809955,
+    "unanswered": 79,
+    "deferrals": 0,
+    "ineligible": 0
+  },
+  {
+    "selector": "random",
+    "seed": 3,
+    "meanBenefit": 0.15333333333333332,
+    "answeredMean": 0.2358974358974359,
+    "unanswered": 105,
+    "deferrals": 0,
+    "ineligible": 0
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "at": "2026-11-07T01:47:09.828Z",
+  "seconds": {
+    "e00": 0.31641100000000005,
+    "e01": 0.120671917,
+    "e02": 0.472691542,
+    "e04": 0.263913125,
+    "e03": 0.3496570829999998,
+    "e05": 0.266495625,
+    "e06": 0.268406291,
+    "e07": 0.4052917910000001,
+    "usefulness": 0.09188554199999999
+  },
+  "e00StopRuleFired": false,
+  "stopRuleOverridden": false,
+  "note": "wall-clock on one Mac, each experiment bounded to < 600 s"
+}

@@ -1,0 +1,95 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ (through the scenario-dir importer for variant a)",
+    "people.json",
+    "data/replays/e01-claude-arm/<family>.json (one recorded Claude Sonnet subagent pass that read only sources/** and people.json of train and validation families)"
+  ],
+  "route": "mixed",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T01:47:07.591Z",
+  "id": "e01-extraction",
+  "hypothesis": "Structured rules extraction recovers claim types/links; a Claude-agent arm on the same visible threads may differ (recorded, labeled, not a small-GPT result).",
+  "splits": [
+    "train",
+    "validation"
+  ],
+  "variants": [
+    {
+      "id": "rules-extractor@current",
+      "description": "The real import path (adapters -> ingest -> context -> rules extractor -> memory commit) on the current working tree; provenance measured",
+      "route": "rules"
+    },
+    {
+      "id": "claude-agent-arm",
+      "description": "Recorded Claude-agent ExtractionProposals converted to SystemKnowledge and scored directly (NOT run through memory/commit); provenance replay-fixture",
+      "route": "claude-agent-arm"
+    },
+    {
+      "id": "claude-agent-arm→commit",
+      "description": "The same recorded proposals pushed through the real memory commitProposal (directory ids translated to evidence actor ids, then the directory applied as in the app); provenance replay-fixture",
+      "route": "claude-agent-arm"
+    }
+  ],
+  "config": {
+    "armIdentity": "one-shot recorded Claude Sonnet subagent (claude-sonnet-subagent-2026-11-07) on visible sources; not the proposed small GPT generator; not an application route; the application never calls it",
+    "families": {
+      "train": [
+        "bgp-firmware-flaps",
+        "fan-temperature",
+        "config-rollback-private",
+        "cabling-pinch"
+      ],
+      "validation": [
+        "weak-mains-psu",
+        "bgp-linecard-private"
+      ]
+    },
+    "fixtureSha256": {
+      "bgp-firmware-flaps": "76f096147b59e0bf",
+      "fan-temperature": "e094d476c913ecb6",
+      "config-rollback-private": "196e85bf0dca2ae5",
+      "cabling-pinch": "fd902d96ac266551",
+      "weak-mains-psu": "407b3883c04c57b7",
+      "bgp-linecard-private": "b96d0a3fa7b80f7f"
+    },
+    "evidenceIdMapping": "replay teams:<seq> / email:<Message-ID> / slack:<ts> -> the single non-quoted evidence record with the same provider and seq / Message-ID / ts (benchmarks key); unmatched ids are dropped and counted",
+    "directScoring": "variant b scores the proposals as given: claims verbatim, one case per proposed incident, attempts/outcomes not derived (those come from commit), independent support counted with the importer's own copy/retelling lineage",
+    "claimMatch": "same ClaimType and token Jaccard >= 0.5 (benchmarks/evaluator.ts)",
+    "scoredSplitsSeparately": true,
+    "test": "test families are never read; fixtures exist only for train and validation"
+  },
+  "seeds": [
+    0
+  ],
+  "metrics": [
+    "claims.all.precision",
+    "claims.all.recall",
+    "claims.observation.recall",
+    "claims.hypothesis.recall",
+    "claims.advice.recall",
+    "claims.action.recall",
+    "claims.outcome.recall",
+    "claims.condition.recall",
+    "entities.recall",
+    "cases.falseMergeRate",
+    "cases.falseSplitRate",
+    "attribution.claimPersonErrorRate",
+    "attribution.firsthandLinkErrorRate",
+    "attribution.attemptPerformerErrorRate",
+    "attribution.attemptPerformedStateErrorRate",
+    "attribution.outcomeReporterErrorRate",
+    "copies.overcountRate",
+    "copies.overcountRate.noLineage",
+    "usefulness.accuracy"
+  ],
+  "acceptanceCriteria": [
+    "Report both arms side by side on train and validation separately; no winner is declared.",
+    "The rules extractor remains the default route regardless of the result (EXPERIMENT_PLAN E01).",
+    "The agent arm informs lexicon fixes only: truth claims it recovered and the rules extractor missed are listed in lexicon-gaps.json."
+  ],
+  "stopRule": "One scoring pass over one recorded fixture per family; skipped if it needed hidden truth or more than one recording pass (the fixtures were recorded once from visible sources only)."
+}

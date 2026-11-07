@@ -1,0 +1,3383 @@
+{
+  "manifestId": "e01-extraction",
+  "finishedAt": "2026-11-07T02:02:52.310Z",
+  "variants": [
+    {
+      "variantId": "rules-extractor@current",
+      "provenance": "measured",
+      "split": "train",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.47368421052631576,
+          "numerator": 9,
+          "denominator": 19
+        },
+        "claims.observation.recall": {
+          "value": 0.8181818181818182,
+          "numerator": 9,
+          "denominator": 11
+        },
+        "claims.advice.precision": {
+          "value": 0.2857142857142857,
+          "numerator": 2,
+          "denominator": 7
+        },
+        "claims.advice.recall": {
+          "value": 0.2857142857142857,
+          "numerator": 2,
+          "denominator": 7
+        },
+        "claims.action.precision": {
+          "value": 0.8888888888888888,
+          "numerator": 8,
+          "denominator": 9
+        },
+        "claims.action.recall": {
+          "value": 0.7272727272727273,
+          "numerator": 8,
+          "denominator": 11
+        },
+        "claims.outcome.precision": {
+          "value": 0.6428571428571429,
+          "numerator": 9,
+          "denominator": 14
+        },
+        "claims.outcome.recall": {
+          "value": 1,
+          "numerator": 9,
+          "denominator": 9
+        },
+        "claims.condition.precision": {
+          "value": 0.42857142857142855,
+          "numerator": 3,
+          "denominator": 7
+        },
+        "claims.condition.recall": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "claims.other.precision": null,
+        "claims.other.recall": null,
+        "claims.all.precision": {
+          "value": 0.5517241379310345,
+          "numerator": 32,
+          "denominator": 58
+        },
+        "claims.all.recall": {
+          "value": 0.6808510638297872,
+          "numerator": 32,
+          "denominator": 47
+        },
+        "entities.recall": {
+          "value": 0.5384615384615384,
+          "numerator": 7,
+          "denominator": 13
+        },
+        "cases.falseMergeRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0.09375,
+          "numerator": 3,
+          "denominator": 32
+        },
+        "attribution.attemptPerformerErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "attribution.attemptPerformedStateErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "attribution.attemptsNotInTruthRate": {
+          "value": 0.2222222222222222,
+          "numerator": 2,
+          "denominator": 9
+        },
+        "attribution.outcomeReporterErrorRate": {
+          "value": 0.4375,
+          "numerator": 7,
+          "denominator": 16
+        },
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0.03125,
+          "numerator": 2,
+          "denominator": 64
+        },
+        "copies.overcountRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "claims.hypothesis.precision": {
+          "value": 0.5,
+          "numerator": 1,
+          "denominator": 2
+        },
+        "claims.hypothesis.recall": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "copies.overcountRate.noLineage": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "usefulness.accuracy": {
+          "value": 0.8392857142857143,
+          "numerator": 47,
+          "denominator": 56
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 2,
+        "claims.observation.unknown": 0,
+        "claims.advice.ambiguous": 2,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 2,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 2,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 4,
+        "claims.condition.unknown": 0,
+        "claims.other.ambiguous": 0,
+        "claims.other.unknown": 5,
+        "claims.all.ambiguous": 12,
+        "claims.all.unknown": 5,
+        "entities.systemNonPerson": 8,
+        "entities.extraNonTruth": 1,
+        "cases.missingIncidents": 0,
+        "attribution.claimPersonUnattributed": 0,
+        "attribution.attemptsNotInTruth": 2,
+        "claims.hypothesis.ambiguous": 0,
+        "claims.hypothesis.unknown": 0,
+        "e01.families": 4,
+        "e01.claims": 75,
+        "e01.entities": 30,
+        "e01.cases": 7,
+        "e01.links": 65,
+        "e01.attempts": 9,
+        "e01.outcomes": 16,
+        "usefulness.abstained": 10
+      },
+      "failures": [
+        {
+          "id": "A#1",
+          "metric": "claims.recall",
+          "reason": "missed condition claim: \"AGG-014 upgraded from firmware 9.3.7 to 9.4.2\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_b45378dae082cfa3e552",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"AGG-031: CRC errors are climbing on the east link though.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_c0f43751257a6293e248",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"AGG-014: It started right after the firmware upgrade at 09:40.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_8b3237815261f903b3b9",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"AGG-014: It was 9.3.7 before.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_49a27f1b9afbe50dbca3",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"AGG-014: The peers behind the long-haul link need 90.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_0f84a0918d5f5569dde2",
+          "metric": "claims.precision",
+          "reason": "unsupported outcome claim: \"AGG-014: Still up after ten minutes, no flaps and the counters look clean.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "AGG-044",
+          "metric": "entities.recall",
+          "reason": "entity \"AGG-044\" not found",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_3955e285b5fc9aa20b1f",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:toivo-aaltonen, truth person:directory:hanna-kallio",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "outcome_eea409d4488bcc73d340",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:toivo-aaltonen, truth person:directory:hanna-kallio",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "plink_0f100073846ab6808bd2",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:aino-hirvonen has no firsthand knowledge of incident B",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "plink_9849ccb430dea50f9e0f",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:aino-hirvonen has no firsthand knowledge of incident B",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "A#1",
+          "metric": "claims.recall",
+          "reason": "missed condition claim: \"OLT-210 is an outdoor cabinet of 2015 build\"",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Check and replace the dust filter first because the cabinet type clogs with pollen in spring\"",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "B#5",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Replace the fan tray only on FT-2 cabinets from 2015 and 2016 builds and escalate newer FT-3 cabinets\"",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "claim_53ebf3cba13dfa6b9737",
+          "metric": "claims.precision",
+          "reason": "unsupported hypothesis claim: \"In spring, high inlet temperature on the 2015-build outdoor cabinets is usually \"",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "OLT-210 fan tray 2",
+          "metric": "entities.recall",
+          "reason": "entity \"OLT-210 fan tray 2\" not found",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "OLT-210 dust filter",
+          "metric": "entities.recall",
+          "reason": "entity \"OLT-210 dust filter\" not found",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "outcome_99942dfa15b53992f3fd",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:leena-kuusisto, truth person:directory:vesa-hakala",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed hypothesis claim: \"Template v7 changed the voice VLAN range\"",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "A#3",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Roll ACC-12 back to the v6 template\"",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "ACC-33",
+          "metric": "entities.recall",
+          "reason": "entity \"ACC-33\" not found",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "config template v7",
+          "metric": "entities.recall",
+          "reason": "entity \"config template v7\" not found",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "claim_8b50d4c29b2a273be27a",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:jarmo-heikkinen, truth person:directory:antti-korhonen",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "outcome_ed3ba61331cb983e829c",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:jarmo-heikkinen, truth person:directory:antti-korhonen",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "outcome_8a784e9084eb2485c7d9",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:jarmo-heikkinen, truth person:directory:antti-korhonen",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "HUB-07 uplink patch cord",
+          "metric": "entities.recall",
+          "reason": "entity \"HUB-07 uplink patch cord\" not found",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "claim_9f38066f88d3a292e81c",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:kimmo-rautio, truth person:directory:aila-nurmi",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "attempt_22d43ce3141f65fa2f1a",
+          "metric": "attribution.attemptsNotInTruth",
+          "reason": "attempt \"cord.replace\" matches no truth attempt of incident A",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "attempt_c5d1f1297c8f9e53cb1c",
+          "metric": "attribution.attemptsNotInTruth",
+          "reason": "attempt \"connector.clean\" matches no truth attempt of incident A",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "outcome_2d66778786d4d55663b6",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:kimmo-rautio, truth person:directory:aila-nurmi",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "outcome_9c397d001bda37a22c93",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:kimmo-rautio, truth person:directory:aila-nurmi",
+          "familyId": "cabling-pinch"
+        }
+      ],
+      "failureSlicesByTag": {
+        "lookalike-different-cause": {
+          "count": 11,
+          "ids": [
+            "A#1",
+            "claim_b45378dae082cfa3e552",
+            "claim_c0f43751257a6293e248",
+            "claim_8b3237815261f903b3b9",
+            "claim_49a27f1b9afbe50dbca3",
+            "claim_0f84a0918d5f5569dde2",
+            "AGG-044",
+            "claim_3955e285b5fc9aa20b1f",
+            "outcome_eea409d4488bcc73d340",
+            "plink_0f100073846ab6808bd2",
+            "plink_9849ccb430dea50f9e0f"
+          ]
+        },
+        "multi-step": {
+          "count": 29,
+          "ids": [
+            "A#1",
+            "claim_b45378dae082cfa3e552",
+            "claim_c0f43751257a6293e248",
+            "claim_8b3237815261f903b3b9",
+            "claim_49a27f1b9afbe50dbca3",
+            "claim_0f84a0918d5f5569dde2",
+            "AGG-044",
+            "claim_3955e285b5fc9aa20b1f",
+            "outcome_eea409d4488bcc73d340",
+            "plink_0f100073846ab6808bd2",
+            "plink_9849ccb430dea50f9e0f",
+            "A#0",
+            "A#2",
+            "A#6",
+            "A#7",
+            "A#10",
+            "claim_864eebd96038e0358e5d",
+            "claim_3f4d7adb49bc17b60d98",
+            "claim_881336d617a4a6245f2b",
+            "claim_93cf4c5372474868fe3b",
+            "claim_26af3d3fac1d8b7d0230",
+            "claim_5842cf462ed86bbecfee",
+            "HUB-07 uplink patch cord",
+            "claim_9f38066f88d3a292e81c",
+            "attempt_22d43ce3141f65fa2f1a",
+            "attempt_c5d1f1297c8f9e53cb1c",
+            "outcome_2d66778786d4d55663b6",
+            "outcome_9c397d001bda37a22c93",
+            "outcome_b2edc2b4d63347b13fd2"
+          ]
+        },
+        "recurrence": {
+          "count": 11,
+          "ids": [
+            "A#1",
+            "claim_b45378dae082cfa3e552",
+            "claim_c0f43751257a6293e248",
+            "claim_8b3237815261f903b3b9",
+            "claim_49a27f1b9afbe50dbca3",
+            "claim_0f84a0918d5f5569dde2",
+            "AGG-044",
+            "claim_3955e285b5fc9aa20b1f",
+            "outcome_eea409d4488bcc73d340",
+            "plink_0f100073846ab6808bd2",
+            "plink_9849ccb430dea50f9e0f"
+          ]
+        },
+        "conflicting-conditions": {
+          "count": 43,
+          "ids": [
+            "A#1",
+            "claim_b45378dae082cfa3e552",
+            "claim_c0f43751257a6293e248",
+            "claim_8b3237815261f903b3b9",
+            "claim_49a27f1b9afbe50dbca3",
+            "claim_0f84a0918d5f5569dde2",
+            "AGG-044",
+            "claim_3955e285b5fc9aa20b1f",
+            "outcome_eea409d4488bcc73d340",
+            "plink_0f100073846ab6808bd2",
+            "plink_9849ccb430dea50f9e0f",
+            "A#2",
+            "B#5",
+            "claim_53ebf3cba13dfa6b9737",
+            "claim_df0d009e388b9acf7ecf",
+            "claim_2829b5b24975d65bb862",
+            "claim_2d854e1afa8c437bcaf8",
+            "claim_95155dd477fc6d8e3382",
+            "claim_8b39dc3f5e44acc66f6f",
+            "claim_af795bffa75221c6b948",
+            "claim_f5a108299cf3b46c7a9d",
+            "claim_c52b12752960ad4c2a13",
+            "claim_43a419c9af4c25d46098",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "outcome_99942dfa15b53992f3fd",
+            "A#3",
+            "B#0",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_fe402c505d8d8d37a7d9",
+            "claim_64a0ef2aae4a2166aaca",
+            "claim_5af14355ef7b2fb93578",
+            "claim_3db9d071d0b95415c972",
+            "claim_611eb93ed4a7dedd86f2",
+            "ACC-33",
+            "config template v7",
+            "claim_8b50d4c29b2a273be27a",
+            "outcome_ed3ba61331cb983e829c",
+            "outcome_8a784e9084eb2485c7d9"
+          ]
+        },
+        "temporary-recovery": {
+          "count": 16,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#5",
+            "claim_53ebf3cba13dfa6b9737",
+            "claim_df0d009e388b9acf7ecf",
+            "claim_2829b5b24975d65bb862",
+            "claim_2d854e1afa8c437bcaf8",
+            "claim_95155dd477fc6d8e3382",
+            "claim_8b39dc3f5e44acc66f6f",
+            "claim_af795bffa75221c6b948",
+            "claim_f5a108299cf3b46c7a9d",
+            "claim_c52b12752960ad4c2a13",
+            "claim_43a419c9af4c25d46098",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "outcome_99942dfa15b53992f3fd"
+          ]
+        },
+        "duplicate-report": {
+          "count": 16,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#5",
+            "claim_53ebf3cba13dfa6b9737",
+            "claim_df0d009e388b9acf7ecf",
+            "claim_2829b5b24975d65bb862",
+            "claim_2d854e1afa8c437bcaf8",
+            "claim_95155dd477fc6d8e3382",
+            "claim_8b39dc3f5e44acc66f6f",
+            "claim_af795bffa75221c6b948",
+            "claim_f5a108299cf3b46c7a9d",
+            "claim_c52b12752960ad4c2a13",
+            "claim_43a419c9af4c25d46098",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "outcome_99942dfa15b53992f3fd"
+          ]
+        },
+        "no-question-needed": {
+          "count": 16,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#5",
+            "claim_53ebf3cba13dfa6b9737",
+            "claim_df0d009e388b9acf7ecf",
+            "claim_2829b5b24975d65bb862",
+            "claim_2d854e1afa8c437bcaf8",
+            "claim_95155dd477fc6d8e3382",
+            "claim_8b39dc3f5e44acc66f6f",
+            "claim_af795bffa75221c6b948",
+            "claim_f5a108299cf3b46c7a9d",
+            "claim_c52b12752960ad4c2a13",
+            "claim_43a419c9af4c25d46098",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "outcome_99942dfa15b53992f3fd"
+          ]
+        },
+        "changed-permissions": {
+          "count": 16,
+          "ids": [
+            "A#2",
+            "A#3",
+            "B#0",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_fe402c505d8d8d37a7d9",
+            "claim_64a0ef2aae4a2166aaca",
+            "claim_5af14355ef7b2fb93578",
+            "claim_3db9d071d0b95415c972",
+            "claim_611eb93ed4a7dedd86f2",
+            "ACC-33",
+            "config template v7",
+            "claim_8b50d4c29b2a273be27a",
+            "outcome_ed3ba61331cb983e829c",
+            "outcome_8a784e9084eb2485c7d9"
+          ]
+        },
+        "wrong-recipient-trap": {
+          "count": 16,
+          "ids": [
+            "A#2",
+            "A#3",
+            "B#0",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_fe402c505d8d8d37a7d9",
+            "claim_64a0ef2aae4a2166aaca",
+            "claim_5af14355ef7b2fb93578",
+            "claim_3db9d071d0b95415c972",
+            "claim_611eb93ed4a7dedd86f2",
+            "ACC-33",
+            "config template v7",
+            "claim_8b50d4c29b2a273be27a",
+            "outcome_ed3ba61331cb983e829c",
+            "outcome_8a784e9084eb2485c7d9"
+          ]
+        },
+        "copied-retelling": {
+          "count": 16,
+          "ids": [
+            "A#2",
+            "A#3",
+            "B#0",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_fe402c505d8d8d37a7d9",
+            "claim_64a0ef2aae4a2166aaca",
+            "claim_5af14355ef7b2fb93578",
+            "claim_3db9d071d0b95415c972",
+            "claim_611eb93ed4a7dedd86f2",
+            "ACC-33",
+            "config template v7",
+            "claim_8b50d4c29b2a273be27a",
+            "outcome_ed3ba61331cb983e829c",
+            "outcome_8a784e9084eb2485c7d9"
+          ]
+        },
+        "useful-no": {
+          "count": 16,
+          "ids": [
+            "A#2",
+            "A#3",
+            "B#0",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_fe402c505d8d8d37a7d9",
+            "claim_64a0ef2aae4a2166aaca",
+            "claim_5af14355ef7b2fb93578",
+            "claim_3db9d071d0b95415c972",
+            "claim_611eb93ed4a7dedd86f2",
+            "ACC-33",
+            "config template v7",
+            "claim_8b50d4c29b2a273be27a",
+            "outcome_ed3ba61331cb983e829c",
+            "outcome_8a784e9084eb2485c7d9"
+          ]
+        },
+        "same-incident-continuation": {
+          "count": 18,
+          "ids": [
+            "A#0",
+            "A#2",
+            "A#6",
+            "A#7",
+            "A#10",
+            "claim_864eebd96038e0358e5d",
+            "claim_3f4d7adb49bc17b60d98",
+            "claim_881336d617a4a6245f2b",
+            "claim_93cf4c5372474868fe3b",
+            "claim_26af3d3fac1d8b7d0230",
+            "claim_5842cf462ed86bbecfee",
+            "HUB-07 uplink patch cord",
+            "claim_9f38066f88d3a292e81c",
+            "attempt_22d43ce3141f65fa2f1a",
+            "attempt_c5d1f1297c8f9e53cb1c",
+            "outcome_2d66778786d4d55663b6",
+            "outcome_9c397d001bda37a22c93",
+            "outcome_b2edc2b4d63347b13fd2"
+          ]
+        },
+        "no-answer": {
+          "count": 18,
+          "ids": [
+            "A#0",
+            "A#2",
+            "A#6",
+            "A#7",
+            "A#10",
+            "claim_864eebd96038e0358e5d",
+            "claim_3f4d7adb49bc17b60d98",
+            "claim_881336d617a4a6245f2b",
+            "claim_93cf4c5372474868fe3b",
+            "claim_26af3d3fac1d8b7d0230",
+            "claim_5842cf462ed86bbecfee",
+            "HUB-07 uplink patch cord",
+            "claim_9f38066f88d3a292e81c",
+            "attempt_22d43ce3141f65fa2f1a",
+            "attempt_c5d1f1297c8f9e53cb1c",
+            "outcome_2d66778786d4d55663b6",
+            "outcome_9c397d001bda37a22c93",
+            "outcome_b2edc2b4d63347b13fd2"
+          ]
+        }
+      }
+    },
+    {
+      "variantId": "claude-agent-arm",
+      "provenance": "replay-fixture",
+      "split": "train",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.4666666666666667,
+          "numerator": 7,
+          "denominator": 15
+        },
+        "claims.observation.recall": {
+          "value": 0.6363636363636364,
+          "numerator": 7,
+          "denominator": 11
+        },
+        "claims.hypothesis.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "claims.hypothesis.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "claims.advice.precision": {
+          "value": 0.4444444444444444,
+          "numerator": 4,
+          "denominator": 9
+        },
+        "claims.advice.recall": {
+          "value": 0.5714285714285714,
+          "numerator": 4,
+          "denominator": 7
+        },
+        "claims.action.precision": {
+          "value": 0.6,
+          "numerator": 9,
+          "denominator": 15
+        },
+        "claims.action.recall": {
+          "value": 0.8181818181818182,
+          "numerator": 9,
+          "denominator": 11
+        },
+        "claims.outcome.precision": {
+          "value": 0.2222222222222222,
+          "numerator": 2,
+          "denominator": 9
+        },
+        "claims.outcome.recall": {
+          "value": 0.2222222222222222,
+          "numerator": 2,
+          "denominator": 9
+        },
+        "claims.condition.precision": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "claims.condition.recall": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "claims.other.precision": null,
+        "claims.other.recall": null,
+        "claims.all.precision": {
+          "value": 0.44642857142857145,
+          "numerator": 25,
+          "denominator": 56
+        },
+        "claims.all.recall": {
+          "value": 0.5319148936170213,
+          "numerator": 25,
+          "denominator": 47
+        },
+        "entities.recall": {
+          "value": 0.6153846153846154,
+          "numerator": 8,
+          "denominator": 13
+        },
+        "cases.falseMergeRate": {
+          "value": 0.16666666666666666,
+          "numerator": 1,
+          "denominator": 6
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0.04,
+          "numerator": 1,
+          "denominator": 25
+        },
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0.07407407407407407,
+          "numerator": 2,
+          "denominator": 27
+        },
+        "copies.overcountRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "copies.overcountRate.noLineage": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "usefulness.accuracy": {
+          "value": 0.9310344827586207,
+          "numerator": 54,
+          "denominator": 58
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 5,
+        "claims.observation.unknown": 0,
+        "claims.hypothesis.ambiguous": 1,
+        "claims.hypothesis.unknown": 0,
+        "claims.advice.ambiguous": 2,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 1,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 7,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 1,
+        "claims.condition.unknown": 0,
+        "claims.other.ambiguous": 0,
+        "claims.other.unknown": 2,
+        "claims.all.ambiguous": 17,
+        "claims.all.unknown": 2,
+        "entities.systemNonPerson": 31,
+        "entities.extraNonTruth": 23,
+        "cases.missingIncidents": 0,
+        "attribution.claimPersonUnattributed": 0,
+        "e01.families": 4,
+        "e01.claims": 75,
+        "e01.entities": 47,
+        "e01.cases": 6,
+        "e01.links": 35,
+        "e01.attempts": 0,
+        "e01.outcomes": 0,
+        "mapping.evidenceRefs": 274,
+        "mapping.evidenceRefsMapped": 274,
+        "mapping.unmappedIds": 0,
+        "mapping.claimsProposed": 75,
+        "mapping.claimsDropped": 0,
+        "mapping.linksProposed": 35,
+        "mapping.linksDropped": 0,
+        "mapping.incidentsProposed": 6,
+        "mapping.incidentEvidenceIds": 57,
+        "mapping.incidentEvidenceIdsMapped": 57,
+        "mapping.ambiguousKeys": 0,
+        "usefulness.abstained": 8
+      },
+      "failures": [
+        {
+          "id": "A#1",
+          "metric": "claims.recall",
+          "reason": "missed condition claim: \"AGG-014 upgraded from firmware 9.3.7 to 9.4.2\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed condition claim: \"The upgrade bundle carried new hold timers of 30 seconds instead of 90\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "A#3",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Roll back the hold timer part of the config and keep the new firmware\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "A#5",
+          "metric": "claims.recall",
+          "reason": "missed outcome claim: \"Both BGP sessions are up with no flaps after the hold timer rollback\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "A#6",
+          "metric": "claims.recall",
+          "reason": "missed outcome claim: \"No flaps for three days after the rollback so the ticket can be closed\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "B#0",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"AGG-031 BGP session to the east peer flaps after the 9.4.2 upgrade\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_ff30899ef2930fe68435",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"The peers behind the long-haul link need a 90 second hold timer.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_08c99515ad14b7328123",
+          "metric": "claims.precision",
+          "reason": "unsupported hypothesis claim: \"Lauri thinks the changed hold-timer default (30 s vs 90 s) is probably the cause\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_96f3ca8fd51e5be43f91",
+          "metric": "claims.precision",
+          "reason": "unsupported outcome claim: \"Ten minutes after the rollback AGG-014 is still up, no flaps, counters look clea\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_41a2fc9350951a89f2cc",
+          "metric": "claims.precision",
+          "reason": "unsupported action claim: \"Lauri will tell the vendor that the hold-timer default changed (announced, not r\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_45712008b8fb3b902d48",
+          "metric": "claims.precision",
+          "reason": "unsupported outcome claim: \"Three days after the hold timer rollback AGG-014 has had no flaps on either peer\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_4543400f411e44341bf8",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"BGP to the east peer on AGG-031 has been flapping since the 9.4.2 upgrade the pr\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "AGG-044",
+          "metric": "entities.recall",
+          "reason": "entity \"AGG-044\" not found",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "plink_b145e0e96717d1350740",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:aino-hirvonen has no firsthand knowledge of incident B",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "OLT-210 fan tray 2",
+          "metric": "entities.recall",
+          "reason": "entity \"OLT-210 fan tray 2\" not found",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "OLT-210 dust filter",
+          "metric": "entities.recall",
+          "reason": "entity \"OLT-210 dust filter\" not found",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "case_c766184f57a61953fc1c",
+          "metric": "cases.falseMergeRate",
+          "reason": "case merges incidents A, B",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "plink_d25ff54605853c798509",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:onni-jokinen has no firsthand knowledge of incident A",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "ACC-33",
+          "metric": "entities.recall",
+          "reason": "entity \"ACC-33\" not found",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "claim_30b31c5d86f90e15aaf8",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:sirkka-lindholm, truth person:directory:jarmo-heikkinen",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "HUB-07 uplink patch cord",
+          "metric": "entities.recall",
+          "reason": "entity \"HUB-07 uplink patch cord\" not found",
+          "familyId": "cabling-pinch"
+        }
+      ],
+      "failureSlicesByTag": {
+        "lookalike-different-cause": {
+          "count": 16,
+          "ids": [
+            "A#1",
+            "A#2",
+            "A#3",
+            "A#5",
+            "A#6",
+            "B#0",
+            "B#1",
+            "claim_ff30899ef2930fe68435",
+            "claim_08c99515ad14b7328123",
+            "claim_96f3ca8fd51e5be43f91",
+            "claim_41a2fc9350951a89f2cc",
+            "claim_45712008b8fb3b902d48",
+            "claim_4543400f411e44341bf8",
+            "claim_9d8ecdfb733b2cc876cc",
+            "AGG-044",
+            "plink_b145e0e96717d1350740"
+          ]
+        },
+        "multi-step": {
+          "count": 32,
+          "ids": [
+            "A#1",
+            "A#2",
+            "A#3",
+            "A#5",
+            "A#6",
+            "B#0",
+            "B#1",
+            "claim_ff30899ef2930fe68435",
+            "claim_08c99515ad14b7328123",
+            "claim_96f3ca8fd51e5be43f91",
+            "claim_41a2fc9350951a89f2cc",
+            "claim_45712008b8fb3b902d48",
+            "claim_4543400f411e44341bf8",
+            "claim_9d8ecdfb733b2cc876cc",
+            "AGG-044",
+            "plink_b145e0e96717d1350740",
+            "A#0",
+            "A#4",
+            "A#7",
+            "A#9",
+            "claim_d26073c1472307604ad9",
+            "claim_fad78ae20ec6c9ea4fea",
+            "claim_a5e7c35158b24f059059",
+            "claim_e00aa5dbe26004d8c0fb",
+            "claim_59cdec17c787a6383f28",
+            "claim_d99b219c573b39941573",
+            "claim_051d8a72907ed8238351",
+            "claim_4d6ef88273612347c252",
+            "claim_33350fa3d612510829bf",
+            "HUB-07 uplink patch cord"
+          ]
+        },
+        "recurrence": {
+          "count": 16,
+          "ids": [
+            "A#1",
+            "A#2",
+            "A#3",
+            "A#5",
+            "A#6",
+            "B#0",
+            "B#1",
+            "claim_ff30899ef2930fe68435",
+            "claim_08c99515ad14b7328123",
+            "claim_96f3ca8fd51e5be43f91",
+            "claim_41a2fc9350951a89f2cc",
+            "claim_45712008b8fb3b902d48",
+            "claim_4543400f411e44341bf8",
+            "claim_9d8ecdfb733b2cc876cc",
+            "AGG-044",
+            "plink_b145e0e96717d1350740"
+          ]
+        },
+        "conflicting-conditions": {
+          "count": 46,
+          "ids": [
+            "A#1",
+            "A#2",
+            "A#3",
+            "A#5",
+            "A#6",
+            "B#0",
+            "B#1",
+            "claim_ff30899ef2930fe68435",
+            "claim_08c99515ad14b7328123",
+            "claim_96f3ca8fd51e5be43f91",
+            "claim_41a2fc9350951a89f2cc",
+            "claim_45712008b8fb3b902d48",
+            "claim_4543400f411e44341bf8",
+            "claim_9d8ecdfb733b2cc876cc",
+            "AGG-044",
+            "plink_b145e0e96717d1350740",
+            "A#0",
+            "B#2",
+            "B#4",
+            "B#5",
+            "claim_7f47074469f7c1242a1b",
+            "claim_840a74833fa3e541e871",
+            "claim_59c402e53c27e4ac5585",
+            "claim_8226cf787404077a50d6",
+            "claim_185bb6daf653316fe61d",
+            "claim_50913a9726276745585c",
+            "claim_0b2b45de6b7263714840",
+            "claim_5deee207788197ae1046",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "case_c766184f57a61953fc1c",
+            "plink_d25ff54605853c798509",
+            "claim_1d61e4df906e5d8e73d9",
+            "claim_feaa64a1559f189c5d8d",
+            "claim_54674af3a8fc795de604",
+            "claim_1bacbbcd3677537db04d",
+            "claim_2b92d2021ff60178e586",
+            "claim_beca187b4f9f823a83f5",
+            "claim_b6f2d808cd8816f5583c",
+            "ACC-33",
+            "claim_30b31c5d86f90e15aaf8"
+          ]
+        },
+        "temporary-recovery": {
+          "count": 18,
+          "ids": [
+            "A#0",
+            "A#5",
+            "B#1",
+            "B#2",
+            "B#4",
+            "B#5",
+            "claim_7f47074469f7c1242a1b",
+            "claim_840a74833fa3e541e871",
+            "claim_59c402e53c27e4ac5585",
+            "claim_8226cf787404077a50d6",
+            "claim_185bb6daf653316fe61d",
+            "claim_50913a9726276745585c",
+            "claim_0b2b45de6b7263714840",
+            "claim_5deee207788197ae1046",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "case_c766184f57a61953fc1c",
+            "plink_d25ff54605853c798509"
+          ]
+        },
+        "duplicate-report": {
+          "count": 18,
+          "ids": [
+            "A#0",
+            "A#5",
+            "B#1",
+            "B#2",
+            "B#4",
+            "B#5",
+            "claim_7f47074469f7c1242a1b",
+            "claim_840a74833fa3e541e871",
+            "claim_59c402e53c27e4ac5585",
+            "claim_8226cf787404077a50d6",
+            "claim_185bb6daf653316fe61d",
+            "claim_50913a9726276745585c",
+            "claim_0b2b45de6b7263714840",
+            "claim_5deee207788197ae1046",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "case_c766184f57a61953fc1c",
+            "plink_d25ff54605853c798509"
+          ]
+        },
+        "no-question-needed": {
+          "count": 18,
+          "ids": [
+            "A#0",
+            "A#5",
+            "B#1",
+            "B#2",
+            "B#4",
+            "B#5",
+            "claim_7f47074469f7c1242a1b",
+            "claim_840a74833fa3e541e871",
+            "claim_59c402e53c27e4ac5585",
+            "claim_8226cf787404077a50d6",
+            "claim_185bb6daf653316fe61d",
+            "claim_50913a9726276745585c",
+            "claim_0b2b45de6b7263714840",
+            "claim_5deee207788197ae1046",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "case_c766184f57a61953fc1c",
+            "plink_d25ff54605853c798509"
+          ]
+        },
+        "changed-permissions": {
+          "count": 12,
+          "ids": [
+            "A#2",
+            "A#5",
+            "B#1",
+            "claim_1d61e4df906e5d8e73d9",
+            "claim_feaa64a1559f189c5d8d",
+            "claim_54674af3a8fc795de604",
+            "claim_1bacbbcd3677537db04d",
+            "claim_2b92d2021ff60178e586",
+            "claim_beca187b4f9f823a83f5",
+            "claim_b6f2d808cd8816f5583c",
+            "ACC-33",
+            "claim_30b31c5d86f90e15aaf8"
+          ]
+        },
+        "wrong-recipient-trap": {
+          "count": 12,
+          "ids": [
+            "A#2",
+            "A#5",
+            "B#1",
+            "claim_1d61e4df906e5d8e73d9",
+            "claim_feaa64a1559f189c5d8d",
+            "claim_54674af3a8fc795de604",
+            "claim_1bacbbcd3677537db04d",
+            "claim_2b92d2021ff60178e586",
+            "claim_beca187b4f9f823a83f5",
+            "claim_b6f2d808cd8816f5583c",
+            "ACC-33",
+            "claim_30b31c5d86f90e15aaf8"
+          ]
+        },
+        "copied-retelling": {
+          "count": 12,
+          "ids": [
+            "A#2",
+            "A#5",
+            "B#1",
+            "claim_1d61e4df906e5d8e73d9",
+            "claim_feaa64a1559f189c5d8d",
+            "claim_54674af3a8fc795de604",
+            "claim_1bacbbcd3677537db04d",
+            "claim_2b92d2021ff60178e586",
+            "claim_beca187b4f9f823a83f5",
+            "claim_b6f2d808cd8816f5583c",
+            "ACC-33",
+            "claim_30b31c5d86f90e15aaf8"
+          ]
+        },
+        "useful-no": {
+          "count": 12,
+          "ids": [
+            "A#2",
+            "A#5",
+            "B#1",
+            "claim_1d61e4df906e5d8e73d9",
+            "claim_feaa64a1559f189c5d8d",
+            "claim_54674af3a8fc795de604",
+            "claim_1bacbbcd3677537db04d",
+            "claim_2b92d2021ff60178e586",
+            "claim_beca187b4f9f823a83f5",
+            "claim_b6f2d808cd8816f5583c",
+            "ACC-33",
+            "claim_30b31c5d86f90e15aaf8"
+          ]
+        },
+        "same-incident-continuation": {
+          "count": 16,
+          "ids": [
+            "A#0",
+            "A#2",
+            "A#4",
+            "A#6",
+            "A#7",
+            "A#9",
+            "claim_d26073c1472307604ad9",
+            "claim_fad78ae20ec6c9ea4fea",
+            "claim_a5e7c35158b24f059059",
+            "claim_e00aa5dbe26004d8c0fb",
+            "claim_59cdec17c787a6383f28",
+            "claim_d99b219c573b39941573",
+            "claim_051d8a72907ed8238351",
+            "claim_4d6ef88273612347c252",
+            "claim_33350fa3d612510829bf",
+            "HUB-07 uplink patch cord"
+          ]
+        },
+        "no-answer": {
+          "count": 16,
+          "ids": [
+            "A#0",
+            "A#2",
+            "A#4",
+            "A#6",
+            "A#7",
+            "A#9",
+            "claim_d26073c1472307604ad9",
+            "claim_fad78ae20ec6c9ea4fea",
+            "claim_a5e7c35158b24f059059",
+            "claim_e00aa5dbe26004d8c0fb",
+            "claim_59cdec17c787a6383f28",
+            "claim_d99b219c573b39941573",
+            "claim_051d8a72907ed8238351",
+            "claim_4d6ef88273612347c252",
+            "claim_33350fa3d612510829bf",
+            "HUB-07 uplink patch cord"
+          ]
+        }
+      }
+    },
+    {
+      "variantId": "claude-agent-arm→commit",
+      "provenance": "replay-fixture",
+      "split": "train",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.4666666666666667,
+          "numerator": 7,
+          "denominator": 15
+        },
+        "claims.observation.recall": {
+          "value": 0.6363636363636364,
+          "numerator": 7,
+          "denominator": 11
+        },
+        "claims.hypothesis.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "claims.hypothesis.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "claims.advice.precision": {
+          "value": 0.4444444444444444,
+          "numerator": 4,
+          "denominator": 9
+        },
+        "claims.advice.recall": {
+          "value": 0.5714285714285714,
+          "numerator": 4,
+          "denominator": 7
+        },
+        "claims.action.precision": {
+          "value": 0.6,
+          "numerator": 9,
+          "denominator": 15
+        },
+        "claims.action.recall": {
+          "value": 0.8181818181818182,
+          "numerator": 9,
+          "denominator": 11
+        },
+        "claims.outcome.precision": {
+          "value": 0.2222222222222222,
+          "numerator": 2,
+          "denominator": 9
+        },
+        "claims.outcome.recall": {
+          "value": 0.2222222222222222,
+          "numerator": 2,
+          "denominator": 9
+        },
+        "claims.condition.precision": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "claims.condition.recall": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "claims.other.precision": null,
+        "claims.other.recall": null,
+        "claims.all.precision": {
+          "value": 0.44642857142857145,
+          "numerator": 25,
+          "denominator": 56
+        },
+        "claims.all.recall": {
+          "value": 0.5319148936170213,
+          "numerator": 25,
+          "denominator": 47
+        },
+        "entities.recall": {
+          "value": 0.6153846153846154,
+          "numerator": 8,
+          "denominator": 13
+        },
+        "cases.falseMergeRate": {
+          "value": 0.16666666666666666,
+          "numerator": 1,
+          "denominator": 6
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0.04,
+          "numerator": 1,
+          "denominator": 25
+        },
+        "attribution.attemptPerformerErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "attribution.attemptPerformedStateErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "attribution.attemptsNotInTruthRate": {
+          "value": 0.2,
+          "numerator": 1,
+          "denominator": 5
+        },
+        "attribution.outcomeReporterErrorRate": {
+          "value": 0.3125,
+          "numerator": 5,
+          "denominator": 16
+        },
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0.07407407407407407,
+          "numerator": 2,
+          "denominator": 27
+        },
+        "copies.overcountRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "copies.overcountRate.noLineage": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "usefulness.accuracy": {
+          "value": 0.9310344827586207,
+          "numerator": 54,
+          "denominator": 58
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 5,
+        "claims.observation.unknown": 0,
+        "claims.hypothesis.ambiguous": 1,
+        "claims.hypothesis.unknown": 0,
+        "claims.advice.ambiguous": 2,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 1,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 7,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 1,
+        "claims.condition.unknown": 0,
+        "claims.other.ambiguous": 0,
+        "claims.other.unknown": 2,
+        "claims.all.ambiguous": 17,
+        "claims.all.unknown": 2,
+        "entities.systemNonPerson": 31,
+        "entities.extraNonTruth": 23,
+        "cases.missingIncidents": 0,
+        "attribution.claimPersonUnattributed": 0,
+        "attribution.attemptsNotInTruth": 1,
+        "e01.families": 4,
+        "e01.claims": 75,
+        "e01.entities": 53,
+        "e01.cases": 6,
+        "e01.links": 35,
+        "e01.attempts": 5,
+        "e01.outcomes": 16,
+        "commit.claimsProposed": 75,
+        "commit.claimsStored": 75,
+        "commit.linksProposed": 35,
+        "commit.linksStored": 35,
+        "commit.actorIdsTranslated": 110,
+        "commit.casesStored": 6,
+        "usefulness.abstained": 8
+      },
+      "failures": [
+        {
+          "id": "A#1",
+          "metric": "claims.recall",
+          "reason": "missed condition claim: \"AGG-014 upgraded from firmware 9.3.7 to 9.4.2\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed condition claim: \"The upgrade bundle carried new hold timers of 30 seconds instead of 90\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "A#3",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Roll back the hold timer part of the config and keep the new firmware\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "A#5",
+          "metric": "claims.recall",
+          "reason": "missed outcome claim: \"Both BGP sessions are up with no flaps after the hold timer rollback\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "A#6",
+          "metric": "claims.recall",
+          "reason": "missed outcome claim: \"No flaps for three days after the rollback so the ticket can be closed\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "B#0",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"AGG-031 BGP session to the east peer flaps after the 9.4.2 upgrade\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_15afcca3e7a1726f6bfc",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"The peers behind the long-haul link need a 90 second hold timer.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_427075239c8088c3a9d1",
+          "metric": "claims.precision",
+          "reason": "unsupported hypothesis claim: \"Lauri thinks the changed hold-timer default (30 s vs 90 s) is probably the cause\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_9532f96788452b159295",
+          "metric": "claims.precision",
+          "reason": "unsupported outcome claim: \"Ten minutes after the rollback AGG-014 is still up, no flaps, counters look clea\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_3191af91017f6c2807c2",
+          "metric": "claims.precision",
+          "reason": "unsupported action claim: \"Lauri will tell the vendor that the hold-timer default changed (announced, not r\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_19b96f11aa774cf4ebb3",
+          "metric": "claims.precision",
+          "reason": "unsupported outcome claim: \"Three days after the hold timer rollback AGG-014 has had no flaps on either peer\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_d0f83b32e691c6c7af25",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"BGP to the east peer on AGG-031 has been flapping since the 9.4.2 upgrade the pr\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "AGG-044",
+          "metric": "entities.recall",
+          "reason": "entity \"AGG-044\" not found",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "outcome_c631713ce13b80f901a7",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:toivo-aaltonen, truth person:directory:hanna-kallio",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "plink_ca2462c2341fffb882a8",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:aino-hirvonen has no firsthand knowledge of incident B",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "OLT-210 fan tray 2",
+          "metric": "entities.recall",
+          "reason": "entity \"OLT-210 fan tray 2\" not found",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "OLT-210 dust filter",
+          "metric": "entities.recall",
+          "reason": "entity \"OLT-210 dust filter\" not found",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "case_b7b48f4356d2be335de2",
+          "metric": "cases.falseMergeRate",
+          "reason": "case merges incidents A, B",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "outcome_d215acf2d47fb3068e22",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:leena-kuusisto, truth person:directory:vesa-hakala",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "plink_ff2b74b7c22b759af52d",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:onni-jokinen has no firsthand knowledge of incident A",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "ACC-33",
+          "metric": "entities.recall",
+          "reason": "entity \"ACC-33\" not found",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "claim_dccbd7c3cdfca3297539",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:sirkka-lindholm, truth person:directory:jarmo-heikkinen",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "attempt_81049798c63c77bdff43",
+          "metric": "attribution.attemptsNotInTruth",
+          "reason": "attempt \"config.rollback\" matches no truth attempt (no incident resolved)",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "outcome_64070f8933e9675b5140",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:jarmo-heikkinen, truth person:directory:antti-korhonen",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "outcome_8040d903c19ddc72caab",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:jarmo-heikkinen, truth person:directory:antti-korhonen",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "HUB-07 uplink patch cord",
+          "metric": "entities.recall",
+          "reason": "entity \"HUB-07 uplink patch cord\" not found",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "outcome_c03a3e20b447093f8835",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:kimmo-rautio, truth person:directory:aila-nurmi",
+          "familyId": "cabling-pinch"
+        }
+      ],
+      "failureSlicesByTag": {
+        "lookalike-different-cause": {
+          "count": 17,
+          "ids": [
+            "A#1",
+            "A#2",
+            "A#3",
+            "A#5",
+            "A#6",
+            "B#0",
+            "B#1",
+            "claim_15afcca3e7a1726f6bfc",
+            "claim_427075239c8088c3a9d1",
+            "claim_9532f96788452b159295",
+            "claim_3191af91017f6c2807c2",
+            "claim_19b96f11aa774cf4ebb3",
+            "claim_d0f83b32e691c6c7af25",
+            "claim_1d52931810a40c54bc98",
+            "AGG-044",
+            "outcome_c631713ce13b80f901a7",
+            "plink_ca2462c2341fffb882a8"
+          ]
+        },
+        "multi-step": {
+          "count": 34,
+          "ids": [
+            "A#1",
+            "A#2",
+            "A#3",
+            "A#5",
+            "A#6",
+            "B#0",
+            "B#1",
+            "claim_15afcca3e7a1726f6bfc",
+            "claim_427075239c8088c3a9d1",
+            "claim_9532f96788452b159295",
+            "claim_3191af91017f6c2807c2",
+            "claim_19b96f11aa774cf4ebb3",
+            "claim_d0f83b32e691c6c7af25",
+            "claim_1d52931810a40c54bc98",
+            "AGG-044",
+            "outcome_c631713ce13b80f901a7",
+            "plink_ca2462c2341fffb882a8",
+            "A#0",
+            "A#4",
+            "A#7",
+            "A#9",
+            "claim_636ae220d54b6b997f52",
+            "claim_2578ff7d4dd6e92d1ef3",
+            "claim_6ce2332a1107c780fbaa",
+            "claim_8dce8a889c2219a20f19",
+            "claim_3d6068cd115752df62ab",
+            "claim_c91ecfbea972285ca684",
+            "claim_b48afca23a8e60d6cb09",
+            "claim_3e7de165cfd96b96fcce",
+            "claim_c51b310aa6c0a4a89ae0",
+            "HUB-07 uplink patch cord",
+            "outcome_c03a3e20b447093f8835"
+          ]
+        },
+        "recurrence": {
+          "count": 17,
+          "ids": [
+            "A#1",
+            "A#2",
+            "A#3",
+            "A#5",
+            "A#6",
+            "B#0",
+            "B#1",
+            "claim_15afcca3e7a1726f6bfc",
+            "claim_427075239c8088c3a9d1",
+            "claim_9532f96788452b159295",
+            "claim_3191af91017f6c2807c2",
+            "claim_19b96f11aa774cf4ebb3",
+            "claim_d0f83b32e691c6c7af25",
+            "claim_1d52931810a40c54bc98",
+            "AGG-044",
+            "outcome_c631713ce13b80f901a7",
+            "plink_ca2462c2341fffb882a8"
+          ]
+        },
+        "conflicting-conditions": {
+          "count": 51,
+          "ids": [
+            "A#1",
+            "A#2",
+            "A#3",
+            "A#5",
+            "A#6",
+            "B#0",
+            "B#1",
+            "claim_15afcca3e7a1726f6bfc",
+            "claim_427075239c8088c3a9d1",
+            "claim_9532f96788452b159295",
+            "claim_3191af91017f6c2807c2",
+            "claim_19b96f11aa774cf4ebb3",
+            "claim_d0f83b32e691c6c7af25",
+            "claim_1d52931810a40c54bc98",
+            "AGG-044",
+            "outcome_c631713ce13b80f901a7",
+            "plink_ca2462c2341fffb882a8",
+            "A#0",
+            "B#2",
+            "B#4",
+            "B#5",
+            "claim_49e4e4326f942fbf9f6e",
+            "claim_013ab7f85002278037b2",
+            "claim_19cb6a50b4e3309975d3",
+            "claim_d46900927b96a8f3a316",
+            "claim_422657408d857e313558",
+            "claim_380ae0a309a1faa8a868",
+            "claim_b4ce01f89fc233e54de7",
+            "claim_f38c5eeacbd918c98539",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "case_b7b48f4356d2be335de2",
+            "outcome_d215acf2d47fb3068e22",
+            "plink_ff2b74b7c22b759af52d",
+            "claim_6e4e70be0a3506b45841",
+            "claim_7cab66f5f2a7c42fdbfe",
+            "claim_df0befc63c69c089f7fc",
+            "claim_dc06959329d9a191a1c0",
+            "claim_0b357fb70d561e16c288",
+            "claim_d40fbfc88e11204f1065",
+            "claim_f34faa6c7cb45c485008",
+            "ACC-33",
+            "claim_dccbd7c3cdfca3297539",
+            "attempt_81049798c63c77bdff43",
+            "outcome_64070f8933e9675b5140",
+            "outcome_8040d903c19ddc72caab"
+          ]
+        },
+        "temporary-recovery": {
+          "count": 19,
+          "ids": [
+            "A#0",
+            "A#5",
+            "B#1",
+            "B#2",
+            "B#4",
+            "B#5",
+            "claim_49e4e4326f942fbf9f6e",
+            "claim_013ab7f85002278037b2",
+            "claim_19cb6a50b4e3309975d3",
+            "claim_d46900927b96a8f3a316",
+            "claim_422657408d857e313558",
+            "claim_380ae0a309a1faa8a868",
+            "claim_b4ce01f89fc233e54de7",
+            "claim_f38c5eeacbd918c98539",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "case_b7b48f4356d2be335de2",
+            "outcome_d215acf2d47fb3068e22",
+            "plink_ff2b74b7c22b759af52d"
+          ]
+        },
+        "duplicate-report": {
+          "count": 19,
+          "ids": [
+            "A#0",
+            "A#5",
+            "B#1",
+            "B#2",
+            "B#4",
+            "B#5",
+            "claim_49e4e4326f942fbf9f6e",
+            "claim_013ab7f85002278037b2",
+            "claim_19cb6a50b4e3309975d3",
+            "claim_d46900927b96a8f3a316",
+            "claim_422657408d857e313558",
+            "claim_380ae0a309a1faa8a868",
+            "claim_b4ce01f89fc233e54de7",
+            "claim_f38c5eeacbd918c98539",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "case_b7b48f4356d2be335de2",
+            "outcome_d215acf2d47fb3068e22",
+            "plink_ff2b74b7c22b759af52d"
+          ]
+        },
+        "no-question-needed": {
+          "count": 19,
+          "ids": [
+            "A#0",
+            "A#5",
+            "B#1",
+            "B#2",
+            "B#4",
+            "B#5",
+            "claim_49e4e4326f942fbf9f6e",
+            "claim_013ab7f85002278037b2",
+            "claim_19cb6a50b4e3309975d3",
+            "claim_d46900927b96a8f3a316",
+            "claim_422657408d857e313558",
+            "claim_380ae0a309a1faa8a868",
+            "claim_b4ce01f89fc233e54de7",
+            "claim_f38c5eeacbd918c98539",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "case_b7b48f4356d2be335de2",
+            "outcome_d215acf2d47fb3068e22",
+            "plink_ff2b74b7c22b759af52d"
+          ]
+        },
+        "changed-permissions": {
+          "count": 15,
+          "ids": [
+            "A#2",
+            "A#5",
+            "B#1",
+            "claim_6e4e70be0a3506b45841",
+            "claim_7cab66f5f2a7c42fdbfe",
+            "claim_df0befc63c69c089f7fc",
+            "claim_dc06959329d9a191a1c0",
+            "claim_0b357fb70d561e16c288",
+            "claim_d40fbfc88e11204f1065",
+            "claim_f34faa6c7cb45c485008",
+            "ACC-33",
+            "claim_dccbd7c3cdfca3297539",
+            "attempt_81049798c63c77bdff43",
+            "outcome_64070f8933e9675b5140",
+            "outcome_8040d903c19ddc72caab"
+          ]
+        },
+        "wrong-recipient-trap": {
+          "count": 15,
+          "ids": [
+            "A#2",
+            "A#5",
+            "B#1",
+            "claim_6e4e70be0a3506b45841",
+            "claim_7cab66f5f2a7c42fdbfe",
+            "claim_df0befc63c69c089f7fc",
+            "claim_dc06959329d9a191a1c0",
+            "claim_0b357fb70d561e16c288",
+            "claim_d40fbfc88e11204f1065",
+            "claim_f34faa6c7cb45c485008",
+            "ACC-33",
+            "claim_dccbd7c3cdfca3297539",
+            "attempt_81049798c63c77bdff43",
+            "outcome_64070f8933e9675b5140",
+            "outcome_8040d903c19ddc72caab"
+          ]
+        },
+        "copied-retelling": {
+          "count": 15,
+          "ids": [
+            "A#2",
+            "A#5",
+            "B#1",
+            "claim_6e4e70be0a3506b45841",
+            "claim_7cab66f5f2a7c42fdbfe",
+            "claim_df0befc63c69c089f7fc",
+            "claim_dc06959329d9a191a1c0",
+            "claim_0b357fb70d561e16c288",
+            "claim_d40fbfc88e11204f1065",
+            "claim_f34faa6c7cb45c485008",
+            "ACC-33",
+            "claim_dccbd7c3cdfca3297539",
+            "attempt_81049798c63c77bdff43",
+            "outcome_64070f8933e9675b5140",
+            "outcome_8040d903c19ddc72caab"
+          ]
+        },
+        "useful-no": {
+          "count": 15,
+          "ids": [
+            "A#2",
+            "A#5",
+            "B#1",
+            "claim_6e4e70be0a3506b45841",
+            "claim_7cab66f5f2a7c42fdbfe",
+            "claim_df0befc63c69c089f7fc",
+            "claim_dc06959329d9a191a1c0",
+            "claim_0b357fb70d561e16c288",
+            "claim_d40fbfc88e11204f1065",
+            "claim_f34faa6c7cb45c485008",
+            "ACC-33",
+            "claim_dccbd7c3cdfca3297539",
+            "attempt_81049798c63c77bdff43",
+            "outcome_64070f8933e9675b5140",
+            "outcome_8040d903c19ddc72caab"
+          ]
+        },
+        "same-incident-continuation": {
+          "count": 17,
+          "ids": [
+            "A#0",
+            "A#2",
+            "A#4",
+            "A#6",
+            "A#7",
+            "A#9",
+            "claim_636ae220d54b6b997f52",
+            "claim_2578ff7d4dd6e92d1ef3",
+            "claim_6ce2332a1107c780fbaa",
+            "claim_8dce8a889c2219a20f19",
+            "claim_3d6068cd115752df62ab",
+            "claim_c91ecfbea972285ca684",
+            "claim_b48afca23a8e60d6cb09",
+            "claim_3e7de165cfd96b96fcce",
+            "claim_c51b310aa6c0a4a89ae0",
+            "HUB-07 uplink patch cord",
+            "outcome_c03a3e20b447093f8835"
+          ]
+        },
+        "no-answer": {
+          "count": 17,
+          "ids": [
+            "A#0",
+            "A#2",
+            "A#4",
+            "A#6",
+            "A#7",
+            "A#9",
+            "claim_636ae220d54b6b997f52",
+            "claim_2578ff7d4dd6e92d1ef3",
+            "claim_6ce2332a1107c780fbaa",
+            "claim_8dce8a889c2219a20f19",
+            "claim_3d6068cd115752df62ab",
+            "claim_c91ecfbea972285ca684",
+            "claim_b48afca23a8e60d6cb09",
+            "claim_3e7de165cfd96b96fcce",
+            "claim_c51b310aa6c0a4a89ae0",
+            "HUB-07 uplink patch cord",
+            "outcome_c03a3e20b447093f8835"
+          ]
+        }
+      }
+    },
+    {
+      "variantId": "rules-extractor@current",
+      "provenance": "measured",
+      "split": "validation",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.42857142857142855,
+          "numerator": 3,
+          "denominator": 7
+        },
+        "claims.observation.recall": {
+          "value": 0.6,
+          "numerator": 3,
+          "denominator": 5
+        },
+        "claims.hypothesis.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.hypothesis.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.advice.precision": {
+          "value": 0.14285714285714285,
+          "numerator": 1,
+          "denominator": 7
+        },
+        "claims.advice.recall": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "claims.action.precision": {
+          "value": 1,
+          "numerator": 5,
+          "denominator": 5
+        },
+        "claims.action.recall": {
+          "value": 1,
+          "numerator": 5,
+          "denominator": 5
+        },
+        "claims.outcome.precision": {
+          "value": 0.6,
+          "numerator": 3,
+          "denominator": 5
+        },
+        "claims.outcome.recall": {
+          "value": 0.75,
+          "numerator": 3,
+          "denominator": 4
+        },
+        "claims.condition.precision": {
+          "value": 0.2,
+          "numerator": 1,
+          "denominator": 5
+        },
+        "claims.condition.recall": {
+          "value": 1,
+          "numerator": 1,
+          "denominator": 1
+        },
+        "claims.access-fact.precision": {
+          "value": 0.25,
+          "numerator": 1,
+          "denominator": 4
+        },
+        "claims.access-fact.recall": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "claims.other.precision": null,
+        "claims.other.recall": null,
+        "claims.all.precision": {
+          "value": 0.4117647058823529,
+          "numerator": 14,
+          "denominator": 34
+        },
+        "claims.all.recall": {
+          "value": 0.6363636363636364,
+          "numerator": 14,
+          "denominator": 22
+        },
+        "entities.recall": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "cases.falseMergeRate": {
+          "value": 0.25,
+          "numerator": 1,
+          "denominator": 4
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0.07142857142857142,
+          "numerator": 1,
+          "denominator": 14
+        },
+        "attribution.attemptPerformerErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.attemptPerformedStateErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.attemptsNotInTruthRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.outcomeReporterErrorRate": {
+          "value": 0.2857142857142857,
+          "numerator": 2,
+          "denominator": 7
+        },
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0.0967741935483871,
+          "numerator": 3,
+          "denominator": 31
+        },
+        "copies.overcountRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "copies.overcountRate.noLineage": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "usefulness.accuracy": {
+          "value": 0.8275862068965517,
+          "numerator": 24,
+          "denominator": 29
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 3,
+        "claims.observation.unknown": 0,
+        "claims.hypothesis.ambiguous": 0,
+        "claims.hypothesis.unknown": 0,
+        "claims.advice.ambiguous": 0,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 0,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 2,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 0,
+        "claims.condition.unknown": 0,
+        "claims.access-fact.ambiguous": 0,
+        "claims.access-fact.unknown": 0,
+        "claims.other.ambiguous": 0,
+        "claims.other.unknown": 1,
+        "claims.all.ambiguous": 5,
+        "claims.all.unknown": 1,
+        "entities.systemNonPerson": 3,
+        "entities.extraNonTruth": 0,
+        "cases.missingIncidents": 0,
+        "attribution.claimPersonUnattributed": 0,
+        "attribution.attemptsNotInTruth": 0,
+        "e01.families": 2,
+        "e01.claims": 40,
+        "e01.entities": 15,
+        "e01.cases": 5,
+        "e01.links": 32,
+        "e01.attempts": 5,
+        "e01.outcomes": 7,
+        "usefulness.abstained": 3
+      },
+      "failures": [
+        {
+          "id": "A#1",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"The 48 V PSU at MW-77 shows about 3 volts peak to peak ripple\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Swap the PSU and keep an eye on the weak mains at that site\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "B#1",
+          "metric": "claims.recall",
+          "reason": "missed hypothesis claim: \"Mains at MW-77 sags to 185 V in the evenings and the 2018 battery string cannot bridge it\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "C#0",
+          "metric": "claims.recall",
+          "reason": "missed access-fact claim: \"MW-77 forest road gate key is held by the forest owner who must be called 24 hours before a visit\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "C#2",
+          "metric": "claims.recall",
+          "reason": "missed access-fact claim: \"Outside winter the van can drive to the MW-77 site\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_5c29654f8f1b3af1cb1c",
+          "metric": "claims.precision",
+          "reason": "unsupported access-fact claim: \"The forest road gate is locked with a padlock.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_cc0b95942b0101bfbee2",
+          "metric": "claims.precision",
+          "reason": "unsupported access-fact claim: \"The key is held by the forest owner, Tuomas Heiskanen.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_28f81ab5eea0675cc999",
+          "metric": "claims.precision",
+          "reason": "unsupported advice claim: \"Call him at least 24 hours before the visit.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_5c6104ecc04381e358af",
+          "metric": "claims.precision",
+          "reason": "unsupported access-fact claim: \"The cabin key is in the lockbox by the door, code 3290.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_31394f6f4a6d679c46b4",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"MW-77: No weather alarms, but an 'input voltage low' power alarm at the same mom\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_65fd50ebb728c9607f10",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"MW-77: Long-haul hop towards the Salmijärvi tower.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "MW-77 48V PSU",
+          "metric": "entities.recall",
+          "reason": "entity \"MW-77 48V PSU\" not found",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "MW-77 battery string",
+          "metric": "entities.recall",
+          "reason": "entity \"MW-77 battery string\" not found",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "case_b4f087419d6baa69968f",
+          "metric": "cases.falseMergeRate",
+          "reason": "case merges incidents A, C",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "outcome_f40a6009ded4cecf4290",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:tauno-hiltunen, truth person:directory:anneli-koivisto",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "plink_be6c32b061e188e1974a",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:maija-sundstrom has no firsthand knowledge of incident A",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "plink_42f0479ace09d312c8e2",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:maija-sundstrom has no firsthand knowledge of incident A",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Install patch 11.2.1 which fixes port flaps on LC-2 under firmware 11.2 and needs no reload\"",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "PE-12",
+          "metric": "entities.recall",
+          "reason": "entity \"PE-12\" not found",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "claim_36799fdf9ff0a5098f9d",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:ville-laakso, truth person:directory:anssi-heikura",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "outcome_410e34b3abadbb7d71b6",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:anssi-heikura, truth person:directory:pasi-tuomi",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "plink_218e2921452423d4b8a9",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:oskari-nieminen has no firsthand knowledge of incident B",
+          "familyId": "bgp-linecard-private"
+        }
+      ],
+      "failureSlicesByTag": {
+        "temporary-recovery": {
+          "count": 21,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#1",
+            "C#0",
+            "C#2",
+            "claim_5c29654f8f1b3af1cb1c",
+            "claim_cc0b95942b0101bfbee2",
+            "claim_28f81ab5eea0675cc999",
+            "claim_5c6104ecc04381e358af",
+            "claim_31394f6f4a6d679c46b4",
+            "claim_65fd50ebb728c9607f10",
+            "claim_90579605f8814ac3a7fa",
+            "claim_09b7516c8c58e03e9232",
+            "claim_2b58c7cf8ac167fb0f68",
+            "claim_606bc1946e61c8fc669f",
+            "MW-77 48V PSU",
+            "MW-77 battery string",
+            "case_b4f087419d6baa69968f",
+            "outcome_f40a6009ded4cecf4290",
+            "plink_be6c32b061e188e1974a",
+            "plink_42f0479ace09d312c8e2"
+          ]
+        },
+        "recurrence": {
+          "count": 21,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#1",
+            "C#0",
+            "C#2",
+            "claim_5c29654f8f1b3af1cb1c",
+            "claim_cc0b95942b0101bfbee2",
+            "claim_28f81ab5eea0675cc999",
+            "claim_5c6104ecc04381e358af",
+            "claim_31394f6f4a6d679c46b4",
+            "claim_65fd50ebb728c9607f10",
+            "claim_90579605f8814ac3a7fa",
+            "claim_09b7516c8c58e03e9232",
+            "claim_2b58c7cf8ac167fb0f68",
+            "claim_606bc1946e61c8fc669f",
+            "MW-77 48V PSU",
+            "MW-77 battery string",
+            "case_b4f087419d6baa69968f",
+            "outcome_f40a6009ded4cecf4290",
+            "plink_be6c32b061e188e1974a",
+            "plink_42f0479ace09d312c8e2"
+          ]
+        },
+        "access-fact": {
+          "count": 21,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#1",
+            "C#0",
+            "C#2",
+            "claim_5c29654f8f1b3af1cb1c",
+            "claim_cc0b95942b0101bfbee2",
+            "claim_28f81ab5eea0675cc999",
+            "claim_5c6104ecc04381e358af",
+            "claim_31394f6f4a6d679c46b4",
+            "claim_65fd50ebb728c9607f10",
+            "claim_90579605f8814ac3a7fa",
+            "claim_09b7516c8c58e03e9232",
+            "claim_2b58c7cf8ac167fb0f68",
+            "claim_606bc1946e61c8fc669f",
+            "MW-77 48V PSU",
+            "MW-77 battery string",
+            "case_b4f087419d6baa69968f",
+            "outcome_f40a6009ded4cecf4290",
+            "plink_be6c32b061e188e1974a",
+            "plink_42f0479ace09d312c8e2"
+          ]
+        },
+        "no-question-needed": {
+          "count": 21,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#1",
+            "C#0",
+            "C#2",
+            "claim_5c29654f8f1b3af1cb1c",
+            "claim_cc0b95942b0101bfbee2",
+            "claim_28f81ab5eea0675cc999",
+            "claim_5c6104ecc04381e358af",
+            "claim_31394f6f4a6d679c46b4",
+            "claim_65fd50ebb728c9607f10",
+            "claim_90579605f8814ac3a7fa",
+            "claim_09b7516c8c58e03e9232",
+            "claim_2b58c7cf8ac167fb0f68",
+            "claim_606bc1946e61c8fc669f",
+            "MW-77 48V PSU",
+            "MW-77 battery string",
+            "case_b4f087419d6baa69968f",
+            "outcome_f40a6009ded4cecf4290",
+            "plink_be6c32b061e188e1974a",
+            "plink_42f0479ace09d312c8e2"
+          ]
+        },
+        "lookalike-different-cause": {
+          "count": 17,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#0",
+            "claim_15c55a085020563e737a",
+            "claim_dfb7a668a12a5d16894c",
+            "claim_9d37187c9b5b863df2e9",
+            "claim_39f514673b7a135f5caf",
+            "claim_cdaa46b32e2ea41e171e",
+            "claim_58c837a00ff0ef925adc",
+            "claim_b20fac21e6dafaca18f1",
+            "claim_fee342ecd863f4f7f59d",
+            "claim_4e502d6284220aa33875",
+            "claim_046102ffbc2b612c1fc9",
+            "PE-12",
+            "claim_36799fdf9ff0a5098f9d",
+            "outcome_410e34b3abadbb7d71b6",
+            "plink_218e2921452423d4b8a9"
+          ]
+        },
+        "useful-no": {
+          "count": 17,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#0",
+            "claim_15c55a085020563e737a",
+            "claim_dfb7a668a12a5d16894c",
+            "claim_9d37187c9b5b863df2e9",
+            "claim_39f514673b7a135f5caf",
+            "claim_cdaa46b32e2ea41e171e",
+            "claim_58c837a00ff0ef925adc",
+            "claim_b20fac21e6dafaca18f1",
+            "claim_fee342ecd863f4f7f59d",
+            "claim_4e502d6284220aa33875",
+            "claim_046102ffbc2b612c1fc9",
+            "PE-12",
+            "claim_36799fdf9ff0a5098f9d",
+            "outcome_410e34b3abadbb7d71b6",
+            "plink_218e2921452423d4b8a9"
+          ]
+        },
+        "changed-permissions": {
+          "count": 17,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#0",
+            "claim_15c55a085020563e737a",
+            "claim_dfb7a668a12a5d16894c",
+            "claim_9d37187c9b5b863df2e9",
+            "claim_39f514673b7a135f5caf",
+            "claim_cdaa46b32e2ea41e171e",
+            "claim_58c837a00ff0ef925adc",
+            "claim_b20fac21e6dafaca18f1",
+            "claim_fee342ecd863f4f7f59d",
+            "claim_4e502d6284220aa33875",
+            "claim_046102ffbc2b612c1fc9",
+            "PE-12",
+            "claim_36799fdf9ff0a5098f9d",
+            "outcome_410e34b3abadbb7d71b6",
+            "plink_218e2921452423d4b8a9"
+          ]
+        },
+        "duplicate-report": {
+          "count": 17,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#0",
+            "claim_15c55a085020563e737a",
+            "claim_dfb7a668a12a5d16894c",
+            "claim_9d37187c9b5b863df2e9",
+            "claim_39f514673b7a135f5caf",
+            "claim_cdaa46b32e2ea41e171e",
+            "claim_58c837a00ff0ef925adc",
+            "claim_b20fac21e6dafaca18f1",
+            "claim_fee342ecd863f4f7f59d",
+            "claim_4e502d6284220aa33875",
+            "claim_046102ffbc2b612c1fc9",
+            "PE-12",
+            "claim_36799fdf9ff0a5098f9d",
+            "outcome_410e34b3abadbb7d71b6",
+            "plink_218e2921452423d4b8a9"
+          ]
+        },
+        "copied-retelling": {
+          "count": 17,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#0",
+            "claim_15c55a085020563e737a",
+            "claim_dfb7a668a12a5d16894c",
+            "claim_9d37187c9b5b863df2e9",
+            "claim_39f514673b7a135f5caf",
+            "claim_cdaa46b32e2ea41e171e",
+            "claim_58c837a00ff0ef925adc",
+            "claim_b20fac21e6dafaca18f1",
+            "claim_fee342ecd863f4f7f59d",
+            "claim_4e502d6284220aa33875",
+            "claim_046102ffbc2b612c1fc9",
+            "PE-12",
+            "claim_36799fdf9ff0a5098f9d",
+            "outcome_410e34b3abadbb7d71b6",
+            "plink_218e2921452423d4b8a9"
+          ]
+        }
+      }
+    },
+    {
+      "variantId": "claude-agent-arm",
+      "provenance": "replay-fixture",
+      "split": "validation",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.3333333333333333,
+          "numerator": 2,
+          "denominator": 6
+        },
+        "claims.observation.recall": {
+          "value": 0.4,
+          "numerator": 2,
+          "denominator": 5
+        },
+        "claims.hypothesis.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "claims.hypothesis.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.advice.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "claims.advice.recall": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "claims.action.precision": {
+          "value": 0.75,
+          "numerator": 3,
+          "denominator": 4
+        },
+        "claims.action.recall": {
+          "value": 0.6,
+          "numerator": 3,
+          "denominator": 5
+        },
+        "claims.outcome.precision": {
+          "value": 0.4,
+          "numerator": 2,
+          "denominator": 5
+        },
+        "claims.outcome.recall": {
+          "value": 0.5,
+          "numerator": 2,
+          "denominator": 4
+        },
+        "claims.condition.precision": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "claims.condition.recall": {
+          "value": 1,
+          "numerator": 1,
+          "denominator": 1
+        },
+        "claims.access-fact.precision": {
+          "value": 0.75,
+          "numerator": 3,
+          "denominator": 4
+        },
+        "claims.access-fact.recall": {
+          "value": 1,
+          "numerator": 3,
+          "denominator": 3
+        },
+        "claims.all.precision": {
+          "value": 0.48148148148148145,
+          "numerator": 13,
+          "denominator": 27
+        },
+        "claims.all.recall": {
+          "value": 0.5909090909090909,
+          "numerator": 13,
+          "denominator": 22
+        },
+        "entities.recall": {
+          "value": 0.6666666666666666,
+          "numerator": 4,
+          "denominator": 6
+        },
+        "cases.falseMergeRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0.07692307692307693,
+          "numerator": 1,
+          "denominator": 13
+        },
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 13
+        },
+        "copies.overcountRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.other.precision": null,
+        "claims.other.recall": null,
+        "copies.overcountRate.noLineage": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "usefulness.accuracy": {
+          "value": 0.9629629629629629,
+          "numerator": 26,
+          "denominator": 27
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 2,
+        "claims.observation.unknown": 0,
+        "claims.hypothesis.ambiguous": 1,
+        "claims.hypothesis.unknown": 0,
+        "claims.advice.ambiguous": 1,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 1,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 2,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 0,
+        "claims.condition.unknown": 0,
+        "claims.access-fact.ambiguous": 0,
+        "claims.access-fact.unknown": 0,
+        "claims.all.ambiguous": 7,
+        "claims.all.unknown": 1,
+        "entities.systemNonPerson": 17,
+        "entities.extraNonTruth": 13,
+        "cases.missingIncidents": 1,
+        "attribution.claimPersonUnattributed": 0,
+        "claims.other.ambiguous": 0,
+        "claims.other.unknown": 1,
+        "e01.families": 2,
+        "e01.claims": 35,
+        "e01.entities": 27,
+        "e01.cases": 3,
+        "e01.links": 18,
+        "e01.attempts": 0,
+        "e01.outcomes": 0,
+        "mapping.evidenceRefs": 143,
+        "mapping.evidenceRefsMapped": 143,
+        "mapping.unmappedIds": 0,
+        "mapping.claimsProposed": 35,
+        "mapping.claimsDropped": 0,
+        "mapping.linksProposed": 18,
+        "mapping.linksDropped": 0,
+        "mapping.incidentsProposed": 3,
+        "mapping.incidentEvidenceIds": 28,
+        "mapping.incidentEvidenceIdsMapped": 28,
+        "mapping.ambiguousKeys": 0,
+        "usefulness.abstained": 5
+      },
+      "failures": [
+        {
+          "id": "A#0",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"MW-77 long-haul radio link drops for about four minutes twice in the evening with input voltage low alarms\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#1",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"The 48 V PSU at MW-77 shows about 3 volts peak to peak ripple\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#3",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"Tauno swapped the 48 V PSU at MW-77\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#4",
+          "metric": "claims.recall",
+          "reason": "missed outcome claim: \"PSU output is clean and the MW-77 link is stable with no alarms after the swap\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "B#1",
+          "metric": "claims.recall",
+          "reason": "missed hypothesis claim: \"Mains at MW-77 sags to 185 V in the evenings and the 2018 battery string cannot bridge it\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "B#2",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"Tauno replaced the battery string at MW-77\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_ea3382613672ae5dce90",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"The affected hop is the long-haul hop towards the Salmijärvi tower.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_c5cfeeb07ab86d0e487a",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"The mains supply at the MW-77 site is weak.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_00893a84d6bb5e0273da",
+          "metric": "claims.precision",
+          "reason": "unsupported action claim: \"Tauno swapped the PSU; output is clean and the link is up with good margin.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_06d73316db60e40baca7",
+          "metric": "claims.precision",
+          "reason": "unsupported outcome claim: \"Link is stable from the NOC side, no alarms (right after the swap; temporary as \"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_712a6899d47115183acf",
+          "metric": "claims.precision",
+          "reason": "unsupported advice claim: \"Log the old PSU as faulty.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_d910af622ac8d1e216e4",
+          "metric": "claims.precision",
+          "reason": "unsupported hypothesis claim: \"The PSU was not the cause, or not the only one (Olavi).\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "MW-77 48V PSU",
+          "metric": "entities.recall",
+          "reason": "entity \"MW-77 48V PSU\" not found",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "case_ccd4b69ad443ca6e67a8",
+          "metric": "cases.falseMergeRate",
+          "reason": "case merges incidents A, B",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "PE-12",
+          "metric": "entities.recall",
+          "reason": "entity \"PE-12\" not found",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "claim_77b7ea278adb4d2b1c6c",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:anssi-heikura, truth person:directory:pasi-tuomi",
+          "familyId": "bgp-linecard-private"
+        }
+      ],
+      "failureSlicesByTag": {
+        "temporary-recovery": {
+          "count": 17,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#3",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_ea3382613672ae5dce90",
+            "claim_c5cfeeb07ab86d0e487a",
+            "claim_00893a84d6bb5e0273da",
+            "claim_06d73316db60e40baca7",
+            "claim_712a6899d47115183acf",
+            "claim_d910af622ac8d1e216e4",
+            "claim_9fb8231bab9bcc9ae83d",
+            "claim_101e91d0434bfae069e8",
+            "MW-77 48V PSU",
+            "case_ccd4b69ad443ca6e67a8"
+          ]
+        },
+        "recurrence": {
+          "count": 17,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#3",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_ea3382613672ae5dce90",
+            "claim_c5cfeeb07ab86d0e487a",
+            "claim_00893a84d6bb5e0273da",
+            "claim_06d73316db60e40baca7",
+            "claim_712a6899d47115183acf",
+            "claim_d910af622ac8d1e216e4",
+            "claim_9fb8231bab9bcc9ae83d",
+            "claim_101e91d0434bfae069e8",
+            "MW-77 48V PSU",
+            "case_ccd4b69ad443ca6e67a8"
+          ]
+        },
+        "access-fact": {
+          "count": 17,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#3",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_ea3382613672ae5dce90",
+            "claim_c5cfeeb07ab86d0e487a",
+            "claim_00893a84d6bb5e0273da",
+            "claim_06d73316db60e40baca7",
+            "claim_712a6899d47115183acf",
+            "claim_d910af622ac8d1e216e4",
+            "claim_9fb8231bab9bcc9ae83d",
+            "claim_101e91d0434bfae069e8",
+            "MW-77 48V PSU",
+            "case_ccd4b69ad443ca6e67a8"
+          ]
+        },
+        "no-question-needed": {
+          "count": 17,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#3",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_ea3382613672ae5dce90",
+            "claim_c5cfeeb07ab86d0e487a",
+            "claim_00893a84d6bb5e0273da",
+            "claim_06d73316db60e40baca7",
+            "claim_712a6899d47115183acf",
+            "claim_d910af622ac8d1e216e4",
+            "claim_9fb8231bab9bcc9ae83d",
+            "claim_101e91d0434bfae069e8",
+            "MW-77 48V PSU",
+            "case_ccd4b69ad443ca6e67a8"
+          ]
+        },
+        "lookalike-different-cause": {
+          "count": 10,
+          "ids": [
+            "A#2",
+            "B#0",
+            "claim_ce0ed045eab5bce050f3",
+            "claim_a2466c4bd22bb9f33d1f",
+            "claim_fd1778faacf42b73bc8f",
+            "claim_aeee5ae9d95a69f12961",
+            "claim_e4d006072f535b3dad5b",
+            "claim_2b1eaf0f9f9128120959",
+            "PE-12",
+            "claim_77b7ea278adb4d2b1c6c"
+          ]
+        },
+        "useful-no": {
+          "count": 10,
+          "ids": [
+            "A#2",
+            "B#0",
+            "claim_ce0ed045eab5bce050f3",
+            "claim_a2466c4bd22bb9f33d1f",
+            "claim_fd1778faacf42b73bc8f",
+            "claim_aeee5ae9d95a69f12961",
+            "claim_e4d006072f535b3dad5b",
+            "claim_2b1eaf0f9f9128120959",
+            "PE-12",
+            "claim_77b7ea278adb4d2b1c6c"
+          ]
+        },
+        "changed-permissions": {
+          "count": 10,
+          "ids": [
+            "A#2",
+            "B#0",
+            "claim_ce0ed045eab5bce050f3",
+            "claim_a2466c4bd22bb9f33d1f",
+            "claim_fd1778faacf42b73bc8f",
+            "claim_aeee5ae9d95a69f12961",
+            "claim_e4d006072f535b3dad5b",
+            "claim_2b1eaf0f9f9128120959",
+            "PE-12",
+            "claim_77b7ea278adb4d2b1c6c"
+          ]
+        },
+        "duplicate-report": {
+          "count": 10,
+          "ids": [
+            "A#2",
+            "B#0",
+            "claim_ce0ed045eab5bce050f3",
+            "claim_a2466c4bd22bb9f33d1f",
+            "claim_fd1778faacf42b73bc8f",
+            "claim_aeee5ae9d95a69f12961",
+            "claim_e4d006072f535b3dad5b",
+            "claim_2b1eaf0f9f9128120959",
+            "PE-12",
+            "claim_77b7ea278adb4d2b1c6c"
+          ]
+        },
+        "copied-retelling": {
+          "count": 10,
+          "ids": [
+            "A#2",
+            "B#0",
+            "claim_ce0ed045eab5bce050f3",
+            "claim_a2466c4bd22bb9f33d1f",
+            "claim_fd1778faacf42b73bc8f",
+            "claim_aeee5ae9d95a69f12961",
+            "claim_e4d006072f535b3dad5b",
+            "claim_2b1eaf0f9f9128120959",
+            "PE-12",
+            "claim_77b7ea278adb4d2b1c6c"
+          ]
+        }
+      }
+    },
+    {
+      "variantId": "claude-agent-arm→commit",
+      "provenance": "replay-fixture",
+      "split": "validation",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.3333333333333333,
+          "numerator": 2,
+          "denominator": 6
+        },
+        "claims.observation.recall": {
+          "value": 0.4,
+          "numerator": 2,
+          "denominator": 5
+        },
+        "claims.hypothesis.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "claims.hypothesis.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.advice.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "claims.advice.recall": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "claims.action.precision": {
+          "value": 0.75,
+          "numerator": 3,
+          "denominator": 4
+        },
+        "claims.action.recall": {
+          "value": 0.6,
+          "numerator": 3,
+          "denominator": 5
+        },
+        "claims.outcome.precision": {
+          "value": 0.4,
+          "numerator": 2,
+          "denominator": 5
+        },
+        "claims.outcome.recall": {
+          "value": 0.5,
+          "numerator": 2,
+          "denominator": 4
+        },
+        "claims.condition.precision": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "claims.condition.recall": {
+          "value": 1,
+          "numerator": 1,
+          "denominator": 1
+        },
+        "claims.access-fact.precision": {
+          "value": 0.75,
+          "numerator": 3,
+          "denominator": 4
+        },
+        "claims.access-fact.recall": {
+          "value": 1,
+          "numerator": 3,
+          "denominator": 3
+        },
+        "claims.all.precision": {
+          "value": 0.48148148148148145,
+          "numerator": 13,
+          "denominator": 27
+        },
+        "claims.all.recall": {
+          "value": 0.5909090909090909,
+          "numerator": 13,
+          "denominator": 22
+        },
+        "entities.recall": {
+          "value": 0.6666666666666666,
+          "numerator": 4,
+          "denominator": 6
+        },
+        "cases.falseMergeRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0.07692307692307693,
+          "numerator": 1,
+          "denominator": 13
+        },
+        "attribution.attemptPerformerErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "attribution.attemptPerformedStateErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "attribution.attemptsNotInTruthRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "attribution.outcomeReporterErrorRate": {
+          "value": 0.2857142857142857,
+          "numerator": 2,
+          "denominator": 7
+        },
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 13
+        },
+        "copies.overcountRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.other.precision": null,
+        "claims.other.recall": null,
+        "copies.overcountRate.noLineage": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "usefulness.accuracy": {
+          "value": 0.9629629629629629,
+          "numerator": 26,
+          "denominator": 27
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 2,
+        "claims.observation.unknown": 0,
+        "claims.hypothesis.ambiguous": 1,
+        "claims.hypothesis.unknown": 0,
+        "claims.advice.ambiguous": 1,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 1,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 2,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 0,
+        "claims.condition.unknown": 0,
+        "claims.access-fact.ambiguous": 0,
+        "claims.access-fact.unknown": 0,
+        "claims.all.ambiguous": 7,
+        "claims.all.unknown": 1,
+        "entities.systemNonPerson": 17,
+        "entities.extraNonTruth": 13,
+        "cases.missingIncidents": 1,
+        "attribution.claimPersonUnattributed": 0,
+        "attribution.attemptsNotInTruth": 0,
+        "claims.other.ambiguous": 0,
+        "claims.other.unknown": 1,
+        "e01.families": 2,
+        "e01.claims": 35,
+        "e01.entities": 30,
+        "e01.cases": 3,
+        "e01.links": 18,
+        "e01.attempts": 1,
+        "e01.outcomes": 7,
+        "commit.claimsProposed": 35,
+        "commit.claimsStored": 35,
+        "commit.linksProposed": 18,
+        "commit.linksStored": 18,
+        "commit.actorIdsTranslated": 53,
+        "commit.casesStored": 3,
+        "usefulness.abstained": 5
+      },
+      "failures": [
+        {
+          "id": "A#0",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"MW-77 long-haul radio link drops for about four minutes twice in the evening with input voltage low alarms\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#1",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"The 48 V PSU at MW-77 shows about 3 volts peak to peak ripple\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#3",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"Tauno swapped the 48 V PSU at MW-77\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#4",
+          "metric": "claims.recall",
+          "reason": "missed outcome claim: \"PSU output is clean and the MW-77 link is stable with no alarms after the swap\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "B#1",
+          "metric": "claims.recall",
+          "reason": "missed hypothesis claim: \"Mains at MW-77 sags to 185 V in the evenings and the 2018 battery string cannot bridge it\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "B#2",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"Tauno replaced the battery string at MW-77\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_62a819d9c067edea61d8",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"The affected hop is the long-haul hop towards the Salmijärvi tower.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_4bd6989a12104701233c",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"The mains supply at the MW-77 site is weak.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_0d73d6c6299fae7a2ed6",
+          "metric": "claims.precision",
+          "reason": "unsupported action claim: \"Tauno swapped the PSU; output is clean and the link is up with good margin.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_163a0fa5636b1a7bd13a",
+          "metric": "claims.precision",
+          "reason": "unsupported outcome claim: \"Link is stable from the NOC side, no alarms (right after the swap; temporary as \"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_10dc32767c44e10ee650",
+          "metric": "claims.precision",
+          "reason": "unsupported advice claim: \"Log the old PSU as faulty.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_e909c7001b4662349ac5",
+          "metric": "claims.precision",
+          "reason": "unsupported hypothesis claim: \"The PSU was not the cause, or not the only one (Olavi).\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "MW-77 48V PSU",
+          "metric": "entities.recall",
+          "reason": "entity \"MW-77 48V PSU\" not found",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "case_a768da3da4003c4d35db",
+          "metric": "cases.falseMergeRate",
+          "reason": "case merges incidents A, B",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "PE-12",
+          "metric": "entities.recall",
+          "reason": "entity \"PE-12\" not found",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "claim_69b17cac7dcab2281117",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:anssi-heikura, truth person:directory:pasi-tuomi",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "outcome_47faa3885c6b521c8c76",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:anssi-heikura, truth person:directory:pasi-tuomi",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "outcome_f3ffcc8309e5f858c429",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:ville-laakso, truth person:directory:pasi-tuomi",
+          "familyId": "bgp-linecard-private"
+        }
+      ],
+      "failureSlicesByTag": {
+        "temporary-recovery": {
+          "count": 17,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#3",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_62a819d9c067edea61d8",
+            "claim_4bd6989a12104701233c",
+            "claim_0d73d6c6299fae7a2ed6",
+            "claim_163a0fa5636b1a7bd13a",
+            "claim_10dc32767c44e10ee650",
+            "claim_e909c7001b4662349ac5",
+            "claim_ded67ad90b4a41e8641a",
+            "claim_cda697dd4ed55c8ae3fe",
+            "MW-77 48V PSU",
+            "case_a768da3da4003c4d35db"
+          ]
+        },
+        "recurrence": {
+          "count": 17,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#3",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_62a819d9c067edea61d8",
+            "claim_4bd6989a12104701233c",
+            "claim_0d73d6c6299fae7a2ed6",
+            "claim_163a0fa5636b1a7bd13a",
+            "claim_10dc32767c44e10ee650",
+            "claim_e909c7001b4662349ac5",
+            "claim_ded67ad90b4a41e8641a",
+            "claim_cda697dd4ed55c8ae3fe",
+            "MW-77 48V PSU",
+            "case_a768da3da4003c4d35db"
+          ]
+        },
+        "access-fact": {
+          "count": 17,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#3",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_62a819d9c067edea61d8",
+            "claim_4bd6989a12104701233c",
+            "claim_0d73d6c6299fae7a2ed6",
+            "claim_163a0fa5636b1a7bd13a",
+            "claim_10dc32767c44e10ee650",
+            "claim_e909c7001b4662349ac5",
+            "claim_ded67ad90b4a41e8641a",
+            "claim_cda697dd4ed55c8ae3fe",
+            "MW-77 48V PSU",
+            "case_a768da3da4003c4d35db"
+          ]
+        },
+        "no-question-needed": {
+          "count": 17,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#3",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_62a819d9c067edea61d8",
+            "claim_4bd6989a12104701233c",
+            "claim_0d73d6c6299fae7a2ed6",
+            "claim_163a0fa5636b1a7bd13a",
+            "claim_10dc32767c44e10ee650",
+            "claim_e909c7001b4662349ac5",
+            "claim_ded67ad90b4a41e8641a",
+            "claim_cda697dd4ed55c8ae3fe",
+            "MW-77 48V PSU",
+            "case_a768da3da4003c4d35db"
+          ]
+        },
+        "lookalike-different-cause": {
+          "count": 12,
+          "ids": [
+            "A#2",
+            "B#0",
+            "claim_14bdba7b9791c2119848",
+            "claim_ddfcb8f9a923cadd90b1",
+            "claim_154c6f291a4284db8a12",
+            "claim_7b033eec2a83be8f3390",
+            "claim_75423e6ca41bb87e951f",
+            "claim_d813223027d97552d965",
+            "PE-12",
+            "claim_69b17cac7dcab2281117",
+            "outcome_47faa3885c6b521c8c76",
+            "outcome_f3ffcc8309e5f858c429"
+          ]
+        },
+        "useful-no": {
+          "count": 12,
+          "ids": [
+            "A#2",
+            "B#0",
+            "claim_14bdba7b9791c2119848",
+            "claim_ddfcb8f9a923cadd90b1",
+            "claim_154c6f291a4284db8a12",
+            "claim_7b033eec2a83be8f3390",
+            "claim_75423e6ca41bb87e951f",
+            "claim_d813223027d97552d965",
+            "PE-12",
+            "claim_69b17cac7dcab2281117",
+            "outcome_47faa3885c6b521c8c76",
+            "outcome_f3ffcc8309e5f858c429"
+          ]
+        },
+        "changed-permissions": {
+          "count": 12,
+          "ids": [
+            "A#2",
+            "B#0",
+            "claim_14bdba7b9791c2119848",
+            "claim_ddfcb8f9a923cadd90b1",
+            "claim_154c6f291a4284db8a12",
+            "claim_7b033eec2a83be8f3390",
+            "claim_75423e6ca41bb87e951f",
+            "claim_d813223027d97552d965",
+            "PE-12",
+            "claim_69b17cac7dcab2281117",
+            "outcome_47faa3885c6b521c8c76",
+            "outcome_f3ffcc8309e5f858c429"
+          ]
+        },
+        "duplicate-report": {
+          "count": 12,
+          "ids": [
+            "A#2",
+            "B#0",
+            "claim_14bdba7b9791c2119848",
+            "claim_ddfcb8f9a923cadd90b1",
+            "claim_154c6f291a4284db8a12",
+            "claim_7b033eec2a83be8f3390",
+            "claim_75423e6ca41bb87e951f",
+            "claim_d813223027d97552d965",
+            "PE-12",
+            "claim_69b17cac7dcab2281117",
+            "outcome_47faa3885c6b521c8c76",
+            "outcome_f3ffcc8309e5f858c429"
+          ]
+        },
+        "copied-retelling": {
+          "count": 12,
+          "ids": [
+            "A#2",
+            "B#0",
+            "claim_14bdba7b9791c2119848",
+            "claim_ddfcb8f9a923cadd90b1",
+            "claim_154c6f291a4284db8a12",
+            "claim_7b033eec2a83be8f3390",
+            "claim_75423e6ca41bb87e951f",
+            "claim_d813223027d97552d965",
+            "PE-12",
+            "claim_69b17cac7dcab2281117",
+            "outcome_47faa3885c6b521c8c76",
+            "outcome_f3ffcc8309e5f858c429"
+          ]
+        }
+      }
+    }
+  ],
+  "notes": [
+    "The Claude-agent arm is one recorded Claude Sonnet subagent pass over visible sources (route claude-agent-arm). It is not the proposed small GPT generator, not an application route and not an inference the app can make; provenance is replay-fixture.",
+    "Variant b scores the proposals directly, without memory/commit: its case boundaries are the proposed incidents (no asset-id merging), attempts and outcomes are not derived, and its claim statements are the agent's own wording (verbatim sentences are not required). Variant c runs the same proposals through commitProposal, which derives attempts, outcomes and case records.",
+    "Copy handling: variants b and c count independent support with the importer's own copy/retelling lineage (the same for every variant); copies.overcountRate.noLineage counts raw distinct sources for comparison.",
+    "Evidence-id mapping is exact (provider + seq / Message-ID / ts); every replay id mapped to exactly one stored record.",
+    "Usefulness accuracy: a label counts as correct when \"useful\"/\"irrelevant\" agrees with membership of the evidence in any truth incident (harness side); \"uncertain\" labels abstain (counted separately).",
+    "Claims are matched to truth by type and token Jaccard >= 0.5 on the statement. An agent paraphrase that stays below the threshold scores as a miss and as an unsupported claim even when it is semantically right; verbatim-sentence extractors are favored by this matcher.",
+    "Fixtures were recorded once and never re-recorded, so these numbers are for a single agent pass; the rules numbers will change when the extractor is tuned (rerun `node experiments/run.ts e01`).",
+    "Answer keys are unreviewed (data/scenarios/REVIEW.md); results are provisional."
+  ]
+}

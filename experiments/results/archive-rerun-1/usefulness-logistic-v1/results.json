@@ -1,0 +1,137 @@
+{
+  "manifestId": "usefulness-logistic-v1",
+  "finishedAt": "2026-11-07T01:47:09.828Z",
+  "variants": [
+    {
+      "variantId": "logistic-hashed-v1",
+      "provenance": "measured",
+      "split": "validation",
+      "metrics": {
+        "usefulness.accuracy": {
+          "value": 0.8125,
+          "numerator": 26,
+          "denominator": 32
+        },
+        "usefulness.majorityBaselineAccuracy": {
+          "value": 0.78125,
+          "numerator": 25,
+          "denominator": 32
+        },
+        "usefulness.precision": {
+          "value": 0.8064516129032256,
+          "numerator": 806,
+          "denominator": 1000
+        },
+        "usefulness.recall": {
+          "value": 1,
+          "numerator": 1000,
+          "denominator": 1000
+        }
+      },
+      "counts": {
+        "usefulness.examples": 32,
+        "usefulness.positives": 25,
+        "usefulness.seeds": 3
+      },
+      "failures": [],
+      "failureSlicesByTag": {},
+      "repeatVariation": {
+        "usefulness.accuracy": {
+          "min": 0.8125,
+          "max": 0.8125,
+          "runs": 3
+        }
+      }
+    },
+    {
+      "variantId": "logistic-hashed-v1",
+      "provenance": "measured",
+      "split": "demo",
+      "metrics": {
+        "usefulness.accuracy": {
+          "value": 0.78125,
+          "numerator": 25,
+          "denominator": 32
+        },
+        "usefulness.majorityBaselineAccuracy": {
+          "value": 0.75,
+          "numerator": 24,
+          "denominator": 32
+        },
+        "usefulness.precision": {
+          "value": 0.7741935483870966,
+          "numerator": 774,
+          "denominator": 1000
+        },
+        "usefulness.recall": {
+          "value": 1,
+          "numerator": 1000,
+          "denominator": 1000
+        }
+      },
+      "counts": {
+        "usefulness.examples": 32,
+        "usefulness.positives": 24,
+        "usefulness.seeds": 3
+      },
+      "failures": [],
+      "failureSlicesByTag": {},
+      "repeatVariation": {
+        "usefulness.accuracy": {
+          "min": 0.78125,
+          "max": 0.78125,
+          "runs": 3
+        }
+      }
+    },
+    {
+      "variantId": "logistic-hashed-v1",
+      "provenance": "measured",
+      "split": "train",
+      "metrics": {
+        "usefulness.accuracy": {
+          "value": 1,
+          "numerator": 66,
+          "denominator": 66
+        },
+        "usefulness.majorityBaselineAccuracy": {
+          "value": 0.7727272727272727,
+          "numerator": 51,
+          "denominator": 66
+        },
+        "usefulness.precision": {
+          "value": 1,
+          "numerator": 1000,
+          "denominator": 1000
+        },
+        "usefulness.recall": {
+          "value": 1,
+          "numerator": 1000,
+          "denominator": 1000
+        }
+      },
+      "counts": {
+        "usefulness.examples": 66,
+        "usefulness.positives": 51,
+        "usefulness.seeds": 3
+      },
+      "failures": [],
+      "failureSlicesByTag": {},
+      "repeatVariation": {
+        "usefulness.accuracy": {
+          "min": 1,
+          "max": 1,
+          "runs": 3
+        }
+      }
+    }
+  ],
+  "notes": [
+    "validation: confusion (seed 1) TP 25 FP 6 FN 0 TN 1; predicted useful 31/32; beats the majority class by 1 example(s) of 32. n=32, positives 25, accuracy 0.813/0.813/0.813 (seeds 1/2/3), majority 0.781, precision 0.806/0.806/0.806, recall 1.000/1.000/1.000",
+    "demo: confusion (seed 1) TP 24 FP 7 FN 0 TN 1; predicted useful 31/32; beats the majority class by 1 example(s) of 32. n=32, positives 24, accuracy 0.781/0.781/0.781 (seeds 1/2/3), majority 0.750, precision 0.774/0.774/0.774, recall 1.000/1.000/1.000",
+    "train: confusion (seed 1) TP 51 FP 0 FN 0 TN 15; predicted useful 51/66; beats the majority class by 15 example(s) of 66. n=66, positives 51, accuracy 1.000/1.000/1.000 (seeds 1/2/3), majority 0.773, precision 1.000/1.000/1.000, recall 1.000/1.000/1.000",
+    "Caution: the validation accuracy edge over the majority class is about one example, and the model labels almost everything useful; train accuracy is far higher than validation (overfit on 66 examples). This classifier does not demonstrably separate the classes.",
+    "Local learned model trained tonight on synthetic data (train families only), on this Mac, pure TypeScript. It is saved as data/models/usefulness-logistic-v1.json and is NOT wired into the application.",
+    "Labels come from hidden truth (harness side): evidence that belongs to an incident is useful, small talk and unrelated messages are irrelevant. All ten families were written by one author, so shared phrasing may flatter validation accuracy."
+  ]
+}

@@ -1,0 +1,1966 @@
+{
+  "rules-extractor@current": {
+    "bgp-firmware-flaps": {
+      "claims.observation.precision": {
+        "value": 0.6,
+        "numerator": 3,
+        "denominator": 5
+      },
+      "claims.observation.recall": {
+        "value": 1,
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claims.advice.precision": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.advice.recall": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.action.precision": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.action.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.outcome.precision": {
+        "value": 0.75,
+        "numerator": 3,
+        "denominator": 4
+      },
+      "claims.outcome.recall": {
+        "value": 1,
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claims.condition.precision": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "claims.condition.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.other.precision": null,
+      "claims.other.recall": null,
+      "claims.all.precision": {
+        "value": 0.6875,
+        "numerator": 11,
+        "denominator": 16
+      },
+      "claims.all.recall": {
+        "value": 0.9166666666666666,
+        "numerator": 11,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0.09090909090909091,
+        "numerator": 1,
+        "denominator": 11
+      },
+      "attribution.attemptPerformerErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.attemptPerformedStateErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.attemptsNotInTruthRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0.1111111111111111,
+        "numerator": 2,
+        "denominator": 18
+      },
+      "copies.overcountRate": null
+    },
+    "fan-temperature": {
+      "claims.observation.precision": {
+        "value": 0.5,
+        "numerator": 4,
+        "denominator": 8
+      },
+      "claims.observation.recall": {
+        "value": 1,
+        "numerator": 4,
+        "denominator": 4
+      },
+      "claims.hypothesis.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.hypothesis.recall": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.advice.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 4
+      },
+      "claims.advice.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.action.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.outcome.precision": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.outcome.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.condition.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.other.precision": null,
+      "claims.other.recall": null,
+      "claims.all.precision": {
+        "value": 0.47368421052631576,
+        "numerator": 9,
+        "denominator": 19
+      },
+      "claims.all.recall": {
+        "value": 0.75,
+        "numerator": 9,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 9
+      },
+      "attribution.attemptPerformerErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.attemptPerformedStateErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.attemptsNotInTruthRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 19
+      },
+      "copies.overcountRate": null
+    },
+    "config-rollback-private": {
+      "claims.observation.precision": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "claims.observation.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.hypothesis.precision": null,
+      "claims.hypothesis.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.advice.precision": null,
+      "claims.advice.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.action.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.outcome.precision": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.outcome.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.condition.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.all.precision": {
+        "value": 0.5454545454545454,
+        "numerator": 6,
+        "denominator": 11
+      },
+      "claims.all.recall": {
+        "value": 0.5,
+        "numerator": 6,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0.16666666666666666,
+        "numerator": 1,
+        "denominator": 6
+      },
+      "attribution.attemptPerformerErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.attemptPerformedStateErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.attemptsNotInTruthRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 13
+      },
+      "copies.overcountRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      }
+    },
+    "cabling-pinch": {
+      "claims.observation.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.observation.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.hypothesis.precision": null,
+      "claims.hypothesis.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.advice.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.advice.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.action.recall": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "claims.outcome.precision": {
+        "value": 0.4,
+        "numerator": 2,
+        "denominator": 5
+      },
+      "claims.outcome.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.condition.recall": null,
+      "claims.other.precision": null,
+      "claims.other.recall": null,
+      "claims.all.precision": {
+        "value": 0.5,
+        "numerator": 6,
+        "denominator": 12
+      },
+      "claims.all.recall": {
+        "value": 0.5454545454545454,
+        "numerator": 6,
+        "denominator": 11
+      },
+      "entities.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0.16666666666666666,
+        "numerator": 1,
+        "denominator": 6
+      },
+      "attribution.attemptPerformerErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.attemptPerformedStateErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.attemptsNotInTruthRate": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0.6,
+        "numerator": 3,
+        "denominator": 5
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 14
+      },
+      "copies.overcountRate": null
+    },
+    "weak-mains-psu": {
+      "claims.observation.precision": {
+        "value": 0.6,
+        "numerator": 3,
+        "denominator": 5
+      },
+      "claims.observation.recall": {
+        "value": 1,
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claims.hypothesis.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.hypothesis.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.advice.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 3
+      },
+      "claims.advice.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.action.precision": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.action.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.outcome.precision": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.outcome.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.condition.recall": null,
+      "claims.access-fact.precision": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "claims.access-fact.recall": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.other.precision": null,
+      "claims.other.recall": null,
+      "claims.all.precision": {
+        "value": 0.42105263157894735,
+        "numerator": 8,
+        "denominator": 19
+      },
+      "claims.all.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 8,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 3
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 8
+      },
+      "attribution.attemptPerformerErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.attemptPerformedStateErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.attemptsNotInTruthRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0.13333333333333333,
+        "numerator": 2,
+        "denominator": 15
+      },
+      "copies.overcountRate": null
+    },
+    "bgp-linecard-private": {
+      "claims.observation.precision": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "claims.observation.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.advice.precision": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "claims.advice.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 1,
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claims.action.recall": {
+        "value": 1,
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claims.outcome.precision": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.outcome.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.condition.recall": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.all.precision": {
+        "value": 0.4117647058823529,
+        "numerator": 7,
+        "denominator": 17
+      },
+      "claims.all.recall": {
+        "value": 0.7,
+        "numerator": 7,
+        "denominator": 10
+      },
+      "entities.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0.14285714285714285,
+        "numerator": 1,
+        "denominator": 7
+      },
+      "attribution.attemptPerformerErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 3
+      },
+      "attribution.attemptPerformedStateErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 3
+      },
+      "attribution.attemptsNotInTruthRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 3
+      },
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0.058823529411764705,
+        "numerator": 1,
+        "denominator": 17
+      },
+      "copies.overcountRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      }
+    }
+  },
+  "claude-agent-arm": {
+    "bgp-firmware-flaps": {
+      "claims.observation.precision": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "claims.observation.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.hypothesis.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.hypothesis.recall": null,
+      "claims.advice.precision": null,
+      "claims.advice.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.action.precision": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.action.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.outcome.precision": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.outcome.recall": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.condition.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.condition.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 3
+      },
+      "claims.other.precision": null,
+      "claims.other.recall": null,
+      "claims.all.precision": {
+        "value": 0.4166666666666667,
+        "numerator": 5,
+        "denominator": 12
+      },
+      "claims.all.recall": {
+        "value": 0.4166666666666667,
+        "numerator": 5,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 5
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0.1111111111111111,
+        "numerator": 1,
+        "denominator": 9
+      },
+      "copies.overcountRate": null
+    },
+    "fan-temperature": {
+      "claims.observation.precision": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "claims.observation.recall": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "claims.hypothesis.precision": null,
+      "claims.hypothesis.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.advice.precision": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "claims.advice.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.action.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.outcome.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.outcome.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.condition.recall": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.all.precision": {
+        "value": 0.42857142857142855,
+        "numerator": 6,
+        "denominator": 14
+      },
+      "claims.all.recall": {
+        "value": 0.5,
+        "numerator": 6,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 6
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0.14285714285714285,
+        "numerator": 1,
+        "denominator": 7
+      },
+      "copies.overcountRate": null
+    },
+    "config-rollback-private": {
+      "claims.observation.precision": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.observation.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.hypothesis.precision": null,
+      "claims.hypothesis.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.advice.precision": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.advice.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 0.3333333333333333,
+        "numerator": 2,
+        "denominator": 6
+      },
+      "claims.action.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.outcome.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.outcome.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.condition.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.all.precision": {
+        "value": 0.5625,
+        "numerator": 9,
+        "denominator": 16
+      },
+      "claims.all.recall": {
+        "value": 0.75,
+        "numerator": 9,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.75,
+        "numerator": 3,
+        "denominator": 4
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0.1111111111111111,
+        "numerator": 1,
+        "denominator": 9
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 5
+      },
+      "copies.overcountRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      }
+    },
+    "cabling-pinch": {
+      "claims.observation.precision": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "claims.observation.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.hypothesis.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.hypothesis.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.advice.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.advice.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 0.75,
+        "numerator": 3,
+        "denominator": 4
+      },
+      "claims.action.recall": {
+        "value": 0.75,
+        "numerator": 3,
+        "denominator": 4
+      },
+      "claims.outcome.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.outcome.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.condition.recall": null,
+      "claims.other.precision": null,
+      "claims.other.recall": null,
+      "claims.all.precision": {
+        "value": 0.35714285714285715,
+        "numerator": 5,
+        "denominator": 14
+      },
+      "claims.all.recall": {
+        "value": 0.45454545454545453,
+        "numerator": 5,
+        "denominator": 11
+      },
+      "entities.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 5
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 6
+      },
+      "copies.overcountRate": null
+    },
+    "weak-mains-psu": {
+      "claims.observation.precision": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.observation.recall": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.hypothesis.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.hypothesis.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.advice.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.advice.recall": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.action.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.action.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.outcome.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.outcome.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.condition.recall": null,
+      "claims.access-fact.precision": {
+        "value": 0.75,
+        "numerator": 3,
+        "denominator": 4
+      },
+      "claims.access-fact.recall": {
+        "value": 1,
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claims.all.precision": {
+        "value": 0.38461538461538464,
+        "numerator": 5,
+        "denominator": 13
+      },
+      "claims.all.recall": {
+        "value": 0.4166666666666667,
+        "numerator": 5,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 5
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 6
+      },
+      "copies.overcountRate": null
+    },
+    "bgp-linecard-private": {
+      "claims.observation.precision": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.observation.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.hypothesis.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.hypothesis.recall": null,
+      "claims.advice.precision": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.advice.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 1,
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claims.action.recall": {
+        "value": 1,
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claims.outcome.precision": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "claims.outcome.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.condition.recall": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.other.precision": null,
+      "claims.other.recall": null,
+      "claims.all.precision": {
+        "value": 0.5714285714285714,
+        "numerator": 8,
+        "denominator": 14
+      },
+      "claims.all.recall": {
+        "value": 0.8,
+        "numerator": 8,
+        "denominator": 10
+      },
+      "entities.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0.125,
+        "numerator": 1,
+        "denominator": 8
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 7
+      },
+      "copies.overcountRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      }
+    }
+  },
+  "claude-agent-arm→commit": {
+    "bgp-firmware-flaps": {
+      "claims.observation.precision": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "claims.observation.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.hypothesis.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.hypothesis.recall": null,
+      "claims.advice.precision": null,
+      "claims.advice.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.action.precision": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.action.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.outcome.precision": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.outcome.recall": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.condition.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.condition.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 3
+      },
+      "claims.other.precision": null,
+      "claims.other.recall": null,
+      "claims.all.precision": {
+        "value": 0.4166666666666667,
+        "numerator": 5,
+        "denominator": 12
+      },
+      "claims.all.recall": {
+        "value": 0.4166666666666667,
+        "numerator": 5,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 5
+      },
+      "attribution.attemptPerformerErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.attemptPerformedStateErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.attemptsNotInTruthRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0.1111111111111111,
+        "numerator": 1,
+        "denominator": 9
+      },
+      "copies.overcountRate": null
+    },
+    "fan-temperature": {
+      "claims.observation.precision": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "claims.observation.recall": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "claims.hypothesis.precision": null,
+      "claims.hypothesis.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.advice.precision": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "claims.advice.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.action.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.outcome.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.outcome.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.condition.recall": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.all.precision": {
+        "value": 0.42857142857142855,
+        "numerator": 6,
+        "denominator": 14
+      },
+      "claims.all.recall": {
+        "value": 0.5,
+        "numerator": 6,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 6
+      },
+      "attribution.attemptPerformerErrorRate": null,
+      "attribution.attemptPerformedStateErrorRate": null,
+      "attribution.attemptsNotInTruthRate": null,
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0.14285714285714285,
+        "numerator": 1,
+        "denominator": 7
+      },
+      "copies.overcountRate": null
+    },
+    "config-rollback-private": {
+      "claims.observation.precision": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.observation.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.hypothesis.precision": null,
+      "claims.hypothesis.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.advice.precision": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.advice.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 0.3333333333333333,
+        "numerator": 2,
+        "denominator": 6
+      },
+      "claims.action.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "claims.outcome.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.outcome.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.condition.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.all.precision": {
+        "value": 0.5625,
+        "numerator": 9,
+        "denominator": 16
+      },
+      "claims.all.recall": {
+        "value": 0.75,
+        "numerator": 9,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.75,
+        "numerator": 3,
+        "denominator": 4
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0.1111111111111111,
+        "numerator": 1,
+        "denominator": 9
+      },
+      "attribution.attemptPerformerErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.attemptPerformedStateErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.attemptsNotInTruthRate": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0.4,
+        "numerator": 2,
+        "denominator": 5
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 5
+      },
+      "copies.overcountRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      }
+    },
+    "cabling-pinch": {
+      "claims.observation.precision": {
+        "value": 0.25,
+        "numerator": 1,
+        "denominator": 4
+      },
+      "claims.observation.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.hypothesis.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.hypothesis.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.advice.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.advice.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 0.75,
+        "numerator": 3,
+        "denominator": 4
+      },
+      "claims.action.recall": {
+        "value": 0.75,
+        "numerator": 3,
+        "denominator": 4
+      },
+      "claims.outcome.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.outcome.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.condition.recall": null,
+      "claims.other.precision": null,
+      "claims.other.recall": null,
+      "claims.all.precision": {
+        "value": 0.35714285714285715,
+        "numerator": 5,
+        "denominator": 14
+      },
+      "claims.all.recall": {
+        "value": 0.45454545454545453,
+        "numerator": 5,
+        "denominator": 11
+      },
+      "entities.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 5
+      },
+      "attribution.attemptPerformerErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.attemptPerformedStateErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.attemptsNotInTruthRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 6
+      },
+      "copies.overcountRate": null
+    },
+    "weak-mains-psu": {
+      "claims.observation.precision": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.observation.recall": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.hypothesis.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.hypothesis.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.advice.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.advice.recall": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.action.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.action.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.outcome.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.outcome.recall": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.condition.recall": null,
+      "claims.access-fact.precision": {
+        "value": 0.75,
+        "numerator": 3,
+        "denominator": 4
+      },
+      "claims.access-fact.recall": {
+        "value": 1,
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claims.all.precision": {
+        "value": 0.38461538461538464,
+        "numerator": 5,
+        "denominator": 13
+      },
+      "claims.all.recall": {
+        "value": 0.4166666666666667,
+        "numerator": 5,
+        "denominator": 12
+      },
+      "entities.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 5
+      },
+      "attribution.attemptPerformerErrorRate": null,
+      "attribution.attemptPerformedStateErrorRate": null,
+      "attribution.attemptsNotInTruthRate": null,
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 6
+      },
+      "copies.overcountRate": null
+    },
+    "bgp-linecard-private": {
+      "claims.observation.precision": {
+        "value": 0.3333333333333333,
+        "numerator": 1,
+        "denominator": 3
+      },
+      "claims.observation.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.hypothesis.precision": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "claims.hypothesis.recall": null,
+      "claims.advice.precision": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.advice.recall": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.action.precision": {
+        "value": 1,
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claims.action.recall": {
+        "value": 1,
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claims.outcome.precision": {
+        "value": 0.5,
+        "numerator": 2,
+        "denominator": 4
+      },
+      "claims.outcome.recall": {
+        "value": 1,
+        "numerator": 2,
+        "denominator": 2
+      },
+      "claims.condition.precision": {
+        "value": 0.5,
+        "numerator": 1,
+        "denominator": 2
+      },
+      "claims.condition.recall": {
+        "value": 1,
+        "numerator": 1,
+        "denominator": 1
+      },
+      "claims.other.precision": null,
+      "claims.other.recall": null,
+      "claims.all.precision": {
+        "value": 0.5714285714285714,
+        "numerator": 8,
+        "denominator": 14
+      },
+      "claims.all.recall": {
+        "value": 0.8,
+        "numerator": 8,
+        "denominator": 10
+      },
+      "entities.recall": {
+        "value": 0.6666666666666666,
+        "numerator": 2,
+        "denominator": 3
+      },
+      "cases.falseMergeRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "cases.falseSplitRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 2
+      },
+      "attribution.claimPersonErrorRate": {
+        "value": 0.125,
+        "numerator": 1,
+        "denominator": 8
+      },
+      "attribution.attemptPerformerErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.attemptPerformedStateErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.attemptsNotInTruthRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      },
+      "attribution.outcomeReporterErrorRate": {
+        "value": 0.4,
+        "numerator": 2,
+        "denominator": 5
+      },
+      "attribution.firsthandLinkErrorRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 7
+      },
+      "copies.overcountRate": {
+        "value": 0,
+        "numerator": 0,
+        "denominator": 1
+      }
+    }
+  }
+}

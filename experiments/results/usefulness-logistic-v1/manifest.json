@@ -11,7 +11,7 @@
     "maxWallSeconds": 600,
     "networkCalls": 0
   },
-  "startedAt": "2026-11-07T01:12:00.563Z",
+  "startedAt": "2026-11-07T02:02:54.394Z",
   "id": "usefulness-logistic-v1",
   "hypothesis": "A hashed-feature logistic regression trained on the train families' evidence separates evidence belonging to an incident from irrelevant chatter better than the majority-class rate on validation families.",
   "splits": [

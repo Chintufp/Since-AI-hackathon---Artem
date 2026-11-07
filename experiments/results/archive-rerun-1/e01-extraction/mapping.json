@@ -1,0 +1,108 @@
+{
+  "train": {
+    "bgp-firmware-flaps": {
+      "mapping": {
+        "evidenceRefs": 70,
+        "evidenceRefsMapped": 70,
+        "unmappedIds": [],
+        "claims": 17,
+        "claimsDropped": 0,
+        "entities": 12,
+        "links": 11,
+        "linksDropped": 0,
+        "incidents": 2,
+        "incidentsDropped": 0,
+        "incidentEvidenceIds": 15,
+        "incidentEvidenceIdsMapped": 15
+      },
+      "ambiguousKeys": 0
+    },
+    "fan-temperature": {
+      "mapping": {
+        "evidenceRefs": 71,
+        "evidenceRefsMapped": 71,
+        "unmappedIds": [],
+        "claims": 21,
+        "claimsDropped": 0,
+        "entities": 10,
+        "links": 8,
+        "linksDropped": 0,
+        "incidents": 1,
+        "incidentsDropped": 0,
+        "incidentEvidenceIds": 14,
+        "incidentEvidenceIdsMapped": 14
+      },
+      "ambiguousKeys": 0
+    },
+    "config-rollback-private": {
+      "mapping": {
+        "evidenceRefs": 74,
+        "evidenceRefsMapped": 74,
+        "unmappedIds": [],
+        "claims": 19,
+        "claimsDropped": 0,
+        "entities": 13,
+        "links": 9,
+        "linksDropped": 0,
+        "incidents": 2,
+        "incidentsDropped": 0,
+        "incidentEvidenceIds": 15,
+        "incidentEvidenceIdsMapped": 15
+      },
+      "ambiguousKeys": 0
+    },
+    "cabling-pinch": {
+      "mapping": {
+        "evidenceRefs": 59,
+        "evidenceRefsMapped": 59,
+        "unmappedIds": [],
+        "claims": 18,
+        "claimsDropped": 0,
+        "entities": 12,
+        "links": 7,
+        "linksDropped": 0,
+        "incidents": 1,
+        "incidentsDropped": 0,
+        "incidentEvidenceIds": 13,
+        "incidentEvidenceIdsMapped": 13
+      },
+      "ambiguousKeys": 0
+    }
+  },
+  "validation": {
+    "weak-mains-psu": {
+      "mapping": {
+        "evidenceRefs": 69,
+        "evidenceRefsMapped": 69,
+        "unmappedIds": [],
+        "claims": 18,
+        "claimsDropped": 0,
+        "entities": 14,
+        "links": 8,
+        "linksDropped": 0,
+        "incidents": 1,
+        "incidentsDropped": 0,
+        "incidentEvidenceIds": 12,
+        "incidentEvidenceIdsMapped": 12
+      },
+      "ambiguousKeys": 0
+    },
+    "bgp-linecard-private": {
+      "mapping": {
+        "evidenceRefs": 74,
+        "evidenceRefsMapped": 74,
+        "unmappedIds": [],
+        "claims": 17,
+        "claimsDropped": 0,
+        "entities": 13,
+        "links": 10,
+        "linksDropped": 0,
+        "incidents": 2,
+        "incidentsDropped": 0,
+        "incidentEvidenceIds": 16,
+        "incidentEvidenceIdsMapped": 16
+      },
+      "ambiguousKeys": 0
+    }
+  }
+}

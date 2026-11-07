@@ -12,7 +12,7 @@
     "maxWallSeconds": 600,
     "networkCalls": 0
   },
-  "startedAt": "2026-11-07T17:10:32.290Z",
+  "startedAt": "2026-11-07T17:27:50.802Z",
   "id": "e08-retrieval-embed",
   "hypothesis": "A local embedding model (bge-m3) finds the relevant case by meaning: the fusion with bge-m3 in place of the trigram list keeps recall@3 and the lookalike rejection of the shipped hybrid on the hash-locked splits, and finds the judge's paraphrased problem that the lexical lists miss.",
   "splits": [

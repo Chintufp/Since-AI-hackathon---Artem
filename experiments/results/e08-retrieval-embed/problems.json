@@ -12,7 +12,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 13.92
+    "latencyMs": 12.94
   },
   {
     "variant": "lexical-bm25",
@@ -27,7 +27,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.71
+    "latencyMs": 2.92
   },
   {
     "variant": "lexical-bm25",
@@ -42,7 +42,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.84
+    "latencyMs": 2.04
   },
   {
     "variant": "lexical-bm25",
@@ -58,7 +58,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.94
+    "latencyMs": 2.92
   },
   {
     "variant": "lexical-bm25",
@@ -66,14 +66,14 @@
     "problem": "remote-power-access-p2",
     "expected": "check-first",
     "noQuestionNeeded": false,
-    "first": "retain-uncertainty",
-    "final": "retain-uncertainty",
-    "loopEnd": "no-question-needed",
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
     "topCaseIncidents": [
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.56
+    "latencyMs": 1.39
   },
   {
     "variant": "lexical-bm25",
@@ -89,7 +89,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.38
+    "latencyMs": 1.42
   },
   {
     "variant": "local-trigram",
@@ -104,7 +104,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.76
+    "latencyMs": 2.9
   },
   {
     "variant": "local-trigram",
@@ -119,7 +119,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.15
+    "latencyMs": 1.96
   },
   {
     "variant": "local-trigram",
@@ -134,7 +134,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.97
+    "latencyMs": 2.09
   },
   {
     "variant": "local-trigram",
@@ -149,7 +149,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.62
+    "latencyMs": 1.75
   },
   {
     "variant": "local-trigram",
@@ -157,15 +157,15 @@
     "problem": "remote-power-access-p2",
     "expected": "check-first",
     "noQuestionNeeded": false,
-    "first": "retain-uncertainty",
-    "final": "retain-uncertainty",
-    "loopEnd": "no-question-needed",
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
     "topCaseIncidents": [
       "C",
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.32
+    "latencyMs": 1.48
   },
   {
     "variant": "local-trigram",
@@ -196,7 +196,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.54
+    "latencyMs": 2.69
   },
   {
     "variant": "embed-bge-m3",
@@ -211,10 +211,102 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.21
+    "latencyMs": 2.09
   },
   {
     "variant": "embed-bge-m3",
+    "split": "demo",
+    "problem": "optic-forwarding-a-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 2.19
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "demo",
+    "problem": "remote-power-access-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "retain-uncertainty",
+    "final": "retain-uncertainty",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.79
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "demo",
+    "problem": "remote-power-access-p2",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.16
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "demo",
+    "problem": "remote-power-access-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "retain-uncertainty",
+    "final": "retain-uncertainty",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.42
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "demo",
+    "problem": "optic-forwarding-a-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.89
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "demo",
+    "problem": "optic-forwarding-a-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.57
+  },
+  {
+    "variant": "hybrid-rrf",
     "split": "demo",
     "problem": "optic-forwarding-a-p3",
     "expected": "qualified",
@@ -229,98 +321,6 @@
     "latencyMs": 1.79
   },
   {
-    "variant": "embed-bge-m3",
-    "split": "demo",
-    "problem": "remote-power-access-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "retain-uncertainty",
-    "final": "retain-uncertainty",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 1.6
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "demo",
-    "problem": "remote-power-access-p2",
-    "expected": "check-first",
-    "noQuestionNeeded": false,
-    "first": "retain-uncertainty",
-    "final": "retain-uncertainty",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "C",
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.42
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "demo",
-    "problem": "remote-power-access-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "retain-uncertainty",
-    "final": "retain-uncertainty",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "C",
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.77
-  },
-  {
-    "variant": "hybrid-rrf",
-    "split": "demo",
-    "problem": "optic-forwarding-a-p1",
-    "expected": "none",
-    "noQuestionNeeded": false,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 2.06
-  },
-  {
-    "variant": "hybrid-rrf",
-    "split": "demo",
-    "problem": "optic-forwarding-a-p2",
-    "expected": "reuse",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.66
-  },
-  {
-    "variant": "hybrid-rrf",
-    "split": "demo",
-    "problem": "optic-forwarding-a-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.62
-  },
-  {
     "variant": "hybrid-rrf",
     "split": "demo",
     "problem": "remote-power-access-p1",
@@ -328,595 +328,6 @@
     "noQuestionNeeded": true,
     "first": "retain-uncertainty",
     "final": "retain-uncertainty",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 1.6
-  },
-  {
-    "variant": "hybrid-rrf",
-    "split": "demo",
-    "problem": "remote-power-access-p2",
-    "expected": "check-first",
-    "noQuestionNeeded": false,
-    "first": "retain-uncertainty",
-    "final": "retain-uncertainty",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 1.74
-  },
-  {
-    "variant": "hybrid-rrf",
-    "split": "demo",
-    "problem": "remote-power-access-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "retain-uncertainty",
-    "final": "retain-uncertainty",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "C",
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.28
-  },
-  {
-    "variant": "hybrid+embed-bge-m3",
-    "split": "demo",
-    "problem": "optic-forwarding-a-p1",
-    "expected": "none",
-    "noQuestionNeeded": false,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 2.4
-  },
-  {
-    "variant": "hybrid+embed-bge-m3",
-    "split": "demo",
-    "problem": "optic-forwarding-a-p2",
-    "expected": "reuse",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 2.14
-  },
-  {
-    "variant": "hybrid+embed-bge-m3",
-    "split": "demo",
-    "problem": "optic-forwarding-a-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 2.44
-  },
-  {
-    "variant": "hybrid+embed-bge-m3",
-    "split": "demo",
-    "problem": "remote-power-access-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "retain-uncertainty",
-    "final": "retain-uncertainty",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 2.17
-  },
-  {
-    "variant": "hybrid+embed-bge-m3",
-    "split": "demo",
-    "problem": "remote-power-access-p2",
-    "expected": "check-first",
-    "noQuestionNeeded": false,
-    "first": "retain-uncertainty",
-    "final": "retain-uncertainty",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 2.05
-  },
-  {
-    "variant": "hybrid+embed-bge-m3",
-    "split": "demo",
-    "problem": "remote-power-access-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "retain-uncertainty",
-    "final": "retain-uncertainty",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "C",
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.62
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "bgp-firmware-flaps-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "reuse",
-    "final": "reuse",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 2.46
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "bgp-firmware-flaps-p2",
-    "expected": "reuse",
-    "noQuestionNeeded": true,
-    "first": "reuse",
-    "final": "reuse",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.36
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "bgp-firmware-flaps-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 1.77
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "fan-temperature-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 1.91
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "fan-temperature-p2",
-    "expected": "none",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "deferred",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [
-      {
-        "cond": "unit.model",
-        "to": "person:directory:onni-jokinen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is OLT-210 an FT-3?"
-      }
-    ],
-    "latencyMs": 8.64
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "fan-temperature-p3",
-    "expected": "retain-uncertainty",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.7
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "config-rollback-private-p1",
-    "expected": "none",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "deferred",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [
-      {
-        "cond": "unit.age",
-        "to": "person:directory:antti-korhonen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is this true for ACC-33: older unit, installed 2019?"
-      },
-      {
-        "cond": "unit.model",
-        "to": "person:directory:jarmo-heikkinen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is ACC-12 an N5?"
-      }
-    ],
-    "latencyMs": 12.56
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "config-rollback-private-p2",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 0.71
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "config-rollback-private-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "deferred",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [
-      {
-        "cond": "unit.age",
-        "to": "person:directory:antti-korhonen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is this true for ACC-12: older unit, installed 2019?"
-      }
-    ],
-    "latencyMs": 5.62
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "cabling-pinch-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 2.23
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "cabling-pinch-p2",
-    "expected": "reuse",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.43
-  },
-  {
-    "variant": "lexical-bm25",
-    "split": "train",
-    "problem": "cabling-pinch-p3",
-    "expected": "check-first",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.54
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "bgp-firmware-flaps-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "reuse",
-    "final": "reuse",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 2.68
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "bgp-firmware-flaps-p2",
-    "expected": "reuse",
-    "noQuestionNeeded": true,
-    "first": "reuse",
-    "final": "reuse",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.49
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "bgp-firmware-flaps-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 1.49
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "fan-temperature-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 1.38
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "fan-temperature-p2",
-    "expected": "none",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "deferred",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [
-      {
-        "cond": "unit.model",
-        "to": "person:directory:onni-jokinen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is OLT-210 an FT-3?"
-      }
-    ],
-    "latencyMs": 7
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "fan-temperature-p3",
-    "expected": "retain-uncertainty",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.84
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "config-rollback-private-p1",
-    "expected": "none",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "deferred",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [
-      {
-        "cond": "unit.age",
-        "to": "person:directory:antti-korhonen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is this true for ACC-33: older unit, installed 2019?"
-      },
-      {
-        "cond": "unit.model",
-        "to": "person:directory:jarmo-heikkinen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is ACC-12 an N5?"
-      }
-    ],
-    "latencyMs": 11.05
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "config-rollback-private-p2",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 0.81
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "config-rollback-private-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "deferred",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [
-      {
-        "cond": "unit.age",
-        "to": "person:directory:antti-korhonen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is this true for ACC-12: older unit, installed 2019?"
-      }
-    ],
-    "latencyMs": 5.87
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "cabling-pinch-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.11
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "cabling-pinch-p2",
-    "expected": "reuse",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.61
-  },
-  {
-    "variant": "local-trigram",
-    "split": "train",
-    "problem": "cabling-pinch-p3",
-    "expected": "check-first",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.48
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "bgp-firmware-flaps-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "reuse",
-    "final": "reuse",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 1.9
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "bgp-firmware-flaps-p2",
-    "expected": "reuse",
-    "noQuestionNeeded": true,
-    "first": "reuse",
-    "final": "reuse",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.6
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "bgp-firmware-flaps-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
     "loopEnd": "no-question-needed",
     "topCaseIncidents": [
       "B"
@@ -925,179 +336,74 @@
     "latencyMs": 1.58
   },
   {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "fan-temperature-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 1.42
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "fan-temperature-p2",
-    "expected": "none",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "deferred",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [
-      {
-        "cond": "unit.model",
-        "to": "person:directory:onni-jokinen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is OLT-210 an FT-3?"
-      }
-    ],
-    "latencyMs": 7.3
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "fan-temperature-p3",
-    "expected": "retain-uncertainty",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.99
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "config-rollback-private-p1",
-    "expected": "none",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "deferred",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [
-      {
-        "cond": "unit.age",
-        "to": "person:directory:antti-korhonen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is this true for ACC-33: older unit, installed 2019?"
-      },
-      {
-        "cond": "unit.model",
-        "to": "person:directory:jarmo-heikkinen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is ACC-12 an N5?"
-      }
-    ],
-    "latencyMs": 11.42
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "config-rollback-private-p2",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "config-rollback-private-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "deferred",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [
-      {
-        "cond": "unit.age",
-        "to": "person:directory:antti-korhonen",
-        "reply": "unknown",
-        "benefit": 0,
-        "text": "Is this true for ACC-12: older unit, installed 2019?"
-      }
-    ],
-    "latencyMs": 5.65
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "cabling-pinch-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.2
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "cabling-pinch-p2",
-    "expected": "reuse",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.94
-  },
-  {
-    "variant": "embed-bge-m3",
-    "split": "train",
-    "problem": "cabling-pinch-p3",
+    "variant": "hybrid-rrf",
+    "split": "demo",
+    "problem": "remote-power-access-p2",
     "expected": "check-first",
     "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
     "topCaseIncidents": [
-      "A"
+      "B"
     ],
     "questions": [],
-    "latencyMs": 1.6
+    "latencyMs": 0.98
   },
   {
     "variant": "hybrid-rrf",
-    "split": "train",
-    "problem": "bgp-firmware-flaps-p1",
+    "split": "demo",
+    "problem": "remote-power-access-p3",
     "expected": "qualified",
     "noQuestionNeeded": false,
-    "first": "reuse",
-    "final": "reuse",
+    "first": "retain-uncertainty",
+    "final": "retain-uncertainty",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.61
+  },
+  {
+    "variant": "hybrid+embed-bge-m3",
+    "split": "demo",
+    "problem": "optic-forwarding-a-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 2.39
+  },
+  {
+    "variant": "hybrid+embed-bge-m3",
+    "split": "demo",
+    "problem": "optic-forwarding-a-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 2.15
+  },
+  {
+    "variant": "hybrid+embed-bge-m3",
+    "split": "demo",
+    "problem": "optic-forwarding-a-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
     "loopEnd": "no-question-needed",
     "topCaseIncidents": [
       "A"
@@ -1106,7 +412,68 @@
     "latencyMs": 1.95
   },
   {
-    "variant": "hybrid-rrf",
+    "variant": "hybrid+embed-bge-m3",
+    "split": "demo",
+    "problem": "remote-power-access-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "retain-uncertainty",
+    "final": "retain-uncertainty",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.94
+  },
+  {
+    "variant": "hybrid+embed-bge-m3",
+    "split": "demo",
+    "problem": "remote-power-access-p2",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.26
+  },
+  {
+    "variant": "hybrid+embed-bge-m3",
+    "split": "demo",
+    "problem": "remote-power-access-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "retain-uncertainty",
+    "final": "retain-uncertainty",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.5
+  },
+  {
+    "variant": "lexical-bm25",
+    "split": "train",
+    "problem": "bgp-firmware-flaps-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 2.18
+  },
+  {
+    "variant": "lexical-bm25",
     "split": "train",
     "problem": "bgp-firmware-flaps-p2",
     "expected": "reuse",
@@ -1118,10 +485,10 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.58
+    "latencyMs": 1.15
   },
   {
-    "variant": "hybrid-rrf",
+    "variant": "lexical-bm25",
     "split": "train",
     "problem": "bgp-firmware-flaps-p3",
     "expected": "qualified",
@@ -1133,10 +500,10 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.83
+    "latencyMs": 1.36
   },
   {
-    "variant": "hybrid-rrf",
+    "variant": "lexical-bm25",
     "split": "train",
     "problem": "fan-temperature-p1",
     "expected": "qualified",
@@ -1148,10 +515,10 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.47
+    "latencyMs": 1.6
   },
   {
-    "variant": "hybrid-rrf",
+    "variant": "lexical-bm25",
     "split": "train",
     "problem": "fan-temperature-p2",
     "expected": "none",
@@ -1171,10 +538,10 @@
         "text": "Is OLT-210 an FT-3?"
       }
     ],
-    "latencyMs": 9.5
+    "latencyMs": 8.1
   },
   {
-    "variant": "hybrid-rrf",
+    "variant": "lexical-bm25",
     "split": "train",
     "problem": "fan-temperature-p3",
     "expected": "retain-uncertainty",
@@ -1186,10 +553,10 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.89
+    "latencyMs": 1.76
   },
   {
-    "variant": "hybrid-rrf",
+    "variant": "lexical-bm25",
     "split": "train",
     "problem": "config-rollback-private-p1",
     "expected": "none",
@@ -1216,10 +583,10 @@
         "text": "Is ACC-12 an N5?"
       }
     ],
-    "latencyMs": 10.61
+    "latencyMs": 11.82
   },
   {
-    "variant": "hybrid-rrf",
+    "variant": "lexical-bm25",
     "split": "train",
     "problem": "config-rollback-private-p2",
     "expected": "qualified",
@@ -1234,6 +601,639 @@
     "latencyMs": 0.77
   },
   {
+    "variant": "lexical-bm25",
+    "split": "train",
+    "problem": "config-rollback-private-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-12: older unit, installed 2019?"
+      }
+    ],
+    "latencyMs": 5.15
+  },
+  {
+    "variant": "lexical-bm25",
+    "split": "train",
+    "problem": "cabling-pinch-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 2.15
+  },
+  {
+    "variant": "lexical-bm25",
+    "split": "train",
+    "problem": "cabling-pinch-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.32
+  },
+  {
+    "variant": "lexical-bm25",
+    "split": "train",
+    "problem": "cabling-pinch-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.25
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "bgp-firmware-flaps-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.7
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "bgp-firmware-flaps-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.33
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "bgp-firmware-flaps-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.33
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "fan-temperature-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.22
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "fan-temperature-p2",
+    "expected": "none",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [
+      {
+        "cond": "unit.model",
+        "to": "person:directory:onni-jokinen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is OLT-210 an FT-3?"
+      }
+    ],
+    "latencyMs": 6.31
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "fan-temperature-p3",
+    "expected": "retain-uncertainty",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.76
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "config-rollback-private-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-33: older unit, installed 2019?"
+      },
+      {
+        "cond": "unit.model",
+        "to": "person:directory:jarmo-heikkinen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is ACC-12 an N5?"
+      }
+    ],
+    "latencyMs": 10.3
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "config-rollback-private-p2",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.75
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "config-rollback-private-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-12: older unit, installed 2019?"
+      }
+    ],
+    "latencyMs": 5.57
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "cabling-pinch-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "cabling-pinch-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.34
+  },
+  {
+    "variant": "local-trigram",
+    "split": "train",
+    "problem": "cabling-pinch-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.31
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "bgp-firmware-flaps-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.82
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "bgp-firmware-flaps-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.84
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "bgp-firmware-flaps-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.69
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "fan-temperature-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.54
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "fan-temperature-p2",
+    "expected": "none",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [
+      {
+        "cond": "unit.model",
+        "to": "person:directory:onni-jokinen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is OLT-210 an FT-3?"
+      }
+    ],
+    "latencyMs": 6.95
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "fan-temperature-p3",
+    "expected": "retain-uncertainty",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 2
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "config-rollback-private-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-33: older unit, installed 2019?"
+      },
+      {
+        "cond": "unit.model",
+        "to": "person:directory:jarmo-heikkinen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is ACC-12 an N5?"
+      }
+    ],
+    "latencyMs": 10.88
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "config-rollback-private-p2",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.01
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "config-rollback-private-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-12: older unit, installed 2019?"
+      }
+    ],
+    "latencyMs": 5.37
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "cabling-pinch-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.48
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "cabling-pinch-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.43
+  },
+  {
+    "variant": "embed-bge-m3",
+    "split": "train",
+    "problem": "cabling-pinch-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.58
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "train",
+    "problem": "bgp-firmware-flaps-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.75
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "train",
+    "problem": "bgp-firmware-flaps-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.81
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "train",
+    "problem": "bgp-firmware-flaps-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.64
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "train",
+    "problem": "fan-temperature-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.46
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "train",
+    "problem": "fan-temperature-p2",
+    "expected": "none",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [
+      {
+        "cond": "unit.model",
+        "to": "person:directory:onni-jokinen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is OLT-210 an FT-3?"
+      }
+    ],
+    "latencyMs": 6.22
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "train",
+    "problem": "fan-temperature-p3",
+    "expected": "retain-uncertainty",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 2.36
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "train",
+    "problem": "config-rollback-private-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-33: older unit, installed 2019?"
+      },
+      {
+        "cond": "unit.model",
+        "to": "person:directory:jarmo-heikkinen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is ACC-12 an N5?"
+      }
+    ],
+    "latencyMs": 10.75
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "train",
+    "problem": "config-rollback-private-p2",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.94
+  },
+  {
     "variant": "hybrid-rrf",
     "split": "train",
     "problem": "config-rollback-private-p3",
@@ -1254,7 +1254,7 @@
         "text": "Is this true for ACC-12: older unit, installed 2019?"
       }
     ],
-    "latencyMs": 5.58
+    "latencyMs": 5.96
   },
   {
     "variant": "hybrid-rrf",
@@ -1269,7 +1269,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1
+    "latencyMs": 1.13
   },
   {
     "variant": "hybrid-rrf",
@@ -1284,7 +1284,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.36
+    "latencyMs": 1.47
   },
   {
     "variant": "hybrid-rrf",
@@ -1299,7 +1299,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.51
+    "latencyMs": 1.45
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1314,7 +1314,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.21
+    "latencyMs": 2.06
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1344,7 +1344,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.68
+    "latencyMs": 1.7
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1359,7 +1359,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.54
+    "latencyMs": 1.77
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1382,7 +1382,7 @@
         "text": "Is OLT-210 an FT-3?"
       }
     ],
-    "latencyMs": 6.61
+    "latencyMs": 6.99
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1397,7 +1397,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.31
+    "latencyMs": 2.18
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1427,7 +1427,7 @@
         "text": "Is ACC-12 an N5?"
       }
     ],
-    "latencyMs": 16.59
+    "latencyMs": 11.13
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1442,7 +1442,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.68
+    "latencyMs": 1.29
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1465,7 +1465,7 @@
         "text": "Is this true for ACC-12: older unit, installed 2019?"
       }
     ],
-    "latencyMs": 9.21
+    "latencyMs": 6
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1480,7 +1480,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.41
+    "latencyMs": 1.33
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1495,7 +1495,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.94
+    "latencyMs": 1.59
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1510,7 +1510,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.2
+    "latencyMs": 1.67
   },
   {
     "variant": "lexical-bm25",
@@ -1526,7 +1526,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.11
+    "latencyMs": 1.94
   },
   {
     "variant": "lexical-bm25",
@@ -1542,7 +1542,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.45
+    "latencyMs": 1.5
   },
   {
     "variant": "lexical-bm25",
@@ -1558,7 +1558,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.4
+    "latencyMs": 1.6
   },
   {
     "variant": "lexical-bm25",
@@ -1573,7 +1573,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.17
+    "latencyMs": 2.18
   },
   {
     "variant": "lexical-bm25",
@@ -1603,7 +1603,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.17
+    "latencyMs": 1.08
   },
   {
     "variant": "local-trigram",
@@ -1619,7 +1619,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.75
+    "latencyMs": 2
   },
   {
     "variant": "local-trigram",
@@ -1635,7 +1635,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.66
+    "latencyMs": 1.53
   },
   {
     "variant": "local-trigram",
@@ -1650,7 +1650,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.77
+    "latencyMs": 1.45
   },
   {
     "variant": "local-trigram",
@@ -1665,7 +1665,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.5
+    "latencyMs": 1.43
   },
   {
     "variant": "local-trigram",
@@ -1680,7 +1680,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 0.97
+    "latencyMs": 0.83
   },
   {
     "variant": "local-trigram",
@@ -1695,7 +1695,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.19
+    "latencyMs": 1.2
   },
   {
     "variant": "embed-bge-m3",
@@ -1710,7 +1710,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 2.23
+    "latencyMs": 2.02
   },
   {
     "variant": "embed-bge-m3",
@@ -1726,7 +1726,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.74
+    "latencyMs": 1.95
   },
   {
     "variant": "embed-bge-m3",
@@ -1741,7 +1741,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.61
+    "latencyMs": 1.72
   },
   {
     "variant": "embed-bge-m3",
@@ -1756,7 +1756,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.72
+    "latencyMs": 1.8
   },
   {
     "variant": "embed-bge-m3",
@@ -1771,7 +1771,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.07
+    "latencyMs": 1.1
   },
   {
     "variant": "embed-bge-m3",
@@ -1802,7 +1802,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.79
+    "latencyMs": 2
   },
   {
     "variant": "hybrid-rrf",
@@ -1818,7 +1818,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.57
+    "latencyMs": 1.62
   },
   {
     "variant": "hybrid-rrf",
@@ -1833,7 +1833,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.92
+    "latencyMs": 1.54
   },
   {
     "variant": "hybrid-rrf",
@@ -1848,7 +1848,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.53
+    "latencyMs": 1.92
   },
   {
     "variant": "hybrid-rrf",
@@ -1863,7 +1863,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 0.93
+    "latencyMs": 0.82
   },
   {
     "variant": "hybrid-rrf",
@@ -1878,7 +1878,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.62
+    "latencyMs": 1.19
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1893,7 +1893,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 2.48
+    "latencyMs": 2.07
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1909,7 +1909,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.87
+    "latencyMs": 2
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1924,7 +1924,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.73
+    "latencyMs": 2.38
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1939,7 +1939,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.73
+    "latencyMs": 1.92
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1954,7 +1954,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.14
+    "latencyMs": 1.29
   },
   {
     "variant": "hybrid+embed-bge-m3",
@@ -1969,6 +1969,6 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.5
+    "latencyMs": 1.64
   }
 ]

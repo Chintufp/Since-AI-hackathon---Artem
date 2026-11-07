@@ -31,7 +31,7 @@ Four runs, same harness, same E00 configuration, same oracle: (1) first provisio
 | false advice rate | n/a -> 0.333 (1/3) -> 0.000 (0/1) -> **0.000 (0/1)** | 0.500 (1/2) -> 0.333 (3/9) -> 0.333 (3/9) -> **0.333 (3/9)** | n/a -> 0.200 (1/5) -> 0.200 (1/5) -> **0.200 (1/5)** |
 | eligible coverage | 0.200 (1/5) -> 0.400 (2/5) -> 0.200 (1/5) -> **0.200 (1/5)** | 0.111 (1/9) -> 0.667 (6/9) -> 0.667 (6/9) -> **0.667 (6/9)** | 0.000 (0/5) -> 0.800 (4/5) -> 0.800 (4/5) -> **0.800 (4/5)** |
 | false "solved" (reported recovery claimed verified) | 0.000 (0/2) -> 0.000 (0/3) -> 0.000 (0/3) -> **0.000 (0/3)** | 0.000 (0/4) -> 0.000 (0/6) -> 0.000 (0/6) -> **0.000 (0/6)** | 0.000 (0/3) -> 0.000 (0/4) -> 0.000 (0/4) -> **0.000 (0/4)** |
-| access checks (truth-based leakage / system-detectable own-scope; shown sources in the denominator) | leak FAIL 1/36; own-scope pass 0/36 -> leak pass (known limitation) 1/42; own-scope pass 0/42 -> leak pass (known limitation) 1/46; own-scope pass 0/46 -> **leak pass (known limitation) 1/46; own-scope pass 0/46** | leak pass 0/59; own-scope pass 0/64 -> leak pass 0/88; own-scope pass 0/90 -> leak pass 0/87; own-scope pass 0/89 -> **leak pass 0/87; own-scope pass 0/89** | leak pass 0/35; own-scope pass 0/37 -> leak pass 0/47; own-scope pass 0/50 -> leak pass 0/47; own-scope pass 0/50 -> **leak pass 0/47; own-scope pass 0/50** |
+| access checks (truth-based leakage / system-detectable own-scope; shown sources in the denominator) | leak FAIL 1/36; own-scope pass 0/36 -> leak pass (known limitation) 1/42; own-scope pass 0/42 -> leak pass (known limitation) 1/46; own-scope pass 0/46 -> **leak pass (known limitation) 1/42; own-scope pass 0/42** | leak pass 0/59; own-scope pass 0/64 -> leak pass 0/88; own-scope pass 0/90 -> leak pass 0/87; own-scope pass 0/89 -> **leak pass 0/87; own-scope pass 0/89** | leak pass 0/35; own-scope pass 0/37 -> leak pass 0/47; own-scope pass 0/50 -> leak pass 0/47; own-scope pass 0/50 -> **leak pass 0/47; own-scope pass 0/50** |
 
 Access-check cells: the provisional and re-run 1 cells are copied from their generated reports (`archive-provisional/RESULTS.provisional.md`, `archive-rerun-1/RESULTS.rerun-1.md`; their result directories were overwritten by partial re-runs, so their `checks.json` denominators no longer match); re-run 2 and run 3 are read from `checks.json`. Each cell is leaked-or-restricted shown sources over shown sources. The demo `leak` residual (1 shown source) is the documented known limitation (e-mail without ACL metadata); it is tolerated only for that listed source while own-scope passes.
 
@@ -52,7 +52,7 @@ Every shipped choice is unchanged. The outcome text changed for some (E04: in th
 
 ## Reading the results first
 
-With library defaults and the tuned rules extractor, all-type claim recall is demo 0.480 (12/25), train 0.681 (32/47), validation 0.636 (14/22) and outcome recall is demo 0.500 (2/4), train 1.000 (9/9), validation 0.750 (3/4). In E00, 6/24 investigations end in the recommendation `none`, and 4/4 questions asked were answered "unknown" by their recipient (4/24 questions over 24 investigations). Extraction coverage was the binding constraint in the first run; it is much less binding now, but the downstream experiments still have very small denominators: E03 on the family arm asked no validation question, and E05 and E06 see 0 or 1 gap-relevant questions, so those three tie by construction and say nothing about the variants. The frozen rules were applied mechanically and ties are reported as ties.
+With library defaults and the tuned rules extractor, all-type claim recall is demo 0.480 (12/25), train 0.681 (32/47), validation 0.636 (14/22) and outcome recall is demo 0.500 (2/4), train 1.000 (9/9), validation 0.750 (3/4). In E00, 7/24 investigations end in the recommendation `none`, and 4/4 questions asked were answered "unknown" by their recipient (4/24 questions over 24 investigations). Extraction coverage was the binding constraint in the first run; it is much less binding now, but the downstream experiments still have very small denominators: E03 on the family arm asked no validation question, and E05 and E06 see 0 or 1 gap-relevant questions, so those three tie by construction and say nothing about the variants. The frozen rules were applied mechanically and ties are reported as ties.
 
 ## E00 - rules baseline on the real system
 
@@ -79,9 +79,9 @@ Reference baseline: every stage on its deterministic route with the library defa
 | incoming linking recall@1 | 0.625 (5/8) | 0.667 (12/18) | 0.556 (5/9) |
 | incoming linking recall@3 | 1.000 (8/8) | 0.889 (16/18) | 0.778 (7/9) |
 | incoming linking precision@3 | 0.667 (8/12) | 0.889 (16/18) | 0.583 (7/12) |
-| access leakage (truth-based) | 0.022 (1/46) | 0.000 (0/87) | 0.000 (0/47) |
-| shown evidence the store itself restricts | 0.000 (0/46) | 0.000 (0/89) | 0.000 (0/50) |
-| mean latency per investigation (ms) | 3.595 (mean, no count) | 2.821 (mean, no count) | 1.461 (mean, no count) |
+| access leakage (truth-based) | 0.024 (1/42) | 0.000 (0/87) | 0.000 (0/47) |
+| shown evidence the store itself restricts | 0.000 (0/42) | 0.000 (0/89) | 0.000 (0/50) |
+| mean latency per investigation (ms) | 4.725 (mean, no count) | 3.717 (mean, no count) | 2.033 (mean, no count) |
 
 **E00 checks**
 
@@ -95,8 +95,8 @@ Reference baseline: every stage on its deterministic route with the library defa
 - PASS idempotent-import:cabling-pinch: evidence/claim/case/entity/link/attempt/outcome 15/17/1/9/15/3/5 -> 15/17/1/9/15/3/5
 - PASS idempotent-import:weak-mains-psu: evidence/claim/case/entity/link/attempt/outcome 14/20/2/7/14/2/3 -> 14/20/2/7/14/2/3
 - PASS idempotent-import:bgp-linecard-private: evidence/claim/case/entity/link/attempt/outcome 18/20/3/8/18/3/4 -> 18/20/3/8/18/3/4
-- **PASS (known limitation)** access-leakage:demo: shown sources of incidents the requester's groups exclude (truth-based): 0.022 (1/46) KNOWN LIMITATION (not system-detectable, own-scope check passes): email:f02-access-310@kalevanet.example: e-mail record carries no ACL metadata, so its stored scope is org; only the truth-based metric knows the incident is restricted
-- PASS access-own-scope:demo: shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/46)
+- **PASS (known limitation)** access-leakage:demo: shown sources of incidents the requester's groups exclude (truth-based): 0.024 (1/42) KNOWN LIMITATION (not system-detectable, own-scope check passes): email:f02-access-310@kalevanet.example: e-mail record carries no ACL metadata, so its stored scope is org; only the truth-based metric knows the incident is restricted
+- PASS access-own-scope:demo: shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/42)
 - PASS access-leakage:train: shown sources of incidents the requester's groups exclude (truth-based): 0.000 (0/87)
 - PASS access-own-scope:train: shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/89)
 - PASS access-leakage:validation: shown sources of incidents the requester's groups exclude (truth-based): 0.000 (0/47)

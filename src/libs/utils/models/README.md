@@ -3,7 +3,7 @@
 Explicit routes, replay, small local models, model artifacts and test doubles.
 
 ## Public interface (`index.ts`)
-- `routes.ts`: `ROUTE_REGISTRY`/`routeInfo(key)` (every stage's route label), `uniqueRoutes`, `assertRouteInfo` (replay versions must start with `replay:`), `blockedProviderCall(name)` (always throws `NetworkProviderBlockedError`), `installNetworkGuard()` (replaces `globalThis.fetch` with a thrower; returns restore).
+- `routes.ts`: `ROUTE_REGISTRY`/`routeInfo(key)` (every stage's route label), `uniqueRoutes`, `assertRouteInfo` (replay versions must start with `replay:`), `blockedProviderCall(name)` (always throws `NetworkProviderBlockedError`), `installNetworkGuard({allowOrigins, onBlock})` (replaces `globalThis.fetch` with a thrower; `allowOrigins` may be a function re-read per call; the service installs it at startup, D-INT-20; returns restore).
 - `replay.ts`: `ReplayProvider<T>` loads JSON fixtures `{id, entries: {key: {inputHash, output, recordedBy}}}`; `get(key, input)` returns `undefined` when nothing was recorded and throws `ReplayMismatchError` when the live input hash differs. `hashInput` is key-order independent.
 - `logistic-hashed.ts`: `LogisticHashed` (hashed unigram+bigram features, seeded SGD logistic regression, `predictProba`, `accuracy`, `toArtifact`/`fromArtifact`).
 - `artifacts.ts`: `saveArtifact`/`loadArtifact`/`listArtifacts` for `data/models/<id>.json` (id validated; directory overridable).

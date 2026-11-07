@@ -50,24 +50,40 @@ export interface NetworkGuardOptions {
   /**
    * URL origins that may still be fetched, exactly as `new URL(u).origin` prints them (e.g. 'http://127.0.0.1:11434'
    * for the experiments' explicit --record mode). Everything else, localhost included, stays blocked. Default: none.
+   * A function is called on every fetch, so the allowlist follows live settings (the service, D-INT-20).
    */
-  allowOrigins?: string[];
+  allowOrigins?: string[] | (() => string[]);
+  /** Called for every refused call with the origin and the route label whose permission was missing. */
+  onBlock?: (info: { origin: string | undefined; missingRoute: string }) => void;
 }
 
-/** Replace globalThis.fetch with a thrower (tests/experiments). Returns a restore function. */
+/** Which route labels need an origin (for the "missing route" part of a refusal). */
+export const ORIGIN_ROUTES: Record<string, string> = {
+  'http://127.0.0.1:11434': 'ollama-embed / ollama-extract / ollama-phrase (a slot on local)',
+  'https://api.anthropic.com': 'api-extract / api-phrase (a slot on api, KT_NO_API unset)',
+  'https://generativelanguage.googleapis.com': 'api-extract / api-phrase (a slot on api, KT_NO_API unset)',
+  'https://slack.com': 'slack-web (KT_SLACK_LIVE=1)',
+};
+
+/** The route label a refused origin would have needed, or a note that no route in ROUTE_REGISTRY reaches it. */
+export function missingRouteFor(origin: string | undefined): string {
+  return (origin && ORIGIN_ROUTES[origin]) || `none (no route in ROUTE_REGISTRY reaches ${origin ?? 'a non-URL target'})`;
+}
+
+/** Replace globalThis.fetch with a thrower (tests/experiments/service). Returns a restore function. */
 export function installNetworkGuard(opts: NetworkGuardOptions = {}): () => void {
   const g = globalThis as { fetch?: unknown };
   const original = g.fetch as ((input: unknown, init?: unknown) => unknown) | undefined;
-  const allow = new Set(opts.allowOrigins ?? []);
   g.fetch = (input: unknown, init?: unknown) => {
-    if (allow.size && original) {
-      let origin: string | undefined;
-      try {
-        origin = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : String((input as { url?: string })?.url ?? '')).origin;
-      } catch { /* not a URL: blocked below */ }
-      if (origin && allow.has(origin)) return original(input, init);
-    }
-    throw new NetworkProviderBlockedError('fetch');
+    let origin: string | undefined;
+    try {
+      origin = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : String((input as { url?: string })?.url ?? '')).origin;
+    } catch { /* not a URL: blocked below */ }
+    const list = typeof opts.allowOrigins === 'function' ? opts.allowOrigins() : opts.allowOrigins ?? [];
+    if (original && origin && list.includes(origin)) return original(input, init);
+    const missingRoute = missingRouteFor(origin);
+    opts.onBlock?.({ origin, missingRoute });
+    throw new NetworkProviderBlockedError(`fetch to ${origin ?? 'a non-URL target'}; route needed: ${missingRoute}`);
   };
   return () => {
     g.fetch = original;

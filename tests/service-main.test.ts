@@ -41,3 +41,10 @@ test('the judge demo starts the service with quiet hours off; the agent demo run
   assert.match(agent, /was\.mode === 'simulated'/);
   assert.match(agent, /if \(was\.mode !== 'simulated'\) movedServiceClock = service;/);
 });
+
+test('main.ts installs the service network guard before listening (D-INT-20)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const main = readFileSync(join(ROOT, 'src/apps/service/main.ts'), 'utf8');
+  assert.match(main, /installServiceGuard\(\{ slots: \(\) => engine\.modelSlots\(\)/);
+  assert.ok(main.indexOf('installServiceGuard(') < main.indexOf('await startHttp('));
+});

@@ -1,0 +1,125 @@
+{
+  "familyId": "transponder-laser",
+  "problems": [
+    {
+      "id": "transponder-laser-p1",
+      "text": "XC-325 is an XC-4 revision C from 2021. The QSFP was replaced, the local port is up, far end shows LOS. Is the power cycle that Helena advised on XC-318 the right move?",
+      "requester": "person:directory:tiina-aho",
+      "observations": [
+        {
+          "key": "interface.status",
+          "value": "up",
+          "label": "Local port up"
+        },
+        {
+          "key": "alarms.state",
+          "value": "active",
+          "label": "Far-end LOS active"
+        },
+        {
+          "key": "unit.model",
+          "value": "XC-4",
+          "label": "XC-4 line card"
+        },
+        {
+          "key": "unit.revision",
+          "value": "C",
+          "label": "Revision C"
+        },
+        {
+          "key": "unit.installed_year",
+          "value": 2021,
+          "label": "Installed 2021"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "qualified",
+        "consequentialGap": {
+          "description": "Did the power cycle on XC-318 actually restore traffic? The outcome was never reported.",
+          "answerers": [
+            "person:directory:joonas-kemppainen"
+          ],
+          "answer": "yes"
+        },
+        "answers": {
+          "person:directory:joonas-kemppainen": {
+            "traffic.state=flowing@XC-318": "yes"
+          },
+          "person:directory:helena-ketola": {
+            "traffic.state=flowing@XC-318": "unknown"
+          },
+          "person:directory:jaana-peltonen": {
+            "traffic.state=flowing@XC-318": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "reuse",
+        "laterOutcome": "recovered"
+      }
+    },
+    {
+      "id": "transponder-laser-p2",
+      "text": "XC-122 is an XC-2 node from 2018. The optic was replaced and there is no traffic. Do the same as XC-318, a card power cycle?",
+      "requester": "person:directory:ismo-vainio",
+      "observations": [
+        {
+          "key": "unit.model",
+          "value": "XC-2",
+          "label": "XC-2 node"
+        },
+        {
+          "key": "unit.installed_year",
+          "value": 2018,
+          "label": "Installed 2018"
+        },
+        {
+          "key": "traffic.state",
+          "value": "absent",
+          "label": "No traffic"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "B"
+        ],
+        "applicable": "reuse",
+        "answers": {},
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "reuse",
+        "distinguishingConditions": [
+          {
+            "key": "unit.model",
+            "value": "XC-2"
+          }
+        ],
+        "laterOutcome": "recovered"
+      }
+    },
+    {
+      "id": "transponder-laser-p3",
+      "text": "For XC-4 do I power cycle the whole shelf or just the card? I would ask Jaana since she did this before.",
+      "requester": "person:directory:tiina-aho",
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "qualified",
+        "answers": {
+          "person:directory:helena-ketola": {
+            "power.scope=card": "yes"
+          },
+          "person:directory:jaana-peltonen": {
+            "power.scope=card": "unknown"
+          }
+        },
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "qualified",
+        "laterOutcome": "recovered"
+      }
+    }
+  ]
+}

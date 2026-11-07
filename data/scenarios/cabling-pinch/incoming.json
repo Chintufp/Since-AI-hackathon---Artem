@@ -1,0 +1,128 @@
+{
+  "familyId": "cabling-pinch",
+  "problems": [
+    {
+      "id": "cabling-pinch-p1",
+      "text": "HUB-11 uplink has CRC errors in bursts, link stays up. Optical levels are normal. What should Reijo check?",
+      "requester": "person:directory:aila-nurmi",
+      "observations": [
+        {
+          "key": "interface.status",
+          "value": "up",
+          "label": "Link up"
+        },
+        {
+          "key": "optical.level",
+          "value": "normal",
+          "label": "Optical levels normal"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "qualified",
+        "consequentialGap": {
+          "description": "Was the SFP already replaced at HUB-11? If yes the SFP step is pointless and the cable check is next; the cable condition is then the second thing to ask.",
+          "answerers": [
+            "person:directory:reijo-kauppi"
+          ],
+          "answer": "yes"
+        },
+        "answers": {
+          "person:directory:reijo-kauppi": {
+            "component.replaced=sfp": "yes",
+            "cable.condition=damaged": "yes"
+          },
+          "person:directory:kimmo-rautio": {
+            "component.replaced=sfp": "unknown",
+            "cable.condition=damaged": "unknown"
+          },
+          "person:directory:henrik-sjoberg": {
+            "component.replaced=sfp": "unknown",
+            "cable.condition=damaged": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "qualified",
+        "distinguishingConditions": [
+          {
+            "key": "component.replaced",
+            "value": "sfp"
+          },
+          {
+            "key": "cable.condition",
+            "value": "damaged"
+          }
+        ],
+        "laterOutcome": "recovered"
+      }
+    },
+    {
+      "id": "cabling-pinch-p2",
+      "text": "HUB-07 has shown zero CRC errors for 48 hours now, since the new patch cord went in.",
+      "requester": "person:directory:aila-nurmi",
+      "observations": [
+        {
+          "key": "interface.crc_errors",
+          "value": "zero",
+          "label": "Zero CRC errors for 48 hours"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "reuse",
+        "answers": {
+          "person:directory:aila-nurmi": {
+            "interface.crc_errors=zero": "yes"
+          }
+        },
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "reuse",
+        "laterOutcome": "recovered"
+      }
+    },
+    {
+      "id": "cabling-pinch-p3",
+      "text": "HUB-09 is the same cabinet type and now has CRC errors in bursts. At HUB-07 it was the door pinching the cord. Is the guard Seppo fitted the permanent fix I should copy?",
+      "requester": "person:directory:kimmo-rautio",
+      "observations": [
+        {
+          "key": "site.id",
+          "value": "HUB-09",
+          "label": "Site HUB-09"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "qualified",
+        "consequentialGap": {
+          "description": "Was a cable guard actually fitted at HUB-07 and does it hold? Only Seppo fitted it and he is on leave.",
+          "answerers": [
+            "person:directory:seppo-lahti"
+          ],
+          "answer": "yes",
+          "unanswerable": true
+        },
+        "answers": {
+          "person:directory:seppo-lahti": {
+            "cable.guard_fitted=true": "yes"
+          },
+          "person:directory:kimmo-rautio": {
+            "cable.guard_fitted=true": "unknown"
+          },
+          "person:directory:marketta-ylonen": {
+            "cable.guard_fitted=true": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "check-first",
+        "laterOutcome": "unknown"
+      }
+    }
+  ]
+}

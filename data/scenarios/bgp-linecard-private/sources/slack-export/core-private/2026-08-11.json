@@ -1,0 +1,37 @@
+[
+  {
+    "type": "message",
+    "user": "U801",
+    "text": "PE-09 is flapping after 11.2 but it has LC-3, so 11.2.1 should not be the answer. The vendor advisory, still under NDA, says LC-3 is affected through the BFD default.",
+    "ts": "1786438800.000300",
+    "thread_ts": "1786438800.000300"
+  },
+  {
+    "type": "message",
+    "user": "U802",
+    "text": "I installed 11.2.1 on PE-09 anyway. No change.",
+    "ts": "1786440300.000400",
+    "thread_ts": "1786438800.000300"
+  },
+  {
+    "type": "message",
+    "user": "U801",
+    "text": "Vendor workaround: set the BFD interval to 300 ms on the affected sessions and it holds.",
+    "ts": "1786441800.000500",
+    "thread_ts": "1786438800.000300"
+  },
+  {
+    "type": "message",
+    "user": "U802",
+    "text": "BFD interval raised on PE-09, the sessions are stable.",
+    "ts": "1786443600.000600",
+    "thread_ts": "1786438800.000300"
+  },
+  {
+    "type": "message",
+    "user": "U803",
+    "text": "Please do not share the advisory outside core until the vendor publishes it.",
+    "ts": "1786444200.000700",
+    "thread_ts": "1786438800.000300"
+  }
+]

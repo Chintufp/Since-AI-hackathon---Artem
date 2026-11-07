@@ -1,0 +1,86 @@
+{
+  "people": [
+    {
+      "id": "person:directory:ilmari-karjalainen",
+      "name": "Ilmari Karjalainen",
+      "role": "Field Engineer",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:teams:Ilmari Karjalainen",
+        "person:slack:U201",
+        "person:email:ilmari.karjalainen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:marja-niemi",
+      "name": "Marja Niemi",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:teams:Marja Niemi",
+        "person:slack:U202",
+        "person:email:marja.niemi@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:risto-peltola",
+      "name": "Risto Peltola",
+      "role": "Power Specialist",
+      "groups": [
+        "power",
+        "field"
+      ],
+      "actorIds": [
+        "person:teams:Risto Peltola",
+        "person:slack:U203",
+        "person:email:risto.peltola@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:eino-salo",
+      "name": "Eino Salo",
+      "role": "Site Access Coordinator",
+      "groups": [
+        "access"
+      ],
+      "actorIds": [
+        "person:slack:U204",
+        "person:email:eino.salo@kalevanet.example"
+      ],
+      "available": false
+    },
+    {
+      "id": "person:directory:pirkko-laine",
+      "name": "Pirkko Laine",
+      "role": "Regional Team Lead",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:slack:U205",
+        "person:email:pirkko.laine@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:kaisa-hautala",
+      "name": "Kaisa Hautala",
+      "role": "Field Engineer",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:slack:U206",
+        "person:email:kaisa.hautala@kalevanet.example"
+      ],
+      "available": true
+    }
+  ]
+}

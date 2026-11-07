@@ -1,0 +1,142 @@
+{
+  "familyId": "optic-forwarding-a",
+  "problems": [
+    {
+      "id": "optic-forwarding-a-p1",
+      "text": "I just replaced the SFP at TRN-233. Link is up, alarms cleared, but the counters are still zero. Should I reset the interface like on TRN-117?",
+      "requester": "person:directory:liisa-makela",
+      "observations": [
+        {
+          "key": "interface.status",
+          "value": "up",
+          "label": "Interface is up"
+        },
+        {
+          "key": "alarms.state",
+          "value": "cleared",
+          "label": "Alarms cleared"
+        },
+        {
+          "key": "traffic.counters",
+          "value": "zero",
+          "label": "Traffic counters are zero"
+        },
+        {
+          "key": "component.replaced",
+          "value": "sfp",
+          "label": "SFP was replaced"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "inapplicable",
+        "consequentialGap": {
+          "description": "Is TRN-233 an older revision A unit? The reset advice was limited to older revisions and a newer revision rules it out.",
+          "answerers": [
+            "person:directory:jussi-rantanen"
+          ],
+          "answer": "no"
+        },
+        "answers": {
+          "person:directory:jussi-rantanen": {
+            "unit.revision=A": "no",
+            "unit.revision=B": "yes",
+            "unit.installed_year=2019": "no"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "none",
+        "distinguishingConditions": [
+          {
+            "key": "unit.revision",
+            "value": "B"
+          }
+        ],
+        "laterOutcome": "unknown"
+      }
+    },
+    {
+      "id": "optic-forwarding-a-p2",
+      "text": "The customer behind TRN-117 asks whether the link has stayed stable since the SFP swap. Can we tell them it is fixed?",
+      "requester": "person:directory:outi-heino",
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "reuse",
+        "consequentialGap": {
+          "description": "Has TRN-117 traffic stayed up since the reset? Recovery was reported once by one person and never re-checked.",
+          "answerers": [
+            "person:directory:tapio-lehto",
+            "person:directory:helmi-virtanen"
+          ],
+          "answer": "yes"
+        },
+        "answers": {
+          "person:directory:tapio-lehto": {
+            "traffic.state=flowing": "yes",
+            "traffic.counters=increasing": "yes"
+          },
+          "person:directory:helmi-virtanen": {
+            "traffic.state=flowing": "yes"
+          },
+          "person:directory:aarne-koskela": {
+            "traffic.state=flowing": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "reuse",
+        "laterOutcome": "recovered"
+      }
+    },
+    {
+      "id": "optic-forwarding-a-p3",
+      "text": "TRN-089 is a 2018 unit, revision A. I swapped the SFP: link up, alarms cleared, counters zero. Same as what happened on TRN-117?",
+      "requester": "person:directory:jussi-rantanen",
+      "observations": [
+        {
+          "key": "interface.status",
+          "value": "up",
+          "label": "Interface is up"
+        },
+        {
+          "key": "alarms.state",
+          "value": "cleared",
+          "label": "Alarms cleared"
+        },
+        {
+          "key": "traffic.counters",
+          "value": "zero",
+          "label": "Traffic counters are zero"
+        },
+        {
+          "key": "component.replaced",
+          "value": "sfp",
+          "label": "SFP was replaced"
+        },
+        {
+          "key": "unit.installed_year",
+          "value": 2018,
+          "label": "Installed 2018"
+        },
+        {
+          "key": "unit.revision",
+          "value": "A",
+          "label": "Controller revision A"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "qualified",
+        "answers": {},
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "qualified",
+        "laterOutcome": "recovered"
+      }
+    }
+  ]
+}

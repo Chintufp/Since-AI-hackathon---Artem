@@ -1,0 +1,117 @@
+{
+  "familyId": "weak-mains-psu",
+  "problems": [
+    {
+      "id": "weak-mains-psu-p1",
+      "text": "MW-81 drops for a few minutes every evening with input voltage low alarms. The PSU worked on MW-77 so I plan to swap the PSU here too.",
+      "requester": "person:directory:esa-pitkanen",
+      "observations": [
+        {
+          "key": "power.state",
+          "value": "unstable",
+          "label": "Power unstable in the evenings"
+        },
+        {
+          "key": "alarms.state",
+          "value": "active",
+          "label": "Input voltage low alarms"
+        },
+        {
+          "key": "unit.installed_year",
+          "value": 2018,
+          "label": "Installed 2018"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "qualified",
+        "consequentialGap": {
+          "description": "Does the mains at MW-81 sag in the evenings? If yes the PSU swap is likely only temporary and the battery/mains path should be checked.",
+          "answerers": [
+            "person:directory:anneli-koivisto"
+          ],
+          "answer": "yes"
+        },
+        "answers": {
+          "person:directory:anneli-koivisto": {
+            "power.mains_sag=true": "yes"
+          },
+          "person:directory:olavi-rinne": {
+            "power.mains_sag=true": "unknown"
+          },
+          "person:directory:tauno-hiltunen": {
+            "power.mains_sag=true": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "qualified",
+        "distinguishingConditions": [
+          {
+            "key": "power.mains_sag",
+            "value": true
+          }
+        ],
+        "laterOutcome": "recovered"
+      }
+    },
+    {
+      "id": "weak-mains-psu-p2",
+      "text": "Esa is going to MW-77 this week and there is still snow everywhere. How does he get through to the site?",
+      "requester": "person:directory:sofia-lund",
+      "observations": [
+        {
+          "key": "site.access",
+          "value": "key",
+          "label": "Gate locked, winter conditions"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "C"
+        ],
+        "applicable": "reuse",
+        "answers": {},
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "reuse",
+        "laterOutcome": "unknown"
+      }
+    },
+    {
+      "id": "weak-mains-psu-p3",
+      "text": "MW-77 dropped again last night with input voltage low. We swapped the PSU in the spring and it recovered, so is it just the PSU again?",
+      "requester": "person:directory:esa-pitkanen",
+      "observations": [
+        {
+          "key": "power.state",
+          "value": "unstable",
+          "label": "Power unstable"
+        },
+        {
+          "key": "site.id",
+          "value": "MW-77",
+          "label": "Site MW-77"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "qualified",
+        "answers": {},
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "qualified",
+        "distinguishingConditions": [
+          {
+            "key": "component.replaced",
+            "value": "psu"
+          }
+        ],
+        "laterOutcome": "recovered"
+      }
+    }
+  ]
+}

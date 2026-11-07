@@ -1,0 +1,86 @@
+{
+  "people": [
+    {
+      "id": "person:directory:kimmo-rautio",
+      "name": "Kimmo Rautio",
+      "role": "Field Engineer",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:teams:Kimmo Rautio",
+        "person:slack:U601",
+        "person:email:kimmo.rautio@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:aila-nurmi",
+      "name": "Aila Nurmi",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:teams:Aila Nurmi",
+        "person:slack:U602",
+        "person:email:aila.nurmi@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:henrik-sjoberg",
+      "name": "Henrik Sjöberg",
+      "role": "Transport Expert",
+      "groups": [
+        "transport",
+        "noc"
+      ],
+      "actorIds": [
+        "person:teams:Henrik Sjöberg",
+        "person:slack:U603",
+        "person:email:henrik.sjoberg@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:seppo-lahti",
+      "name": "Seppo Lahti",
+      "role": "Cable Technician",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:slack:U604",
+        "person:email:seppo.lahti@kalevanet.example"
+      ],
+      "available": false
+    },
+    {
+      "id": "person:directory:marketta-ylonen",
+      "name": "Marketta Ylönen",
+      "role": "Planning Engineer",
+      "groups": [
+        "planning"
+      ],
+      "actorIds": [
+        "person:slack:U605",
+        "person:email:marketta.ylonen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:reijo-kauppi",
+      "name": "Reijo Kauppi",
+      "role": "Field Engineer",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:slack:U606",
+        "person:email:reijo.kauppi@kalevanet.example"
+      ],
+      "available": true
+    }
+  ]
+}

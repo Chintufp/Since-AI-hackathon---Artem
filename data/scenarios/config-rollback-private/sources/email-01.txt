@@ -1,0 +1,12 @@
+From: Jarmo Heikkinen <jarmo.heikkinen@kalevanet.example>
+To: Antti Korhonen <antti.korhonen@kalevanet.example>
+Cc: Tuula Salmi <tuula.salmi@kalevanet.example>
+Date: Thu, 02 Jul 2026 14:05:00 +0300
+Subject: Change note: ACC-12 template v7 rolled back
+Message-ID: <f05-change-note-acc12@kalevanet.example>
+
+Hi,
+
+Change note for the record. Template v7 broke voice VLAN 210 on ACC-12. The switch was rolled back to the v6 template and the config was saved to startup. VLAN 210 is back and the phones on floor 3 registered again.
+
+Jarmo

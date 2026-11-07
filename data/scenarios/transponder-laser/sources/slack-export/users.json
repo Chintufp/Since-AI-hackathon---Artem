@@ -1,0 +1,56 @@
+[
+  {
+    "id": "U901",
+    "name": "joonas-kemppainen",
+    "real_name": "Joonas Kemppainen",
+    "profile": {
+      "title": "Field Engineer",
+      "email": "joonas.kemppainen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U902",
+    "name": "helena-ketola",
+    "real_name": "Helena Ketola",
+    "profile": {
+      "title": "Transport Expert",
+      "email": "helena.ketola@kalevanet.example"
+    }
+  },
+  {
+    "id": "U903",
+    "name": "ismo-vainio",
+    "real_name": "Ismo Vainio",
+    "profile": {
+      "title": "NOC Engineer",
+      "email": "ismo.vainio@kalevanet.example"
+    }
+  },
+  {
+    "id": "U904",
+    "name": "jaana-peltonen",
+    "real_name": "Jaana Peltonen",
+    "profile": {
+      "title": "Field Team Lead",
+      "email": "jaana.peltonen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U905",
+    "name": "pentti-laitinen",
+    "real_name": "Pentti Laitinen",
+    "profile": {
+      "title": "Inventory Planner",
+      "email": "pentti.laitinen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U906",
+    "name": "tiina-aho",
+    "real_name": "Tiina Aho",
+    "profile": {
+      "title": "NOC Engineer",
+      "email": "tiina.aho@kalevanet.example"
+    }
+  }
+]

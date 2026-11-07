@@ -1,0 +1,16 @@
+[
+  {
+    "type": "message",
+    "user": "U104",
+    "text": "Anyone got a spare 10G SFP+ I can borrow for Thursday?",
+    "ts": "1773322800.000300",
+    "thread_ts": "1773322800.000300"
+  },
+  {
+    "type": "message",
+    "user": "U105",
+    "text": "Check the van stock list first, I think there are two in the grey box.",
+    "ts": "1773323520.000400",
+    "thread_ts": "1773322800.000300"
+  }
+]

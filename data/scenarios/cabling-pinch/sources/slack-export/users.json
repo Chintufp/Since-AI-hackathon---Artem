@@ -1,0 +1,56 @@
+[
+  {
+    "id": "U601",
+    "name": "kimmo-rautio",
+    "real_name": "Kimmo Rautio",
+    "profile": {
+      "title": "Field Engineer",
+      "email": "kimmo.rautio@kalevanet.example"
+    }
+  },
+  {
+    "id": "U602",
+    "name": "aila-nurmi",
+    "real_name": "Aila Nurmi",
+    "profile": {
+      "title": "NOC Engineer",
+      "email": "aila.nurmi@kalevanet.example"
+    }
+  },
+  {
+    "id": "U603",
+    "name": "henrik-sjoberg",
+    "real_name": "Henrik Sjöberg",
+    "profile": {
+      "title": "Transport Expert",
+      "email": "henrik.sjoberg@kalevanet.example"
+    }
+  },
+  {
+    "id": "U604",
+    "name": "seppo-lahti",
+    "real_name": "Seppo Lahti",
+    "profile": {
+      "title": "Cable Technician",
+      "email": "seppo.lahti@kalevanet.example"
+    }
+  },
+  {
+    "id": "U605",
+    "name": "marketta-ylonen",
+    "real_name": "Marketta Ylönen",
+    "profile": {
+      "title": "Planning Engineer",
+      "email": "marketta.ylonen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U606",
+    "name": "reijo-kauppi",
+    "real_name": "Reijo Kauppi",
+    "profile": {
+      "title": "Field Engineer",
+      "email": "reijo.kauppi@kalevanet.example"
+    }
+  }
+]

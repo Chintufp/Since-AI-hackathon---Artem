@@ -1,0 +1,47 @@
+[
+  {
+    "id": "U401",
+    "name": "vesa-hakala",
+    "real_name": "Vesa Hakala",
+    "profile": {
+      "title": "Field Engineer",
+      "email": "vesa.hakala@kalevanet.example"
+    }
+  },
+  {
+    "id": "U402",
+    "name": "leena-kuusisto",
+    "real_name": "Leena Kuusisto",
+    "profile": {
+      "title": "NOC Engineer",
+      "email": "leena.kuusisto@kalevanet.example"
+    }
+  },
+  {
+    "id": "U403",
+    "name": "raisa-turunen",
+    "real_name": "Raisa Turunen",
+    "profile": {
+      "title": "Hardware Specialist",
+      "email": "raisa.turunen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U404",
+    "name": "onni-jokinen",
+    "real_name": "Onni Jokinen",
+    "profile": {
+      "title": "NOC Engineer",
+      "email": "onni.jokinen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U405",
+    "name": "kaarina-sirola",
+    "real_name": "Kaarina Sirola",
+    "profile": {
+      "title": "Operations Manager",
+      "email": "kaarina.sirola@kalevanet.example"
+    }
+  }
+]

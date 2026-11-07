@@ -1,0 +1,88 @@
+{
+  "people": [
+    {
+      "id": "person:directory:ville-laakso",
+      "name": "Ville Laakso",
+      "role": "Core Network Engineer",
+      "groups": [
+        "core",
+        "core-private"
+      ],
+      "actorIds": [
+        "person:teams:Ville Laakso",
+        "person:slack:U801",
+        "person:email:ville.laakso@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:pasi-tuomi",
+      "name": "Pasi Tuomi",
+      "role": "Network Engineer",
+      "groups": [
+        "core",
+        "core-private"
+      ],
+      "actorIds": [
+        "person:teams:Pasi Tuomi",
+        "person:slack:U802",
+        "person:email:pasi.tuomi@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:oskari-nieminen",
+      "name": "Oskari Nieminen",
+      "role": "Core Team Lead",
+      "groups": [
+        "core",
+        "core-private"
+      ],
+      "actorIds": [
+        "person:slack:U803",
+        "person:email:oskari.nieminen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:minna-saarinen",
+      "name": "Minna Saarinen",
+      "role": "Asset Planner",
+      "groups": [
+        "planning"
+      ],
+      "actorIds": [
+        "person:slack:U804",
+        "person:email:minna.saarinen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:anssi-heikura",
+      "name": "Anssi Heikura",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:teams:Anssi Heikura",
+        "person:slack:U805",
+        "person:email:anssi.heikura@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:rauni-forsman",
+      "name": "Rauni Forsman",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:slack:U806",
+        "person:email:rauni.forsman@kalevanet.example"
+      ],
+      "available": true
+    }
+  ]
+}

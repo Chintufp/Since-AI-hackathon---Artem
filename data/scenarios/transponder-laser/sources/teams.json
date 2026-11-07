@@ -1,0 +1,90 @@
+{
+  "channel": "teams",
+  "note": "Synthetic example. Names and node IDs are illustrative. Times only; no date was given.",
+  "participants": [
+    {
+      "name": "Joonas Kemppainen",
+      "role": "Field Engineer"
+    },
+    {
+      "name": "Helena Ketola",
+      "role": "Transport Expert"
+    },
+    {
+      "name": "Ismo Vainio",
+      "role": "NOC Engineer"
+    }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "11:02",
+      "author": "Joonas Kemppainen",
+      "role": "Field Engineer",
+      "text": "Helena, I replaced the QSFP on XC-318. The port comes up locally but there is no traffic and the LOS alarm is still lit on the far end."
+    },
+    {
+      "seq": 2,
+      "time": "11:05",
+      "author": "Helena Ketola",
+      "role": "Transport Expert",
+      "text": "Is the far-end alarm active now or cleared? Sometimes it takes a minute."
+    },
+    {
+      "seq": 3,
+      "time": "11:07",
+      "author": "Joonas Kemppainen",
+      "role": "Field Engineer",
+      "text": "Still active on the far end. The local end says link up."
+    },
+    {
+      "seq": 4,
+      "time": "11:10",
+      "author": "Helena Ketola",
+      "role": "Transport Expert",
+      "text": "Asymmetric then. On the XC-4 line cards from 2021, revision C, the transmit laser stays disabled after a hot swap until the card is power cycled. Which revision is yours?"
+    },
+    {
+      "seq": 5,
+      "time": "11:12",
+      "author": "Joonas Kemppainen",
+      "role": "Field Engineer",
+      "text": "Revision C, installed 2021."
+    },
+    {
+      "seq": 6,
+      "time": "11:14",
+      "author": "Helena Ketola",
+      "role": "Transport Expert",
+      "text": "Power cycle the line card from the controller. Only that card, not the whole shelf. Jaana did something similar on the XC-2 units last year if you need more details."
+    },
+    {
+      "seq": 7,
+      "time": "11:16",
+      "author": "Joonas Kemppainen",
+      "role": "Field Engineer",
+      "text": "OK, power cycling card 3 now."
+    },
+    {
+      "seq": 8,
+      "time": "11:20",
+      "author": "Ismo Vainio",
+      "role": "NOC Engineer",
+      "text": "Heads up all, the VPN has been slow all morning."
+    },
+    {
+      "seq": 9,
+      "time": "11:22",
+      "author": "Joonas Kemppainen",
+      "role": "Field Engineer",
+      "text": "The card is rebooting, it takes about ten minutes."
+    },
+    {
+      "seq": 10,
+      "time": "11:45",
+      "author": "Helena Ketola",
+      "role": "Transport Expert",
+      "text": "Let me know how it goes."
+    }
+  ]
+}

@@ -1,0 +1,227 @@
+{
+  "familyId": "config-rollback-private",
+  "entities": [
+    {
+      "name": "ACC-12",
+      "type": "asset",
+      "attributes": {
+        "unit.model": "N3",
+        "unit.installed_year": 2019
+      }
+    },
+    {
+      "name": "ACC-30",
+      "type": "asset",
+      "attributes": {
+        "unit.model": "N5",
+        "unit.installed_year": 2024
+      }
+    },
+    {
+      "name": "ACC-33",
+      "type": "asset",
+      "attributes": {
+        "unit.model": "N5",
+        "unit.installed_year": 2024
+      }
+    },
+    {
+      "name": "config template v7",
+      "type": "software",
+      "attributes": {}
+    }
+  ],
+  "incidents": [
+    {
+      "key": "A",
+      "title": "ACC-12 voice VLAN lost after template v7, rolled back to v6",
+      "sourceIds": [
+        "teams:1",
+        "teams:2",
+        "teams:3",
+        "teams:4",
+        "teams:7",
+        "teams:8",
+        "email:<f05-change-note-acc12@kalevanet.example>"
+      ],
+      "realCause": "Template v7 contained a typo in the voice VLAN range.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "Voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push while the data VLAN stayed fine",
+          "by": "person:directory:antti-korhonen"
+        },
+        {
+          "type": "condition",
+          "statement": "ACC-12 is an N3 model installed in 2019",
+          "by": "person:directory:antti-korhonen"
+        },
+        {
+          "type": "hypothesis",
+          "statement": "Template v7 changed the voice VLAN range",
+          "by": "person:directory:jarmo-heikkinen"
+        },
+        {
+          "type": "advice",
+          "statement": "Roll ACC-12 back to the v6 template",
+          "by": "person:directory:jarmo-heikkinen"
+        },
+        {
+          "type": "action",
+          "statement": "Jarmo rolled ACC-12 back to v6 and saved it to the startup config",
+          "by": "person:directory:jarmo-heikkinen"
+        },
+        {
+          "type": "outcome",
+          "statement": "VLAN 210 is back on all ports and phones on floor 3 registered again",
+          "by": "person:directory:antti-korhonen"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "config.rollback",
+          "by": "person:directory:jarmo-heikkinen",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "unknown",
+        "reportedBy": "person:directory:antti-korhonen"
+      },
+      "knowledge": {
+        "person:directory:antti-korhonen": {
+          "knows": [
+            "unit.model",
+            "traffic.state",
+            "config.changed"
+          ],
+          "canObserve": [
+            "traffic.state"
+          ]
+        },
+        "person:directory:jarmo-heikkinen": {
+          "knows": [
+            "config.saved_startup",
+            "config.rollback_supported",
+            "action.performed"
+          ],
+          "canObserve": [
+            "config.saved_startup"
+          ]
+        },
+        "person:directory:tuula-salmi": {
+          "knows": [],
+          "canObserve": []
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "access"
+      ]
+    },
+    {
+      "key": "B",
+      "title": "ACC-30 voice VLAN lost after v7; rollback to v6 fails on the N5 model",
+      "sourceIds": [
+        "slack:1783587600.000100",
+        "slack:1783587900.000200",
+        "slack:1783588320.000300",
+        "slack:1783590000.000400"
+      ],
+      "realCause": "v7 voice range typo. v6 has no profile for the N5 port layout, so the rollback took the uplinks down; the v7.1 patch fixed it.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "ACC-30 lost voice VLAN 210 after template v7, an N5 model",
+          "by": "person:directory:antti-korhonen"
+        },
+        {
+          "type": "action",
+          "statement": "Jarmo rolled ACC-30 back to v6 which took the uplink ports down",
+          "by": "person:directory:jarmo-heikkinen"
+        },
+        {
+          "type": "condition",
+          "statement": "The v6 template has no profile for the N5 port layout",
+          "by": "person:directory:jarmo-heikkinen"
+        },
+        {
+          "type": "advice",
+          "statement": "Do not roll back N5 units, apply the v7.1 patch that fixes the voice range typo",
+          "by": "person:directory:sirkka-lindholm"
+        },
+        {
+          "type": "action",
+          "statement": "Jarmo applied the v7.1 patch on ACC-30",
+          "by": "person:directory:jarmo-heikkinen"
+        },
+        {
+          "type": "outcome",
+          "statement": "Uplinks and VLAN 210 are back on ACC-30 after the v7.1 patch",
+          "by": "person:directory:jarmo-heikkinen"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "config.rollback",
+          "by": "person:directory:jarmo-heikkinen",
+          "performed": true
+        },
+        {
+          "action": "config.patch",
+          "by": "person:directory:jarmo-heikkinen",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "unknown",
+        "reportedBy": "person:directory:jarmo-heikkinen"
+      },
+      "knowledge": {
+        "person:directory:antti-korhonen": {
+          "knows": [
+            "unit.model",
+            "traffic.state"
+          ],
+          "canObserve": [
+            "traffic.state"
+          ]
+        },
+        "person:directory:jarmo-heikkinen": {
+          "knows": [
+            "config.rollback_supported",
+            "config.saved_startup",
+            "action.performed"
+          ],
+          "canObserve": [
+            "config.saved_startup"
+          ]
+        },
+        "person:directory:sirkka-lindholm": {
+          "knows": [
+            "config.rollback_supported",
+            "reasoning behind the patch advice"
+          ],
+          "canObserve": [
+            "config.rollback_supported"
+          ]
+        },
+        "person:directory:tuula-salmi": {
+          "knows": [],
+          "canObserve": []
+        }
+      },
+      "accessGroups": [
+        "change-board"
+      ]
+    }
+  ],
+  "copies": [
+    {
+      "sourceId": "email:<f05-change-note-acc12@kalevanet.example>",
+      "of": "teams:7"
+    }
+  ]
+}

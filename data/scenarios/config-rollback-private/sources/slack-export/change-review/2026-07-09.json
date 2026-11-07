@@ -1,0 +1,37 @@
+[
+  {
+    "type": "message",
+    "user": "U503",
+    "text": "ACC-30 lost voice VLAN 210 after v7, same as ACC-12 last week. It's an N5 though.",
+    "ts": "1783587600.000100",
+    "thread_ts": "1783587600.000100"
+  },
+  {
+    "type": "message",
+    "user": "U501",
+    "text": "Rolled it back to v6 like on ACC-12. Now the uplink ports are down. v6 has no profile for the N5 port layout.",
+    "ts": "1783587900.000200",
+    "thread_ts": "1783587600.000100"
+  },
+  {
+    "type": "message",
+    "user": "U502",
+    "text": "Do not roll back N5 units. The v6 template cannot address their port layout. Apply the v7.1 patch that fixes the voice range typo instead.",
+    "ts": "1783588320.000300",
+    "thread_ts": "1783587600.000100"
+  },
+  {
+    "type": "message",
+    "user": "U501",
+    "text": "v7.1 patch applied on ACC-30. Uplinks and VLAN 210 are back.",
+    "ts": "1783590000.000400",
+    "thread_ts": "1783587600.000100"
+  },
+  {
+    "type": "message",
+    "user": "U504",
+    "text": "Please add it to the change record. I will hold v7 for the remaining N5 units until v7.1 is rolled out.",
+    "ts": "1783590300.000500",
+    "thread_ts": "1783587600.000100"
+  }
+]

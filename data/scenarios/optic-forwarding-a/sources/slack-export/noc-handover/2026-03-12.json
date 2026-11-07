@@ -1,0 +1,16 @@
+[
+  {
+    "type": "message",
+    "user": "U103",
+    "text": "FYI from Helmi's handover: TRN-117 needed an interface reset after the SFP swap, traffic is back per Aarne.",
+    "ts": "1773309900.000100",
+    "thread_ts": "1773309900.000100"
+  },
+  {
+    "type": "message",
+    "user": "U106",
+    "text": "Thanks, noted.",
+    "ts": "1773310020.000200",
+    "thread_ts": "1773309900.000100"
+  }
+]

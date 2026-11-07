@@ -1,0 +1,118 @@
+{
+  "familyId": "bgp-linecard-private",
+  "problems": [
+    {
+      "id": "bgp-linecard-private-p1",
+      "text": "PE-12 BGP sessions are flapping since the 11.2 upgrade. Should we install patch 11.2.1 like on PE-05?",
+      "requester": "person:directory:rauni-forsman",
+      "observations": [
+        {
+          "key": "bgp.session",
+          "value": "flapping",
+          "label": "BGP sessions flapping"
+        },
+        {
+          "key": "software.version",
+          "value": "11.2",
+          "label": "Firmware 11.2"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "inapplicable",
+        "consequentialGap": {
+          "description": "Is PE-12 an LC-2 line card? The patch advice is for LC-2 only. The real LC-3 workaround lives in a private channel this requester cannot see.",
+          "answerers": [
+            "person:directory:minna-saarinen"
+          ],
+          "answer": "no"
+        },
+        "answers": {
+          "person:directory:minna-saarinen": {
+            "unit.revision=LC-2": "no",
+            "unit.revision=LC-3": "yes"
+          },
+          "person:directory:anssi-heikura": {
+            "unit.revision=LC-2": "unknown"
+          },
+          "person:directory:pasi-tuomi": {
+            "unit.revision=LC-2": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "none",
+        "distinguishingConditions": [
+          {
+            "key": "unit.revision",
+            "value": "LC-3"
+          }
+        ],
+        "laterOutcome": "unknown"
+      }
+    },
+    {
+      "id": "bgp-linecard-private-p2",
+      "text": "PE-12 has LC-3 and is flapping after 11.2. What did we do on PE-09?",
+      "requester": "person:directory:ville-laakso",
+      "observations": [
+        {
+          "key": "bgp.session",
+          "value": "flapping",
+          "label": "BGP sessions flapping"
+        },
+        {
+          "key": "unit.revision",
+          "value": "LC-3",
+          "label": "LC-3 line card"
+        },
+        {
+          "key": "software.version",
+          "value": "11.2",
+          "label": "Firmware 11.2"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "B"
+        ],
+        "applicable": "qualified",
+        "answers": {},
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "qualified",
+        "laterOutcome": "recovered"
+      }
+    },
+    {
+      "id": "bgp-linecard-private-p3",
+      "text": "Can I close my PE-05 BGP ticket? Pasi said the sessions were clean for two hours after the patch.",
+      "requester": "person:directory:rauni-forsman",
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "qualified",
+        "consequentialGap": {
+          "description": "Are the PE-05 sessions still up now? Only a two-hour clean window was reported, by one person, on the day of the patch.",
+          "answerers": [
+            "person:directory:anssi-heikura"
+          ],
+          "answer": "yes"
+        },
+        "answers": {
+          "person:directory:anssi-heikura": {
+            "bgp.session=up": "yes"
+          },
+          "person:directory:pasi-tuomi": {
+            "bgp.session=up": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "qualified",
+        "laterOutcome": "recovered"
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "U301",
+    "name": "lauri-ahonen",
+    "real_name": "Lauri Ahonen",
+    "profile": {
+      "title": "Core Network Engineer",
+      "email": "lauri.ahonen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U302",
+    "name": "hanna-kallio",
+    "real_name": "Hanna Kallio",
+    "profile": {
+      "title": "NOC Engineer",
+      "email": "hanna.kallio@kalevanet.example"
+    }
+  },
+  {
+    "id": "U303",
+    "name": "toivo-aaltonen",
+    "real_name": "Toivo Aaltonen",
+    "profile": {
+      "title": "Network Engineer",
+      "email": "toivo.aaltonen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U304",
+    "name": "sanna-ojala",
+    "real_name": "Sanna Ojala",
+    "profile": {
+      "title": "Core Team Lead",
+      "email": "sanna.ojala@kalevanet.example"
+    }
+  },
+  {
+    "id": "U305",
+    "name": "aino-hirvonen",
+    "real_name": "Aino Hirvonen",
+    "profile": {
+      "title": "NOC Engineer",
+      "email": "aino.hirvonen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U306",
+    "name": "kalle-mustonen",
+    "real_name": "Kalle Mustonen",
+    "profile": {
+      "title": "Vendor Liaison",
+      "email": "kalle.mustonen@kalevanet.example"
+    }
+  }
+]

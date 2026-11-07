@@ -1,0 +1,14 @@
+[
+  {
+    "id": "C001FA",
+    "name": "noc-ops",
+    "is_private": false,
+    "members": [
+      "U404",
+      "U402",
+      "U403",
+      "U401",
+      "U405"
+    ]
+  }
+]

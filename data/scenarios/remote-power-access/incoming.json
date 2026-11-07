@@ -1,0 +1,114 @@
+{
+  "familyId": "remote-power-access",
+  "problems": [
+    {
+      "id": "remote-power-access-p1",
+      "text": "RBS-310 is dropping off the network again with DC low alarms. The rectifier module was swapped before, so I plan to swap it again. Sensible?",
+      "requester": "person:directory:kaisa-hautala",
+      "observations": [
+        {
+          "key": "site.id",
+          "value": "RBS-310",
+          "label": "Site RBS-310"
+        },
+        {
+          "key": "power.state",
+          "value": "unstable",
+          "label": "DC power unstable"
+        },
+        {
+          "key": "alarms.state",
+          "value": "active",
+          "label": "DC low alarms active"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "qualified",
+        "answers": {},
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "qualified",
+        "distinguishingConditions": [
+          {
+            "key": "component.replaced",
+            "value": "rectifier"
+          }
+        ],
+        "laterOutcome": "recovered"
+      }
+    },
+    {
+      "id": "remote-power-access-p2",
+      "text": "I'm driving out to RBS-310 tomorrow. What's the barrier code?",
+      "requester": "person:directory:kaisa-hautala",
+      "observations": [
+        {
+          "key": "site.id",
+          "value": "RBS-310",
+          "label": "Site RBS-310"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "C"
+        ],
+        "applicable": "qualified",
+        "consequentialGap": {
+          "description": "The code on file is from August and the landlord changes it every October. Has it changed?",
+          "answerers": [
+            "person:directory:eino-salo"
+          ],
+          "answer": "yes",
+          "unanswerable": true
+        },
+        "answers": {
+          "person:directory:eino-salo": {
+            "site.access_code_current=5802": "no"
+          },
+          "person:directory:pirkko-laine": {
+            "site.access_code_current=5802": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "check-first",
+        "laterOutcome": "unknown"
+      }
+    },
+    {
+      "id": "remote-power-access-p3",
+      "text": "Someone said Pirkko checked the RBS-310 cabinet in the spring. Was the breaker ever inspected before the first rectifier swap?",
+      "requester": "person:directory:marja-niemi",
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "qualified",
+        "consequentialGap": {
+          "description": "Was the breaker inspected at the first visit? Pirkko is mentioned only secondhand and did not do the visit.",
+          "answerers": [
+            "person:directory:ilmari-karjalainen"
+          ],
+          "answer": "no"
+        },
+        "answers": {
+          "person:directory:ilmari-karjalainen": {
+            "power.breaker_inspected_at_first_visit=true": "no"
+          },
+          "person:directory:pirkko-laine": {
+            "power.breaker_inspected_at_first_visit=true": "unknown"
+          },
+          "person:directory:risto-peltola": {
+            "power.breaker_inspected_at_first_visit=true": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "qualified",
+        "laterOutcome": "recovered"
+      }
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "familyId": "optic-forwarding-a",
+  "entities": [
+    {
+      "name": "TRN-117",
+      "type": "asset",
+      "attributes": {
+        "unit.installed_year": 2019,
+        "unit.revision": "A",
+        "site.id": "S-117"
+      }
+    },
+    {
+      "name": "S-117",
+      "type": "site",
+      "attributes": {}
+    }
+  ],
+  "incidents": [
+    {
+      "key": "A",
+      "title": "TRN-117 no traffic after SFP replacement",
+      "sourceIds": [
+        "teams:1",
+        "teams:2",
+        "teams:3",
+        "teams:4",
+        "teams:5",
+        "teams:6",
+        "teams:7",
+        "teams:9",
+        "teams:10",
+        "email:<f01-handover-117@kalevanet.example>",
+        "slack:1773309900.000100"
+      ],
+      "realCause": "Older revision-A transmission unit kept stale forwarding state after the optical module swap; interface reset rebuilt it.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "TRN-117 link is up and alarms are cleared after the SFP replacement",
+          "by": "person:directory:aarne-koskela"
+        },
+        {
+          "type": "observation",
+          "statement": "Traffic counters on TRN-117 are still zero after the SFP replacement",
+          "by": "person:directory:aarne-koskela"
+        },
+        {
+          "type": "observation",
+          "statement": "Optical receive level on the new module is normal",
+          "by": "person:directory:aarne-koskela"
+        },
+        {
+          "type": "condition",
+          "statement": "TRN-117 is a 2019 unit with controller card revision A",
+          "by": "person:directory:aarne-koskela"
+        },
+        {
+          "type": "hypothesis",
+          "statement": "Older units keep the old forwarding state after a module swap and do not pass traffic",
+          "by": "person:directory:helmi-virtanen"
+        },
+        {
+          "type": "advice",
+          "statement": "Reset the interface on both ends to rebuild forwarding state on older revision A units",
+          "by": "person:directory:helmi-virtanen"
+        },
+        {
+          "type": "advice",
+          "statement": "Do not apply the interface reset on newer controller revisions",
+          "by": "person:directory:helmi-virtanen"
+        },
+        {
+          "type": "action",
+          "statement": "Aarne reset the interface on both ends of the TRN-117 link",
+          "by": "person:directory:aarne-koskela"
+        },
+        {
+          "type": "outcome",
+          "statement": "Traffic is passing again and counters are moving after the interface reset",
+          "by": "person:directory:aarne-koskela"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "sfp.replace",
+          "by": "person:directory:aarne-koskela",
+          "performed": true
+        },
+        {
+          "action": "interface.reset",
+          "by": "person:directory:aarne-koskela",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "unknown",
+        "reportedBy": "person:directory:aarne-koskela"
+      },
+      "knowledge": {
+        "person:directory:aarne-koskela": {
+          "knows": [
+            "unit.revision",
+            "unit.installed_year",
+            "action.performed",
+            "optical.level",
+            "interface.status",
+            "traffic.counters"
+          ],
+          "canObserve": []
+        },
+        "person:directory:helmi-virtanen": {
+          "knows": [
+            "reasoning behind the reset advice",
+            "revision compatibility rule"
+          ],
+          "canObserve": [
+            "traffic.state"
+          ]
+        },
+        "person:directory:tapio-lehto": {
+          "knows": [],
+          "canObserve": [
+            "traffic.state",
+            "traffic.counters",
+            "alarms.state"
+          ]
+        },
+        "person:directory:outi-heino": {
+          "knows": [],
+          "canObserve": [
+            "traffic.state"
+          ]
+        },
+        "person:directory:jussi-rantanen": {
+          "knows": [
+            "unit.revision",
+            "unit.installed_year"
+          ],
+          "canObserve": [
+            "unit.revision",
+            "unit.installed_year"
+          ]
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "field",
+        "transport",
+        "planning"
+      ]
+    }
+  ],
+  "copies": [
+    {
+      "sourceId": "email:<f01-handover-117@kalevanet.example>",
+      "of": "teams:1"
+    },
+    {
+      "sourceId": "email:<f01-handover-117@kalevanet.example>",
+      "of": "teams:9"
+    },
+    {
+      "sourceId": "slack:1773309900.000100",
+      "of": "email:<f01-handover-117@kalevanet.example>"
+    }
+  ]
+}

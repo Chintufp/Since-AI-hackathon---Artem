@@ -1,0 +1,176 @@
+{
+  "familyId": "rooftop-threshold",
+  "entities": [
+    {
+      "name": "ROOF-14",
+      "type": "asset",
+      "attributes": {
+        "software.version": "5.1.0",
+        "unit.installed_year": 2020,
+        "site.id": "ROOF-14"
+      }
+    },
+    {
+      "name": "ROOF-21",
+      "type": "asset",
+      "attributes": {
+        "software.version": "5.0.4",
+        "unit.installed_year": 2020
+      }
+    },
+    {
+      "name": "ROOF-31",
+      "type": "asset",
+      "attributes": {
+        "unit.installed_year": 2021
+      }
+    }
+  ],
+  "incidents": [
+    {
+      "key": "A",
+      "title": "ROOF-14 high temperature alarm from lowered threshold in 5.1.0 config bundle",
+      "sourceIds": [
+        "teams:1",
+        "teams:2",
+        "teams:3",
+        "teams:4",
+        "teams:7",
+        "teams:8",
+        "slack:1784711400.000100"
+      ],
+      "realCause": "The 5.1.0 config bundle lowered the temperature alarm threshold from 55 to 40 degrees; the cabinet was within spec.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "ROOF-14 raises a high temperature alarm while the cabinet reads 41 degrees and it is 29 outside",
+          "by": "person:directory:kalevi-heino"
+        },
+        {
+          "type": "condition",
+          "statement": "ROOF-14 runs firmware 5.1.0 upgraded the previous Tuesday",
+          "by": "person:directory:kalevi-heino"
+        },
+        {
+          "type": "hypothesis",
+          "statement": "The 5.1.0 config bundle lowered the temperature alarm threshold to 40 degrees",
+          "by": "person:directory:antero-lahtinen"
+        },
+        {
+          "type": "advice",
+          "statement": "Raise the alarm threshold back to 55 remotely and no roof visit is needed",
+          "by": "person:directory:antero-lahtinen"
+        },
+        {
+          "type": "action",
+          "statement": "Antero set the ROOF-14 temperature threshold back to 55",
+          "by": "person:directory:antero-lahtinen"
+        },
+        {
+          "type": "outcome",
+          "statement": "The ROOF-14 alarm cleared after the threshold was restored",
+          "by": "person:directory:kalevi-heino"
+        },
+        {
+          "type": "outcome",
+          "statement": "No alarm overnight and a peak of 43 degrees below the restored threshold",
+          "by": "person:directory:kalevi-heino"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "config.rollback",
+          "by": "person:directory:antero-lahtinen",
+          "performed": true
+        },
+        {
+          "action": "site.visit",
+          "by": "person:directory:kalevi-heino",
+          "performed": false
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "confirmed",
+        "reportedBy": "person:directory:kalevi-heino"
+      },
+      "knowledge": {
+        "person:directory:kalevi-heino": {
+          "knows": [
+            "temperature.state",
+            "alarms.state"
+          ],
+          "canObserve": [
+            "temperature.state",
+            "alarms.state",
+            "software.version"
+          ]
+        },
+        "person:directory:antero-lahtinen": {
+          "knows": [
+            "config.changed",
+            "reasoning behind the threshold advice"
+          ],
+          "canObserve": [
+            "config.changed",
+            "software.version"
+          ]
+        },
+        "person:directory:heikki-moilanen": {
+          "knows": [],
+          "canObserve": []
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "transport",
+        "field"
+      ]
+    },
+    {
+      "key": "C",
+      "title": "ROOF-14 roof access instructions",
+      "sourceIds": [
+        "email:<f10-roof-access@kalevanet.example>"
+      ],
+      "realCause": "Not an incident: access facts kept in an email (lift key, booking rule, hatch code, two-person rule).",
+      "expectedClaims": [
+        {
+          "type": "access-fact",
+          "statement": "ROOF-14 roof lift key is at the janitor office Monday to Friday 8 to 16 and must be booked 48 hours ahead in the property manager portal",
+          "by": "person:directory:sari-kivela"
+        },
+        {
+          "type": "access-fact",
+          "statement": "ROOF-14 roof hatch code is 7314",
+          "by": "person:directory:sari-kivela"
+        },
+        {
+          "type": "access-fact",
+          "statement": "Two people must be on the ROOF-14 roof at all times",
+          "by": "person:directory:sari-kivela"
+        }
+      ],
+      "attempts": [],
+      "outcome": {
+        "result": "unknown",
+        "lasting": "unknown"
+      },
+      "knowledge": {
+        "person:directory:sari-kivela": {
+          "knows": [
+            "site.access"
+          ],
+          "canObserve": [
+            "site.access"
+          ]
+        }
+      },
+      "accessGroups": [
+        "field",
+        "access"
+      ]
+    }
+  ],
+  "copies": []
+}

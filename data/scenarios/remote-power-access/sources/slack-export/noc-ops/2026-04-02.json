@@ -1,0 +1,36 @@
+[
+  {
+    "type": "message",
+    "user": "U202",
+    "text": "RBS-310 is flapping again with the same DC low alarms as the rectifier case last week. Opening a new ticket.",
+    "ts": "1775117520.000100",
+    "thread_ts": "1775117520.000100"
+  },
+  {
+    "type": "message",
+    "user": "U203",
+    "text": "Then module 2 was not the whole story. Ilmari, please check the breaker terminals and the DC bus bars before swapping anything else.",
+    "ts": "1775118000.000200",
+    "thread_ts": "1775117520.000100"
+  },
+  {
+    "type": "message",
+    "user": "U201",
+    "text": "On site. The DC distribution breaker terminal was loose with burn marks. Tightened it and replaced the lug. Voltage is steady.",
+    "ts": "1775129400.000300",
+    "thread_ts": "1775117520.000100"
+  },
+  {
+    "type": "message",
+    "user": "U202",
+    "text": "No resets since 11:25 on our side.",
+    "ts": "1775138400.000400",
+    "thread_ts": "1775117520.000100"
+  },
+  {
+    "type": "message",
+    "user": "U206",
+    "text": "Reminder that the van service is booked for Friday, please leave keys at the front desk.",
+    "ts": "1775139000.000500"
+  }
+]

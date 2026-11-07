@@ -1,0 +1,132 @@
+{
+  "familyId": "bgp-firmware-flaps",
+  "problems": [
+    {
+      "id": "bgp-firmware-flaps-p1",
+      "text": "BGP sessions on AGG-044 started flapping after the 9.4.2 upgrade yesterday. Should we roll back the config like on AGG-014?",
+      "requester": "person:directory:aino-hirvonen",
+      "observations": [
+        {
+          "key": "bgp.session",
+          "value": "flapping",
+          "label": "BGP sessions flapping"
+        },
+        {
+          "key": "software.version",
+          "value": "9.4.2",
+          "label": "Firmware 9.4.2"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "qualified",
+        "consequentialGap": {
+          "description": "Was a config bundle (new timers) applied to AGG-044? If not, the rollback does not apply and the CRC-error lookalike becomes the next thing to check.",
+          "answerers": [
+            "person:directory:toivo-aaltonen",
+            "person:directory:hanna-kallio"
+          ],
+          "answer": "no"
+        },
+        "answers": {
+          "person:directory:toivo-aaltonen": {
+            "config.changed=true": "no"
+          },
+          "person:directory:hanna-kallio": {
+            "config.changed=true": "unknown",
+            "interface.crc_errors=high": "yes"
+          },
+          "person:directory:lauri-ahonen": {
+            "config.changed=true": "unknown",
+            "interface.crc_errors=high": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "qualified",
+        "distinguishingConditions": [
+          {
+            "key": "config.changed",
+            "value": false
+          },
+          {
+            "key": "interface.crc_errors",
+            "value": "high"
+          }
+        ],
+        "laterOutcome": "recovered"
+      }
+    },
+    {
+      "id": "bgp-firmware-flaps-p2",
+      "text": "AGG-014 is flapping again 25 minutes after the weekend firmware and config bundle. Two peers, up about five minutes each time.",
+      "requester": "person:directory:hanna-kallio",
+      "observations": [
+        {
+          "key": "bgp.session",
+          "value": "flapping",
+          "label": "BGP sessions flapping"
+        },
+        {
+          "key": "software.version",
+          "value": "9.4.2",
+          "label": "Firmware 9.4.2"
+        },
+        {
+          "key": "config.changed",
+          "value": true,
+          "label": "Config bundle applied with the upgrade"
+        },
+        {
+          "key": "time.since_change",
+          "value": 25,
+          "label": "25 minutes since the change"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "reuse",
+        "answers": {},
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "reuse",
+        "laterOutcome": "recovered"
+      }
+    },
+    {
+      "id": "bgp-firmware-flaps-p3",
+      "text": "Can I tell the customer on AGG-031 that the flapping is fixed after the optic was replaced?",
+      "requester": "person:directory:sanna-ojala",
+      "key": {
+        "relatedIncidentKeys": [
+          "B"
+        ],
+        "applicable": "qualified",
+        "consequentialGap": {
+          "description": "Is the AGG-031 east session up now? Recovery was reported once, on the day of the repair.",
+          "answerers": [
+            "person:directory:hanna-kallio"
+          ],
+          "answer": "yes"
+        },
+        "answers": {
+          "person:directory:hanna-kallio": {
+            "bgp.session=up": "yes"
+          },
+          "person:directory:aino-hirvonen": {
+            "bgp.session=up": "yes"
+          },
+          "person:directory:toivo-aaltonen": {
+            "bgp.session=up": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "qualified",
+        "laterOutcome": "recovered"
+      }
+    }
+  ]
+}

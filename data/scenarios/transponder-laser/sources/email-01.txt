@@ -1,0 +1,12 @@
+From: Jaana Peltonen <jaana.peltonen@kalevanet.example>
+To: Helena Ketola <helena.ketola@kalevanet.example>
+Cc: Pentti Laitinen <pentti.laitinen@kalevanet.example>
+Date: Tue, 18 Nov 2025 15:40:00 +0200
+Subject: XC-122 optic replacement: line card reseat
+Message-ID: <f09-xc2-reseat@kalevanet.example>
+
+Hi Helena,
+
+For your notes. XC-122 is an XC-2 node installed in 2018. After the optic was replaced there was no traffic. We reseated the line card and traffic came back straight away. It has been stable for the three months since. We never needed a power cycle on the XC-2.
+
+Jaana

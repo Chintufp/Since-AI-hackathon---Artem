@@ -1,0 +1,20 @@
+[
+  {
+    "type": "message",
+    "user": "U903",
+    "text": "XC-318 far end has shown LOS since 10:55, is anyone on it?",
+    "ts": "1789470480.000100"
+  },
+  {
+    "type": "message",
+    "user": "U906",
+    "text": "I see the same LOS on XC-318, I have opened a ticket.",
+    "ts": "1789470540.000200"
+  },
+  {
+    "type": "message",
+    "user": "U905",
+    "text": "Stock take on Friday: please return unused spare modules to the cage.",
+    "ts": "1789473600.000300"
+  }
+]

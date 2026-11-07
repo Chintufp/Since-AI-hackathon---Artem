@@ -1,0 +1,124 @@
+{
+  "familyId": "rooftop-threshold",
+  "problems": [
+    {
+      "id": "rooftop-threshold-p1",
+      "text": "I have to go up to ROOF-14 tomorrow afternoon. How do I get onto the roof?",
+      "requester": "person:directory:lea-aalto",
+      "observations": [
+        {
+          "key": "site.id",
+          "value": "ROOF-14",
+          "label": "Site ROOF-14"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "C"
+        ],
+        "applicable": "reuse",
+        "answers": {
+          "person:directory:sari-kivela": {
+            "site.access=hatch": "yes"
+          }
+        },
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "reuse",
+        "laterOutcome": "unknown"
+      }
+    },
+    {
+      "id": "rooftop-threshold-p2",
+      "text": "ROOF-21 shows a high temperature alarm at 41 degrees. Raise the threshold back to 55 like on ROOF-14?",
+      "requester": "person:directory:heikki-moilanen",
+      "observations": [
+        {
+          "key": "temperature.state",
+          "value": "high",
+          "label": "Cabinet reads 41 degrees, high temperature alarm"
+        },
+        {
+          "key": "site.id",
+          "value": "ROOF-21",
+          "label": "Site ROOF-21"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "inapplicable",
+        "consequentialGap": {
+          "description": "Does ROOF-21 run firmware 5.1.0 with the lowered threshold? The threshold advice only applies after the 5.1.0 config bundle.",
+          "answerers": [
+            "person:directory:kalevi-heino"
+          ],
+          "answer": "no"
+        },
+        "answers": {
+          "person:directory:kalevi-heino": {
+            "software.version=5.1.0": "no",
+            "software.version=5.0.4": "yes"
+          },
+          "person:directory:antero-lahtinen": {
+            "software.version=5.1.0": "no"
+          },
+          "person:directory:pirjo-salonen": {
+            "software.version=5.1.0": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "none",
+        "distinguishingConditions": [
+          {
+            "key": "software.version",
+            "value": "5.0.4"
+          }
+        ],
+        "laterOutcome": "unknown"
+      }
+    },
+    {
+      "id": "rooftop-threshold-p3",
+      "text": "ROOF-31 shows a high temperature alarm at 41 degrees. Did it also get the 5.1.0 config bundle with the lowered threshold?",
+      "requester": "person:directory:heikki-moilanen",
+      "observations": [
+        {
+          "key": "temperature.state",
+          "value": "high",
+          "label": "Cabinet reads 41 degrees, high temperature alarm"
+        },
+        {
+          "key": "site.id",
+          "value": "ROOF-31",
+          "label": "Site ROOF-31"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "qualified",
+        "consequentialGap": {
+          "description": "Was the 5.1.0 config bundle pushed to ROOF-31? Only Antero knows which sites received it and he is on leave.",
+          "answerers": [
+            "person:directory:antero-lahtinen"
+          ],
+          "answer": "yes",
+          "unanswerable": true
+        },
+        "answers": {
+          "person:directory:antero-lahtinen": {
+            "config.changed=true@ROOF-31": "yes"
+          },
+          "person:directory:kalevi-heino": {
+            "config.changed=true@ROOF-31": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "check-first",
+        "laterOutcome": "unknown"
+      }
+    }
+  ]
+}

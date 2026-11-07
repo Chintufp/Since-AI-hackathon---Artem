@@ -1,0 +1,93 @@
+{
+  "familyId": "fan-temperature",
+  "problems": [
+    {
+      "id": "fan-temperature-p1",
+      "text": "OLT-215 outdoor cabinet, 2016 build, FT-2 fan tray, inlet 60 degrees and a high temperature alarm. It is pollen season. Clean the filter?",
+      "requester": "person:directory:onni-jokinen",
+      "observations": [
+        {
+          "key": "temperature.state",
+          "value": "high",
+          "label": "Inlet 60 degrees, high temperature alarm"
+        },
+        {
+          "key": "unit.installed_year",
+          "value": 2016,
+          "label": "Installed 2016"
+        },
+        {
+          "key": "unit.model",
+          "value": "FT-2",
+          "label": "FT-2 fan tray"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "qualified",
+        "answers": {},
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "qualified",
+        "laterOutcome": "temporary"
+      }
+    },
+    {
+      "id": "fan-temperature-p2",
+      "text": "OLT-250 outdoor cabinet, 2018 build with the FT-3 fan tray, high temperature alarm at 59 degrees. Same as OLT-210 I guess, swap the fan tray?",
+      "requester": "person:directory:leena-kuusisto",
+      "observations": [
+        {
+          "key": "temperature.state",
+          "value": "high",
+          "label": "Inlet 59 degrees, high temperature alarm"
+        },
+        {
+          "key": "unit.installed_year",
+          "value": 2018,
+          "label": "Installed 2018"
+        },
+        {
+          "key": "unit.model",
+          "value": "FT-3",
+          "label": "FT-3 fan tray"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "inapplicable",
+        "answers": {},
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "none",
+        "distinguishingConditions": [
+          {
+            "key": "unit.model",
+            "value": "FT-3"
+          }
+        ],
+        "laterOutcome": "unknown"
+      }
+    },
+    {
+      "id": "fan-temperature-p3",
+      "text": "OLT-210 temperature has looked fine since the filter was changed. Can I close the ticket as solved by the filter swap?",
+      "requester": "person:directory:kaarina-sirola",
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "none",
+        "answers": {},
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "retain-uncertainty",
+        "laterOutcome": "unknown"
+      }
+    }
+  ]
+}

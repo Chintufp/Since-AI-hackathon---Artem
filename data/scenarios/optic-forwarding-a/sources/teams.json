@@ -1,0 +1,93 @@
+{
+  "channel": "teams",
+  "note": "Synthetic example. Names and node IDs are illustrative. Times only; no date was given.",
+  "participants": [
+    {
+      "name": "Aarne Koskela",
+      "role": "Field Engineer"
+    },
+    {
+      "name": "Helmi Virtanen",
+      "role": "Network Expert"
+    }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "09:14",
+      "author": "Aarne Koskela",
+      "role": "Field Engineer",
+      "text": "Morning Helmi, I'm at the TRN-117 site now. Swapped the SFP on the transmission node.\nLink is up and alarms cleared, but the traffic counters are still at zero. Have you seen this before?"
+    },
+    {
+      "seq": 2,
+      "time": "09:16",
+      "author": "Helmi Virtanen",
+      "role": "Network Expert",
+      "text": "Morning. How is the optical level on the new module?"
+    },
+    {
+      "seq": 3,
+      "time": "09:17",
+      "author": "Aarne Koskela",
+      "role": "Field Engineer",
+      "text": "Normal, receive level is in range, same as the old one."
+    },
+    {
+      "seq": 4,
+      "time": "09:19",
+      "author": "Helmi Virtanen",
+      "role": "Network Expert",
+      "text": "Then it sounds like the older units. After a module swap they sometimes keep the old forwarding state and don't pass traffic even though everything looks fine. Is this one from the 2019 batch?"
+    },
+    {
+      "seq": 5,
+      "time": "09:20",
+      "author": "Aarne Koskela",
+      "role": "Field Engineer",
+      "text": "Yes, 2019. Controller card revision A according to the sticker."
+    },
+    {
+      "seq": 6,
+      "time": "09:22",
+      "author": "Helmi Virtanen",
+      "role": "Network Expert",
+      "text": "Reset the interface on both ends, shut and no shut, that should rebuild it. Don't do that on the newer controller revisions though, they behave differently."
+    },
+    {
+      "seq": 7,
+      "time": "09:23",
+      "author": "Aarne Koskela",
+      "role": "Field Engineer",
+      "text": "Ok, doing the reset now, far end first."
+    },
+    {
+      "seq": 8,
+      "time": "09:24",
+      "author": "Helmi Virtanen",
+      "role": "Network Expert",
+      "text": "Go for it. Coffee after? Also your depot car park was full again yesterday, I had to leave the van on the street."
+    },
+    {
+      "seq": 9,
+      "time": "09:31",
+      "author": "Aarne Koskela",
+      "role": "Field Engineer",
+      "text": "Reset done on both ends. Traffic is passing again, counters are moving."
+    },
+    {
+      "seq": 10,
+      "time": "09:32",
+      "author": "Helmi Virtanen",
+      "role": "Network Expert",
+      "text": "Good. I'll put it in the handover note."
+    },
+    {
+      "seq": 11,
+      "time": "09:33",
+      "author": "Aarne Koskela",
+      "role": "Field Engineer",
+      "text": "Thanks, heading to the next site."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "U501",
+    "name": "jarmo-heikkinen",
+    "real_name": "Jarmo Heikkinen",
+    "profile": {
+      "title": "Access Network Engineer",
+      "email": "jarmo.heikkinen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U502",
+    "name": "sirkka-lindholm",
+    "real_name": "Sirkka Lindholm",
+    "profile": {
+      "title": "Senior Network Engineer",
+      "email": "sirkka.lindholm@kalevanet.example"
+    }
+  },
+  {
+    "id": "U503",
+    "name": "antti-korhonen",
+    "real_name": "Antti Korhonen",
+    "profile": {
+      "title": "NOC Engineer",
+      "email": "antti.korhonen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U504",
+    "name": "tuula-salmi",
+    "real_name": "Tuula Salmi",
+    "profile": {
+      "title": "Change Manager",
+      "email": "tuula.salmi@kalevanet.example"
+    }
+  },
+  {
+    "id": "U505",
+    "name": "elina-mattila",
+    "real_name": "Elina Mattila",
+    "profile": {
+      "title": "Junior NOC Engineer",
+      "email": "elina.mattila@kalevanet.example"
+    }
+  }
+]

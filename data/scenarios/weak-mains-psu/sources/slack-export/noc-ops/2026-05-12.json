@@ -1,0 +1,16 @@
+[
+  {
+    "type": "message",
+    "user": "U702",
+    "text": "MW-77 was down again for six minutes at 21:05, input voltage low. That is three weeks after the PSU swap.",
+    "ts": "1778620200.000100",
+    "thread_ts": "1778620200.000100"
+  },
+  {
+    "type": "message",
+    "user": "U703",
+    "text": "So the PSU was not the cause, or not the only one. The mains logger at the site shows sags to 185 V in the evenings when the neighbouring sawmill starts. The 2018 battery string cannot bridge that.",
+    "ts": "1778620800.000200",
+    "thread_ts": "1778620200.000100"
+  }
+]

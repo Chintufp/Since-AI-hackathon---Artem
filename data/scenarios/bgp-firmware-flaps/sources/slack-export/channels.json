@@ -1,0 +1,15 @@
+[
+  {
+    "id": "C001BG",
+    "name": "core-ops",
+    "is_private": false,
+    "members": [
+      "U305",
+      "U301",
+      "U303",
+      "U302",
+      "U306",
+      "U304"
+    ]
+  }
+]

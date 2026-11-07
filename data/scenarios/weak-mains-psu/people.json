@@ -1,0 +1,87 @@
+{
+  "people": [
+    {
+      "id": "person:directory:tauno-hiltunen",
+      "name": "Tauno Hiltunen",
+      "role": "Field Engineer",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:teams:Tauno Hiltunen",
+        "person:slack:U701",
+        "person:email:tauno.hiltunen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:anneli-koivisto",
+      "name": "Anneli Koivisto",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:teams:Anneli Koivisto",
+        "person:slack:U702",
+        "person:email:anneli.koivisto@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:olavi-rinne",
+      "name": "Olavi Rinne",
+      "role": "Power Specialist",
+      "groups": [
+        "power",
+        "field"
+      ],
+      "actorIds": [
+        "person:teams:Olavi Rinne",
+        "person:slack:U703",
+        "person:email:olavi.rinne@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:maija-sundstrom",
+      "name": "Maija Sundström",
+      "role": "Site Access Coordinator",
+      "groups": [
+        "access"
+      ],
+      "actorIds": [
+        "person:slack:U704",
+        "person:email:maija.sundstrom@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:esa-pitkanen",
+      "name": "Esa Pitkänen",
+      "role": "Field Engineer",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:slack:U705",
+        "person:email:esa.pitkanen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:sofia-lund",
+      "name": "Sofia Lund",
+      "role": "Operations Team Lead",
+      "groups": [
+        "noc",
+        "field"
+      ],
+      "actorIds": [
+        "person:slack:U706",
+        "person:email:sofia.lund@kalevanet.example"
+      ],
+      "available": true
+    }
+  ]
+}

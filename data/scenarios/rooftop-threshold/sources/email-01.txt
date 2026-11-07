@@ -1,0 +1,17 @@
+From: Sari Kivelä <sari.kivela@kalevanet.example>
+To: Pirjo Salonen <pirjo.salonen@kalevanet.example>
+Cc: Heikki Moilanen <heikki.moilanen@kalevanet.example>
+Date: Mon, 09 Mar 2026 11:30:00 +0200
+Subject: ROOF-14 roof access
+Message-ID: <f10-roof-access@kalevanet.example>
+
+Hi Pirjo,
+
+How to get onto the roof at ROOF-14:
+
+- The roof lift key is at the janitor's office, open Monday to Friday 8 to 16. Ask for Mr Eskola.
+- Book the visit in the property manager portal at least 48 hours ahead, otherwise the janitor will not hand out the key.
+- The roof hatch code is 7314.
+- Two people must be present on the roof at all times.
+
+Sari

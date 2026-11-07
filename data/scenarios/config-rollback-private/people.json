@@ -1,0 +1,76 @@
+{
+  "people": [
+    {
+      "id": "person:directory:jarmo-heikkinen",
+      "name": "Jarmo Heikkinen",
+      "role": "Access Network Engineer",
+      "groups": [
+        "access",
+        "change-board"
+      ],
+      "actorIds": [
+        "person:teams:Jarmo Heikkinen",
+        "person:slack:U501",
+        "person:email:jarmo.heikkinen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:sirkka-lindholm",
+      "name": "Sirkka Lindholm",
+      "role": "Senior Network Engineer",
+      "groups": [
+        "core",
+        "access",
+        "change-board"
+      ],
+      "actorIds": [
+        "person:slack:U502",
+        "person:email:sirkka.lindholm@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:antti-korhonen",
+      "name": "Antti Korhonen",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc",
+        "change-board"
+      ],
+      "actorIds": [
+        "person:teams:Antti Korhonen",
+        "person:slack:U503",
+        "person:email:antti.korhonen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:tuula-salmi",
+      "name": "Tuula Salmi",
+      "role": "Change Manager",
+      "groups": [
+        "planning",
+        "change-board"
+      ],
+      "actorIds": [
+        "person:slack:U504",
+        "person:email:tuula.salmi@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:elina-mattila",
+      "name": "Elina Mattila",
+      "role": "Junior NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:slack:U505",
+        "person:email:elina.mattila@kalevanet.example"
+      ],
+      "available": true
+    }
+  ]
+}

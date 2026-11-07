@@ -1,0 +1,116 @@
+{
+  "familyId": "config-rollback-private",
+  "problems": [
+    {
+      "id": "config-rollback-private-p1",
+      "text": "ACC-33 is an N5 and lost voice VLAN 210 after the template v7 push. Can I roll it back to v6 like Jarmo did on ACC-12?",
+      "requester": "person:directory:elina-mattila",
+      "observations": [
+        {
+          "key": "unit.model",
+          "value": "N5",
+          "label": "N5 model"
+        },
+        {
+          "key": "config.changed",
+          "value": true,
+          "label": "Template v7 pushed"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "inapplicable",
+        "consequentialGap": {
+          "description": "Does the v6 template support the N5 port layout? The answer is only in the change-review record, which this requester cannot see.",
+          "answerers": [
+            "person:directory:sirkka-lindholm",
+            "person:directory:jarmo-heikkinen"
+          ],
+          "answer": "no"
+        },
+        "answers": {
+          "person:directory:sirkka-lindholm": {
+            "config.rollback_supported=true": "no"
+          },
+          "person:directory:jarmo-heikkinen": {
+            "config.rollback_supported=true": "no"
+          },
+          "person:directory:tuula-salmi": {
+            "config.rollback_supported=true": "unknown"
+          },
+          "person:directory:antti-korhonen": {
+            "config.rollback_supported=true": "unknown"
+          }
+        },
+        "noQuestionNeeded": false,
+        "expectedRecommendation": "none",
+        "distinguishingConditions": [
+          {
+            "key": "config.rollback_supported",
+            "value": false
+          }
+        ],
+        "laterOutcome": "unknown"
+      }
+    },
+    {
+      "id": "config-rollback-private-p2",
+      "text": "ACC-33 is an N5 and lost voice VLAN 210 after the v7 push. Roll back to v6?",
+      "requester": "person:directory:antti-korhonen",
+      "observations": [
+        {
+          "key": "unit.model",
+          "value": "N5",
+          "label": "N5 model"
+        },
+        {
+          "key": "config.changed",
+          "value": true,
+          "label": "Template v7 pushed"
+        }
+      ],
+      "key": {
+        "relatedIncidentKeys": [
+          "A",
+          "B"
+        ],
+        "applicable": "qualified",
+        "answers": {},
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "qualified",
+        "distinguishingConditions": [
+          {
+            "key": "unit.model",
+            "value": "N5"
+          }
+        ],
+        "laterOutcome": "recovered"
+      }
+    },
+    {
+      "id": "config-rollback-private-p3",
+      "text": "On ACC-12 the v6 rollback was done by Jarmo. Was it saved to the startup config or would a reboot bring v7 back? Tuula approved the original change so she can tell me, right?",
+      "requester": "person:directory:elina-mattila",
+      "key": {
+        "relatedIncidentKeys": [
+          "A"
+        ],
+        "applicable": "qualified",
+        "answers": {
+          "person:directory:jarmo-heikkinen": {
+            "config.saved_startup=true": "yes"
+          },
+          "person:directory:tuula-salmi": {
+            "config.saved_startup=true": "unknown"
+          }
+        },
+        "noQuestionNeeded": true,
+        "expectedRecommendation": "qualified",
+        "laterOutcome": "recovered"
+      }
+    }
+  ]
+}

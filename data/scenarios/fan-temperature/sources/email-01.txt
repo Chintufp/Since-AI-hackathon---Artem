@@ -1,0 +1,14 @@
+From: Raisa Turunen <raisa.turunen@kalevanet.example>
+To: Vesa Hakala <vesa.hakala@kalevanet.example>, Leena Kuusisto <leena.kuusisto@kalevanet.example>, Onni Jokinen <onni.jokinen@kalevanet.example>
+Cc: Kaarina Sirola <kaarina.sirola@kalevanet.example>
+Date: Mon, 25 May 2026 10:15:00 +0300
+Subject: Cabinet temperature guidance after OLT-210
+Message-ID: <f04-temp-guidance@kalevanet.example>
+
+Hi all,
+
+Summary after OLT-210. In spring, high inlet temperature on the 2015-build outdoor cabinets is usually a clogged dust filter, and replacing the filter brings the temperature down. If the alarm comes back within a few days the filter was not the whole cause: check whether fan tray 2 stalls when warm.
+
+The tray replacement only applies to cabinets with the FT-2 fan tray (2015 and 2016 builds). Newer cabinets use FT-3 and should be escalated to me instead of swapping parts.
+
+Raisa

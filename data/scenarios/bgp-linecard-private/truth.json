@@ -1,0 +1,227 @@
+{
+  "familyId": "bgp-linecard-private",
+  "entities": [
+    {
+      "name": "PE-05",
+      "type": "asset",
+      "attributes": {
+        "unit.revision": "LC-2",
+        "unit.installed_year": 2020,
+        "software.version": "11.2"
+      }
+    },
+    {
+      "name": "PE-09",
+      "type": "asset",
+      "attributes": {
+        "unit.revision": "LC-3",
+        "unit.installed_year": 2022,
+        "software.version": "11.2"
+      }
+    },
+    {
+      "name": "PE-12",
+      "type": "asset",
+      "attributes": {
+        "unit.revision": "LC-3",
+        "unit.installed_year": 2023,
+        "software.version": "11.2"
+      }
+    }
+  ],
+  "incidents": [
+    {
+      "key": "A",
+      "title": "PE-05 BGP and port flaps after firmware 11.2 on LC-2, fixed by patch 11.2.1",
+      "sourceIds": [
+        "teams:1",
+        "teams:2",
+        "teams:3",
+        "teams:4",
+        "teams:5",
+        "teams:7",
+        "teams:8",
+        "teams:9",
+        "email:<f08-pe05-writeup@kalevanet.example>",
+        "slack:1785852660.000100"
+      ],
+      "realCause": "Firmware 11.2 causes port flaps on LC-2 line cards until patch 11.2.1 is installed.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "PE-05 BGP sessions to both upstreams flap and line card ports log link flaps after the 11.2 upgrade",
+          "by": "person:directory:anssi-heikura"
+        },
+        {
+          "type": "condition",
+          "statement": "PE-05 has an LC-2 line card installed in 2020",
+          "by": "person:directory:anssi-heikura"
+        },
+        {
+          "type": "advice",
+          "statement": "Install patch 11.2.1 which fixes port flaps on LC-2 under firmware 11.2 and needs no reload",
+          "by": "person:directory:ville-laakso"
+        },
+        {
+          "type": "action",
+          "statement": "Pasi installed patch 11.2.1 on PE-05",
+          "by": "person:directory:pasi-tuomi"
+        },
+        {
+          "type": "outcome",
+          "statement": "PE-05 sessions stayed up with no port flaps for two hours after the patch",
+          "by": "person:directory:pasi-tuomi"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "patch.install",
+          "by": "person:directory:pasi-tuomi",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "unknown",
+        "reportedBy": "person:directory:pasi-tuomi"
+      },
+      "knowledge": {
+        "person:directory:anssi-heikura": {
+          "knows": [
+            "unit.revision",
+            "bgp.session"
+          ],
+          "canObserve": [
+            "bgp.session",
+            "alarms.state"
+          ]
+        },
+        "person:directory:rauni-forsman": {
+          "knows": [
+            "bgp.session"
+          ],
+          "canObserve": [
+            "bgp.session",
+            "alarms.state"
+          ]
+        },
+        "person:directory:ville-laakso": {
+          "knows": [
+            "reasoning behind the patch advice",
+            "unit.revision"
+          ],
+          "canObserve": []
+        },
+        "person:directory:pasi-tuomi": {
+          "knows": [
+            "action.performed"
+          ],
+          "canObserve": [
+            "bgp.session"
+          ]
+        },
+        "person:directory:minna-saarinen": {
+          "knows": [
+            "unit.revision"
+          ],
+          "canObserve": [
+            "unit.revision",
+            "unit.installed_year"
+          ]
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "core",
+        "planning"
+      ]
+    },
+    {
+      "key": "B",
+      "title": "PE-09 flaps after 11.2 on LC-3; patch does not help, BFD interval workaround",
+      "sourceIds": [
+        "slack:1786438800.000300",
+        "slack:1786440300.000400",
+        "slack:1786441800.000500",
+        "slack:1786443600.000600"
+      ],
+      "realCause": "On LC-3 the 11.2 BFD default is too aggressive; patch 11.2.1 does not address it, raising the BFD interval to 300 ms does (vendor advisory under NDA).",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "PE-09 with LC-3 flaps after the 11.2 upgrade",
+          "by": "person:directory:ville-laakso"
+        },
+        {
+          "type": "action",
+          "statement": "Pasi installed patch 11.2.1 on PE-09 with no change",
+          "by": "person:directory:pasi-tuomi"
+        },
+        {
+          "type": "advice",
+          "statement": "Set the BFD interval to 300 ms on the affected sessions as the vendor workaround for LC-3",
+          "by": "person:directory:ville-laakso"
+        },
+        {
+          "type": "action",
+          "statement": "Pasi raised the BFD interval on PE-09",
+          "by": "person:directory:pasi-tuomi"
+        },
+        {
+          "type": "outcome",
+          "statement": "PE-09 sessions are stable after the BFD interval change",
+          "by": "person:directory:pasi-tuomi"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "patch.install",
+          "by": "person:directory:pasi-tuomi",
+          "performed": true
+        },
+        {
+          "action": "config.change",
+          "by": "person:directory:pasi-tuomi",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "unknown",
+        "reportedBy": "person:directory:pasi-tuomi"
+      },
+      "knowledge": {
+        "person:directory:ville-laakso": {
+          "knows": [
+            "unit.revision",
+            "config.changed",
+            "reasoning behind the BFD workaround"
+          ],
+          "canObserve": []
+        },
+        "person:directory:pasi-tuomi": {
+          "knows": [
+            "action.performed",
+            "config.changed"
+          ],
+          "canObserve": [
+            "bgp.session"
+          ]
+        },
+        "person:directory:oskari-nieminen": {
+          "knows": [],
+          "canObserve": []
+        }
+      },
+      "accessGroups": [
+        "core-private"
+      ]
+    }
+  ],
+  "copies": [
+    {
+      "sourceId": "email:<f08-pe05-writeup@kalevanet.example>",
+      "of": "teams:9"
+    }
+  ]
+}

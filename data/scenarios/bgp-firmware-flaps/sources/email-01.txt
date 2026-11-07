@@ -1,0 +1,12 @@
+From: Hanna Kallio <hanna.kallio@kalevanet.example>
+To: Lauri Ahonen <lauri.ahonen@kalevanet.example>
+Cc: Sanna Ojala <sanna.ojala@kalevanet.example>
+Date: Thu, 14 May 2026 08:30:00 +0300
+Subject: AGG-014 stable after hold timer rollback
+Message-ID: <f03-agg014-stable@kalevanet.example>
+
+Hi Lauri,
+
+Three days have passed since the hold timer rollback on AGG-014. I watched the two peers from the NOC side the whole time and there have been no flaps. I think we can close the ticket.
+
+Hanna

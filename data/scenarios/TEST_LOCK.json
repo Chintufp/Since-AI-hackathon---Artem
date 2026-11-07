@@ -1,0 +1,7 @@
+{
+  "note": "Content hashes of held-out test families. A mismatch means a test family was edited after freezing; do not tune on test.",
+  "hashes": {
+    "transponder-laser": "9f202253c5d40584e913c6baf3f86fd169ffcef5fee0c6acf731bfb28b7a14da",
+    "rooftop-threshold": "73e145d055b96ce0cbb6214e67410f402d294423229c3a1e7b41942344505f6b"
+  }
+}

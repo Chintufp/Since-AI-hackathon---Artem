@@ -1,0 +1,90 @@
+{
+  "channel": "teams",
+  "note": "Synthetic example. Names and node IDs are illustrative. Times only; no date was given.",
+  "participants": [
+    {
+      "name": "Aila Nurmi",
+      "role": "NOC Engineer"
+    },
+    {
+      "name": "Henrik Sjöberg",
+      "role": "Transport Expert"
+    },
+    {
+      "name": "Kimmo Rautio",
+      "role": "Field Engineer"
+    }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "07:50",
+      "author": "Aila Nurmi",
+      "role": "NOC Engineer",
+      "text": "Kimmo, the HUB-07 uplink to the core router shows CRC errors in bursts since about 05:00. The link stays up and most traffic flows, but customers report slowness."
+    },
+    {
+      "seq": 2,
+      "time": "07:52",
+      "author": "Henrik Sjöberg",
+      "role": "Transport Expert",
+      "text": "What does the optical level say?"
+    },
+    {
+      "seq": 3,
+      "time": "07:53",
+      "author": "Aila Nurmi",
+      "role": "NOC Engineer",
+      "text": "Receive power is normal on both ends."
+    },
+    {
+      "seq": 4,
+      "time": "07:55",
+      "author": "Henrik Sjöberg",
+      "role": "Transport Expert",
+      "text": "Then swap the SFP on our side anyway, it's cheap and we have had bad batches. Kimmo, can you do that on your way?"
+    },
+    {
+      "seq": 5,
+      "time": "09:05",
+      "author": "Kimmo Rautio",
+      "role": "Field Engineer",
+      "text": "At HUB-07. Swapped the SFP, the link is up again."
+    },
+    {
+      "seq": 6,
+      "time": "09:20",
+      "author": "Aila Nurmi",
+      "role": "NOC Engineer",
+      "text": "CRC errors are still climbing, same burst pattern."
+    },
+    {
+      "seq": 7,
+      "time": "09:24",
+      "author": "Henrik Sjöberg",
+      "role": "Transport Expert",
+      "text": "OK so not the SFP. Check the patch cord between the SFP and the ODF, clean both connectors and look for kinks."
+    },
+    {
+      "seq": 8,
+      "time": "09:50",
+      "author": "Kimmo Rautio",
+      "role": "Field Engineer",
+      "text": "Cleaned both connectors. Errors dropped a lot but not to zero. The patch cord looks fine to me, no kinks I can see. I have to leave for the next job, I'll come back tomorrow with a spare cord."
+    },
+    {
+      "seq": 9,
+      "time": "09:52",
+      "author": "Aila Nurmi",
+      "role": "NOC Engineer",
+      "text": "OK, errors are at a low level for now. I will keep watching."
+    },
+    {
+      "seq": 10,
+      "time": "09:53",
+      "author": "Kimmo Rautio",
+      "role": "Field Engineer",
+      "text": "Has anyone found a parking permit for the Hakala depot? I have asked three times already."
+    }
+  ]
+}

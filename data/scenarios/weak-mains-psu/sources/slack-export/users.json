@@ -1,0 +1,56 @@
+[
+  {
+    "id": "U701",
+    "name": "tauno-hiltunen",
+    "real_name": "Tauno Hiltunen",
+    "profile": {
+      "title": "Field Engineer",
+      "email": "tauno.hiltunen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U702",
+    "name": "anneli-koivisto",
+    "real_name": "Anneli Koivisto",
+    "profile": {
+      "title": "NOC Engineer",
+      "email": "anneli.koivisto@kalevanet.example"
+    }
+  },
+  {
+    "id": "U703",
+    "name": "olavi-rinne",
+    "real_name": "Olavi Rinne",
+    "profile": {
+      "title": "Power Specialist",
+      "email": "olavi.rinne@kalevanet.example"
+    }
+  },
+  {
+    "id": "U704",
+    "name": "maija-sundstrom",
+    "real_name": "Maija Sundström",
+    "profile": {
+      "title": "Site Access Coordinator",
+      "email": "maija.sundstrom@kalevanet.example"
+    }
+  },
+  {
+    "id": "U705",
+    "name": "esa-pitkanen",
+    "real_name": "Esa Pitkänen",
+    "profile": {
+      "title": "Field Engineer",
+      "email": "esa.pitkanen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U706",
+    "name": "sofia-lund",
+    "real_name": "Sofia Lund",
+    "profile": {
+      "title": "Operations Team Lead",
+      "email": "sofia.lund@kalevanet.example"
+    }
+  }
+]

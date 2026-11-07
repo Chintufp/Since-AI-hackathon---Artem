@@ -1,0 +1,11 @@
+From: Ville Laakso <ville.laakso@kalevanet.example>
+To: Oskari Nieminen <oskari.nieminen@kalevanet.example>, Pasi Tuomi <pasi.tuomi@kalevanet.example>
+Cc: Anssi Heikura <anssi.heikura@kalevanet.example>
+Subject: PE-05: firmware 11.2 line card flaps fixed by patch 11.2.1
+Message-ID: <f08-pe05-writeup@kalevanet.example>
+
+Hi,
+
+Write-up for PE-05. After the 11.2 upgrade the BGP sessions and the LC-2 line card ports were flapping. Patch 11.2.1 was installed by Pasi without a reload and Pasi reports the sessions have been clean for two hours.
+
+Ville

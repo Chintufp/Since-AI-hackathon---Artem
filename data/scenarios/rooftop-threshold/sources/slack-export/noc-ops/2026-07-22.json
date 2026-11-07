@@ -1,0 +1,22 @@
+[
+  {
+    "type": "message",
+    "user": "U1001",
+    "text": "ROOF-14 update: no alarm overnight. It peaked at 43 degrees at 15:00 yesterday, below the restored 55 threshold.",
+    "ts": "1784711400.000100",
+    "thread_ts": "1784711400.000100"
+  },
+  {
+    "type": "message",
+    "user": "U1003",
+    "text": "Good. We should check the other 5.1.0 sites too.",
+    "ts": "1784712000.000200",
+    "thread_ts": "1784711400.000100"
+  },
+  {
+    "type": "message",
+    "user": "U1006",
+    "text": "Anyone want to swap Friday shifts with me? I have a dentist appointment.",
+    "ts": "1784714400.000300"
+  }
+]

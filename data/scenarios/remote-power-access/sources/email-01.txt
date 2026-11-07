@@ -1,0 +1,18 @@
+From: Eino Salo <eino.salo@kalevanet.example>
+To: Ilmari Karjalainen <ilmari.karjalainen@kalevanet.example>
+Cc: Kaisa Hautala <kaisa.hautala@kalevanet.example>
+Date: Wed, 20 Aug 2026 09:12:00 +0300
+Subject: RBS-310 site access (barrier and cabinet key)
+Message-ID: <f02-access-310@kalevanet.example>
+
+Hi Ilmari,
+
+Access to RBS-310 as agreed:
+
+- Road barrier code: 5802. The landlord changes it every October and I normally get the new code by email around the 5th.
+- Cabinet key is in the lockbox on the left gatepost, lockbox code 1946.
+- If the barrier is jammed, call the landlord's caretaker. Do not drive around it, there is a reindeer fence on the side track.
+
+I am on leave from 3 November to 1 December. Pirkko does not handle access codes, so please do not ask her.
+
+Eino

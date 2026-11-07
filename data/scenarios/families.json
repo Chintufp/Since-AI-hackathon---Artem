@@ -1,0 +1,133 @@
+{
+  "version": "1.0.0",
+  "generatedBy": "benchmarks/authoring/build.ts (Claude agent authored; see data/scenarios/REVIEW.md)",
+  "families": [
+    {
+      "id": "optic-forwarding-a",
+      "split": "demo",
+      "description": "Optical module replaced on an older transmission node: link up, traffic counters zero; interface reset restores forwarding. Outcome reported once and retold twice.",
+      "tags": [
+        "missing-outcome",
+        "copied-retelling",
+        "lookalike-different-cause",
+        "useful-no",
+        "no-question-needed",
+        "same-incident-continuation"
+      ],
+      "dir": "optic-forwarding-a"
+    },
+    {
+      "id": "remote-power-access",
+      "split": "demo",
+      "description": "Remote radio site resets from unstable DC power; rectifier swap helps briefly, then it recurs and a loose breaker terminal is found. Site access instructions live only in an email.",
+      "tags": [
+        "access-fact",
+        "recurrence",
+        "temporary-recovery",
+        "no-answer",
+        "wrong-recipient-trap",
+        "no-question-needed"
+      ],
+      "dir": "remote-power-access"
+    },
+    {
+      "id": "bgp-firmware-flaps",
+      "split": "train",
+      "description": "BGP sessions flap after a firmware upgrade on aggregation routers. One case is a changed hold-timer default fixed by config rollback; a lookalike on another router is a link with CRC errors.",
+      "tags": [
+        "lookalike-different-cause",
+        "multi-step",
+        "recurrence",
+        "conflicting-conditions"
+      ],
+      "dir": "bgp-firmware-flaps"
+    },
+    {
+      "id": "fan-temperature",
+      "split": "train",
+      "description": "High inlet temperature in an outdoor cabinet: a clogged dust filter fixes it briefly, then it returns and a stalling fan tray is found. Two NOC staff report the second alarm separately. Later guidance qualifies the earlier advice.",
+      "tags": [
+        "temporary-recovery",
+        "duplicate-report",
+        "conflicting-conditions",
+        "no-question-needed"
+      ],
+      "dir": "fan-temperature"
+    },
+    {
+      "id": "config-rollback-private",
+      "split": "train",
+      "description": "A config template push breaks the voice VLAN on access switches. Rolling back works on the old model; on a newer model it fails, and that lesson sits in a private change-review channel the junior NOC engineer cannot see.",
+      "tags": [
+        "changed-permissions",
+        "wrong-recipient-trap",
+        "copied-retelling",
+        "conflicting-conditions",
+        "useful-no"
+      ],
+      "dir": "config-rollback-private"
+    },
+    {
+      "id": "cabling-pinch",
+      "split": "train",
+      "description": "Intermittent CRC errors on a hub uplink. SFP swap does not help; days later the patch cord is found pinched by the cabinet door. The one person who fitted the permanent fix is on leave.",
+      "tags": [
+        "same-incident-continuation",
+        "no-answer",
+        "multi-step"
+      ],
+      "dir": "cabling-pinch"
+    },
+    {
+      "id": "weak-mains-psu",
+      "split": "validation",
+      "description": "A microwave hop site on weak mains drops in the evenings. A PSU swap helps for three weeks, then the drops return; the real cause is voltage sag and an aged battery string. Winter access instructions exist only in an email.",
+      "tags": [
+        "temporary-recovery",
+        "recurrence",
+        "access-fact",
+        "no-question-needed"
+      ],
+      "dir": "weak-mains-psu"
+    },
+    {
+      "id": "bgp-linecard-private",
+      "split": "validation",
+      "description": "BGP and port flaps after a firmware upgrade depend on the line card revision. LC-2 is fixed by a patch (reported twice by different people, then retold in an email); LC-3 needs a vendor workaround recorded only in a private core channel.",
+      "tags": [
+        "lookalike-different-cause",
+        "useful-no",
+        "changed-permissions",
+        "duplicate-report",
+        "copied-retelling"
+      ],
+      "dir": "bgp-linecard-private"
+    },
+    {
+      "id": "transponder-laser",
+      "split": "test",
+      "description": "Optical module replaced on a transport node: local link up, far-end loss of signal. A line card power cycle is advised but the outcome is never reported. A colleague mentioned as an expert only handled an older equipment family.",
+      "tags": [
+        "missing-outcome",
+        "wrong-recipient-trap",
+        "conflicting-conditions",
+        "duplicate-report",
+        "lookalike-different-cause"
+      ],
+      "dir": "transponder-laser"
+    },
+    {
+      "id": "rooftop-threshold",
+      "split": "test",
+      "description": "A rooftop cabinet raises a high temperature alarm that is really a lowered alarm threshold from a firmware config bundle. Fixed remotely and confirmed the next day. Roof access instructions live in an email; the engineer who knows the bundle rollout is on leave.",
+      "tags": [
+        "same-incident-continuation",
+        "no-answer",
+        "access-fact",
+        "no-question-needed",
+        "useful-no"
+      ],
+      "dir": "rooftop-threshold"
+    }
+  ]
+}

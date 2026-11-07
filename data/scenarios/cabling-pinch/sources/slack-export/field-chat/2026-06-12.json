@@ -1,0 +1,29 @@
+[
+  {
+    "type": "message",
+    "user": "U604",
+    "text": "HUB-07: I re-dressed the cabinet cabling and fitted a cable guard at the door edge. The same cabinet type is at HUB-09 and HUB-12, I will check them in July.",
+    "ts": "1781272800.000100",
+    "thread_ts": "1781272800.000100"
+  },
+  {
+    "type": "message",
+    "user": "U601",
+    "text": "Thanks Seppo, good to know.",
+    "ts": "1781273100.000200",
+    "thread_ts": "1781272800.000100"
+  },
+  {
+    "type": "message",
+    "user": "U604",
+    "text": "I am on leave from tomorrow until 10 August.",
+    "ts": "1781273400.000300",
+    "thread_ts": "1781272800.000100"
+  },
+  {
+    "type": "message",
+    "user": "U605",
+    "text": "Does anyone know when the new rain jackets arrive? Mine leaks.",
+    "ts": "1781278200.000400"
+  }
+]

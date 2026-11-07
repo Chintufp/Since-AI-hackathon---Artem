@@ -1,0 +1,212 @@
+{
+  "familyId": "fan-temperature",
+  "entities": [
+    {
+      "name": "OLT-210",
+      "type": "asset",
+      "attributes": {
+        "unit.installed_year": 2015,
+        "unit.model": "FT-2",
+        "site.id": "Hakkila hub"
+      }
+    },
+    {
+      "name": "OLT-210 fan tray 2",
+      "type": "component",
+      "attributes": {}
+    },
+    {
+      "name": "OLT-210 dust filter",
+      "type": "component",
+      "attributes": {}
+    }
+  ],
+  "incidents": [
+    {
+      "key": "A",
+      "title": "OLT-210 high temperature, clogged dust filter replaced",
+      "sourceIds": [
+        "teams:1",
+        "teams:2",
+        "teams:3",
+        "teams:4",
+        "teams:5",
+        "teams:6",
+        "teams:7",
+        "teams:10"
+      ],
+      "realCause": "Intermittently stalling fan tray 2; the clogged filter was a contributing factor, so replacing it only helped for a few days.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "OLT-210 raises high temperature alarms with inlet at 61 degrees",
+          "by": "person:directory:leena-kuusisto"
+        },
+        {
+          "type": "condition",
+          "statement": "OLT-210 is an outdoor cabinet of 2015 build",
+          "by": "person:directory:leena-kuusisto"
+        },
+        {
+          "type": "advice",
+          "statement": "Check and replace the dust filter first because the cabinet type clogs with pollen in spring",
+          "by": "person:directory:raisa-turunen"
+        },
+        {
+          "type": "observation",
+          "statement": "The dust filter is nearly solid with pollen and the fans are spinning",
+          "by": "person:directory:vesa-hakala"
+        },
+        {
+          "type": "action",
+          "statement": "Vesa swapped the dust filter for a clean one",
+          "by": "person:directory:vesa-hakala"
+        },
+        {
+          "type": "outcome",
+          "statement": "Temperature fell to 47 degrees and the alarm cleared after the filter swap",
+          "by": "person:directory:leena-kuusisto"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "component.replace.filter",
+          "by": "person:directory:vesa-hakala",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "recurred",
+        "reportedBy": "person:directory:vesa-hakala"
+      },
+      "knowledge": {
+        "person:directory:vesa-hakala": {
+          "knows": [
+            "temperature.state",
+            "action.performed"
+          ],
+          "canObserve": []
+        },
+        "person:directory:leena-kuusisto": {
+          "knows": [
+            "temperature.state"
+          ],
+          "canObserve": [
+            "temperature.state",
+            "alarms.state"
+          ]
+        },
+        "person:directory:raisa-turunen": {
+          "knows": [
+            "reasoning behind the filter advice",
+            "unit.model"
+          ],
+          "canObserve": []
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "field",
+        "transport"
+      ]
+    },
+    {
+      "key": "B",
+      "title": "OLT-210 high temperature returns; fan tray 2 replaced",
+      "sourceIds": [
+        "email:<f04-temp-guidance@kalevanet.example>",
+        "slack:1779430200.000100",
+        "slack:1779430380.000200",
+        "slack:1779433200.000300",
+        "slack:1779441600.000400",
+        "slack:1779453000.000500"
+      ],
+      "realCause": "Intermittently stalling fan tray 2 (FT-2) in the 2015-build cabinet.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "OLT-210 raises a high temperature alarm again with inlet at 58 degrees",
+          "by": "person:directory:onni-jokinen"
+        },
+        {
+          "type": "hypothesis",
+          "statement": "Fan tray 2 stalls when warm and the filter was not the cause",
+          "by": "person:directory:raisa-turunen"
+        },
+        {
+          "type": "observation",
+          "statement": "Fan tray 2 on OLT-210 stalls intermittently",
+          "by": "person:directory:vesa-hakala"
+        },
+        {
+          "type": "action",
+          "statement": "Vesa replaced fan tray 2 on OLT-210",
+          "by": "person:directory:vesa-hakala"
+        },
+        {
+          "type": "outcome",
+          "statement": "Inlet fell to 44 degrees and was still 43 at lunchtime after the tray replacement",
+          "by": "person:directory:vesa-hakala"
+        },
+        {
+          "type": "advice",
+          "statement": "Replace the fan tray only on FT-2 cabinets from 2015 and 2016 builds and escalate newer FT-3 cabinets",
+          "by": "person:directory:raisa-turunen"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "component.replace.fan",
+          "by": "person:directory:vesa-hakala",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "unknown",
+        "reportedBy": "person:directory:vesa-hakala"
+      },
+      "knowledge": {
+        "person:directory:vesa-hakala": {
+          "knows": [
+            "temperature.state",
+            "action.performed"
+          ],
+          "canObserve": []
+        },
+        "person:directory:onni-jokinen": {
+          "knows": [
+            "temperature.state"
+          ],
+          "canObserve": [
+            "temperature.state",
+            "alarms.state"
+          ]
+        },
+        "person:directory:leena-kuusisto": {
+          "knows": [
+            "temperature.state"
+          ],
+          "canObserve": [
+            "temperature.state",
+            "alarms.state"
+          ]
+        },
+        "person:directory:raisa-turunen": {
+          "knows": [
+            "unit.model",
+            "reasoning behind the tray advice"
+          ],
+          "canObserve": []
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "field",
+        "transport"
+      ]
+    }
+  ],
+  "copies": []
+}

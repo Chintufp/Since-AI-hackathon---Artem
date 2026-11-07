@@ -1,0 +1,83 @@
+{
+  "channel": "teams",
+  "note": "Synthetic example. Names and node IDs are illustrative. Times only; no date was given.",
+  "participants": [
+    {
+      "name": "Anneli Koivisto",
+      "role": "NOC Engineer"
+    },
+    {
+      "name": "Tauno Hiltunen",
+      "role": "Field Engineer"
+    },
+    {
+      "name": "Olavi Rinne",
+      "role": "Power Specialist"
+    }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "18:20",
+      "author": "Anneli Koivisto",
+      "role": "NOC Engineer",
+      "text": "Tauno, the MW-77 radio link went down for about four minutes, twice this evening. No weather alarms, but an 'input voltage low' power alarm at the same moments. Can you check tomorrow morning?"
+    },
+    {
+      "seq": 2,
+      "time": "18:25",
+      "author": "Tauno Hiltunen",
+      "role": "Field Engineer",
+      "text": "Sure. Is it the long-haul hop or the access hop?"
+    },
+    {
+      "seq": 3,
+      "time": "18:26",
+      "author": "Anneli Koivisto",
+      "role": "NOC Engineer",
+      "text": "Long-haul hop towards the Salmijärvi tower."
+    },
+    {
+      "seq": 4,
+      "time": "08:40",
+      "author": "Tauno Hiltunen",
+      "role": "Field Engineer",
+      "text": "On site. The 48 V PSU output has a ripple on the scope, about 3 volts peak to peak. Looks like it is dying."
+    },
+    {
+      "seq": 5,
+      "time": "08:43",
+      "author": "Olavi Rinne",
+      "role": "Power Specialist",
+      "text": "Swap the PSU. But the mains at that site is weak, so keep an eye on it."
+    },
+    {
+      "seq": 6,
+      "time": "09:10",
+      "author": "Tauno Hiltunen",
+      "role": "Field Engineer",
+      "text": "PSU swapped. Output is clean and the link is up with good margin."
+    },
+    {
+      "seq": 7,
+      "time": "09:15",
+      "author": "Anneli Koivisto",
+      "role": "NOC Engineer",
+      "text": "The link is stable from our side, no alarms."
+    },
+    {
+      "seq": 8,
+      "time": "09:16",
+      "author": "Tauno Hiltunen",
+      "role": "Field Engineer",
+      "text": "It is minus 12 here, my fingers are frozen. Going to the petrol station for coffee."
+    },
+    {
+      "seq": 9,
+      "time": "09:20",
+      "author": "Olavi Rinne",
+      "role": "Power Specialist",
+      "text": "Log the old PSU as faulty please. And do not forget the safety refresher course next week."
+    }
+  ]
+}

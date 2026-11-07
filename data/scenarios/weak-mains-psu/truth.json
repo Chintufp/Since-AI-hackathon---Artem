@@ -1,0 +1,233 @@
+{
+  "familyId": "weak-mains-psu",
+  "entities": [
+    {
+      "name": "MW-77",
+      "type": "asset",
+      "attributes": {
+        "unit.installed_year": 2018,
+        "site.id": "MW-77"
+      }
+    },
+    {
+      "name": "MW-77 48V PSU",
+      "type": "component",
+      "attributes": {}
+    },
+    {
+      "name": "MW-77 battery string",
+      "type": "component",
+      "attributes": {
+        "unit.installed_year": 2018
+      }
+    }
+  ],
+  "incidents": [
+    {
+      "key": "A",
+      "title": "MW-77 evening link drops; PSU swapped",
+      "sourceIds": [
+        "teams:1",
+        "teams:2",
+        "teams:3",
+        "teams:4",
+        "teams:5",
+        "teams:6",
+        "teams:7"
+      ],
+      "realCause": "Weak mains with evening voltage sags and an aged battery string; the PSU was degraded but replacing it only helped for about three weeks.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "MW-77 long-haul radio link drops for about four minutes twice in the evening with input voltage low alarms",
+          "by": "person:directory:anneli-koivisto"
+        },
+        {
+          "type": "observation",
+          "statement": "The 48 V PSU at MW-77 shows about 3 volts peak to peak ripple",
+          "by": "person:directory:tauno-hiltunen"
+        },
+        {
+          "type": "advice",
+          "statement": "Swap the PSU and keep an eye on the weak mains at that site",
+          "by": "person:directory:olavi-rinne"
+        },
+        {
+          "type": "action",
+          "statement": "Tauno swapped the 48 V PSU at MW-77",
+          "by": "person:directory:tauno-hiltunen"
+        },
+        {
+          "type": "outcome",
+          "statement": "PSU output is clean and the MW-77 link is stable with no alarms after the swap",
+          "by": "person:directory:anneli-koivisto"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "component.replace.psu",
+          "by": "person:directory:tauno-hiltunen",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "recurred",
+        "reportedBy": "person:directory:anneli-koivisto"
+      },
+      "knowledge": {
+        "person:directory:tauno-hiltunen": {
+          "knows": [
+            "power.state",
+            "action.performed"
+          ],
+          "canObserve": []
+        },
+        "person:directory:anneli-koivisto": {
+          "knows": [
+            "alarms.state"
+          ],
+          "canObserve": [
+            "alarms.state",
+            "traffic.state",
+            "power.mains_sag"
+          ]
+        },
+        "person:directory:olavi-rinne": {
+          "knows": [
+            "power.mains_sag",
+            "reasoning behind the PSU advice"
+          ],
+          "canObserve": [
+            "power.mains_sag"
+          ]
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "field",
+        "power"
+      ]
+    },
+    {
+      "key": "B",
+      "title": "MW-77 drops again; mains sag and old battery string",
+      "sourceIds": [
+        "slack:1778620200.000100",
+        "slack:1778620800.000200",
+        "slack:1778668200.000300"
+      ],
+      "realCause": "Evening mains sags to 185 V when a nearby sawmill starts; the 2018 battery string cannot bridge them.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "MW-77 down again for six minutes with input voltage low three weeks after the PSU swap",
+          "by": "person:directory:anneli-koivisto"
+        },
+        {
+          "type": "hypothesis",
+          "statement": "Mains at MW-77 sags to 185 V in the evenings and the 2018 battery string cannot bridge it",
+          "by": "person:directory:olavi-rinne"
+        },
+        {
+          "type": "action",
+          "statement": "Tauno replaced the battery string at MW-77",
+          "by": "person:directory:tauno-hiltunen"
+        },
+        {
+          "type": "outcome",
+          "statement": "MW-77 link is fine after the battery string replacement",
+          "by": "person:directory:tauno-hiltunen"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "component.replace.battery",
+          "by": "person:directory:tauno-hiltunen",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "unknown",
+        "reportedBy": "person:directory:tauno-hiltunen"
+      },
+      "knowledge": {
+        "person:directory:tauno-hiltunen": {
+          "knows": [
+            "power.state",
+            "action.performed"
+          ],
+          "canObserve": []
+        },
+        "person:directory:anneli-koivisto": {
+          "knows": [
+            "alarms.state"
+          ],
+          "canObserve": [
+            "alarms.state",
+            "power.mains_sag"
+          ]
+        },
+        "person:directory:olavi-rinne": {
+          "knows": [
+            "power.mains_sag"
+          ],
+          "canObserve": [
+            "power.mains_sag"
+          ]
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "field",
+        "power"
+      ]
+    },
+    {
+      "key": "C",
+      "title": "MW-77 site access instructions",
+      "sourceIds": [
+        "email:<f07-access-mw77@kalevanet.example>"
+      ],
+      "realCause": "Not an incident: access facts kept in an email (gate key held by the forest owner, winter snowmobile route).",
+      "expectedClaims": [
+        {
+          "type": "access-fact",
+          "statement": "MW-77 forest road gate key is held by the forest owner who must be called 24 hours before a visit",
+          "by": "person:directory:maija-sundstrom"
+        },
+        {
+          "type": "access-fact",
+          "statement": "From 1 December to 30 April the road beyond the gate is not ploughed and the snowmobile at the Lampela cabin is used with cabin lockbox code 3290",
+          "by": "person:directory:maija-sundstrom"
+        },
+        {
+          "type": "access-fact",
+          "statement": "Outside winter the van can drive to the MW-77 site",
+          "by": "person:directory:maija-sundstrom"
+        }
+      ],
+      "attempts": [],
+      "outcome": {
+        "result": "unknown",
+        "lasting": "unknown"
+      },
+      "knowledge": {
+        "person:directory:maija-sundstrom": {
+          "knows": [
+            "site.access"
+          ],
+          "canObserve": [
+            "site.access"
+          ]
+        }
+      },
+      "accessGroups": [
+        "field",
+        "access"
+      ]
+    }
+  ],
+  "copies": []
+}

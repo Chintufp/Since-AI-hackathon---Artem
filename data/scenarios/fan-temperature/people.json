@@ -1,0 +1,74 @@
+{
+  "people": [
+    {
+      "id": "person:directory:vesa-hakala",
+      "name": "Vesa Hakala",
+      "role": "Field Engineer",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:teams:Vesa Hakala",
+        "person:slack:U401",
+        "person:email:vesa.hakala@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:leena-kuusisto",
+      "name": "Leena Kuusisto",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:teams:Leena Kuusisto",
+        "person:slack:U402",
+        "person:email:leena.kuusisto@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:raisa-turunen",
+      "name": "Raisa Turunen",
+      "role": "Hardware Specialist",
+      "groups": [
+        "field",
+        "transport"
+      ],
+      "actorIds": [
+        "person:teams:Raisa Turunen",
+        "person:slack:U403",
+        "person:email:raisa.turunen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:onni-jokinen",
+      "name": "Onni Jokinen",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:slack:U404",
+        "person:email:onni.jokinen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:kaarina-sirola",
+      "name": "Kaarina Sirola",
+      "role": "Operations Manager",
+      "groups": [
+        "noc",
+        "field"
+      ],
+      "actorIds": [
+        "person:slack:U405",
+        "person:email:kaarina.sirola@kalevanet.example"
+      ],
+      "available": true
+    }
+  ]
+}

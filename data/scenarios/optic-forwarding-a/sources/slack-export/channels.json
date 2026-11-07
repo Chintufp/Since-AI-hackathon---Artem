@@ -1,0 +1,23 @@
+[
+  {
+    "id": "C001OP",
+    "name": "noc-handover",
+    "is_private": false,
+    "members": [
+      "U103",
+      "U106",
+      "U102",
+      "U101"
+    ]
+  },
+  {
+    "id": "C002OP",
+    "name": "field-chat",
+    "is_private": false,
+    "members": [
+      "U104",
+      "U101",
+      "U105"
+    ]
+  }
+]

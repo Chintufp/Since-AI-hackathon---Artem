@@ -1,0 +1,86 @@
+{
+  "people": [
+    {
+      "id": "person:directory:joonas-kemppainen",
+      "name": "Joonas Kemppainen",
+      "role": "Field Engineer",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:teams:Joonas Kemppainen",
+        "person:slack:U901",
+        "person:email:joonas.kemppainen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:helena-ketola",
+      "name": "Helena Ketola",
+      "role": "Transport Expert",
+      "groups": [
+        "transport",
+        "noc"
+      ],
+      "actorIds": [
+        "person:teams:Helena Ketola",
+        "person:slack:U902",
+        "person:email:helena.ketola@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:ismo-vainio",
+      "name": "Ismo Vainio",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:teams:Ismo Vainio",
+        "person:slack:U903",
+        "person:email:ismo.vainio@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:jaana-peltonen",
+      "name": "Jaana Peltonen",
+      "role": "Field Team Lead",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:slack:U904",
+        "person:email:jaana.peltonen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:pentti-laitinen",
+      "name": "Pentti Laitinen",
+      "role": "Inventory Planner",
+      "groups": [
+        "planning"
+      ],
+      "actorIds": [
+        "person:slack:U905",
+        "person:email:pentti.laitinen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:tiina-aho",
+      "name": "Tiina Aho",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:slack:U906",
+        "person:email:tiina.aho@kalevanet.example"
+      ],
+      "available": true
+    }
+  ]
+}

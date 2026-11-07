@@ -1,0 +1,90 @@
+{
+  "channel": "teams",
+  "note": "Synthetic example. Names and node IDs are illustrative. Times only; no date was given.",
+  "participants": [
+    {
+      "name": "Marja Niemi",
+      "role": "NOC Engineer"
+    },
+    {
+      "name": "Ilmari Karjalainen",
+      "role": "Field Engineer"
+    },
+    {
+      "name": "Risto Peltola",
+      "role": "Power Specialist"
+    }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "14:02",
+      "author": "Marja Niemi",
+      "role": "NOC Engineer",
+      "text": "Ilmari, RBS-310 keeps dropping off and coming back, roughly every 40 minutes since noon. DC low alarms in between. You are the closest, can you go?"
+    },
+    {
+      "seq": 2,
+      "time": "14:05",
+      "author": "Ilmari Karjalainen",
+      "role": "Field Engineer",
+      "text": "I'm 30 minutes away. Is it the same cabinet type as RBS-301?"
+    },
+    {
+      "seq": 3,
+      "time": "14:06",
+      "author": "Marja Niemi",
+      "role": "NOC Engineer",
+      "text": "Yes, same cabinet type, installed 2016."
+    },
+    {
+      "seq": 4,
+      "time": "15:10",
+      "author": "Ilmari Karjalainen",
+      "role": "Field Engineer",
+      "text": "On site. Rectifier module 2 is warm and its fan is loud. DC voltage swings between 46 and 53 volts."
+    },
+    {
+      "seq": 5,
+      "time": "15:12",
+      "author": "Risto Peltola",
+      "role": "Power Specialist",
+      "text": "Sounds like module 2 is failing. Swap it, there are spares in the depot box. Pirkko was out at that cabinet in the spring, I think, so she may have noted something."
+    },
+    {
+      "seq": 6,
+      "time": "15:40",
+      "author": "Ilmari Karjalainen",
+      "role": "Field Engineer",
+      "text": "Swapped module 2. Voltage is steady at 53.4 volts now, no resets for 25 minutes."
+    },
+    {
+      "seq": 7,
+      "time": "15:42",
+      "author": "Marja Niemi",
+      "role": "NOC Engineer",
+      "text": "Confirmed from the NOC side, the site has been stable since 15:38."
+    },
+    {
+      "seq": 8,
+      "time": "15:45",
+      "author": "Risto Peltola",
+      "role": "Power Specialist",
+      "text": "Good. Keep the old module for inspection please."
+    },
+    {
+      "seq": 9,
+      "time": "15:46",
+      "author": "Ilmari Karjalainen",
+      "role": "Field Engineer",
+      "text": "Will do. Did you hear the canteen is switching to the new lunch menu tomorrow?"
+    },
+    {
+      "seq": 10,
+      "time": "15:47",
+      "author": "Marja Niemi",
+      "role": "NOC Engineer",
+      "text": "Ha, no. Thanks Ilmari."
+    }
+  ]
+}

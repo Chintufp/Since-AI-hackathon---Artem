@@ -1,0 +1,90 @@
+{
+  "channel": "teams",
+  "note": "Synthetic example. Names and node IDs are illustrative. Times only; no date was given.",
+  "participants": [
+    {
+      "name": "Anssi Heikura",
+      "role": "NOC Engineer"
+    },
+    {
+      "name": "Ville Laakso",
+      "role": "Core Network Engineer"
+    },
+    {
+      "name": "Pasi Tuomi",
+      "role": "Network Engineer"
+    }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "14:08",
+      "author": "Anssi Heikura",
+      "role": "NOC Engineer",
+      "text": "Ville, PE-05 BGP sessions to both upstreams are flapping since the 11.2 firmware upgrade at 13:50. The line card ports are logging link flaps too."
+    },
+    {
+      "seq": 2,
+      "time": "14:10",
+      "author": "Ville Laakso",
+      "role": "Core Network Engineer",
+      "text": "Which line card is it? Check the revision."
+    },
+    {
+      "seq": 3,
+      "time": "14:12",
+      "author": "Anssi Heikura",
+      "role": "NOC Engineer",
+      "text": "LC-2, installed 2020."
+    },
+    {
+      "seq": 4,
+      "time": "14:15",
+      "author": "Ville Laakso",
+      "role": "Core Network Engineer",
+      "text": "That matches the vendor note for 11.2 on LC-2: port flaps until patch 11.2.1 is installed. Pasi, can you put the patch on PE-05? It needs no reload."
+    },
+    {
+      "seq": 5,
+      "time": "14:16",
+      "author": "Pasi Tuomi",
+      "role": "Network Engineer",
+      "text": "On it."
+    },
+    {
+      "seq": 6,
+      "time": "14:20",
+      "author": "Anssi Heikura",
+      "role": "NOC Engineer",
+      "text": "Did you see the football last night? That last minute goal was unreal."
+    },
+    {
+      "seq": 7,
+      "time": "14:31",
+      "author": "Pasi Tuomi",
+      "role": "Network Engineer",
+      "text": "Patch 11.2.1 installed on PE-05."
+    },
+    {
+      "seq": 8,
+      "time": "14:50",
+      "author": "Anssi Heikura",
+      "role": "NOC Engineer",
+      "text": "Sessions have been up for 15 minutes, no port flaps."
+    },
+    {
+      "seq": 9,
+      "time": "16:05",
+      "author": "Pasi Tuomi",
+      "role": "Network Engineer",
+      "text": "Two hours now and still clean."
+    },
+    {
+      "seq": 10,
+      "time": "16:06",
+      "author": "Ville Laakso",
+      "role": "Core Network Engineer",
+      "text": "Good. I will write it up."
+    }
+  ]
+}

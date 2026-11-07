@@ -1,0 +1,56 @@
+[
+  {
+    "id": "U1001",
+    "name": "kalevi-heino",
+    "real_name": "Kalevi Heino",
+    "profile": {
+      "title": "NOC Engineer",
+      "email": "kalevi.heino@kalevanet.example"
+    }
+  },
+  {
+    "id": "U1002",
+    "name": "antero-lahtinen",
+    "real_name": "Antero Lahtinen",
+    "profile": {
+      "title": "Transport Engineer",
+      "email": "antero.lahtinen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U1003",
+    "name": "heikki-moilanen",
+    "real_name": "Heikki Moilanen",
+    "profile": {
+      "title": "Operations Team Lead",
+      "email": "heikki.moilanen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U1004",
+    "name": "pirjo-salonen",
+    "real_name": "Pirjo Salonen",
+    "profile": {
+      "title": "Field Engineer",
+      "email": "pirjo.salonen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U1005",
+    "name": "sari-kivela",
+    "real_name": "Sari Kivelä",
+    "profile": {
+      "title": "Property Liaison",
+      "email": "sari.kivela@kalevanet.example"
+    }
+  },
+  {
+    "id": "U1006",
+    "name": "lea-aalto",
+    "real_name": "Lea Aalto",
+    "profile": {
+      "title": "Field Engineer",
+      "email": "lea.aalto@kalevanet.example"
+    }
+  }
+]

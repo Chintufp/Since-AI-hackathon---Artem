@@ -1,0 +1,12 @@
+From: Kimmo Rautio <kimmo.rautio@kalevanet.example>
+To: Henrik Sjöberg <henrik.sjoberg@kalevanet.example>
+Cc: Aila Nurmi <aila.nurmi@kalevanet.example>
+Date: Tue, 09 Jun 2026 12:20:00 +0300
+Subject: HUB-07 CRC errors: cause found
+Message-ID: <f06-hub07-cause@kalevanet.example>
+
+Hi Henrik,
+
+Back at HUB-07 this morning. When I closed the cabinet door the patch cord was pinched by the door edge. That only happens with the door fully shut, which is why it looked fine with the door open yesterday. I replaced the patch cord and rerouted it away from the hinge side. Aila sees no CRC errors since 11:00.
+
+Kimmo

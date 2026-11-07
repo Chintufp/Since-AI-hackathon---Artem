@@ -1,0 +1,36 @@
+[
+  {
+    "type": "message",
+    "user": "U305",
+    "text": "AGG-031 BGP to the east peer is flapping since the 9.4.2 upgrade last night. Same as AGG-014 in May?",
+    "ts": "1781773800.000100",
+    "thread_ts": "1781773800.000100"
+  },
+  {
+    "type": "message",
+    "user": "U303",
+    "text": "No config bundle went to AGG-031, only the firmware. The timers are untouched. CRC errors are climbing on the east link though.",
+    "ts": "1781774040.000200",
+    "thread_ts": "1781773800.000100"
+  },
+  {
+    "type": "message",
+    "user": "U302",
+    "text": "Confirmed, CRC errors are high on the east link port, about 2100 in the last hour.",
+    "ts": "1781774400.000300",
+    "thread_ts": "1781773800.000100"
+  },
+  {
+    "type": "message",
+    "user": "U303",
+    "text": "Replaced the optic on the east link. The session is steady now.",
+    "ts": "1781783100.000400",
+    "thread_ts": "1781773800.000100"
+  },
+  {
+    "type": "message",
+    "user": "U306",
+    "text": "Vendor webinar on the 9.5 release is on Tuesday, the link is in the wiki.",
+    "ts": "1781784000.000500"
+  }
+]

@@ -1,0 +1,13 @@
+From: Helmi Virtanen <helmi.virtanen@kalevanet.example>
+To: Tapio Lehto <tapio.lehto@kalevanet.example>
+Cc: Outi Heino <outi.heino@kalevanet.example>
+Subject: Handover: TRN-117 after SFP replacement
+Message-ID: <f01-handover-117@kalevanet.example>
+
+Hi Tapio,
+
+For the handover: Aarne replaced the SFP at TRN-117. Link was up and alarms cleared, but counters stayed at zero. That is the behaviour we have seen on older units, so an interface reset on both ends was done and traffic is passing again according to Aarne.
+
+Nothing else open on this one as far as I know.
+
+Helmi

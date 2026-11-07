@@ -1,0 +1,86 @@
+{
+  "people": [
+    {
+      "id": "person:directory:lauri-ahonen",
+      "name": "Lauri Ahonen",
+      "role": "Core Network Engineer",
+      "groups": [
+        "core"
+      ],
+      "actorIds": [
+        "person:teams:Lauri Ahonen",
+        "person:slack:U301",
+        "person:email:lauri.ahonen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:hanna-kallio",
+      "name": "Hanna Kallio",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:teams:Hanna Kallio",
+        "person:slack:U302",
+        "person:email:hanna.kallio@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:toivo-aaltonen",
+      "name": "Toivo Aaltonen",
+      "role": "Network Engineer",
+      "groups": [
+        "core"
+      ],
+      "actorIds": [
+        "person:teams:Toivo Aaltonen",
+        "person:slack:U303",
+        "person:email:toivo.aaltonen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:sanna-ojala",
+      "name": "Sanna Ojala",
+      "role": "Core Team Lead",
+      "groups": [
+        "core",
+        "noc"
+      ],
+      "actorIds": [
+        "person:slack:U304",
+        "person:email:sanna.ojala@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:aino-hirvonen",
+      "name": "Aino Hirvonen",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:slack:U305",
+        "person:email:aino.hirvonen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:kalle-mustonen",
+      "name": "Kalle Mustonen",
+      "role": "Vendor Liaison",
+      "groups": [
+        "core"
+      ],
+      "actorIds": [
+        "person:slack:U306",
+        "person:email:kalle.mustonen@kalevanet.example"
+      ],
+      "available": true
+    }
+  ]
+}

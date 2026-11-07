@@ -1,0 +1,42 @@
+[
+  {
+    "type": "message",
+    "user": "U404",
+    "text": "High temperature alarm on OLT-210 again, inlet 58.",
+    "ts": "1779430200.000100",
+    "thread_ts": "1779430200.000100"
+  },
+  {
+    "type": "message",
+    "user": "U402",
+    "text": "I see it too, OLT-210 temperature alarm. Ticket raised.",
+    "ts": "1779430380.000200"
+  },
+  {
+    "type": "message",
+    "user": "U403",
+    "text": "The filter was swapped on Tuesday so that is not it. Vesa, check fan tray 2, I suspect it stalls when warm.",
+    "ts": "1779433200.000300",
+    "thread_ts": "1779430200.000100"
+  },
+  {
+    "type": "message",
+    "user": "U401",
+    "text": "Fan tray 2 is stalling intermittently, confirmed. Replaced the tray. Inlet is down to 44.",
+    "ts": "1779441600.000400",
+    "thread_ts": "1779430200.000100"
+  },
+  {
+    "type": "message",
+    "user": "U401",
+    "text": "Still good at lunchtime, 43.",
+    "ts": "1779453000.000500",
+    "thread_ts": "1779430200.000100"
+  },
+  {
+    "type": "message",
+    "user": "U405",
+    "text": "The midsummer rota is up in the shared folder, please add your wishes by Friday.",
+    "ts": "1779454800.000600"
+  }
+]

@@ -1,0 +1,25 @@
+[
+  {
+    "id": "C001BG",
+    "name": "noc-alerts",
+    "is_private": false,
+    "members": [
+      "U806",
+      "U805",
+      "U801",
+      "U802",
+      "U803",
+      "U804"
+    ]
+  },
+  {
+    "id": "C002BG",
+    "name": "core-private",
+    "is_private": true,
+    "members": [
+      "U801",
+      "U802",
+      "U803"
+    ]
+  }
+]

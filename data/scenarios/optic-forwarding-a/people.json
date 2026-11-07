@@ -1,0 +1,85 @@
+{
+  "people": [
+    {
+      "id": "person:directory:aarne-koskela",
+      "name": "Aarne Koskela",
+      "role": "Field Engineer",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:teams:Aarne Koskela",
+        "person:slack:U101",
+        "person:email:aarne.koskela@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:helmi-virtanen",
+      "name": "Helmi Virtanen",
+      "role": "Network Expert",
+      "groups": [
+        "transport",
+        "noc"
+      ],
+      "actorIds": [
+        "person:teams:Helmi Virtanen",
+        "person:slack:U102",
+        "person:email:helmi.virtanen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:tapio-lehto",
+      "name": "Tapio Lehto",
+      "role": "NOC Engineer",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:slack:U103",
+        "person:email:tapio.lehto@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:liisa-makela",
+      "name": "Liisa Mäkelä",
+      "role": "Field Engineer",
+      "groups": [
+        "field"
+      ],
+      "actorIds": [
+        "person:slack:U104",
+        "person:email:liisa.makela@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:jussi-rantanen",
+      "name": "Jussi Rantanen",
+      "role": "Planning Engineer",
+      "groups": [
+        "planning"
+      ],
+      "actorIds": [
+        "person:slack:U105",
+        "person:email:jussi.rantanen@kalevanet.example"
+      ],
+      "available": true
+    },
+    {
+      "id": "person:directory:outi-heino",
+      "name": "Outi Heino",
+      "role": "NOC Team Lead",
+      "groups": [
+        "noc"
+      ],
+      "actorIds": [
+        "person:slack:U106",
+        "person:email:outi.heino@kalevanet.example"
+      ],
+      "available": true
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "channel": "teams",
+  "note": "Synthetic example. Names and node IDs are illustrative. Times only; no date was given.",
+  "participants": [
+    {
+      "name": "Hanna Kallio",
+      "role": "NOC Engineer"
+    },
+    {
+      "name": "Lauri Ahonen",
+      "role": "Core Network Engineer"
+    },
+    {
+      "name": "Toivo Aaltonen",
+      "role": "Network Engineer"
+    }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "10:05",
+      "author": "Hanna Kallio",
+      "role": "NOC Engineer",
+      "text": "Lauri, AGG-014 has two BGP peers flapping, up for about five minutes and then down again. It started right after the firmware upgrade at 09:40."
+    },
+    {
+      "seq": 2,
+      "time": "10:07",
+      "author": "Lauri Ahonen",
+      "role": "Core Network Engineer",
+      "text": "Which version did it go to?"
+    },
+    {
+      "seq": 3,
+      "time": "10:08",
+      "author": "Hanna Kallio",
+      "role": "NOC Engineer",
+      "text": "9.4.2. It was 9.3.7 before."
+    },
+    {
+      "seq": 4,
+      "time": "10:10",
+      "author": "Lauri Ahonen",
+      "role": "Core Network Engineer",
+      "text": "Did the upgrade bundle include a config change as well?"
+    },
+    {
+      "seq": 5,
+      "time": "10:11",
+      "author": "Hanna Kallio",
+      "role": "NOC Engineer",
+      "text": "Yes, the bundle carried new hold timers, 30 seconds instead of the old 90."
+    },
+    {
+      "seq": 6,
+      "time": "10:14",
+      "author": "Lauri Ahonen",
+      "role": "Core Network Engineer",
+      "text": "That is probably it. The peers behind the long-haul link need 90. Roll back the timer part of the config and leave the firmware as it is."
+    },
+    {
+      "seq": 7,
+      "time": "10:16",
+      "author": "Toivo Aaltonen",
+      "role": "Network Engineer",
+      "text": "Rolling back the hold timers on AGG-014 now."
+    },
+    {
+      "seq": 8,
+      "time": "10:19",
+      "author": "Toivo Aaltonen",
+      "role": "Network Engineer",
+      "text": "Done. Both sessions are up."
+    },
+    {
+      "seq": 9,
+      "time": "10:30",
+      "author": "Hanna Kallio",
+      "role": "NOC Engineer",
+      "text": "Still up after ten minutes, no flaps and the counters look clean."
+    },
+    {
+      "seq": 10,
+      "time": "10:31",
+      "author": "Lauri Ahonen",
+      "role": "Core Network Engineer",
+      "text": "Good. I will tell the vendor that the default changed."
+    },
+    {
+      "seq": 11,
+      "time": "10:33",
+      "author": "Toivo Aaltonen",
+      "role": "Network Engineer",
+      "text": "By the way, has anyone seen my phone charger? I think I left it in meeting room 3."
+    }
+  ]
+}

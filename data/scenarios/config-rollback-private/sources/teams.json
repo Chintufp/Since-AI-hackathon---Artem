@@ -1,0 +1,86 @@
+{
+  "channel": "teams",
+  "note": "Synthetic example. Names and node IDs are illustrative. Times only; no date was given.",
+  "participants": [
+    {
+      "name": "Antti Korhonen",
+      "role": "NOC Engineer"
+    },
+    {
+      "name": "Jarmo Heikkinen",
+      "role": "Access Network Engineer"
+    }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "13:02",
+      "author": "Antti Korhonen",
+      "role": "NOC Engineer",
+      "text": "Jarmo, voice VLAN 210 dropped on ACC-12 about ten minutes after the template v7 push. Phones on floor 3 are offline. The data VLAN is fine."
+    },
+    {
+      "seq": 2,
+      "time": "13:04",
+      "author": "Jarmo Heikkinen",
+      "role": "Access Network Engineer",
+      "text": "Which switch model is ACC-12?"
+    },
+    {
+      "seq": 3,
+      "time": "13:05",
+      "author": "Antti Korhonen",
+      "role": "NOC Engineer",
+      "text": "The old one, N3, installed 2019."
+    },
+    {
+      "seq": 4,
+      "time": "13:08",
+      "author": "Jarmo Heikkinen",
+      "role": "Access Network Engineer",
+      "text": "v7 changed the voice VLAN range. Tuula approved the change last week so it was meant to be safe, but let's roll ACC-12 back to the v6 template."
+    },
+    {
+      "seq": 5,
+      "time": "13:09",
+      "author": "Antti Korhonen",
+      "role": "NOC Engineer",
+      "text": "Do I do it or do you?"
+    },
+    {
+      "seq": 6,
+      "time": "13:10",
+      "author": "Jarmo Heikkinen",
+      "role": "Access Network Engineer",
+      "text": "I'll do it from the controller, give me five minutes."
+    },
+    {
+      "seq": 7,
+      "time": "13:17",
+      "author": "Jarmo Heikkinen",
+      "role": "Access Network Engineer",
+      "text": "Rolled back to v6 and saved it to the startup config. VLAN 210 is back on all ports."
+    },
+    {
+      "seq": 8,
+      "time": "13:20",
+      "author": "Antti Korhonen",
+      "role": "NOC Engineer",
+      "text": "Phones are registering again, confirmed on floor 3."
+    },
+    {
+      "seq": 9,
+      "time": "13:21",
+      "author": "Antti Korhonen",
+      "role": "NOC Engineer",
+      "text": "Did you see the email about the sauna evening? It is on again."
+    },
+    {
+      "seq": 10,
+      "time": "13:22",
+      "author": "Jarmo Heikkinen",
+      "role": "Access Network Engineer",
+      "text": "Ha, yes. I will write the change note."
+    }
+  ]
+}

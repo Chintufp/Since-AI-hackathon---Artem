@@ -1,0 +1,56 @@
+[
+  {
+    "id": "U101",
+    "name": "aarne-koskela",
+    "real_name": "Aarne Koskela",
+    "profile": {
+      "title": "Field Engineer",
+      "email": "aarne.koskela@kalevanet.example"
+    }
+  },
+  {
+    "id": "U102",
+    "name": "helmi-virtanen",
+    "real_name": "Helmi Virtanen",
+    "profile": {
+      "title": "Network Expert",
+      "email": "helmi.virtanen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U103",
+    "name": "tapio-lehto",
+    "real_name": "Tapio Lehto",
+    "profile": {
+      "title": "NOC Engineer",
+      "email": "tapio.lehto@kalevanet.example"
+    }
+  },
+  {
+    "id": "U104",
+    "name": "liisa-makela",
+    "real_name": "Liisa Mäkelä",
+    "profile": {
+      "title": "Field Engineer",
+      "email": "liisa.makela@kalevanet.example"
+    }
+  },
+  {
+    "id": "U105",
+    "name": "jussi-rantanen",
+    "real_name": "Jussi Rantanen",
+    "profile": {
+      "title": "Planning Engineer",
+      "email": "jussi.rantanen@kalevanet.example"
+    }
+  },
+  {
+    "id": "U106",
+    "name": "outi-heino",
+    "real_name": "Outi Heino",
+    "profile": {
+      "title": "NOC Team Lead",
+      "email": "outi.heino@kalevanet.example"
+    }
+  }
+]

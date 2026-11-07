@@ -1,0 +1,229 @@
+{
+  "familyId": "transponder-laser",
+  "entities": [
+    {
+      "name": "XC-318",
+      "type": "asset",
+      "attributes": {
+        "unit.model": "XC-4",
+        "unit.installed_year": 2021,
+        "unit.revision": "C"
+      }
+    },
+    {
+      "name": "XC-122",
+      "type": "asset",
+      "attributes": {
+        "unit.model": "XC-2",
+        "unit.installed_year": 2018
+      }
+    },
+    {
+      "name": "XC-325",
+      "type": "asset",
+      "attributes": {
+        "unit.model": "XC-4",
+        "unit.installed_year": 2021,
+        "unit.revision": "C"
+      }
+    }
+  ],
+  "incidents": [
+    {
+      "key": "A",
+      "title": "XC-318 far-end LOS after QSFP replacement; line card power cycle advised",
+      "sourceIds": [
+        "teams:1",
+        "teams:2",
+        "teams:3",
+        "teams:4",
+        "teams:5",
+        "teams:6",
+        "teams:7",
+        "teams:9",
+        "teams:10",
+        "slack:1789470480.000100",
+        "slack:1789470540.000200"
+      ],
+      "realCause": "On XC-4 revision C line cards the transmit laser stays disabled after a hot swap until the card is power cycled.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "After the QSFP replacement the XC-318 port is up locally but the far end still shows LOS and there is no traffic",
+          "by": "person:directory:joonas-kemppainen"
+        },
+        {
+          "type": "condition",
+          "statement": "XC-318 line card is an XC-4 revision C installed in 2021",
+          "by": "person:directory:joonas-kemppainen"
+        },
+        {
+          "type": "hypothesis",
+          "statement": "On XC-4 revision C cards the transmit laser stays disabled after a hot swap until the card is power cycled",
+          "by": "person:directory:helena-ketola"
+        },
+        {
+          "type": "advice",
+          "statement": "Power cycle only the line card from the controller and not the whole shelf",
+          "by": "person:directory:helena-ketola"
+        },
+        {
+          "type": "action",
+          "statement": "Joonas power cycled card 3 on XC-318",
+          "by": "person:directory:joonas-kemppainen"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "sfp.replace",
+          "by": "person:directory:joonas-kemppainen",
+          "performed": true
+        },
+        {
+          "action": "power.cycle",
+          "by": "person:directory:joonas-kemppainen",
+          "performed": true
+        },
+        {
+          "action": "power.cycle.shelf",
+          "by": "person:directory:joonas-kemppainen",
+          "performed": false
+        }
+      ],
+      "outcome": {
+        "result": "unknown",
+        "lasting": "unknown"
+      },
+      "knowledge": {
+        "person:directory:joonas-kemppainen": {
+          "knows": [
+            "traffic.state",
+            "unit.revision",
+            "action.performed"
+          ],
+          "canObserve": []
+        },
+        "person:directory:helena-ketola": {
+          "knows": [
+            "reasoning behind the power cycle advice",
+            "power.scope"
+          ],
+          "canObserve": [
+            "traffic.state"
+          ]
+        },
+        "person:directory:ismo-vainio": {
+          "knows": [],
+          "canObserve": [
+            "traffic.state",
+            "alarms.state"
+          ]
+        },
+        "person:directory:tiina-aho": {
+          "knows": [],
+          "canObserve": [
+            "traffic.state",
+            "alarms.state"
+          ]
+        },
+        "person:directory:pentti-laitinen": {
+          "knows": [
+            "unit.revision",
+            "unit.installed_year"
+          ],
+          "canObserve": [
+            "unit.revision",
+            "unit.installed_year"
+          ]
+        },
+        "person:directory:jaana-peltonen": {
+          "knows": [],
+          "canObserve": []
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "field",
+        "transport",
+        "planning"
+      ]
+    },
+    {
+      "key": "B",
+      "title": "XC-122 (XC-2) no traffic after optic replacement; line card reseat",
+      "sourceIds": [
+        "email:<f09-xc2-reseat@kalevanet.example>"
+      ],
+      "realCause": "XC-2 family: line card needed a reseat after the optic swap. A different mechanism from the XC-4 laser state.",
+      "expectedClaims": [
+        {
+          "type": "condition",
+          "statement": "XC-122 is an XC-2 node installed in 2018",
+          "by": "person:directory:jaana-peltonen"
+        },
+        {
+          "type": "observation",
+          "statement": "After the optic replacement XC-122 had no traffic",
+          "by": "person:directory:jaana-peltonen"
+        },
+        {
+          "type": "action",
+          "statement": "The line card on XC-122 was reseated",
+          "by": "person:directory:jaana-peltonen"
+        },
+        {
+          "type": "outcome",
+          "statement": "Traffic came back straight away and XC-122 has been stable for three months",
+          "by": "person:directory:jaana-peltonen"
+        },
+        {
+          "type": "observation",
+          "statement": "XC-2 units never needed a power cycle",
+          "by": "person:directory:jaana-peltonen"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "sfp.replace",
+          "by": "person:directory:jaana-peltonen",
+          "performed": true
+        },
+        {
+          "action": "card.reseat",
+          "by": "person:directory:jaana-peltonen",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "confirmed",
+        "reportedBy": "person:directory:jaana-peltonen"
+      },
+      "knowledge": {
+        "person:directory:jaana-peltonen": {
+          "knows": [
+            "traffic.state",
+            "unit.model",
+            "action.performed"
+          ],
+          "canObserve": []
+        },
+        "person:directory:helena-ketola": {
+          "knows": [
+            "power.scope"
+          ],
+          "canObserve": [
+            "traffic.state"
+          ]
+        }
+      },
+      "accessGroups": [
+        "field",
+        "transport",
+        "noc",
+        "planning"
+      ]
+    }
+  ],
+  "copies": []
+}

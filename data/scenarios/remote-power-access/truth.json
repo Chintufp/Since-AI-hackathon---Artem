@@ -1,0 +1,258 @@
+{
+  "familyId": "remote-power-access",
+  "entities": [
+    {
+      "name": "RBS-310",
+      "type": "site",
+      "attributes": {
+        "site.id": "RBS-310",
+        "unit.installed_year": 2016
+      }
+    },
+    {
+      "name": "RBS-310 rectifier module 2",
+      "type": "component",
+      "attributes": {}
+    },
+    {
+      "name": "RBS-310 DC distribution breaker",
+      "type": "component",
+      "attributes": {}
+    }
+  ],
+  "incidents": [
+    {
+      "key": "A",
+      "title": "RBS-310 resets with DC low alarms; rectifier module swapped",
+      "sourceIds": [
+        "teams:1",
+        "teams:2",
+        "teams:3",
+        "teams:4",
+        "teams:5",
+        "teams:6",
+        "teams:7",
+        "teams:8"
+      ],
+      "realCause": "Loose DC distribution breaker terminal; the rectifier swap disturbed the terminals and restored contact only temporarily.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "RBS-310 drops off and returns about every 40 minutes with DC low alarms",
+          "by": "person:directory:marja-niemi"
+        },
+        {
+          "type": "observation",
+          "statement": "Rectifier module 2 at RBS-310 is warm with a loud fan and DC voltage swings between 46 and 53 volts",
+          "by": "person:directory:ilmari-karjalainen"
+        },
+        {
+          "type": "condition",
+          "statement": "RBS-310 cabinet was installed in 2016",
+          "by": "person:directory:marja-niemi"
+        },
+        {
+          "type": "hypothesis",
+          "statement": "Rectifier module 2 is failing",
+          "by": "person:directory:risto-peltola"
+        },
+        {
+          "type": "advice",
+          "statement": "Swap rectifier module 2 using the spare from the depot box",
+          "by": "person:directory:risto-peltola"
+        },
+        {
+          "type": "action",
+          "statement": "Ilmari swapped rectifier module 2 at RBS-310",
+          "by": "person:directory:ilmari-karjalainen"
+        },
+        {
+          "type": "outcome",
+          "statement": "Voltage steady at 53.4 volts and no resets for 25 minutes after the swap",
+          "by": "person:directory:ilmari-karjalainen"
+        },
+        {
+          "type": "outcome",
+          "statement": "NOC confirms RBS-310 stable since 15:38",
+          "by": "person:directory:marja-niemi"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "component.replace.rectifier",
+          "by": "person:directory:ilmari-karjalainen",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "recurred",
+        "reportedBy": "person:directory:ilmari-karjalainen"
+      },
+      "knowledge": {
+        "person:directory:ilmari-karjalainen": {
+          "knows": [
+            "power.state",
+            "power.breaker_inspected_at_first_visit",
+            "action.performed"
+          ],
+          "canObserve": []
+        },
+        "person:directory:marja-niemi": {
+          "knows": [
+            "alarms.state"
+          ],
+          "canObserve": [
+            "alarms.state",
+            "traffic.state"
+          ]
+        },
+        "person:directory:risto-peltola": {
+          "knows": [
+            "reasoning behind the swap advice"
+          ],
+          "canObserve": []
+        },
+        "person:directory:pirkko-laine": {
+          "knows": [],
+          "canObserve": []
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "field",
+        "power"
+      ]
+    },
+    {
+      "key": "B",
+      "title": "RBS-310 flaps again; loose breaker terminal found",
+      "sourceIds": [
+        "slack:1775117520.000100",
+        "slack:1775118000.000200",
+        "slack:1775129400.000300",
+        "slack:1775138400.000400"
+      ],
+      "realCause": "Loose DC distribution breaker terminal with burn marks.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "RBS-310 flaps again with the same DC low alarms after the rectifier swap",
+          "by": "person:directory:marja-niemi"
+        },
+        {
+          "type": "advice",
+          "statement": "Check breaker terminals and DC bus bars before swapping anything else",
+          "by": "person:directory:risto-peltola"
+        },
+        {
+          "type": "observation",
+          "statement": "DC distribution breaker terminal at RBS-310 was loose with burn marks",
+          "by": "person:directory:ilmari-karjalainen"
+        },
+        {
+          "type": "action",
+          "statement": "Ilmari tightened the breaker terminal and replaced the lug",
+          "by": "person:directory:ilmari-karjalainen"
+        },
+        {
+          "type": "outcome",
+          "statement": "Voltage steady and no resets since 11:25 after the terminal repair",
+          "by": "person:directory:ilmari-karjalainen"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "component.replace.lug",
+          "by": "person:directory:ilmari-karjalainen",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "unknown",
+        "reportedBy": "person:directory:ilmari-karjalainen"
+      },
+      "knowledge": {
+        "person:directory:ilmari-karjalainen": {
+          "knows": [
+            "power.state",
+            "power.breaker_inspected_at_first_visit",
+            "action.performed"
+          ],
+          "canObserve": []
+        },
+        "person:directory:marja-niemi": {
+          "knows": [
+            "alarms.state"
+          ],
+          "canObserve": [
+            "alarms.state",
+            "traffic.state"
+          ]
+        },
+        "person:directory:risto-peltola": {
+          "knows": [
+            "reasoning behind the terminal check"
+          ],
+          "canObserve": []
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "field",
+        "power"
+      ]
+    },
+    {
+      "key": "C",
+      "title": "RBS-310 site access instructions",
+      "sourceIds": [
+        "email:<f02-access-310@kalevanet.example>"
+      ],
+      "realCause": "Not an incident: access facts kept only in an email (barrier code changes every October).",
+      "expectedClaims": [
+        {
+          "type": "access-fact",
+          "statement": "RBS-310 road barrier code is 5802 and the landlord changes it every October",
+          "by": "person:directory:eino-salo"
+        },
+        {
+          "type": "access-fact",
+          "statement": "RBS-310 cabinet key is in the lockbox on the left gatepost with lockbox code 1946",
+          "by": "person:directory:eino-salo"
+        },
+        {
+          "type": "access-fact",
+          "statement": "If the RBS-310 barrier is jammed call the landlord caretaker and do not drive around it",
+          "by": "person:directory:eino-salo"
+        }
+      ],
+      "attempts": [],
+      "outcome": {
+        "result": "unknown",
+        "lasting": "unknown"
+      },
+      "knowledge": {
+        "person:directory:eino-salo": {
+          "knows": [
+            "site.access",
+            "site.access_code_current"
+          ],
+          "canObserve": [
+            "site.access_code_current"
+          ]
+        },
+        "person:directory:pirkko-laine": {
+          "knows": [],
+          "canObserve": []
+        }
+      },
+      "accessGroups": [
+        "field",
+        "access"
+      ]
+    }
+  ],
+  "copies": []
+}

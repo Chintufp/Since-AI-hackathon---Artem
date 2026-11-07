@@ -1,0 +1,25 @@
+[
+  {
+    "id": "C001CO",
+    "name": "change-review",
+    "is_private": true,
+    "members": [
+      "U502",
+      "U504",
+      "U501",
+      "U503"
+    ]
+  },
+  {
+    "id": "C002CO",
+    "name": "noc-general",
+    "is_private": false,
+    "members": [
+      "U505",
+      "U503",
+      "U501",
+      "U502",
+      "U504"
+    ]
+  }
+]

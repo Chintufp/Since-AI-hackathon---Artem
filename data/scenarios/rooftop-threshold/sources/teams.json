@@ -1,0 +1,83 @@
+{
+  "channel": "teams",
+  "note": "Synthetic example. Names and node IDs are illustrative. Times only; no date was given.",
+  "participants": [
+    {
+      "name": "Kalevi Heino",
+      "role": "NOC Engineer"
+    },
+    {
+      "name": "Antero Lahtinen",
+      "role": "Transport Engineer"
+    },
+    {
+      "name": "Heikki Moilanen",
+      "role": "Operations Team Lead"
+    }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "14:02",
+      "author": "Kalevi Heino",
+      "role": "NOC Engineer",
+      "text": "Antero, ROOF-14 has a high temperature alarm. The cabinet reads 41 degrees and it is 29 outside. Should I send someone up on the roof?"
+    },
+    {
+      "seq": 2,
+      "time": "14:05",
+      "author": "Antero Lahtinen",
+      "role": "Transport Engineer",
+      "text": "41 is fine for that cabinet, the spec goes up to 55. Which firmware does it run?"
+    },
+    {
+      "seq": 3,
+      "time": "14:06",
+      "author": "Kalevi Heino",
+      "role": "NOC Engineer",
+      "text": "5.1.0, upgraded last Tuesday."
+    },
+    {
+      "seq": 4,
+      "time": "14:09",
+      "author": "Antero Lahtinen",
+      "role": "Transport Engineer",
+      "text": "That explains it. The 5.1.0 config bundle lowered the temperature alarm threshold to 40 degrees. Raise it back to 55 remotely, no visit needed."
+    },
+    {
+      "seq": 5,
+      "time": "14:10",
+      "author": "Kalevi Heino",
+      "role": "NOC Engineer",
+      "text": "Can I do it or will you?"
+    },
+    {
+      "seq": 6,
+      "time": "14:12",
+      "author": "Antero Lahtinen",
+      "role": "Transport Engineer",
+      "text": "I will, give me two minutes."
+    },
+    {
+      "seq": 7,
+      "time": "14:15",
+      "author": "Antero Lahtinen",
+      "role": "Transport Engineer",
+      "text": "Threshold set back to 55 on ROOF-14."
+    },
+    {
+      "seq": 8,
+      "time": "14:17",
+      "author": "Kalevi Heino",
+      "role": "NOC Engineer",
+      "text": "The alarm has cleared."
+    },
+    {
+      "seq": 9,
+      "time": "14:20",
+      "author": "Heikki Moilanen",
+      "role": "Operations Team Lead",
+      "text": "Reminder for everyone, the team meeting is at 15:00 and we will go through the summer rota."
+    }
+  ]
+}

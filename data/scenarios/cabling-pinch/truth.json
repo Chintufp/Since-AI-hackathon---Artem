@@ -1,0 +1,172 @@
+{
+  "familyId": "cabling-pinch",
+  "entities": [
+    {
+      "name": "HUB-07",
+      "type": "site",
+      "attributes": {
+        "site.id": "HUB-07"
+      }
+    },
+    {
+      "name": "HUB-07 uplink patch cord",
+      "type": "component",
+      "attributes": {}
+    },
+    {
+      "name": "HUB-09",
+      "type": "site",
+      "attributes": {
+        "site.id": "HUB-09"
+      }
+    }
+  ],
+  "incidents": [
+    {
+      "key": "A",
+      "title": "HUB-07 uplink CRC errors; patch cord pinched by the cabinet door",
+      "sourceIds": [
+        "teams:1",
+        "teams:2",
+        "teams:3",
+        "teams:4",
+        "teams:5",
+        "teams:6",
+        "teams:7",
+        "teams:8",
+        "teams:9",
+        "email:<f06-hub07-cause@kalevanet.example>",
+        "slack:1781272800.000100"
+      ],
+      "realCause": "Patch cord pinched by the cabinet door edge when the door is fully shut; SFP and connectors were fine.",
+      "expectedClaims": [
+        {
+          "type": "observation",
+          "statement": "HUB-07 uplink shows CRC errors in bursts while the link stays up",
+          "by": "person:directory:aila-nurmi"
+        },
+        {
+          "type": "observation",
+          "statement": "Optical receive power is normal on both ends of the HUB-07 uplink",
+          "by": "person:directory:aila-nurmi"
+        },
+        {
+          "type": "advice",
+          "statement": "Swap the SFP on the HUB-07 side",
+          "by": "person:directory:henrik-sjoberg"
+        },
+        {
+          "type": "action",
+          "statement": "Kimmo swapped the SFP at HUB-07",
+          "by": "person:directory:kimmo-rautio"
+        },
+        {
+          "type": "outcome",
+          "statement": "CRC errors keep climbing after the SFP swap",
+          "by": "person:directory:aila-nurmi"
+        },
+        {
+          "type": "advice",
+          "statement": "Check the patch cord between the SFP and the ODF and clean both connectors",
+          "by": "person:directory:henrik-sjoberg"
+        },
+        {
+          "type": "action",
+          "statement": "Kimmo cleaned both connectors and errors dropped but not to zero",
+          "by": "person:directory:kimmo-rautio"
+        },
+        {
+          "type": "hypothesis",
+          "statement": "The patch cord is pinched by the cabinet door only when the door is fully closed",
+          "by": "person:directory:kimmo-rautio"
+        },
+        {
+          "type": "action",
+          "statement": "Kimmo replaced the patch cord and rerouted it away from the hinge side",
+          "by": "person:directory:kimmo-rautio"
+        },
+        {
+          "type": "outcome",
+          "statement": "No CRC errors at HUB-07 since 11:00 after the patch cord replacement",
+          "by": "person:directory:aila-nurmi"
+        },
+        {
+          "type": "action",
+          "statement": "Seppo re-dressed the cabinet cabling and fitted a cable guard at the door edge",
+          "by": "person:directory:seppo-lahti"
+        }
+      ],
+      "attempts": [
+        {
+          "action": "sfp.replace",
+          "by": "person:directory:kimmo-rautio",
+          "performed": true
+        },
+        {
+          "action": "optics.check",
+          "by": "person:directory:kimmo-rautio",
+          "performed": true
+        },
+        {
+          "action": "cable.replace",
+          "by": "person:directory:kimmo-rautio",
+          "performed": true
+        }
+      ],
+      "outcome": {
+        "result": "recovered",
+        "lasting": "unknown",
+        "reportedBy": "person:directory:aila-nurmi"
+      },
+      "knowledge": {
+        "person:directory:kimmo-rautio": {
+          "knows": [
+            "component.replaced",
+            "cable.condition",
+            "action.performed"
+          ],
+          "canObserve": []
+        },
+        "person:directory:aila-nurmi": {
+          "knows": [
+            "interface.crc_errors"
+          ],
+          "canObserve": [
+            "interface.crc_errors",
+            "optical.level"
+          ]
+        },
+        "person:directory:henrik-sjoberg": {
+          "knows": [
+            "reasoning behind the SFP and cable advice"
+          ],
+          "canObserve": [
+            "interface.crc_errors"
+          ]
+        },
+        "person:directory:seppo-lahti": {
+          "knows": [
+            "cable.guard_fitted",
+            "cable.condition"
+          ],
+          "canObserve": [
+            "cable.guard_fitted"
+          ]
+        },
+        "person:directory:reijo-kauppi": {
+          "knows": [],
+          "canObserve": [
+            "component.replaced",
+            "cable.condition"
+          ]
+        }
+      },
+      "accessGroups": [
+        "noc",
+        "field",
+        "transport"
+      ]
+    }
+  ],
+  "copies": []
+}

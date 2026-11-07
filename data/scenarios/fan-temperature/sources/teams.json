@@ -1,0 +1,90 @@
+{
+  "channel": "teams",
+  "note": "Synthetic example. Names and node IDs are illustrative. Times only; no date was given.",
+  "participants": [
+    {
+      "name": "Leena Kuusisto",
+      "role": "NOC Engineer"
+    },
+    {
+      "name": "Vesa Hakala",
+      "role": "Field Engineer"
+    },
+    {
+      "name": "Raisa Turunen",
+      "role": "Hardware Specialist"
+    }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "08:40",
+      "author": "Leena Kuusisto",
+      "role": "NOC Engineer",
+      "text": "Vesa, OLT-210 at the Hakkila hub is throwing high temperature alarms, inlet 61 degrees. The cabinet is outdoors, 2015 build. Can you take a look?"
+    },
+    {
+      "seq": 2,
+      "time": "08:44",
+      "author": "Vesa Hakala",
+      "role": "Field Engineer",
+      "text": "On my way, about 20 minutes."
+    },
+    {
+      "seq": 3,
+      "time": "08:50",
+      "author": "Raisa Turunen",
+      "role": "Hardware Specialist",
+      "text": "Check the dust filter on the door first. That cabinet type clogs with pollen in spring and then the fans can't pull enough air."
+    },
+    {
+      "seq": 4,
+      "time": "09:15",
+      "author": "Vesa Hakala",
+      "role": "Field Engineer",
+      "text": "At the cabinet. The filter is nearly solid with pollen. Fans are spinning normally."
+    },
+    {
+      "seq": 5,
+      "time": "09:16",
+      "author": "Raisa Turunen",
+      "role": "Hardware Specialist",
+      "text": "Swap it for a clean one, spare filters are in the van."
+    },
+    {
+      "seq": 6,
+      "time": "09:30",
+      "author": "Vesa Hakala",
+      "role": "Field Engineer",
+      "text": "Swapped for a clean filter. Temperature is dropping, 54 now."
+    },
+    {
+      "seq": 7,
+      "time": "09:45",
+      "author": "Leena Kuusisto",
+      "role": "NOC Engineer",
+      "text": "I see 47 degrees on the NOC side. Alarm cleared."
+    },
+    {
+      "seq": 8,
+      "time": "09:47",
+      "author": "Vesa Hakala",
+      "role": "Field Engineer",
+      "text": "Great. Lunch? I am starving."
+    },
+    {
+      "seq": 9,
+      "time": "09:50",
+      "author": "Raisa Turunen",
+      "role": "Hardware Specialist",
+      "text": "Also, someone remind me to book the training room for Thursday."
+    },
+    {
+      "seq": 10,
+      "time": "09:55",
+      "author": "Vesa Hakala",
+      "role": "Field Engineer",
+      "text": "Closing the visit. Filter swapped, alarm cleared."
+    }
+  ]
+}

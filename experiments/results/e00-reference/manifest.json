@@ -1,0 +1,59 @@
+{
+  "id": "e00-reference",
+  "hypothesis": "The evaluator scores a system built from hidden truth at 1.0 (0.0 error) wherever a score is defined, and exposes constant silence as missed gaps/opportunities.",
+  "datasetVersion": "1.0.0",
+  "splits": [
+    "demo",
+    "train",
+    "validation"
+  ],
+  "visibleInputs": [
+    "sources/",
+    "people.json",
+    "incoming problem text",
+    "incoming observations"
+  ],
+  "variants": [
+    {
+      "id": "reference-oracle",
+      "description": "Reconstructed from truth.json. A sanity reference, not a system under test.",
+      "route": "rules"
+    },
+    {
+      "id": "silent",
+      "description": "Emits nothing and never asks.",
+      "route": "rules"
+    }
+  ],
+  "config": {
+    "claimMatch": "same ClaimType and token Jaccard >= 0.5",
+    "ambiguousBand": [
+      0.3,
+      0.5
+    ]
+  },
+  "seeds": [
+    0
+  ],
+  "route": "rules",
+  "resourceCap": {
+    "maxWallSeconds": 60,
+    "networkCalls": 0
+  },
+  "metrics": [
+    "claims.all.precision",
+    "claims.all.recall",
+    "cases.falseMergeRate",
+    "cases.falseSplitRate",
+    "resolution.falseSolvedRate",
+    "recommendation.falseAdviceRate",
+    "recommendation.missedOpportunityRate",
+    "question.gapFoundRate",
+    "question.unnecessaryQuestionRate"
+  ],
+  "acceptanceCriteria": [
+    "reference-oracle: every defined metric at its perfect value"
+  ],
+  "stopRule": "Single deterministic pass.",
+  "startedAt": "2026-11-07T00:28:42.902Z"
+}

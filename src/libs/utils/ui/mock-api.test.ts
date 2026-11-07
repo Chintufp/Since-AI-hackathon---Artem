@@ -121,3 +121,13 @@ test('mock rejects answers from a non-recipient like the engine', async () => {
   const ok = await api.answer(q!.questionId, { principal: mockPrincipal(), value: 'yes' });
   assert.ok(ok.receipt);
 });
+
+test('B1: the mock serves GET /context with time positions and validAt at the asked moment', async () => {
+  const api = createMockApi();
+  const v = await api.context({ entity: 'LP-3', at: '2026-10-01T00:00:00.000Z' });
+  assert.equal(v.entity.name, 'LP-3');
+  assert.equal(v.assertions[0]!.validFrom.kind, 'time-only');
+  assert.equal(v.assertions[0]!.validFrom.iso, undefined);
+  assert.equal(v.assertions[1]!.validAt, false, 'the dated note is not valid before its own time');
+  await assert.rejects(api.context({ entity: 'nope' }));
+});

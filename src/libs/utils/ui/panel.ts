@@ -1102,7 +1102,11 @@ export function createPanel(options: PanelOptions): Panel {
   });
   const onKey = (event: KeyboardEvent): void => {
     if (event.key === 'Escape' && state.panelOpen) { event.preventDefault(); closePanel(true, 'keyboard'); }
-    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && state.panelOpen && state.view === 'input' && !send.disabled) { event.preventDefault(); void submit(); }
+    // Artem 7 Nov: Enter sends (Shift+Enter keeps a newline); Cmd/Ctrl+Enter still works. Only while typing in the field.
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing && state.panelOpen && state.view === 'input' && document.activeElement === field) {
+      event.preventDefault();
+      if (!send.disabled) void submit();
+    }
   };
   document.addEventListener('keydown', onKey);
   $<HTMLInputElement>('.rf-motion').addEventListener('change', (e) => void saveSetting({ reducedMotion: (e.target as HTMLInputElement).checked }));

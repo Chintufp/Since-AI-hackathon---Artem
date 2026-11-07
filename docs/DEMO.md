@@ -1,0 +1,103 @@
+# Knowledge Twin — judge walkthrough (3 minutes, then optional extras)
+
+Everything below runs on this machine only: a local service, a local SQLite file, a small desktop companion. No cloud, no model API, no real chat, mail or Slack account. Every step here was run on 7 November 2026 on macOS; the text after each click is what appeared.
+
+## What you are looking at (30 seconds)
+
+Elisa's challenge: expert knowledge lives in Teams threads and e-mails, never in the manuals. Knowledge Twin reads those messages as they are (no form, no documentation step), turns each thread into a **case** bound to the equipment, the people and the time it concerns, and, when a similar problem comes in later, answers with the earlier fix **and its caveats**: who said it, whether the outcome was verified, which condition it depends on. If one deciding fact is missing, it asks exactly one person one Yes/No question, within a daily budget, and uses the answer. The same engine is an MCP server, so an autonomous agent gets the same answer under the same access rules and limits. The pixel companion ("Snowbally") is how a person meets it: click him, tell him what happened, answer the rare question.
+
+## Start
+
+```bash
+pnpm install
+```
+
+```bash
+pnpm demo:judge
+```
+
+That one command resets the demo data, starts the service on `127.0.0.1:47831`, starts the simulated activity stream (see below), opens the activity page in your browser and launches the companion. Snowbally falls in from the top of the screen and lands bottom-right. Ctrl-C in that terminal stops everything. If you would rather not have the stream running during the core walkthrough, use `pnpm demo:judge --no-stream`.
+
+The reset prints what was captured, for example:
+
+```
+Teams JSON .../teams_chat.json: 1 cases, 25 claims, 3 entities, 2 people (seen 12, inserted 12)
+Email text .../email.txt: 1 cases, 11 claims, 3 entities, 2 people (seen 1, inserted 1)
+```
+
+That is the **capture** step: Erkki's Teams thread and his e-mail imported as they are. The e-mail is recognised as a retelling of the thread, so it does not count as a second confirmation. (On a clone without Elisa's example files, the synthetic families and the developer fixture are imported instead; the walkthrough then uses the TRN-117 case of the `optic-forwarding-a` family in the same way.)
+
+## The 3-minute script
+
+**0:00 Open the companion.** Click Snowbally. The card opens with "Tell me what happened…". At the bottom there are three icons: paperclip, questions (speech bubbles, with a count when there are open questions), settings (sliders).
+
+**0:10 Be Veikko.** Click the sliders icon → Settings. In the **You** row choose `Veikko Vikkelä · Field Engineer`. Click the back arrow (top right). Say: *"Veikko is the field engineer from the Elisa example. He is at another site today."*
+
+**0:25 Reuse on another old unit.** Paste this and press the arrow (or Cmd/Ctrl+Enter):
+
+```
+At site now. Replaced the SFP on TRN-088, an older unit from 2018. Link is up, alarms cleared, RX power normal, but no traffic. Counters zero.
+```
+
+You see the result card:
+
+- Heading: **Check the traffic counters before replacing the SFP again.**
+- Caveat: *Reported once; cause and lasting effect not verified.*
+- Next: *If the interface is up and counters stay at zero, disabling and re-enabling the interface reportedly restored traffic in TRN-042 (older unit).*
+- Below it the basis case **TRN-042 · no traffic after SFP change** as a timeline: Reported problem (red) → Reported conditions → Possible cause → Suggested checks → Attempted counter check → Attempted interface reset (yellow) → Reported outcome (green).
+- A row **People with relevant experience · 4** and a line *Existing evidence and your own observations settle the next step* (no one is asked: Veikko stated the unit age himself).
+
+Say: *"This is Erkki's rule, reused on a unit Erkki has never seen. It is phrased as a check before the corrective action, and it says the outcome was reported once, not verified."*
+
+**0:55 Link: where it comes from.** Click **Suggested checks** in the timeline. It expands to the advice with who gave it and the sentence from the chat it came from. Click **Reported outcome**: it says who reported recovery, after which attempt, and that timing, cause and lasting effect are unconfirmed. Say: *"Every node is bound to the message it came from, the person who said it and the time, and the outcome stays 'reported' until a later message confirms it held."*
+
+**1:15 People, and a message nothing sends.** Click **People with relevant experience**. First entry: `Erkki Expert · Network Expert — Advised the interface reset in TRN-042`, then Aarne Koskela, Helmi Virtanen and Tapio Lehto from the similar TRN-117 case, each with what they actually did. Click **Prepare message** under Erkki: a draft "Message to Erkki Expert · Draft for you to review · nothing is sent" with the current symptoms, the checks already performed and the open point. Click **Back**, then the back arrow to return to the result, then the pencil icon to write again.
+
+**1:40 The one question.** Paste:
+
+```
+TRN-301: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.
+```
+
+Result heading: **Confirm the unit details (older unit) before disabling and re-enabling the interface.** Caveats: *Reported once; cause and lasting effect not verified.* and *Unknown for this unit: older unit.* At the bottom: **Asked a colleague with relevant experience · delivered**. Say: *"The deciding fact is missing and Veikko cannot see it, so one Yes/No question went to Erkki, the network expert. Three questions per person per day, thirty minutes between them, one open at a time."*
+
+**2:05 Be Erkki and answer.** Sliders icon → **You** = `Erkki Expert · Network Expert` → back arrow. The questions icon now shows **1**. Click it: **Questions** lists `TRN-042 · no traffic after SFP change — Is TRN-301 an older unit?`. Click the question: the card shows the question, **Yes / No**, *Not sure · Later · Dismiss*, and **Why this question?** (expand it: the hypothesis from TRN-042 applies only if older unit, and what each answer changes). Click **Yes**. Receipt: **Recorded: Yes** — *You answered yes to "Is TRN-301 an older unit?". The recommendation now starts with a check.* with **Undo**.
+
+**2:35 Back to Veikko: the answer was used.** Sliders icon → **You** = Veikko → back arrow → pencil icon → paste the TRN-301 text again (same text, same investigation). Heading is now **Check the traffic counters before replacing the SFP again.** and the status line reads *The answer was used to update the recommendation*. Say: *"Erkki's one tap changed Veikko's next step. A 'No' would have made it 'Don't reuse the fix from TRN-042'; 'Not sure' records nothing and never asks him the same thing again."*
+
+**2:50 The agent path.** In a second terminal:
+
+```bash
+pnpm demo:agent
+```
+
+This is a plain MCP client (no model) starting the same MCP server on the same database and calling the tools an agent would: `kt_investigate` prints the qualified recommendation with its caveats, matches, people and open gaps; `kt_find_people` the same people with reasons; `kt_request_clarification` opens the one question (`status: question-open`, `text: "Is TRN-301 an older unit?"`); `kt_clarification_status` shows it `delivered` until a human answers. Because the question is already answered in this database from step 2:05, the agent's own investigation is a fresh one (an agent principal), so the question is opened again for Erkki: switch **You** to Erkki in the companion and the badge shows the agent's question too. Say: *"Same engine, same limits, same access rules for an agent as for a person; the agent cannot read restricted evidence or exceed anyone's question budget."* To let a real agent drive it, see "Your own Claude over MCP" below.
+
+## The simulated real-time stream (what the browser tab shows)
+
+`pnpm demo:judge` also starts `pnpm demo:play`: a scripted, sped-up day (1 simulated hour = 10 real seconds, 07:30–17:30, seed 1) against the running service, printed in the terminal and shown at **http://127.0.0.1:47831/demo/activity.html**. Everything in it is simulated and labelled so:
+
+- **evidence** rows: Teams threads, e-mails and Slack days from the synthetic incident families arrive and are captured (how many records, cases and claims the rules extractor produced).
+- **investigation** rows: simulated engineers ask the service, and the row shows the recommendation they got.
+- **question** rows: the real coordinator asked someone, with **why them** ("because they performed the action on TRN-117", "because they can observe this through their role (Network Expert)") and the checks it passed (access, daily limit, cooldown, open questions, duplicates).
+- **answer** rows: simulated colleagues answer Yes / No / Not sure, tap Later or Dismiss after a plausible delay, and the row says what the recommendation became.
+- Rows marked **for you** concern the person chosen under Settings → You. Every couple of simulated hours the stream tries once to involve you; when the coordinator picks you, Snowbally's questions badge shows it and the row says *For you: … open the companion to answer*. The stream never answers for you, and it never exceeds the coordinator's limits (they are enforced by the service, and the service's clock runs in simulated time while the stream runs). Your own actions in the companion also appear in the stream.
+- Agent calls over MCP against the same database appear as **agent** rows.
+
+The same rows are appended as JSON lines to `data/local/demo-activity.jsonl` (git-ignored) and served by `GET /demo/activity`. `pnpm demo:play -- --seed 2` replays a different day; `--hour-seconds 5` runs it faster; `--instant` runs it in one go.
+
+## Privacy and no cloud, in one breath
+
+The service listens on loopback only and refuses non-loopback host names. The data is one SQLite file under `data/local/`. Nothing contacts a model provider: a network guard in the code throws if anything tries. Message drafts are text for the user to review; nothing is sent to Teams, e-mail or Slack. Elisa's example files are read from an ignored folder and never copied into the repository. Access is enforced per piece of evidence: a person or agent only ever sees cases, timelines, people reasons and questions built from evidence their groups may see (tested, including over MCP).
+
+## Troubleshooting
+
+| Symptom | What to do |
+| --- | --- |
+| The card says *Couldn't reach the service* | The service is not up. Run `pnpm service` in a terminal (it prints `listening on http://127.0.0.1:47831`), then click **Retry**. `pnpm demo:judge` starts it for you. |
+| Something is in a strange state | Sliders icon → **Demo data: Reset demo** (click twice), or `pnpm demo:reset` in a terminal; both re-import everything and keep your settings. |
+| A question does not appear | Questions are per person: check Settings → **You** is the person who was asked (the stream and the result card say who). The badge refreshes every 20 s while the card is open; close and reopen the card to refresh now. A person gets at most 3 questions a day with 30 minutes between them: `pnpm demo:reset` clears that too. |
+| Snowbally is not visible | He sits bottom-right; the tray (menu bar) icon has **Show / Hide Snowbally**. |
+| Port 47831 is taken | `KT_PORT=47900 pnpm demo:judge` (or `pnpm demo:judge --port 47900`). |
+| The activity page is empty | The stream has not written anything yet (`pnpm demo:play` needs the service running), or it is pointed at another log file. |
+| Nothing from Elisa's example | The organizer's files are not in this clone's `private/` folder; the synthetic TRN-117 case plays the same role (use the same texts; the basis case will read TRN-117). |

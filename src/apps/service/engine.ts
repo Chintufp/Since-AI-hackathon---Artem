@@ -751,7 +751,9 @@ export class Engine {
 
   questions(query: { personEntityId?: string; status?: string }): QuestionView[] {
     this.deliverDue();
-    const where = query.personEntityId ? { personEntityId: query.personEntityId } : undefined;
+    // B4: a provider identity ('person:slack:U…') or directory id names the same person as on the answer path.
+    const person = query.personEntityId ? (storeDirectory(this.store).resolve(query.personEntityId) ?? query.personEntityId) : undefined;
+    const where = person ? { personEntityId: person } : undefined;
     const wanted = query.status === 'all' ? undefined : query.status ? [query.status] : ['queued', 'delivered', 'deferred'];
     const now = this.now().getTime();
     return this.store.list('question', where ? { where } : {})

@@ -24,6 +24,8 @@ export interface CaseView {
   timeline: TimelineNode[];
   caveat: string;
   sources: Array<{ evidenceId: string; provider: string; author: string; when: string; excerpt: string; reference?: string }>;
+  /** People with firsthand links to this case (Artem 7 Nov: shown on the case page), gated for the viewer. */
+  people?: PersonView[];
 }
 
 export interface QuestionView {

@@ -525,10 +525,11 @@ export function createPanel(options: PanelOptions): Panel {
     }
     motion.registerDetails(state.openNodes.result, path);
   }
+  let peopleFromCase = false;
   function renderPeople(): void {
     const list = $('.rf-people-list');
     list.replaceChildren();
-    const people = result?.people ?? [];
+    const people = (peopleFromCase ? caseView?.people : result?.people) ?? [];
     people.forEach((p) => list.append(personRow(p)));
     if (!people.length) list.append(el('p', 'rf-empty', 'No one found yet.'));
   }
@@ -568,6 +569,11 @@ export function createPanel(options: PanelOptions): Panel {
     wrap.append(evidencePath(caseView.timeline, 'case', 'Case timeline; expand a title for details'));
     if (caseView.caveat) wrap.append(el('p', 'rf-context-caveat', caseView.caveat));
     body.append(wrap);
+    // Artem 7 Nov: the people with relevant experience are listed on the case page.
+    const cp = caseView.people ?? [];
+    const rows = el('div', 'rf-result-rows');
+    renderRow('People with relevant experience', String(cp.length), 'case-people', rows).disabled = !cp.length;
+    body.append(rows);
     motion.registerDetails(state.openNodes.case, wrap);
   }
   function renderContact(draft: ContactDraft): void {
@@ -1046,9 +1052,10 @@ export function createPanel(options: PanelOptions): Panel {
       case 'receipt-action': receiptAction?.run(); return;
       case 'send': void submit(); return;
       case 'remove-attachment': attachments.splice(Number(button.dataset.index), 1); renderAttachments(); return;
-      case 'people': setView('people'); focusFor('people'); return;
+      case 'people': peopleFromCase = false; setView('people'); focusFor('people'); return;
+      case 'case-people': peopleFromCase = true; setView('people'); focusFor('people'); return;
       case 'points': pointsFrom = state.view === 'receipt' ? 'receipt' : 'settings'; setView('points'); focusFor('points'); return;
-      case 'back': { const to = state.view === 'points' ? pointsFrom : BACK[state.view]; if (to) { setView(to); focusFor(to); } return; }
+      case 'back': { const to = state.view === 'points' ? pointsFrom : state.view === 'people' && peopleFromCase ? 'case' : BACK[state.view]; if (to) { setView(to); focusFor(to); } return; }
       case 'view-case': {
         const id = button.dataset.caseId!;
         void (async () => {

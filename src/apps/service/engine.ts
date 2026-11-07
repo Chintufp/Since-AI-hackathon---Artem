@@ -18,6 +18,8 @@ import { buildCaseView, importFromPath, listCases, openStore } from '../../libs/
 import { TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
 import { createSelector, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
 import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
+import { buildPeople } from '../../libs/utils/investigation/index.ts';
+import type { CandidateMatch } from '../../libs/utils/contracts/investigation.ts';
 import { awardPoints, balanceOf, getOptIn, participates, rating, revokeContribution, setOptIn, type ParticipationKind } from '../../libs/utils/participation/index.ts';
 import { applyDirectory } from './directory.ts';
 import { resetDemo } from './demo.ts';
@@ -319,9 +321,22 @@ export class Engine {
   }
 
   caseView(id: string, principalId?: string): CaseView {
-    const v = buildCaseView(this.store, id, this.principalFor(principalId));
+    const principal = this.principalFor(principalId);
+    const v = buildCaseView(this.store, id, principal);
     if (!v) throw notFound(`Unknown case ${id}`);
-    return { ...v, caveat: polishCaveat(v.caveat) };
+    // Artem 7 Nov: the people with relevant experience belong on the case page. The same people module as an
+    // investigation runs, with this one case as the only candidate.
+    const c = this.store.get('case', id);
+    let people: PersonView[] = [];
+    if (c) {
+      const { settings, directory } = this.wiring();
+      const gate = evidenceGate(this.store, principal);
+      const candidate: CandidateMatch = { caseId: id, score: 1, retrieval: { route: 'rules', version: 'case-view' }, matchingConditions: [], conflictingConditions: [], missingConditions: [], expectedTraits: [], reasons: [] };
+      try {
+        people = buildPeople({ store: this.store, directory, principal, gate, candidates: [candidate], selectedCaseId: id, entityIds: c.entityIds, settings, now: this.clock() }).map((p) => personView(p, gate));
+      } catch { people = []; }
+    }
+    return { ...v, caveat: polishCaveat(v.caveat), people };
   }
 
   async investigate(req: InvestigateRequest): Promise<InvestigationResult> {

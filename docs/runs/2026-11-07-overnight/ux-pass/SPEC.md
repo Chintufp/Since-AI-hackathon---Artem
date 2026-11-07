@@ -32,7 +32,7 @@ Source: three proposals and two judge syntheses (`design-round.json`), Artem's b
 `away → arriving(question) → perched → (returning → in | leaving → away)`
 
 Timings (constants, all in one `COMPANION` object with DECISIONS entries):
-- `LEAVE_AFTER_LAUNCH_MS = 4000` (after the fall + hello), `LEAVE_AFTER_CLOSE_MS = 1500`, `LEAVE_AFTER_POINTER_MS = 1500`, `PEEK_DWELL_MS = 400`, `PERCH_WAIT_MS = 90000`, `PROXIMITY_PX = 160`, `DRAG_THRESHOLD_PX = 4`, `TAP_ALLOWANCE = { ms: 180, px: 8 }`, `ROLL_SPEED_PX_S = 900`, `ROLL_ACCEL_PX_S2 = 1600`, `TURN_STEP_PX = 22`, `COLLAPSED_POLL_MS = 90000`.
+- `LEAVE_AFTER_LAUNCH_MS = 4000` (after the fall + hello), `LEAVE_AFTER_IDLE_MS = 20000` (after close or after the pointer leaves), `PEEK_DWELL_MS = 400`, `PERCH_WAIT_MS = 90000`, `PROXIMITY_PX = 160`, `DRAG_THRESHOLD_PX = 4`, `TAP_ALLOWANCE = { ms: 180, px: 8 }`, `ROLL_SPEED_PX_S = 900`, `ROLL_ACCEL_PX_S2 = 1600`, `TURN_STEP_PX = 22`, `COLLAPSED_POLL_MS = 90000`.
 - Gravity is **derived from R28**: the launch stays exactly `ENTRANCE_FALL_MS = 900` for its distance `D0` (the measured launch fall), so for any drop height h: `T = 900 · sqrt(h / D0)`, i.e. `G = 2·D0 / 0.9²` px/s². One constant, computed from the window at load.
 
 ### Launch
@@ -64,7 +64,7 @@ Unchanged R28 fall and landing at the home spot (he lands where he will stand; t
 
 ### Away is home, proximity
 - After leaving he stays away. Pointer enters the proximity zone → **peek**: he moves out to the perch (the whole face visible) with `gaze` toward the pointer; after `PEEK_DWELL_MS` dwell, or when the pointer comes within 60 px, he **returns** fully to the home spot and plays `hello`.
-- He leaves again `LEAVE_AFTER_POINTER_MS` after the pointer leaves the zone, provided the panel is closed and no drag is in progress. Closing the panel sends him away after `LEAVE_AFTER_CLOSE_MS` unless the pointer is near.
+- He leaves again after `LEAVE_AFTER_IDLE_MS = 20000` with no interaction (no pointer in his zone, no drag, panel closed), not 1.5 s after the pointer leaves (Artem: "when it was staying on the screen for some time, go outside"). Closing the panel starts the same idle timer. Leaving rolls out; returning hops in with `hop` on the drop surface (arriving is the happier moment); each direction's act is one constant.
 - Arrival never steals focus: no `focus()`, `showInactive()` only; he never opens the panel by himself.
 
 ### Questions while away (attention)

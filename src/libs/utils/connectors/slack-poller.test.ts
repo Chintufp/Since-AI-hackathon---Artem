@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { installNetworkGuard } from '../models/routes.ts';
 import {
-  createFakeSlack, createSlackPoller, dmText, fileTracking, memoryTracking, pollerGuard, reactionValue, slackDmClient,
+  createFakeSlack, createSlackPoller, dmText, fileTracking, memoryTracking, pollerGuard, reactionValue, slackDmClient, slackPeopleFrom,
   DM_FOOTER, SLACK_DM_METHODS, SLACK_POLLER_SCOPES, SLACK_READ_METHODS, type ServiceLike,
 } from './index.ts';
 
@@ -213,4 +213,16 @@ test('a stage failure is reported in words and the next stages still run', async
   assert.match(r.errors[0]!, /^read channel: Workspace mismatch/);
   assert.equal(r.dmsSent.length, 1);
   assert.ok(t.records.q1);
+});
+
+test('people file: Slack actor ids map users to people, and the file travels with each channel import', async () => {
+  const directory = { people: [
+    { id: 'person:directory:helmi-virtanen', name: 'Helmi Virtanen', role: 'Network Expert', groups: ['noc'], actorIds: ['person:teams:Helmi Virtanen', 'person:slack:U102'], available: true },
+    { id: 'person:directory:no-slack', name: 'No Slack', role: 'x', groups: [], actorIds: ['person:email:x@y'], available: true },
+  ] };
+  assert.deepEqual(slackPeopleFrom(directory), { U102: { personId: 'person:directory:helmi-virtanen', displayName: 'Helmi Virtanen' } });
+  const slack = fakeWorkspace();
+  const { svc, imports } = fakeService([]);
+  await createSlackPoller({ read: slack.read, dm: slack.dm, service: svc, config: { ...config, directory } }).pollOnce();
+  assert.deepEqual((imports[0] as any).directory, directory);
 });

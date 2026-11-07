@@ -47,7 +47,7 @@ export class SlackConnector {
       capabilities: this.capabilities,
       note: this.authorized
         ? 'Authorized by explicit configuration; mapping verified on fixtures only, no live call has been verified.'
-        : 'Awaiting authorization: mapping is fixture-tested; no live call is made without explicit {liveAuthorized, token}.',
+        : 'Awaiting authorization: mapping is fixture-tested; no live call is made without explicit {liveAuthorized, token}. Sandbox poller (DM questions, answers by reaction) tested on a fake workspace only: pnpm demo:slack-poll.',
     };
   }
 

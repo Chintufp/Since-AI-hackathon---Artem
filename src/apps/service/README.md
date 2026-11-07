@@ -18,13 +18,13 @@ pnpm demo:reset [-- --db path --seed elisa|synthetic|empty]   # scripts/demo-res
 | Route | Notes |
 |---|---|
 | `GET /health` | `{ok, version, store, routes}` (routes actually served) |
-| `POST /import` | formats teams-json, email-text, slack-export, scenario-dir (path on this machine or inline payload); a scenario dir's `people.json` is applied as the directory. R46: `points` lists who earned for authored evidence that became a claim (people who take part only) |
+| `POST /import` | formats teams-json, email-text, slack-export, slack-live, scenario-dir (path on this machine or inline payload), and B4 `paste` (inline only: the text, or `{text, attachmentNames?, authorName?}`; a chat thread, e-mail or Teams JSON inside is recognised and keeps its speakers; blank text is 400). A paste answers with `captured {cases[{id,title}], entities, people, from?, to?, dateKnown, alreadyKnown}` for the receipt. A scenario dir's `people.json` is applied as the directory. R46: `points` lists who earned for authored evidence that became a claim (people who take part only) |
 | `GET /connections` | connector cards with last import batch |
 | `GET /cases`, `GET /cases/:id` | access-filtered; optional `?principalId=` (directory person), else the settings' current person, else anonymous (organization-wide cases only) |
 | `POST /investigate` | stable id from (principal, text, entities, observations, attachments): repeating a request is idempotent. `allowQuestions` default true over HTTP. B1: `at` (ISO with a zone) answers as of that moment: its own investigation id, later evidence/answers/claims left out, nobody asked; invalid `at` is 400 |
 | `GET /investigations/:id` | optional `?principalId=` must be the starter (403 otherwise) |
 | `GET /context` | B1: `?entity=` (id, name or alias) `&at=` (default now) `&principalId=`: assertions bound to the entity with validity windows (`validFrom`/`validTo` as time positions, never a synthesised iso), `validAt`, status (`superseded` + `supersededBy`), validity condition, asserter, source (provider, time text, excerpt), plus bindings (firsthand people, hedged classes). Access as every read: an entity the principal may not see is 404 |
-| `GET /questions` | `personEntityId`, `status` (default open: queued, delivered, deferred; `all` for everything) |
+| `GET /questions` | `personEntityId` (an entity id, a directory id or a provider identity such as `person:slack:U…`, resolved through the directory like the answer path), `status` (default open: queued, delivered, deferred; `all` for everything) |
 | `GET /questions/:id` | viewed as the recipient |
 | `POST /questions/:id/answer` | recipient only (403). Same answer again is idempotent; a different one needs undo first (409). Receipt carries `pointsAwarded` when the recipient takes part in points (yes/no 2, not sure 0) |
 | `POST /questions/:id/defer`, `/dismiss`, `/undo` | recipient only |

@@ -73,6 +73,10 @@ pnpm demo:agent
 
 This is a plain MCP client (no model) starting the same MCP server on the same database and calling the tools an agent would: `kt_investigate` prints the qualified recommendation with its caveats, matches, people and open gaps; `kt_find_people` the same people with reasons; `kt_request_clarification` opens the one question (`status: question-open`, `text: "Is TRN-301 an older unit?"`); `kt_clarification_status` shows it `delivered` until a human answers. The agent's investigation is its own (an agent principal), so the question is opened again for Erkki: switch **You** to Erkki in the companion and the badge shows the agent's question too. Say: *"Same engine, same limits, same access rules for an agent as for a person; the agent cannot read restricted evidence or exceed anyone's question budget."* To let a real agent drive it, see "Your own Claude over MCP" below. (Run this before the simulated day starts, or expect the coordinator to pick another NOC person once more people are in the directory.)
 
+### Remember this (30 seconds, no form)
+
+Copy a Teams thread (or an e-mail, or drop a .txt/.eml/.json/.md file on the card or on Lumi) and paste it into the input. The chip *Looks like a conversation · Remember this* appears; click it (or the *Remember this* button next to Send, or Cmd+Shift+Enter). The receipt reads, for the Elisa thread copied as text on an empty store: *Captured: 1 case · 25 claims* / *bound to TRN-042, Veikko Vikkelä, Erkki Expert · 09:14–09:27 (date unknown)*, then Lumi hops. Pasting it again says *Already captured*. On the seeded Elisa store the same paste binds to the existing TRN-042 case (its messages are recorded as copies of the seeded thread). Send still investigates: a problem description is never stored by accident.
+
 ## The simulated real-time stream (what the browser tab shows)
 
 `pnpm demo:judge` also starts `pnpm demo:play`: a scripted, sped-up day (1 simulated hour = 10 real seconds, 07:30–17:30, seed 1) against the running service, printed in the terminal and shown at **http://127.0.0.1:47831/demo/activity.html**. Until the day begins the page shows *Simulated day begins in … s*. Everything in it is simulated and labelled so:
@@ -127,6 +131,32 @@ What happens, in order: the command refuses and prints exactly what is missing (
 
 Sentence for the judges: *"Read-only, one sandbox channel, nothing posted; production Slack would run the same connector under the organisation's data policy."* Which workspace and channel, and the token at demo time, are Artem's (open question U28).
 
+### Slack sandbox, live (poller: a typed message becomes a case, a 👍 answers a question)
+
+Rehearse first, with no workspace, no token and no network (an in-memory fake workspace runs the same poller against the running service; every directory person gets a fake Slack user):
+
+```bash
+pnpm demo:slack-poll --fake --requester "Veikko Vikkelä"
+```
+
+On the Elisa seed (`pnpm service --seed elisa`) this printed, on 7 November: the requester types "Changed the SFP on TRN-301 …" in the fake `#field-ops` → *case: TRN-301 · no traffic after SFP change*; he asks Lumi about TRN-301 → *(qualified) Confirm the unit details (older unit) before disabling and re-enabling the interface*, question *Is TRN-301 an older unit?*; the next poll DMs it to Erkki Expert with one line of why and *React 👍 yes · 👎 no · 🤷 not sure*; Erkki's 👍 (a colleague's 👎 on the same DM is ignored) answers yes through the service; asking again → *(check-first) Check the traffic counters before replacing the SFP again*. Rows go to the activity stream, labelled as a fake workspace.
+
+For the live run Artem creates and names, in a **sandbox** workspace (never production): one channel for the demo; a Slack app with ONLY the bot scopes `channels:read`, `channels:history`, `groups:read`, `groups:history`, `users:read`, `chat:write`, `reactions:read` (no `im:write`, no `reactions:write`), installed and its bot invited to that channel; a Slack user for each demo person, whose `U…` id goes into that person's `actorIds` as `person:slack:U…` in a people file (people.json shape). Then, with the service up, in the demo terminal:
+
+```bash
+export KT_SLACK_LIVE=1
+```
+
+```bash
+export KT_SLACK_TOKEN=<bot token of the sandbox app; placeholder, never a value here>
+```
+
+```bash
+pnpm demo:slack-poll --workspace "<exact team name>" --channel "#<channel>" --people <path to people.json>
+```
+
+Without both variables, both flags and `--people`, it refuses, prints what is missing and the setup steps, and never prints the token. Every 5 s (`--poll-ms`; `--once` for one poll) it reads the channel through the read-only allowlist and imports it as `slack-live:<team id>` with the people file (a repeat inserts nothing), DMs each **delivered** question of a mapped person once (`chat.postMessage` to the user id; questions held by quiet hours wait; the DM log is `data/local/slack-poller.json`, so a restart never re-sends), and reads the DM's reactions (`reactions.get`): only the recipient's own 👍/👎/🤷 counts, and it answers through `POST /questions/:id/answer` as `person:slack:<U…>`, so the same recipient check, attribution, points and undo apply. A reaction changed after the answer is ignored (Undo is in the panel). Unverified until the first live run: whether `reactions.get` on the bot's DM also needs `im:history` (if Slack answers `missing_scope`, add it). Ctrl+C stops after the current poll.
+
 ## Your own Claude over MCP (optional, 2 minutes)
 
 Our code never calls a model; the agent is **your** Claude. Add this to a `.mcp.json` in the repository root (Claude Code) or to Claude Desktop's MCP configuration, with the service's database already seeded (`pnpm demo:reset` or `pnpm demo:judge`):
@@ -158,7 +188,7 @@ While the stream runs, the agent's calls appear in the activity page as **agent*
 
 ## Privacy and no cloud, in one breath
 
-The service listens on loopback only and refuses non-loopback host names. The data is one SQLite file under `data/local/`. Nothing contacts a model provider: a network guard in the code throws if anything tries. Message drafts are text for the user to review; nothing is sent to Teams, e-mail or Slack. Elisa's example files are read from an ignored folder and never copied into the repository. Access is enforced per piece of evidence: a person or agent only ever sees cases, timelines, people reasons and questions built from evidence their groups may see (tested, including over MCP).
+The service listens on loopback only and refuses non-loopback host names. The data is one SQLite file under `data/local/`. Nothing contacts a model provider: a network guard in the code throws if anything tries. Message drafts are text for the user to review; nothing is sent to Teams, e-mail or Slack (the one exception is the opt-in sandbox poller above, which DMs questions in a workspace Artem names, behind KT_SLACK_LIVE=1). Elisa's example files are read from an ignored folder and never copied into the repository. Access is enforced per piece of evidence: a person or agent only ever sees cases, timelines, people reasons and questions built from evidence their groups may see (tested, including over MCP).
 
 ## Troubleshooting
 

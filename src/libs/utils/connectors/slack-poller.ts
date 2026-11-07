@@ -13,6 +13,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
+import type { PeopleDirectory } from '../contracts/index.ts';
 import { checkLiveGuard, pullChannelReadOnly, SlackApiError, SLACK_READ_SCOPES, type LiveGuardInput, type LiveGuardResult, type SlackReadClient } from './slack-live-pull.ts';
 
 /** The write side's whole allowlist: post the DM, read its reactions. */
@@ -85,6 +86,11 @@ export interface SlackPollerConfig {
   pollMs?: number;
   /** Channel messages read per poll (default 50, max 200). */
   limit?: number;
+  /**
+   * The operator's people file (people.json shape, actorIds 'person:slack:U…'), sent with every channel import so the
+   * service can resolve a Slack user to a person even when the seeded store never saw that Slack id. Optional.
+   */
+  directory?: PeopleDirectory;
 }
 
 export type ReactionValue = 'yes' | 'no' | 'unknown';
@@ -104,6 +110,18 @@ export interface DmRecord {
 export interface TrackingStore {
   load(): Record<string, DmRecord>;
   save(records: Record<string, DmRecord>): void;
+}
+
+/** Slack user -> person from a people file: every 'person:slack:U…' actor id maps that user to the person. */
+export function slackPeopleFrom(directory: PeopleDirectory): Record<string, SlackPersonMapping> {
+  const out: Record<string, SlackPersonMapping> = {};
+  for (const p of directory.people) {
+    for (const a of p.actorIds) {
+      const m = /^person:slack:([UW][A-Z0-9]+)$/.exec(a);
+      if (m) out[m[1]!] = { personId: p.id, displayName: p.name };
+    }
+  }
+  return out;
 }
 
 export function memoryTracking(initial: Record<string, DmRecord> = {}): TrackingStore & { records: Record<string, DmRecord> } {
@@ -182,7 +200,7 @@ export function createSlackPoller(deps: SlackPollerDeps) {
     const pull = await pullChannelReadOnly(deps.read, { workspace: config.workspace, channel: config.channel, limit: config.limit ?? 50 });
     report.team = pull.team;
     const res = await service.post<{ batch: { counts: { seen: number; inserted: number } }; cases: number }>('/import', {
-      format: 'slack-live', payload: pull.data, connectionId: `slack-live:${pull.team.id}`,
+      format: 'slack-live', payload: pull.data, connectionId: `slack-live:${pull.team.id}`, ...(config.directory ? { directory: config.directory } : {}),
     });
     report.imported = { seen: res.batch.counts.seen, inserted: res.batch.counts.inserted, cases: res.cases };
   }

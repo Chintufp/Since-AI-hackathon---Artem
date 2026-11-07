@@ -169,7 +169,11 @@ function makeHandlers(s: MockState): Handlers {
           nextStep: 'Compare the ribbon side with the loading diagram.',
           actionClass: 'diagnostic-check',
         },
-        matches: [{ caseId: CASE.caseId, title: CASE.title, score: 0.72, matching: ['Blank output after ribbon change'], conflicting: [], missing: ['Printhead revision'] }],
+        matches: [
+          { caseId: CASE.caseId, title: CASE.title, score: 0.72, matching: ['Blank output after ribbon change'], conflicting: [], missing: ['Printhead revision'] },
+          { caseId: 'case_mock_alt1', title: 'PKG-204 · faint print after ribbon swap', score: 0.66, matching: ['Ribbon changed'], conflicting: ['Output faint, not blank'], missing: [] },
+          { caseId: 'case_mock_alt2', title: 'PKG-118 · blank labels, old printhead', score: 0.64, matching: ['Blank output'], conflicting: [], missing: ['Printhead older than 2019'] },
+        ],
         people: PEOPLE,
         ...(quiet ? { loopReason: 'No one to ask right now: nobody with firsthand knowledge is available' } : { question }),
         loop: quiet ? 'deferred' : 'question-open',

@@ -492,6 +492,36 @@ export function createPanel(options: PanelOptions): Panel {
     } else path.hidden = true;
     const rows = $('.rf-result-rows');
     rows.replaceChildren();
+    // desktop (R48, Artem 7 Nov): when several cases are similar, show a few; when nothing is close enough, show the closest
+    // ones and ask the requester for the detail that would decide it (no colleague is asked, no model is called).
+    const basisId = cv?.caseId;
+    const others = result.matches.filter((m) => m.caseId && m.caseId !== basisId);
+    const none = r.kind === 'none' && !cv?.timeline.length;
+    const top = result.matches[0]?.score ?? 0;
+    const alts = (none ? others : others.filter((m) => m.score >= top - 0.1)).slice(0, 3);
+    if (alts.length) {
+      const box = el('div', 'rf-alts');
+      box.append(el('p', 'rf-alts-title', none ? 'Closest cases, not close enough yet' : 'Also similar'));
+      alts.forEach((m) => {
+        const b = el('button', 'rf-alt');
+        b.type = 'button';
+        b.dataset.action = 'view-case';
+        b.dataset.caseId = m.caseId!;
+        const differs = m.conflicting.length ? `differs: ${m.conflicting.slice(0, 2).join(', ')}` : m.missing.length ? `if: ${m.missing.slice(0, 2).join(', ')}` : m.matching.length ? `matches: ${m.matching.slice(0, 2).join(', ')}` : '';
+        b.append(el('span', undefined, m.title));
+        if (differs) b.append(el('small', undefined, differs));
+        box.append(b);
+      });
+      if (none) {
+        const ask = el('p', 'rf-alts-ask', 'Tell me which equipment and what changed last, and I\u2019ll look again.');
+        box.append(ask);
+        const more = el('button', 'rf-later', 'Add details');
+        more.type = 'button';
+        more.dataset.action = 'input';
+        box.append(more);
+      }
+      rows.append(box);
+    }
     renderRow('People with relevant experience', String(result.people.length), 'people', rows).disabled = !result.people.length;
     if (result.question) {
       // The engine routes the question to someone else, never the requester: show it read-only.

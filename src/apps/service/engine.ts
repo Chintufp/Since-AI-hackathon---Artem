@@ -652,7 +652,7 @@ export class Engine {
     const recorded = this.store.list('observation', { where: { investigationId: state.id } });
     const parsed = parseProblemText(state.problem.text, state.problem.id, {
       olderThroughYear: settings.ageFold.olderThroughYear, ...(settings.modelParser !== undefined ? { modelParser: settings.modelParser } : {}),
-    }).conditions;
+    }).conditions.filter((c) => !c.key.startsWith('intent.'));
     // A condition is shown with its value; one without a value ("Installed year" observed but not stated) says nothing and is skipped.
     const parsedSet = new Set<Condition>(parsed);
     const label = (c: Condition): string => {

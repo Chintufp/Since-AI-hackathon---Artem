@@ -41,6 +41,9 @@ export const DEFAULT_LEXICON: LexiconRule[] = [
   { id: 'software-version', pattern: String.raw`\b(?:firmware|software|fw|version|release|running|on)\s+v?(\d+(?:\.\d+)+)(?![\d.]*\s*(?:%|db|dbm|mbps|gbps|ms|v\b|a\b|w\b|°))`, key: 'software.version', valueGroup: 1, label: 'Software version {value}' },
   { id: 'software-version-after', pattern: String.raw`\b(\d+(?:\.\d+)+)\s+(?:firmware|software)\b`, key: 'software.version', valueGroup: 1, label: 'Software version {value}' },
   { id: 'config-changed', pattern: String.raw`\b(?:after|since|following)\s+(?:the\s+|a\s+)?(?:(?:firmware|software|config(?:uration)?)\s+)?(?:update|upgrade|change|release)\b`, key: 'config.changed', value: true, label: 'Recent change', negatable: false },
+  // B1 part B: dispatch / site-access intent. Never a case condition: investigate() takes intent.* keys out of the
+  // conditions and looks up access facts for the named site (investigation/access-facts.ts reads the kind asked about).
+  { id: 'access-intent', pattern: String.raw`\b(?:driv(?:e|ing)\s+(?:out\s+)?to|heading\s+(?:out\s+)?to|site\s+visit|barrier|gate|codes?|keys?|lockbox|lock\s*box|access)\b`, key: 'intent.access', value: 'site', label: 'Asks how to get in', negatable: false },
   { id: 'site-access', pattern: String.raw`\b(?:barrier|locked\s+gate|gate\s+(?:is\s+)?locked|gate\s+code|key\s*box)\b`, key: 'site.access', value: 'barrier', label: 'Site access restriction', negatable: false },
 ];
 

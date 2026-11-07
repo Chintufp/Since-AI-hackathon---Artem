@@ -65,6 +65,11 @@ export interface Recommendation {
   nextStep?: string;
   /** Diagnostic checks need less evidence than disruptive corrective actions. */
   actionClass: 'diagnostic-check' | 'corrective-action' | 'none';
+  /**
+   * B1 part B: who to ask when an access fact is missing or may be out of date (directory people whose group/role is
+   * configured to observe the key). `available` false with `back` when the person's own message states a return date.
+   */
+  askWho?: Array<{ personEntityId: string; displayName: string; role?: string; reason: string; available: boolean; back?: string }>;
 }
 
 export interface PersonResult {

@@ -3,10 +3,11 @@ import type {
   Principal, Problem, QuestionGenerator, Retriever, RouteInfo, Selector, TraceEvent,
 } from '../contracts/index.ts';
 import { freshId, stableId } from '../contracts/index.ts';
-import { uniqueRoutes } from '../models/routes.ts';
+import { routeInfo, uniqueRoutes } from '../models/routes.ts';
 import { canSee, evidenceGate, gateAt, type EvidenceGate } from '../retrieval/access.ts';
 import { isAnswerMarker } from '../retrieval/conditions.ts';
 import { resolveEntityIds } from '../retrieval/exact.ts';
+import { ACCESS_INTENT_KEY, lookupAccessFacts } from './access-facts.ts';
 import { loadCaseFacts, OUTCOME_KEY, viewerOfState } from './case-facts.ts';
 import { casePhrase, shortCaseLabel } from './phrases.ts';
 import { storeDirectory, type PersonDirectory } from './directory.ts';
@@ -156,7 +157,10 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
   // Re-running the same problem is idempotent: carry over questions, decisions, events and gap resolutions.
   const previous = input.previous ?? store.get('investigation', id);
 
-  const parsed = parseProblemText(problem.text, problem.id, { olderThroughYear: settings.ageFold.olderThroughYear, ...(settings.modelParser !== undefined ? { modelParser: settings.modelParser } : {}), ...deps.parser });
+  const parsedRaw = parseProblemText(problem.text, problem.id, { olderThroughYear: settings.ageFold.olderThroughYear, ...(settings.modelParser !== undefined ? { modelParser: settings.modelParser } : {}), ...deps.parser });
+  // B1 part B: intent.* keys describe what the requester wants, never the incident; they stay out of matching.
+  const accessIntent = parsedRaw.conditions.find((c) => c.key === ACCESS_INTENT_KEY);
+  const parsed = { ...parsedRaw, conditions: parsedRaw.conditions.filter((c) => !c.key.startsWith('intent.')) };
   const atMs = atOf(problem);
   // B1: a past view leaves out what was recorded after it (answers, observations, outcome overlays).
   const recorded = store.list('observation', { where: { investigationId: id } }).filter((o) => atMs === undefined || Date.parse(o.at) <= atMs).sort((a, b) => a.at.localeCompare(b.at));
@@ -189,11 +193,19 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
 
   // Only related candidates may drive the recommendation (hypotheses of unrelated lookalikes stay listed but inert).
   const related = details.filter((d) => isRelatedCandidate(d.candidate, d.facts?.case, entityIds, settings));
-  const { recommendation, selected } = recommend(related, settings, conditions);
+  const requesterEntityId = directory.resolve(problem.requester.id);
+  // B1 part B: a site-access question that states nothing about an incident (every stated condition is an identity-like
+  // key) is answered from the access facts bound to the named site; the incident cases stay listed but inert.
+  const ignored = new Set(settings.ignoredKeys);
+  const access = conditions.every((c) => ignored.has(c.key))
+    ? lookupAccessFacts({ store, problemText: problem.text, principal, entityIds, gate, atMs: atMs ?? now.getTime(), settings, directory, ...(requesterEntityId ? { requesterEntityId } : {}) }, accessIntent)
+    : undefined;
+  const recommended = recommend(related, settings, conditions);
+  const recommendation = access?.recommendation ?? recommended.recommendation;
+  const selected = access ? undefined : recommended.selected;
   const gaps = carryGaps(previous, selected ? buildGaps({ investigationId: id, detail: selected, settings }) : [], recorded);
 
-  const requesterEntityId = directory.resolve(problem.requester.id);
-  const people = buildPeople({
+  const people = access?.people ?? buildPeople({
     store, directory, principal, ...(requesterEntityId ? { requesterEntityId } : {}),
     investigationId: id, candidates: relevant, gate, ...(selected?.candidate.caseId ? { selectedCaseId: selected.candidate.caseId } : {}), entityIds, settings, now,
   });
@@ -203,7 +215,7 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
     loop: 'no-question-needed', loopReason: settings.loopReasons.noQuestionNeeded,
   };
 
-  const routes: Array<RouteInfo | undefined> = [parsed.route, deps.retriever.route, ...candidates.map((c) => c.retrieval), ...details.map((d) => d.assessment.route)];
+  const routes: Array<RouteInfo | undefined> = [parsed.route, deps.retriever.route, ...candidates.map((c) => c.retrieval), ...details.map((d) => d.assessment.route), ...(access ? [routeInfo('access-facts')] : [])];
   // A gap the requester can observe themselves is answered by checking, not by asking another person.
   const askable = (g: Gap): boolean => {
     const p = parseGapId(g.id);
@@ -215,7 +227,13 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
     state.loop = loop;
     state.loopReason = loopReason;
   };
-  if (!wantsQuestion) {
+  if (access && access.state !== 'found') {
+    const who = access.recommendation.askWho ?? [];
+    const free = who.find((w) => w.available);
+    const away = who[0];
+    settle('deferred', free ? `${free.displayName} handles access codes; ask them for the current code`
+      : away ? `${away.displayName} handles access codes but is ${away.back ? `on leave (back ${away.back})` : 'unavailable'}` : reasons.noRecipient);
+  } else if (!wantsQuestion) {
     settle('no-question-needed', reasons.noQuestionNeeded);
   } else if (deps.generator) {
     routes.push(deps.generator.route);

@@ -15,7 +15,8 @@ export const defaultObservabilityPolicy: ObservabilityPolicy = {
     transport: EQUIPMENT_FACTS,
     core: EQUIPMENT_FACTS,
     field: SITE_FACTS,
-    access: ['site.access'],
+    // B1: access codes are asked only of the people who handle them (never the field group).
+    access: ['site.access', 'site.access_code'],
   },
   roles: {
     'Network Expert': EQUIPMENT_FACTS,
@@ -23,6 +24,6 @@ export const defaultObservabilityPolicy: ObservabilityPolicy = {
     'Network Technician': EQUIPMENT_FACTS,
     'Routing Specialist': EQUIPMENT_FACTS,
     'Field Engineer': SITE_FACTS,
-    'Site Access Coordinator': ['site.access'],
+    'Site Access Coordinator': ['site.access', 'site.access_code'],
   },
 };

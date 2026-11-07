@@ -20,6 +20,7 @@ export const CONDITION_KEYS = {
   'site.access': 'Site access condition (barrier|key|code|contact)',
   'site.access_code': 'Access code digits for one access point (qualifier: barrier|gate|lockbox|door|hatch)',
   'site.region': 'Region/location',
+  'intent.access': 'Problem-only intent (never a case condition): the requester is going to a site and asks how to get in (value: site)',
   'power.state': 'Power (normal|unstable|outage)',
   'temperature.state': 'Temperature (normal|high)',
   'bgp.session': 'BGP session state (up|down|flapping)',

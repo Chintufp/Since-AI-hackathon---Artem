@@ -184,7 +184,9 @@ export class QuestionCoordinator {
       const reasons = this.d.settings.loopReasons;
       const used = questionsForInvestigation(store, state.id).filter((q) => q.status !== 'cancelled').length;
       const asked = (e: RecipientEligibility): boolean => e.violations.includes('already-asked') || e.violations.includes('duplicate');
-      if (candidates.length === 0) this.setLoop(state, 'no-question-needed', reasons.noQuestionNeeded);
+      // B1: an access lookup that names who to ask (no case gap to cite) keeps its own loop line.
+      if (candidates.length === 0 && state.recommendation.askWho && state.loop === 'deferred') this.setLoop(state, 'deferred', state.loopReason ?? reasons.noRecipient);
+      else if (candidates.length === 0) this.setLoop(state, 'no-question-needed', reasons.noQuestionNeeded);
       // 'exhausted' means only one thing: the per-investigation question budget is used.
       else if (used >= settings.coordinator.maxQuestionsPerInvestigation) this.setLoop(state, 'exhausted', reasons.budgetUsed);
       else if (eligibility.length === 0) this.setLoop(state, 'deferred', reasons.noRecipient);

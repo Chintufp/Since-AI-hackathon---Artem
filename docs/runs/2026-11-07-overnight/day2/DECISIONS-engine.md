@@ -95,3 +95,35 @@ Reverse: delete the two rules.
 
 `data/demo/followups/` (README, Erkki's 14 Oct Teams note, Eino's 6 Oct e-mail, problems.json) is imported as a `scenario-dir` after Elisa's files, the demo families and the developer fixture, for seeds `elisa` and `synthetic` (`EngineOptions.followupsDir` overrides the path). `problems.json` and the README are not sources (`listScenarioSources` reads `teams*.json` and `.txt/.eml` only). Verified on a reset demo database: TRN-088 still gets "Check the traffic counters before replacing the SFP again.", the firmware 4.2 problem gets the superseded caveat, 5802 is closed by 7731 on 6 Oct; tests/e2e, elisa-text, fixes-4, identity pass with the follow-ups imported.
 Reverse: delete the follow-ups block in `service/demo.ts`.
+
+---
+
+# B1 part B: access facts, quiet hours, standing gaps
+
+## D-B1-17 · Access intent is a problem-only key and never a case condition
+
+`DEFAULT_LEXICON` gains `access-intent` (driving out to, drive to, heading to, site visit, barrier, gate, code(s), key(s), lockbox, access) as key `intent.access` (value `site`; documented in `vocabulary.ts`). `investigate()` takes every `intent.*` key out of the parsed conditions before retrieval and matching, and `contactDraft` leaves it out of the symptom list, so no existing match, gap or E00 number moves.
+Why: the intent describes what the requester wants, not the incident; as a condition it would count as a missing/matching key against cases.
+Reverse: delete the rule and the two filters.
+
+## D-B1-18 · When access facts answer a problem
+
+`investigation/access-facts.ts lookupAccessFacts` answers only when (a) the intent is present, (b) a problem entity resolves among the entities the requester may see, (c) the text names the thing asked for (barrier, gate, code, key, lockbox, access; "I will drive out to swap the rectifier" alone is not an access question) and (d) every stated condition is an identity-like key (`ignoredKeys`: site.id, site.access ...). A problem that also states an incident condition keeps the incident path unchanged. When access answers, the incident candidates stay listed but inert: no basis case, no incident gaps, people = who handles the key.
+Why: the brief's p2 ("driving out ... barrier code?") would otherwise get the rectifier recommendation; an incident report that mentions a visit must not lose its recommendation to a code.
+Reverse: drop the `access` branch in `investigate()`.
+
+## D-B1-19 · Which access facts count, and how they read
+
+An access fact counts when it is bound to a problem entity (`subjectEntityIds`; a fact with no subject, such as Slack's "leave keys at the front desk", never does), its status is provisional, supported or superseded, it is valid at the moment (`validAt`, so a superseded code counts only inside its window) and some supporting evidence passes the investigation's gate (time-aware with `at`). The kind asked about (barrier, gate, lockbox, door, hatch) picks codes with that qualifier; with none named every code is listed. Text: "Barrier code at RBS-310: 7731 (Eino Salo, 6 Oct; replaces 5802 from 20 Aug; changes every October)." The asserter is the directory name of `assertedBy`, the date `shortDate(validity.from)`; a replaced code is any visible claim whose `supersededBy` is this one, named only as "replaces"; the recurring change is the fact's own `validity.condition`, else one inherited from a fact it replaced (the landlord's habit outlives one code). Caveats: when the next change is expected, plus up to three code-less notes about the same access point ("If the barrier is jammed, call the landlord's caretaker."). Basis: the supporting refs of the current code and the codes it replaced.
+Reverse: `lookupAccessFacts`.
+
+## D-B1-20 · A lapsed recurring change, and a missing fact, name who to ask
+
+A recurring change ("every October") whose first occurrence after the fact's known `from` is at or before the moment makes the fact lapsed: `check-first`, action class `none`, "... It has probably changed since 1 Oct.", next step "Ask Eino Salo (...) for the current code before you go." No code on file: `none`, "No door code for RBS-310 is on file." with the same next step. An undated fact with a recurring change is never called lapsed (unknown stays unknown); it gets a caveat instead. Who to ask comes only from the directory policy for `site.access_code` (org-config: group `access`, role `Site Access Coordinator`; the `field` group is not given the key, so Pirkko never qualifies), available people first, the requester excluded, carried as the additive `Recommendation.askWho` and as the people list. The loop is `deferred` with "Eino Salo handles access codes but is on leave (back 1 Dec)"; the coordinator keeps that line when there is no case gap to ask about. No clarification question is raised for a missing access fact: there is no case to cite and the only person who handles codes is unavailable.
+Reverse: org-config `site.access_code` entries; `whoHandles`.
+
+## D-B1-21 · "Back 1 Dec" is read on demand, not stored
+
+`ValidityCueLexicon.leave` (optional) matches a person's own statement ("I am on leave from 3 November to 1 December"). For an unavailable directory person `returnDate` reads the newest visible evidence that person authored and says "back 1 Dec" while the stated window covers the moment (year from the message's own date; a passed end or a start still ahead says nothing). Nothing is written to the store, so claim and entity counts (E00) do not move. Availability itself stays the directory's current `available` attribute, also for a past `at`.
+Why: people.json has only `available:false`; a person attribute claim would change hash-locked E00 counts.
+Reverse: drop `leave` from `defaultValidityCues`.

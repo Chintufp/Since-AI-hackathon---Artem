@@ -90,6 +90,11 @@ export interface ValidityCueLexicon {
   accessCode: RegExp;
   /** Condition keys whose newer value closes an older one (the newer-value rule). State readings are not listed. */
   newerValueKeys: string[];
+  /**
+   * B1 part B: a person's own stated absence ("I am on leave from 3 November to 1 December", groups `from`, `to`). Read on
+   * demand from evidence the person authored (never stored as a claim), to say "back 1 Dec" next to an unavailable person.
+   */
+  leave?: RegExp;
 }
 
 const DATE_WORDS = String.raw`(?:\d{1,2}\.?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*(?:\s+\d{4})?|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+\d{1,2}(?:,?\s+\d{4})?|\d{4}-\d{2}-\d{2})`;
@@ -108,6 +113,7 @@ export const defaultValidityCues: ValidityCueLexicon = {
   range: new RegExp(String.raw`\bfrom\s+(?<from>${DATE_WORDS})\s+(?:to|until|till)\s+(?<to>${DATE_WORDS})`, 'i'),
   accessCode: /\b(?<kind>barrier|gate|lockbox|lock\s*box|key\s*box|door|hatch|access)\s+code\b(?:\s+(?:at|for|on)\s+[\p{L}\p{N}-]+)?\s*(?:(?:is|was)\s+(?:now\s+)?|[:=]\s*)?(?<code>\d{3,8})\b/iu,
   newerValueKeys: ['site.access_code', 'software.version'],
+  leave: new RegExp(String.raw`\b(?:i\s+am|i'm|i\s+will\s+be|will\s+be)\s+(?:on\s+(?:leave|holiday|vacation)|away|out\s+of\s+office)\s+(?:from\s+(?<from>${DATE_WORDS})\s+)?(?:to|until|till)\s+(?<to>${DATE_WORDS})`, 'i'),
 };
 
 /** Cue sets for the generic outcome-state classifier. Every entry is a generic phrase pattern, never a sentence from a data set. */

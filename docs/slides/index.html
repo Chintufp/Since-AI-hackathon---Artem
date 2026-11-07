@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knowledge Twin slides</title>
+<style>
+:root {
+  --bg: #f6f4ef; --stage: #ffffff; --ink: #1d1f24; --muted: #5d6270; --accent: #2f6f5e;
+  --rule: #d9d5cb; --code: #eef0ea;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; overflow: hidden; }
+#viewport { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+#deck { width: 1600px; height: 900px; flex: none; transform-origin: center center; position: relative;
+  background: var(--stage); box-shadow: 0 2px 24px rgba(0,0,0,.08); }
+.slide { position: absolute; inset: 0; padding: 88px 112px 72px; display: flex; flex-direction: column; }
+.slide[hidden] { display: none; }
+.num { position: absolute; top: 40px; right: 56px; font-size: 22px; color: var(--muted); }
+h1 { font-size: 64px; line-height: 1.1; margin: 0 0 48px; font-weight: 700; letter-spacing: -0.01em; }
+h1::before { content: ""; display: block; width: 72px; height: 8px; background: var(--accent); margin-bottom: 32px; }
+ul { margin: 0; padding: 0; list-style: none; }
+li { font-size: 34px; line-height: 1.32; margin: 0 0 22px; padding-left: 36px; position: relative; }
+li::before { content: ""; position: absolute; left: 0; top: 0.55em; width: 14px; height: 14px; background: var(--accent); }
+.title-slide h1 { font-size: 80px; }
+.title-slide li { font-size: 38px; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.88em; background: var(--code); padding: 0 6px; }
+.show { margin-top: auto; padding-top: 20px; border-top: 2px solid var(--rule); font-size: 22px; color: var(--muted); }
+.show span, .notes span { font-weight: 700; color: var(--accent); }
+.notes { display: none; position: absolute; left: 112px; right: 112px; bottom: 120px; font-size: 22px; line-height: 1.4;
+  background: #fffbe8; border: 2px solid #e6d98a; padding: 16px 20px; }
+body.show-notes .notes { display: block; }
+#hint { position: fixed; bottom: 8px; left: 16px; right: 16px; font-size: 12px; color: var(--muted); text-align: center; }
+@media print {
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { overflow: visible; height: auto; background: #fff; }
+  #viewport { position: static; display: block; }
+  #deck { transform: none !important; box-shadow: none; width: auto; height: auto; }
+  .slide, .slide[hidden] { position: relative; display: flex; width: 1600px; height: 900px; page-break-after: always; }
+  #hint { display: none; }
+}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="deck">
+  <section class="slide title-slide" data-n="1" aria-label="Slide 1">
+    <div class="num">1 / 12</div>
+    <h1>Knowledge Twin: the as-experienced layer</h1>
+    <ul>
+      <li>Expert knowledge lives in Teams threads and e-mails, never in the manuals.</li>
+      <li>We read the messages as they are. No form, no documentation step.</li>
+      <li>What was said is bound to the equipment, the people and the time.</li>
+      <li>A person or an agent gets the earlier fix with its caveats.</li>
+      <li>One Mac, offline, rules by default.</li>
+    </ul>
+    <p class="show"><span>show:</span> Lumi on the desktop, the activity page behind him.</p>
+    <aside class="notes"><span>notes:</span> Elisa asked for the as-experienced layer: what experts know but never write down. We capture it from the messages they already send, bind it to entities and time, and hand it to people and agents with its caveats. Everything you see runs locally, with no model call.</aside>
+  </section>
+  <section class="slide" data-n="2" aria-label="Slide 2" hidden>
+    <div class="num">2 / 12</div>
+    <h1>"That smiley is our problem"</h1>
+    <ul>
+      <li>Erkki's Teams thread: 12 messages, imported unchanged.</li>
+      <li>One case, 25 claims, bound to TRN-042, Veikko and Erkki.</li>
+      <li>Times kept as given: 09:14–09:27, date unknown.</li>
+      <li>The e-mail retelling is recognised: no second confirmation.</li>
+    </ul>
+    <p class="show"><span>show:</span> the <code>pnpm demo:reset</code> output, then the "Remember this" receipt in Lumi.</p>
+    <aside class="notes"><span>notes:</span> This is Elisa's own thread, read as it is. Nobody filled anything in. The thread has clock times and no date, so we keep "date unknown" instead of inventing one. The e-mail tells the same story again; we detect that, so it does not count as an independent confirmation.</aside>
+  </section>
+  <section class="slide" data-n="3" aria-label="Slide 3" hidden>
+    <div class="num">3 / 12</div>
+    <h1>One picture</h1>
+    <ul>
+      <li>Teams, e-mail, Slack → evidence, as observed</li>
+      <li>→ claims bound to entities, valid_from / valid_to, as experienced</li>
+      <li>→ investigation: support and applicability kept apart</li>
+      <li>→ a person (Lumi, one tap) or an agent (MCP, same limits)</li>
+    </ul>
+    <p class="show"><span>show:</span> Elisa's reference architecture, labelled with our modules (SUBMISSION.md §2).</p>
+    <aside class="notes"><span>notes:</span> Your reference architecture, layer by layer, with the module that implements each one. Evidence is verbatim. Claims carry spans, entity bindings and a validity window. The investigation never collapses support and applicability into one score. People and agents use the same engine under the same rules.</aside>
+  </section>
+  <section class="slide" data-n="4" aria-label="Slide 4" hidden>
+    <div class="num">4 / 12</div>
+    <h1>Live: Erkki's rule reused on TRN-088</h1>
+    <ul>
+      <li>"Check the traffic counters before replacing the SFP again."</li>
+      <li>Caveat: reported once; cause and lasting effect not verified.</li>
+      <li>Basis: TRN-042, a timeline from problem to reported outcome.</li>
+      <li>Every node opens the sentence it came from.</li>
+    </ul>
+    <p class="show"><span>show:</span> the result card in Lumi after pasting the TRN-088 problem as Veikko.</p>
+    <aside class="notes"><span>notes:</span> A unit Erkki has never seen. The rule comes back as a check before the corrective action, with an honest caveat. Click any node and you see who said it, where and when. This needs Elisa's files; on a clean clone the synthetic TRN-117 plays the same part.</aside>
+  </section>
+  <section class="slide" data-n="5" aria-label="Slide 5" hidden>
+    <div class="num">5 / 12</div>
+    <h1>Hard part 01: the real knowledge</h1>
+    <ul>
+      <li>12 messages, 1 rule: check the counters, then bounce the interface.</li>
+      <li>Support (did it work?) and applicability (does it fit here?) kept apart.</li>
+      <li>Rules extractor, claim recall: 32/47 train, 14/22 validation (synthetic).</li>
+    </ul>
+    <p class="show"><span>show:</span> the TRN-042 timeline with "Suggested checks" expanded.</p>
+    <aside class="notes"><span>notes:</span> The hard part is that the rule is one sentence among twelve messages. We keep what worked separate from where it applies, because they fail differently. Extraction is lexical rules; recall is measured on synthetic families with denominators, and paraphrases outside the lexicon are still missed.</aside>
+  </section>
+  <section class="slide" data-n="6" aria-label="Slide 6" hidden>
+    <div class="num">6 / 12</div>
+    <h1>Hard part 02: linking</h1>
+    <ul>
+      <li>TRN-042: firsthand. "Older units, ≤2019": hedged, in Erkki's words.</li>
+      <li>A wrong link is worse than none.</li>
+      <li>Lookalike rejected: "Don't reuse the fix from TRN-042: older unit there, newer unit here."</li>
+    </ul>
+    <p class="show"><span>show:</span> the bindings row of the Context Layer page, then the lookalike result card.</p>
+    <aside class="notes"><span>notes:</span> "These older units" could mean TRN-042 only, a model or an install year. We bind firmly only what was said firsthand and keep the class hedged. When a new problem conflicts on a deciding condition, we say the old fix does not apply rather than guess.</aside>
+  </section>
+  <section class="slide" data-n="7" aria-label="Slide 7" hidden>
+    <div class="num">7 / 12</div>
+    <h1>Hard part 03: time</h1>
+    <ul>
+      <li>Drag t: 09:14–09:18 nothing; 09:19 check the counters; 09:25 bounce, reported once.</li>
+      <li>From 14 Oct: superseded for firmware 4.2, by Erkki.</li>
+      <li>RBS-310 barrier code: 5802 from 20 Aug, 7731 from 6 Oct.</li>
+      <li>Nothing is deleted: the old claim keeps its window.</li>
+    </ul>
+    <p class="show"><span>show:</span> <code>/context.html?entity=TRN-042</code>, dragging the t line; then <code>?entity=RBS-310</code>.</p>
+    <aside class="notes"><span>notes:</span> Your question: when does it stop being true? Drag the line and the card shows what an agent is told at that moment. The firmware note and the new barrier code close the older claims without erasing them. The dated follow-ups are synthetic, because Elisa's example has no dates.</aside>
+  </section>
+  <section class="slide" data-n="8" aria-label="Slide 8" hidden>
+    <div class="num">8 / 12</div>
+    <h1>Hard part 04: trust</h1>
+    <ul>
+      <li>Reported vs verified: a recovery stays "reported" until a later message confirms it.</li>
+      <li>Under every headline: "Erkki Expert · Teams 09:22 (date unknown) · reported once · still believed true".</li>
+      <li>Experts disagree: Erkki (older units) and Helmi (2021 batch). Both kept.</li>
+      <li>One question picks the branch; neither expert is overwritten.</li>
+    </ul>
+    <p class="show"><span>show:</span> the provenance strip; the TRN-577 result with "Also on record".</p>
+    <aside class="notes"><span>notes:</span> A hunch and a verified fix look the same in chat. We keep them apart and say who, where, when and how often. When two experts disagree, we keep both, name the fact that decides between them and ask one person. Helmi's thread is synthetic.</aside>
+  </section>
+  <section class="slide" data-n="9" aria-label="Slide 9" hidden>
+    <div class="num">9 / 12</div>
+    <h1>Hard part 05: people</h1>
+    <ul>
+      <li>One Yes/No question, only when a fact decides the answer.</li>
+      <li>3 a day per person, 30 minutes apart, one open; nothing between 22:00 and 07:00.</li>
+      <li>Not sure · Later · Dismiss · Undo. Nobody fills in a form.</li>
+      <li>Erkki's cost on screen: asked, answered, seconds, reuse.</li>
+    </ul>
+    <p class="show"><span>show:</span> Erkki's question card in Lumi; the cost card on the activity page.</p>
+    <aside class="notes"><span>notes:</span> If Erkki has to fill in a form, he won't. So the ask is one tap, rare, and never at night. Erkki's cost is counted from the store, so the burden is visible. Points exist, opt-in and off by default. Real seconds from real engineers: not measured.</aside>
+  </section>
+  <section class="slide" data-n="10" aria-label="Slide 10" hidden>
+    <div class="num">10 / 12</div>
+    <h1>Agent-ready</h1>
+    <ul>
+      <li>12 MCP tools over the same engine: same access rules, same budgets.</li>
+      <li>03:00: <code>kt_investigate</code> → <code>kt_list_gaps</code> → ask Erkki → queued until 07:00.</li>
+      <li>07:30: one tap in Lumi. The agent's next step changes.</li>
+      <li>The agent never gets a channel to Erkki.</li>
+    </ul>
+    <p class="show"><span>show:</span> <code>pnpm demo:agent</code> beside Erkki's companion (fallback: mcp-transcript.md).</p>
+    <aside class="notes"><span>notes:</span> An agent can't call Erkki at 3 a.m., and here it doesn't. It finds the gap that decides applicability, asks for the right person, and the engine holds the question until morning. Confidence comes back as labels with reasons, never as a similarity score. A refused preference names who to ask instead.</aside>
+  </section>
+  <section class="slide" data-n="11" aria-label="Slide 11" hidden>
+    <div class="num">11 / 12</div>
+    <h1>Honest numbers</h1>
+    <ul>
+      <li>604/604 tests. Test split hash-locked: sha256 9f202253…, 73e145d0… (TEST_LOCK.json).</li>
+      <li>E08 bge-m3: recall@3 7/9, same as baseline; lookalike rejected 1/2; paraphrase rank 1 vs 5.</li>
+      <li>E09 qwen3:4b: claim recall 33/47 vs rules 32/47 (train), 14/22 both (validation); 6/6 imports over 60 s.</li>
+      <li>E10 one simulated day: completeness 0.45 → 0.45, correctness 0.0167 → 0.0167; bandit beats rules 0/3 seeds.</li>
+      <li>Weak: kind accuracy 3/12 vs 6/12 baseline; simulated people; synthetic data.</li>
+    </ul>
+    <p class="show"><span>show:</span> the E08–E10 tables (E08-E10.md) and experiments/RESULTS.md.</p>
+    <aside class="notes"><span>notes:</span> Every number has its denominator and runs offline from recorded, hash-locked outputs. The models are opt-in because they have not earned the default: bge-m3 only wins the paraphrase, qwen3:4b adds one claim. The store metric did not move in one simulated day. Decision quality after retrieval is our weakest part.</aside>
+  </section>
+  <section class="slide title-slide" data-n="12" aria-label="Slide 12" hidden>
+    <div class="num">12 / 12</div>
+    <h1>"Is this documented somewhere?"</h1>
+    <ul>
+      <li>Yes. Erkki, Teams, 09:22.</li>
+      <li>Nobody had to write it down.</li>
+      <li>Pilot ask: one team, one Slack or Teams scope, two weeks.</li>
+    </ul>
+    <p class="show"><span>show:</span> Lumi opening the TRN-042 case for Veikko.</p>
+    <aside class="notes"><span>notes:</span> Veikko's question, answered from the thread itself. What we ask for is small: one team, one channel scope, two weeks, so we can measure what we could not here: real answers, real seconds and whether the store gets fuller.</aside>
+  </section>
+</div></div>
+<div id="hint">← → or click to move · N notes · F full screen · Home/End · print to PDF exports every slide</div>
+<script>
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var deck = document.getElementById('deck');
+  var i = 0;
+  try { var h = parseInt(location.hash.slice(1), 10); if (h >= 1 && h <= slides.length) i = h - 1; } catch (e) {}
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function (s, k) { s.hidden = k !== i; });
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) {}
+  }
+  function fit() {
+    var k = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
+    deck.style.transform = 'scale(' + k + ')';
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { show(i + 1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(i - 1); e.preventDefault(); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'n' || e.key === 'N') document.body.classList.toggle('show-notes');
+    else if (e.key === 'f' || e.key === 'F') {
+      if (document.fullscreenElement) document.exitFullscreen(); else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+    }
+  });
+  document.getElementById('viewport').addEventListener('click', function (e) {
+    show(e.clientX < window.innerWidth / 3 ? i - 1 : i + 1);
+  });
+  window.addEventListener('resize', fit);
+  fit(); show(i);
+})();
+</script>
+</body>
+</html>

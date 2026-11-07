@@ -717,9 +717,10 @@ export class Engine {
       const f = r.refused;
       const why = f.excluded ? ['already chosen for another gap in this call'] : violationWords(f.violations);
       const instead = f.wouldAsk ? ` The engine would ask ${nameOf(f.wouldAsk.personEntityId)}${f.wouldAsk.because ? ` (${f.wouldAsk.because})` : ''} instead: pass that preferPersonEntityId, or none.` : ' Nobody else can be asked about it now either.';
+      const quiet = r.plan?.quietUntil && f.wouldAsk ? ` Quiet hours: a question asked now waits, queued, until ${r.plan.quietUntil}.` : '';
       return {
         state: r.state, status: 'refused',
-        reason: `${nameOf(f.personEntityId)} cannot be asked about this gap: ${why.join('; ')}.${instead}`,
+        reason: `${nameOf(f.personEntityId)} cannot be asked about this gap: ${why.join('; ')}.${instead}${quiet}`,
         refused: { personEntityId: f.personEntityId, name: nameOf(f.personEntityId), violations: f.violations, why },
         ...(f.wouldAsk ? { wouldAsk: { personEntityId: f.wouldAsk.personEntityId, name: nameOf(f.wouldAsk.personEntityId), ...(f.wouldAsk.because ? { because: f.wouldAsk.because } : {}), gapId: f.wouldAsk.gapId, text: f.wouldAsk.text } } : {}),
       };

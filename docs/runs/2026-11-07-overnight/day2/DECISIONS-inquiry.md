@@ -126,3 +126,21 @@ clock goes back to real time at the end unless `--keep-clock`. `--day` runs on r
 `tests/service-main.test.ts` now guards these flags instead of `--quiet-hours off`.
 Why the real date in `--night`: the brief names it; on a later date it still works (only the order of capture time and
 the simulated night changes). Reverse: `--day` behaviour as the default.
+
+## D-B7-12 · Smaller choices and assumptions
+
+- Quiet hours hold a question; they never refuse one. A refusal made at night adds that a question asked now waits
+  until 07:00; `kt_list_gaps` reports `quietHours {now, heldUntil}`.
+- `preferPersonEntityId` is an entity id (kt_find_people and kt_list_gaps supply them); an actor id of the same person
+  is resolved through the directory. A display name is not accepted (names are not unique).
+- Naming who would be asked instead exposes nothing new: recipients are already computed from what the requester may
+  see, as for kt_find_people.
+- `dryRun` exists on the coordinator (and is tested) but is not an MCP argument: the brief's tool shape does not ask for
+  it and `kt_list_gaps` already says who can be asked now.
+- `kt_propose_question` reports the validator's first failing rule as `reasons[0]` (the validator stops at the first
+  failure; the reason is specific enough to rewrite).
+- Batch mode takes the gaps in the order given; the per-person rule (one open question) is what spreads them across
+  people, the call's exclusion list only makes it explicit.
+- Tests: `tests/inquiry.test.ts` runs each case on its own service and MCP process (budgets and cooldowns never leak);
+  the three-gap batch seeds a third open gap (unit.age) on the basis case and three NOC engineers, because no fixture has
+  three open askable gaps for one problem (the brief allows seeding). 524 tests after B7 (511 before).

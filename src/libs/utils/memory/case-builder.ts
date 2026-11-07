@@ -5,6 +5,8 @@ import { stableId, unknownTime } from '../contracts/index.ts';
 import { compareTime } from '../connectors/time.ts';
 import { linkSetByHuman } from './human.ts';
 import { inferActions, inferOutcome } from './extractor-rules.ts';
+import { defaultExtractionConfig } from './extraction-config.ts';
+import { recurrenceOf } from './language.ts';
 import { caseLabel } from './case-label.ts';
 
 export const isLive = (c: Claim): boolean => c.status === 'provisional' || c.status === 'supported';
@@ -23,11 +25,62 @@ export function evidenceOrder(store: KnowledgeStore, ids: string[]): Map<string,
   return new Map(ev.map((e, i) => [e.id, i]));
 }
 
+/**
+ * Is the order of two evidence records known? Inside one thread, or when both have a known event time. Across threads without
+ * times the global order is only the ingestion order, which says nothing about what happened first.
+ */
+function comparable(store: KnowledgeStore, a: EvidenceRef[], b: EvidenceRef[]): boolean {
+  const ea = store.get('evidence', a[0]?.evidenceId ?? '');
+  const eb = store.get('evidence', b[0]?.evidenceId ?? '');
+  if (!ea || !eb) return false;
+  if ((ea.thread.threadId ?? ea.id) === (eb.thread.threadId ?? eb.id)) return true;
+  return ea.eventTime.known && eb.eventTime.known;
+}
+
 const refOrder = (order: Map<string, number>, refs: EvidenceRef[]): number => Math.min(...refs.map((r) => order.get(r.evidenceId) ?? Infinity), Infinity);
 
 function performedAction(c: Claim): string | undefined {
   if (c.condition?.key === 'action.performed' && c.condition.value !== undefined) return String(c.condition.value);
   return inferActions(c.statement).find((a) => !a.negated)?.name;
+}
+
+const durableRe = new RegExp(defaultExtractionConfig.language.longDuration.source, 'i');
+/** A report that things stayed fine for a day or longer (generic duration phrases from the language configuration). */
+const durableRecovery = (statement: string): boolean => durableRe.test(statement);
+
+/** Cases that concern the same asset (the case's first entity), including itself. */
+export function siblingCases(store: KnowledgeStore, c: Case): Case[] {
+  const asset = c.entityIds[0];
+  if (!asset) return [c];
+  return store.list('case', { where: { orgId: c.orgId } }).filter((x) => x.entityIds[0] === asset);
+}
+
+/** The first problem statement of a case says it is a recurrence ("down again", "another problem"). */
+function isRecurrenceCase(store: KnowledgeStore, c: Case): boolean {
+  const obs = store.list('claim', { where: { caseId: c.id } }).filter((x) => x.type === 'observation' && isLive(x));
+  if (!obs.length) return false;
+  const order = evidenceOrder(store, c.evidenceIds);
+  const first = [...obs].sort((a, b) => refOrder(order, a.supporting) - refOrder(order, b.supporting))[0]!;
+  return recurrenceOf(first.statement, defaultExtractionConfig);
+}
+
+/**
+ * True when a later episode of the same asset reports the problem again and this case is the episode right before it
+ * (nearest earlier known start, else the non-recurrence one when times are unknown).
+ */
+function recurrenceReportedLater(store: KnowledgeStore, c: Case): boolean {
+  const sibs = siblingCases(store, c);
+  if (sibs.length < 2) return false;
+  const start = (x: Case): number | undefined => (x.startedAt.known && x.startedAt.iso && Number.isFinite(Date.parse(x.startedAt.iso)) ? Date.parse(x.startedAt.iso) : undefined);
+  for (const later of sibs) {
+    if (later.id === c.id || !isRecurrenceCase(store, later)) continue;
+    const others = sibs.filter((x) => x.id !== later.id);
+    const lt = start(later);
+    const before = lt === undefined ? [] : others.filter((x) => (start(x) ?? Infinity) < lt).sort((a, b) => start(b)! - start(a)!);
+    const prev = before[0] ?? others.filter((x) => start(x) === undefined && !isRecurrenceCase(store, x)).sort((a, b) => a.id.localeCompare(b.id))[0] ?? (others.length === 1 ? others[0] : undefined);
+    if (prev?.id === c.id) return true;
+  }
+  return false;
 }
 
 export interface RebuildOptions { now?: string }
@@ -110,20 +163,48 @@ export function rebuildCase(store: KnowledgeStore, caseId: string, options: Rebu
       basis: 'reported' as const,
     };
   });
+  // Lasting from later separate evidence: a recovery reported as holding for a day or longer ("no flaps for three days after the
+  // rollback") confirms the recovery reports before it, but only when that report is a different evidence item from the one that
+  // reports the attempt (one person's single message is one self-report) and was not posted before the recovery it confirms.
+  // Same-session checks ("still up after ten minutes") do not count.
+  const evIds = (refs: EvidenceRef[]): Set<string> => new Set(refs.map((r) => r.evidenceId));
+  outcomeClaims.forEach((cl, i) => {
+    if (outcomes[i]!.result !== 'recovered' || !durableRecovery(cl.statement)) return;
+    const mine = evIds(cl.supporting);
+    const attempt = attempts.find((a) => a.id === outcomes[i]!.attemptId);
+    if (attempt && [...evIds(attempt.evidence)].some((id) => mine.has(id))) return; // same message as the attempt report: no separate evidence
+    outcomes[i]!.lasting = 'confirmed';
+    // reports of the same attempt's recovery, wherever they sit in the (partly unordered) evidence
+    for (let j = 0; j < outcomes.length; j++) {
+      const o = outcomes[j]!;
+      if (j === i || o.result !== 'recovered' || o.lasting !== 'unknown') continue;
+      if (outcomes[i]!.attemptId && o.attemptId !== outcomes[i]!.attemptId) continue;
+      if ([...evIds(o.evidence)].every((id) => mine.has(id))) continue; // the same message
+      if (comparable(store, o.evidence, outcomes[i]!.evidence) && refOrder(order, o.evidence) > refOrder(order, outcomes[i]!.evidence)) continue; // posted later than the confirmation
+      o.lasting = 'confirmed';
+    }
+  });
+  // A later report that the problem is back, on this case or on a later episode of the same asset, makes recoveries 'recurred'.
+  const recurredBySibling = recurrenceReportedLater(store, c);
+  if (recurredBySibling) for (const o of outcomes) if (o.result === 'recovered') o.lasting = 'recurred';
   // A later recurrence report makes earlier recoveries 'recurred'.
   // A later 'no change' / 'worse' report after a recovery counts the same way (the fault is back or the recovery failed).
-  const recurrenceIdx = outcomes.findLastIndex((o) => o.lasting === 'recurred' || o.result === 'no-change' || o.result === 'worse');
-  if (recurrenceIdx >= 0) outcomes.forEach((o, i) => { if (i < recurrenceIdx && o.result === 'recovered') o.lasting = 'recurred'; });
+  // Only reports whose order is known count: across undated threads the ingestion order proves nothing.
+  outcomes.forEach((o, i) => {
+    if (o.result !== 'recovered') return;
+    const flagged = outcomes.some((x, j) => j > i && (x.lasting === 'recurred' || x.result === 'no-change' || x.result === 'worse') && (x.lasting === 'recurred' && !comparable(store, o.evidence, x.evidence) ? true : comparable(store, o.evidence, x.evidence)));
+    if (flagged) o.lasting = 'recurred';
+  });
   const keepOutcomes = new Set(outcomes.map((o) => o.id));
   for (const old of store.list('outcome', { where: { caseId } })) if (!keepOutcomes.has(old.id)) store.delete('outcome', old.id);
   for (const o of outcomes) store.put('outcome', o);
 
   // ---- status
   let status: CaseStatus;
-  const lastRecovered = outcomes.filter((o) => o.result === 'recovered');
+  const lastRecovered = outcomes.filter((o) => o.result === 'recovered' || o.result === 'partial');
   if (lastRecovered.length) {
     const lr = lastRecovered.at(-1)!;
-    status = outcomes.some((o) => o.lasting === 'recurred') ? 'recurred' : lr.basis === 'observed' && lr.lasting === 'confirmed' ? 'verified-resolved' : 'reported-recovered';
+    status = lr.lasting === 'recurred' ? 'recurred' : lr.lasting === 'confirmed' ? 'verified-resolved' : 'reported-recovered';
   } else if (outcomes.length) status = 'open';
   else status = performedAttempts.length ? 'unknown-outcome' : 'open';
 

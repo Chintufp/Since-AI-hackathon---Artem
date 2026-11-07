@@ -10,6 +10,7 @@ import { canSee } from './access.ts';
 import { commitProposal, refreshClaimSupport } from './commit.ts';
 import { defaultExtractionConfig, type ExtractionConfig } from './extraction-config.ts';
 import { extractFromContext } from './extractor-rules.ts';
+import { assignEpisodes } from './episodes.ts';
 
 export { openStore } from './sqlite-store.ts';
 export type { SqliteKnowledgeStore, StoreOptions } from './sqlite-store.ts';
@@ -25,6 +26,7 @@ export type { CommitOptions, CommitResult } from './commit.ts';
 export { rebuildCase } from './case-builder.ts';
 export { createRulesExtractor, extractFromContext, RULES_ROUTE } from './extractor-rules.ts';
 export { defaultExtractionConfig } from './extraction-config.ts';
+export { assignEpisodes } from './episodes.ts';
 export type { ExtractionConfig } from './extraction-config.ts';
 
 export type ImportFormat = 'teams-json' | 'email-text' | 'slack-export' | 'scenario-dir' | 'paste';
@@ -114,8 +116,9 @@ export function importFromPath(store: KnowledgeStore, req: ImportFromPathRequest
     relinked.push(...r.relinked);
   }
   const cases = new Set<string>(), claims = new Set<string>(), entities = new Set<string>(), people = new Set<string>();
-  for (const ctx of loadContexts(store, req.orgId, evidence.map((e) => e.id), { aliases: cfg.aliases })) {
-    const proposal = extractFromContext(ctx, cfg);
+  const items = loadContexts(store, req.orgId, evidence.map((e) => e.id), { aliases: cfg.aliases }).map((ctx) => ({ ctx, proposal: extractFromContext(ctx, cfg) }));
+  assignEpisodes(store, req.orgId, items, cfg); // separate episodes on one asset, write-ups attach to the right one
+  for (const { ctx, proposal } of items) {
     const r = commitProposal(store, proposal, ctx, { orgId: req.orgId, accessScope: scope, now: req.now });
     r.caseIds.forEach((x) => cases.add(x));
     r.claimIds.forEach((x) => claims.add(x));

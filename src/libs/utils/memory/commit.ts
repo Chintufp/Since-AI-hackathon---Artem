@@ -5,7 +5,7 @@ import type {
 import { stableId, unknownTime } from '../contracts/index.ts';
 import { covers, leastRestrictiveScope, restrictiveScope } from './access.ts';
 import { claimConfirmedByHuman } from './human.ts';
-import { isLive, rebuildCase } from './case-builder.ts';
+import { isLive, rebuildCase, siblingCases } from './case-builder.ts';
 
 export interface CommitOptions {
   orgId: string;
@@ -126,7 +126,12 @@ export function commitProposal(store: KnowledgeStore, proposal: ExtractionPropos
     for (const inc of proposal.incidents) if (hasProblem(inc)) for (const id of inc.evidenceIds) incidentOf.set(id, inc);
     const touchedCases = new Map<string, { key: string; title: string; evidenceIds: Set<string>; asset?: string }>();
     const claimByLinkKey = new Map<string, string>();
-    for (const pc of proposal.claims) {
+    // A claim read from a verbatim copy of another record is dependent support for the original's claim (same type, same passage),
+    // never a new claim with a new asserter/performer. Copies are processed after everything else so originals in this import exist.
+    const copySources = (pc: (typeof proposal.claims)[number]): string[] => evMap.get(pc.evidence[0]?.evidenceId ?? '')?.lineage.copiedFrom ?? [];
+    const claimsInOrder = [...proposal.claims.filter((c) => !copySources(c).length), ...proposal.claims.filter((c) => copySources(c).length)];
+    const passage = (r: EvidenceRef | undefined): string => norm((r?.excerpt ?? '').replace(/\.\.\.$/, ''));
+    for (const pc of claimsInOrder) {
       const inc = incidentOf.get(pc.evidence[0]?.evidenceId ?? '');
       const caseBound = CASE_TYPES.has(pc.type) && !!inc;
       const key = caseBound ? inc!.key : '-';
@@ -135,8 +140,14 @@ export function commitProposal(store: KnowledgeStore, proposal: ExtractionPropos
         touchedCases.set(key, { key, title: inc!.title, evidenceIds: new Set(inc!.evidenceIds), asset: inc!.key.startsWith('asset:') ? pc.subjectEntityNames[0] : undefined });
       }
       const idBasis = (pc.type === 'condition' || pc.type === 'action') && pc.condition ? `${pc.condition.key}|${pc.condition.operator}|${String(pc.condition.value)}${pc.type === 'action' ? '|' + norm(pc.statement) : ''}` : norm(pc.statement);
-      const id = stableId('claim', orgId, key, pc.type, idBasis);
-      const prev = store.get('claim', id);
+      let id = stableId('claim', orgId, key, pc.type, idBasis);
+      let prev = store.get('claim', id);
+      const from = copySources(pc);
+      if (from.length) {
+        const want = passage(pc.evidence[0]);
+        const orig = want.length >= 8 ? store.list('claim', { where: { orgId } }).find((x) => x.type === pc.type && x.supporting.some((r) => from.includes(r.evidenceId) && passage(r) === want)) : undefined;
+        if (orig) { id = orig.id; prev = orig; }
+      }
       const supporting = prev ? mergeRefs(prev.supporting, pc.evidence) : pc.evidence;
       // Refs to superseded revisions are dropped once a current ref exists.
       const current = supporting.filter((r) => !store.get('evidence', r.evidenceId)?.metadata?.supersededBy);
@@ -235,6 +246,12 @@ export function commitProposal(store: KnowledgeStore, proposal: ExtractionPropos
     }
 
     for (const caseId of result.caseIds) rebuildCase(store, caseId, { now });
+    // Episodes of the same asset read each other (a later "down again" report marks the earlier recovery as recurred).
+    const touched = new Set(result.caseIds);
+    for (const caseId of result.caseIds) {
+      const c = store.get('case', caseId);
+      if (c) for (const sib of siblingCases(store, c)) if (!touched.has(sib.id)) { touched.add(sib.id); rebuildCase(store, sib.id, { now }); }
+    }
     result.claimIds = [...new Set(result.claimIds)];
     result.entityIds = [...new Set(result.entityIds)];
     result.personEntityIds = [...new Set(result.personEntityIds)];

@@ -52,6 +52,71 @@ export interface ExtractionConfig {
   outcomeRecurred: RegExp;
   /** Words that mark a statement as hedged (the case view flags hedged conditions from the statement; labels stay plain). */
   hedges: RegExp;
+  /** Condition keys that describe a current state/reading; a sentence that yields one also counts as an observation. */
+  stateConditionKeys: string[];
+  /** Two non-recurrence problem statements on one asset more than this many days apart (after an outcome) are separate episodes. */
+  episodeGapDays: number;
+  /** After an outcome, a problem statement sharing less than this fraction of its content words with the incident so far is a different problem (new incident). */
+  differentProblemOverlap: number;
+  /** A write-up or follow-up with no problem statement joins the nearest timed episode only within this many days. */
+  followUpDays: number;
+  /** Emit an identity claim for every role a message envelope declares (default off: the role is kept as a person attribute). */
+  declaredRoleClaims: boolean;
+  /** Generic language lexicons: verbs, discourse, outcome states, temporal cues (see memory/README.md "Lexicon"). */
+  language: LanguageConfig;
+}
+
+/** Cue sets for the generic outcome-state classifier. Every entry is a generic phrase pattern, never a sentence from a data set. */
+export interface OutcomeStateLexicon {
+  /** Nouns for something going wrong; with a recurrence cue they mean the problem is back. */
+  problemNouns: RegExp;
+  /** The problem came back / happened again (needs a problemNoun nearby or an explicit recurrence phrase). */
+  recurrence: RegExp;
+  worse: RegExp;
+  /** Better but not fully: improvement words with a limit. */
+  partial: RegExp;
+  /** The fix did not change the situation, or the bad state continues ("still dropping"). */
+  noChange: RegExp;
+  /** Positive states and absence-of-problem phrases. */
+  recovered: RegExp;
+}
+
+export interface LanguageConfig {
+  /** Base forms of operations verbs (multi-word allowed: "roll back"). Used to detect performed/advised actions in any tense. */
+  verbs: string[];
+  /** base form -> past form for irregular verbs. */
+  irregularPast: Record<string, string>;
+  /** base form -> noun used in "after the <object> <noun>" anchors; fallback is the -ing form. */
+  nominals: Record<string, string>;
+  /** Words skipped when finding the object of an action ("the", "a clean", "both"). */
+  objectFiller: RegExp;
+  /** Leading discourse markers removed from normalized statements. */
+  discourseMarkers: RegExp;
+  /** Aside markers: the rest of the message is off-topic. */
+  asideCue: RegExp;
+  /** Text immediately before an asset id that makes it a reference ("same as", "like on"), not the subject of the message. */
+  referenceCue: RegExp;
+  /** Intent / acknowledgement phrases that are not performed actions. */
+  intent: RegExp;
+  /** Problem recurred / happened again (episode boundary, "recurred" lasting). */
+  recurrenceCue: RegExp;
+  /** "came back" / "is back": a recurrence only when a problem noun is in the sentence ("the alarm is back", not "traffic is back"). */
+  comeBackCue: RegExp;
+  /** A period of a day or longer ("for three days", "next morning"): evidence of lasting, not an immediate check. */
+  longDuration: RegExp;
+  /** Hedge clause markers that start a hypothesis inside an advice sentence ("I suspect it ..."). */
+  hedgeClause: RegExp;
+  /** Closure phrases ("we can close the ticket"): not a new claim about the incident state. */
+  closure: RegExp;
+  /** Objects that are paperwork or communication, not equipment ("ticket raised"): not an operations action. */
+  administrative: RegExp;
+  /** Questions that ask for a reading or status (their answers are observations); other answers are conditions. */
+  readingQuestion: RegExp;
+  /** Phrases that rule a cause out; they merge into the next hypothesis in the same message. */
+  exclusion: RegExp;
+  /** Explicit recovery words (a sentence with one is an outcome after an attempt even when it names no problem topic). */
+  strongRecovery: RegExp;
+  states: OutcomeStateLexicon;
 }
 
 const v = (value: string): ConditionParseResult['value'] => value;
@@ -108,10 +173,10 @@ export const defaultConditionParsers: ConditionParser[] = [
   },
   {
     key: 'component.replaced',
-    pattern: /\b(?:chang|replac|swapp)\w*\s+(?:the\s+|a\s+)?(sfp|fan|psu|power supply|optic\w*|optical module|module|cable)\b/i,
+    pattern: /\b(?:chang|replac|swapp)\w*\s+(?:the\s+|a\s+)?(sfp|fan|psu|power supply|optic\w*|optical module|transceiver|cable)\b/i,
     build: (m) => {
       const w = m[1]!.toLowerCase();
-      const value = /sfp|optic|module/.test(w) ? 'sfp' : w === 'power supply' ? 'psu' : w;
+      const value = /sfp|optic|module|transceiver/.test(w) ? 'sfp' : w === 'power supply' ? 'psu' : w;
       return { operator: 'eq', value, label: `${value.toUpperCase()} replaced` };
     },
   },
@@ -140,7 +205,7 @@ export const defaultActionLexicon: ActionLexiconEntry[] = [
   { action: 'interface.reset', pattern: /(?:\bdisabl\w*|\bshut\w*)\b.{0,60}?\b(?:enabl\w*|no shut\w*)|\b(?:bounc\w*|toggl\w*|reset\w*)\b.{0,30}\binterface|\binterface\b.{0,30}\b(?:bounc\w*|toggl\w*|reset\w*)/i },
   { action: 'power.cycle', pattern: /\bpower[- ]?cycl\w*/i },
   { action: 'device.reboot', pattern: /\b(?:reboot\w*|restart\w*)\b/i },
-  { action: 'sfp.replace', pattern: /\b(?:replac\w*|chang\w*|swap\w*)\b.{0,25}?\b(?:sfp|optic\w*|module)\b/i },
+  { action: 'sfp.replace', pattern: /\b(?:replac\w*|chang\w*|swap\w*)\b.{0,25}?\b(?:sfp|optic\w*|optical module|transceiver)\b/i },
   { action: 'cable.replace', pattern: /\b(?:replac\w*|chang\w*|swap\w*)\b.{0,15}?\bcable/i },
   { action: 'config.rollback', pattern: /\b(?:roll(?:ed|ing)?\s?back|revert\w*)\b/i },
   { action: 'counters.check', pattern: /\b(?:check\w*|verify\w*|look\w* at|inspect\w*)\b.{0,40}?\bcounters?\b/i },
@@ -154,6 +219,47 @@ export const defaultActionLexicon: ActionLexiconEntry[] = [
 const IMPERATIVE_VERBS =
   "set|clear|configure|increase|raise|lower|check|try|disable|enable|replace|reboot|restart|reset|verify|look|inspect|make sure|ensure|clean|roll ?back|revert|swap|power[- ]?cycle|wait|don'?t|do not|never|avoid|read|review|bounce|toggle|contact|call|ask";
 
+/** Generic operations verbs (base forms). Organizations add their own; nothing here is specific to one incident family. */
+const DEFAULT_VERBS = [
+  'replace', 'swap', 'change', 'roll back', 'rollback', 'revert', 'reset', 'reboot', 'restart', 'clean', 'check', 'install', 'apply', 'set', 'raise',
+  'increase', 'lower', 'decrease', 'disable', 'enable', 'clear', 'fit', 'reroute', 'patch', 'upgrade', 'downgrade', 'tighten', 'reseat', 'remove', 'add',
+  'fix', 'update', 'configure', 'reconfigure', 'test', 'verify', 'inspect', 'reload', 'restore', 'reconnect', 'adjust', 'move', 'bypass', 'power cycle',
+  'switch', 'plug', 'unplug', 'bounce', 'toggle', 'shut', 'rebuild', 'flush', 'drain', 'redress', 're-dress', 'rewire', 'repair', 'secure', 'escalate',
+  'wipe', 'refit', 'recalibrate', 'realign', 'extend', 'shorten', 'insert', 'detach', 'attach', 'tune', 'throttle', 'cap', 'monitor', 'watch',
+];
+
+export const defaultLanguage: LanguageConfig = {
+  verbs: DEFAULT_VERBS,
+  irregularPast: { set: 'set', reset: 'reset', 'shut': 'shut', 'cut': 'cut', 'put': 'put', 'run': 'ran', 'fit': 'fitted', 'plug': 'plugged', 'unplug': 'unplugged', 'cap': 'capped', 'wipe': 'wiped', 'rebuild': 'rebuilt', 'build': 'built' },
+  nominals: {
+    replace: 'replacement', swap: 'swap', 'roll back': 'rollback', rollback: 'rollback', revert: 'revert', reset: 'reset', reboot: 'reboot', restart: 'restart',
+    clean: 'cleaning', check: 'check', install: 'installation', apply: 'application', upgrade: 'upgrade', downgrade: 'downgrade', patch: 'patch', 'power cycle': 'power cycle',
+    reseat: 'reseating', reroute: 'rerouting', change: 'change', fix: 'fix', update: 'update', adjust: 'adjustment', fit: 'fitting',
+  },
+  objectFiller: /^(?:the|a|an|both|all|any|some|it|them|that|this|those|these|new|clean|old|spare|fresh|faulty|bad|whole|entire|same|our|their|its|my|your|one|ones|for|with|up|down|back|out|off|over|again|first|then|also|just|already|now|to)$/i,
+  discourseMarkers: /^(?:(?:yes|yeah|yep|yup|no(?=[,.:;!])|nope|ok|okay|good|great|nice|sure|well|so|also|and|but|then|right|confirmed|thanks|thank you|indeed|exactly|correct|hm+|ah+|oh|great news|good news|update|and then|ok so|so then)\b[\s,.:;!-]*)+/i,
+  asideCue: /\b(?:by the way|btw|off[- ]topic|unrelated|on another note|side note|someone remind me|remind me to|has anyone (?:seen|found|got)|does anyone know|anyone know)\b/i,
+  referenceCue: /(?:\b(?:like|same as|similar to|as (?:on|with|for|in|at)|unlike|compared (?:to|with)|just like|same thing as|as we did (?:on|for|with)|as with|same (?:issue|problem|fault) as|similar (?:issue|problem) (?:on|to|at))\s+(?:the\s+|on\s+|at\s+|for\s+|with\s+)*)$/i,
+  intent: /\b(?:i'?ll|i will|i'?m going to|going to|about to|let me|will do|on it|on my way|give me|shall i|should i|do i|can i|i can|i could|we could|we can|we will|i would|we'?ll)\b/i,
+  recurrenceCue: /\b(?:again|once more|recurr\w*|reappear\w*|re-?occur\w*|second time)\b/i,
+  comeBackCue: /\b(?:came back|comes back|has come back|returned|is back|are back)\b/i,
+  longDuration: /\b(?:(?:for|over|after|in|about|nearly|almost)\s+)?(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several|a few|a couple of|many)\s+(?:days?|weeks?|months?)\b|\b(?:next|following)\s+(?:day|morning|week)\b|\bovernight\b|\byesterday\b|\bthe day after\b|\ba (?:day|week|month) (?:later|since|ago)\b/i,
+  hedgeClause: /[,;:]\s*((?:i (?:suspect|think|guess|believe|assume)|probably|maybe|perhaps|possibly|it (?:may|might|could) be)\b.*)$/i,
+  closure: /\b(?:close (?:the )?(?:ticket|case|incident|issue|task)|can be closed|closing (?:the )?(?:ticket|case|incident|issue|task)|mark(?:ed)? (?:it )?(?:as )?(?:resolved|done)|nothing (?:more|else) to do)\b/i,
+  administrative: /\b(?:tickets?|cases?|notes?|requests?|meetings?|calls?|emails?|messages?|reports?|records?|logs?|entry|entries|rota|vendor|customer)\b/i,
+  readingQuestion: /\b(?:what does|what do|what is|what's|what are|how is|how are|how much|how many|does it show|show me|reading|level|status|state|say)\b/i,
+  exclusion: /\b(?:so )?that(?: is|'s) not it\b|\bnot (?:the|a) (?:cause|reason)\b|\bis not (?:it|the cause)\b|\bwas not (?:it|the cause)\b/i,
+  strongRecovery: /\b(?:links?|sessions?|traffic|service|phones?|vlans?|peers?|ports?)\b[^.]{0,20}\b(?:fine|ok|okay|good|healthy|normal|clean|stable|steady)\b|\bstill\s+(?:up|good|stable|steady|clean|fine|ok|okay|healthy|normal|working)\b|\bclean\b|\b(?:back|up|restored|resolved|fixed|recovered|cleared|stopped|gone|flowing|registering|registered|working|steady|stable|normal)\b/i,
+  states: {
+    problemNouns: /\b(?:alarms?|errors?|flaps?|flapping|faults?|drops?|dropp\w+|crc|outages?|loss|failures?|failing|issues?|problems?|symptoms?|stalls?|stalling|rebooting|reboots|restarting|timeouts?|congestion|latency|noise|dips?|spikes?)\b/i,
+    recurrence: /\b(?:again|once more|came back|comes back|has come back|returned|is back|are back|recurr\w*|reappear\w*|re-?occur\w*|back again)\b/i,
+    worse: /\b(?:worse|got worse|gotten worse|now\b[^.;]{0,30}\b(?:down|offline|failing|broken|unreachable|lost)\b|more (?:errors|alarms|drops|flaps)|now (?:also )?down|even more|much higher than before|deteriorat\w*|degraded further)\b/i,
+    partial: /\b(?:not (?:all the way |fully |completely |entirely )?(?:to zero|gone|fixed|cleared|resolved)|but not (?:to zero|fully|completely|entirely|gone|zero)|(?:dropped|fell|reduced|improved|better|lower|less)\b[^.;]{0,30}\bbut\b|a (?:lot|bit) better|(?:partly|partially|mostly|largely) (?:fixed|better|resolved|gone)|improved (?:a lot|somewhat|slightly)|(?:at )?(?:a |the )?(?:low|lower|reduced) (?:level|rate))\b/i,
+    noChange: /\b(?:still\s+(?:not|no|down|zero|nothing|flapping|dropping|climbing|rising|failing|high|low|raised|active|happening|broken|stuck|slow|bad|the same|there|present|failing|seeing)|no (?:change|improvement|difference|effect)|unchanged|same (?:as before|(?:\w+ )?(?:pattern|problem|issue|symptom))|(?:didn'?t|did not|doesn'?t|does not|hasn'?t|has not) (?:help|fix|change|work|improve|clear)|not (?:back|working|recovered|resolved|fixed|improv\w+|clear\w*|solved)|(?:keeps?|kept|keep) (?:climbing|dropping|flapping|rising|growing|failing|going|happening)|(?:was|is|are) not (?:the|it|that)\b|did nothing)\b/i,
+    recovered: /\b(?:(?:is|are|was|were|came|back)\s+(?:up|online|fine|normal|ok|okay|good|clean|stable|steady|healthy|restored|working|flowing|registered|reachable)\b|(?:both |all |the )?(?:sessions?|peers?|links?|ports?|phones?|services?|traffic|vlans?)\s+(?:is |are |was |were )?(?:up|back|flowing|registering|registered|steady|stable|working|passing)\b|(?:no|zero) (?:more |further )?(?:\w+ ){0,2}(?:flaps?|errors?|alarms?|drops?|loss|faults?|resets?|issues?|problems?|failures?|complaints?)\b|(?:stopped|gone|cleared|fixed|resolved|restored|recovered|solved|working again|works again|works now|working now|back to normal|back online|back up)\b|(?:fell|dropped|went|came|is|are|down|now|back) (?:down )?to \d+|(?:is|are|looks?|seems?) (?:stable|steady|clean|fine|healthy|normal|good)(?: now| again)?|(?:still|since)\s+(?:up|good|stable|steady|clean|fine|ok|okay|healthy|normal|working)|up again|stable again|came back on its own|on its own|by itself)\b/i,
+  },
+};
+
 export const defaultExtractionConfig: ExtractionConfig = {
   assetIdPatterns: [/\b[A-Z]{2,5}-\d{2,5}\b/g],
   aliases: {},
@@ -161,9 +267,10 @@ export const defaultExtractionConfig: ExtractionConfig = {
     hypothesis: [
       /\bprobably\b/i, /\bmight\b/i, /\bsometimes\b/i, /\bi think\b/i, /\bi don'?t think\b/i, /\bcould be\b/i, /\bmaybe\b/i,
       /\bperhaps\b/i, /\busually\b/i, /\bsounds like\b/i, /\blooks like\b/i, /\bseems?\b/i, /\bcan (?:look|be|happen|come)\b/i,
-      /\bpossibly\b/i, /\blikely\b/i,
+      /\bpossibly\b/i, /\blikely\b/i, /\bi (?:suspect|guess|assume|believe|reckon)\b/i, /\bmy (?:guess|hunch)\b/i, /\bwould (?:explain|fit)\b/i,
+      /\b(?:is|are|was|were)\s+(?:probably|likely|possibly)\b/i, /\bnot (?:the|a) (?:cause|reason)\b/i, /\b(?:that|this|it)(?:'s| is| was) not (?:it|the cause)\b/i, /\bsuspect\w*\b/i,
     ],
-    advice: [/\byou should\b/i, /\bshould\b/i, /\bneed to\b/i, /\brecommend\w*\b/i, /\bbest to\b/i],
+    advice: [/\byou should\b/i, /\bshould\b/i, /\bneed to\b/i, /\brecommend\w*\b/i, /\bbest to\b/i, /\bmust\b/i, /\bhas to\b/i, /\bmake sure\b/i],
     action: [/\bdid (?:that|it)\b/i, /\bdone\b/i],
     outcome: [/\bis back\b/i, /\bresolved\b/i, /\bstill not\b/i, /\bno change\b/i, /\bcame back\b/i],
     condition: [/\bolder unit\b/i, /\binstalled around\b/i, /\blink up\b/i, /\bcounters? zero\b/i, /\brx power normal\b/i],
@@ -190,4 +297,10 @@ export const defaultExtractionConfig: ExtractionConfig = {
   outcomeWorse: /\b(?:worse|got worse|now (?:also )?down)\b/i,
   outcomeRecurred: /\b(?:(?:problem|issue|fault|alarm|error|flapping|it)\s+(?:came back|returned|is back)\s*(?:again)?|(?:happened|came back) again|recurr\w*)\b/i,
   hedges: /\b(?:i think|basically|around|probably|maybe|looks?|seems?|roughly|about)\b/i,
+  stateConditionKeys: ['optical.level', 'traffic.counters', 'interface.status', 'alarms.state', 'traffic.state', 'bgp.session', 'power.state', 'temperature.state'],
+  episodeGapDays: 2,
+  followUpDays: 14,
+  differentProblemOverlap: 0.25,
+  declaredRoleClaims: false,
+  language: defaultLanguage,
 };

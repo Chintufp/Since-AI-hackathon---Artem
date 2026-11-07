@@ -77,7 +77,10 @@ export function buildCaseView(store: KnowledgeStore, caseId: string, principal: 
     const when = whenOf(first.supporting);
     timeline.push({
       id: first.id, kind: 'problem', stage: 'observation', label: 'Reported problem',
-      detail: [...new Set(obs.map((o) => clip(unpunct(o.statement))))].join('\n') + (who || when ? `\nReported${who ? ` by ${who}` : ''}${when ? `, ${when}` : ''}.` : ''),
+      detail: (() => {
+        const lines = [...new Set(obs.map((o) => clip(unpunct(o.statement))))];
+        return [...lines.slice(0, 4), ...(lines.length > 4 ? [`(${lines.length - 4} more reported observation${lines.length - 4 > 1 ? 's' : ''})`] : [])].join('\n');
+      })() + (who || when ? `\nReported${who ? ` by ${who}` : ''}${when ? `, ${when}` : ''}.` : ''),
       evidence: visRefs(first.supporting), who, when,
     });
   } else {
@@ -170,7 +173,9 @@ export function buildCaseView(store: KnowledgeStore, caseId: string, principal: 
   const indep = independentSources(store, supportRefs);
   const total = new Set(supportRefs.map((r) => r.evidenceId)).size;
   const retracted = claims.filter((x) => x.status === 'retracted' || x.status === 'corrected' || x.status === 'contradicted').length;
-  const lead = outcomes.some((o) => o.result === 'recovered')
+  const lead = outcomes.some((o) => o.result === 'recovered' && o.lasting === 'confirmed')
+    ? 'Recovery is reported, and a later report says it lasted (neither independently observed)'
+    : outcomes.some((o) => o.result === 'recovered')
     ? 'Recovery is reported, not verified (timing, cause and lasting unconfirmed)'
     : outcomes.length ? 'The reported result is unverified' : 'No outcome has been reported';
   const caveat = `${lead}; ${indep} independent of ${total} source record(s)${retracted ? `; ${retracted} claim(s) retracted or corrected and not shown` : ''}.`;
@@ -205,6 +210,8 @@ function attemptNode(a: Attempt, cfg: ViewConfig, whenOf: (r: EvidenceRef[]) => 
   };
 }
 
+const alsoReportedBy = new WeakMap<Outcome, string[]>();
+
 /** A later restatement of an outcome (retelling or copy of the reporting message) is not a second outcome. */
 function dedupeOutcomes(list: Outcome[], retoldBy: (id: string) => Set<string>): Outcome[] {
   const kept: Outcome[] = [];
@@ -213,8 +220,13 @@ function dedupeOutcomes(list: Outcome[], retoldBy: (id: string) => Set<string>):
     const ids = [...new Set(o.evidence.map((r) => r.evidenceId))];
     const retold = new Set(ids.flatMap((i) => [...retoldBy(i)]));
     const restated = ids.length > 0 && ids.every((i) => retoldBy(i).size > 0) && kept.some((k) => k.result === o.result && k.evidence.some((r) => retold.has(r.evidenceId)));
-    const same = kept.find((k) => k.result === o.result && k.attemptId === o.attemptId && k.reportedBy?.id === o.reportedBy?.id);
-    if (same && !restated) { same.evidence = [...same.evidence, ...o.evidence]; continue; } // the same person restating the same result
+    // the same person restating the same result, or several people reporting the same result of the same attempt, is one node
+    const same = kept.find((k) => k.result === o.result && k.attemptId === o.attemptId && (k.reportedBy?.id === o.reportedBy?.id || (!!o.attemptId && k.lasting === o.lasting)));
+    if (same && !restated) {
+      same.evidence = [...same.evidence, ...o.evidence];
+      if (o.reportedBy && o.reportedBy.id !== same.reportedBy?.id) alsoReportedBy.set(same, [...(alsoReportedBy.get(same) ?? []), o.reportedBy.displayName]);
+      continue;
+    }
     if (!restated) kept.push(o);
   }
   return kept;
@@ -232,12 +244,12 @@ function outcomeNode(o: Outcome, attempts: Attempt[], cfg: ViewConfig, vis: (r: 
   if (!o.reportedAt.known) unconfirmed.push('timing');
   if (o.basis !== 'observed') unconfirmed.push('cause');
   if (o.lasting !== 'confirmed') unconfirmed.push(o.lasting === 'recurred' ? 'lasting (it recurred)' : 'whether it lasted');
-  const who = o.reportedBy?.displayName;
+  const who = [o.reportedBy?.displayName, ...(alsoReportedBy.get(o) ?? [])].filter((x): x is string => !!x).filter((x, i, a) => a.indexOf(x) === i);
   const detail = verified
     ? `Observed and confirmed lasting${after}.`
-    : `${who ?? 'Someone'} reported ${RESULT_PHRASE[o.result] ?? o.result}${after}. ${unconfirmed.length ? `${cap(joinAnd(unconfirmed))} ${unconfirmed.length > 1 ? 'are' : 'is'} unconfirmed` : 'Nothing further is unconfirmed'}.`;
+    : `${who.length ? joinAnd(who) : 'Someone'} reported ${RESULT_PHRASE[o.result] ?? o.result}${after}. ${unconfirmed.length ? `${cap(joinAnd(unconfirmed))} ${unconfirmed.length > 1 ? 'are' : 'is'} unconfirmed` : 'Nothing further is unconfirmed'}.`;
   return {
     id: o.id, kind: verified ? 'verified' : positive && o.lasting !== 'recurred' ? 'reported' : 'unknown', stage: 'outcome',
-    label: verified ? 'Verified outcome' : 'Reported outcome', detail, evidence: vis(o.evidence), who, when: whenOf(o.evidence),
+    label: verified ? 'Verified outcome' : 'Reported outcome', detail, evidence: vis(o.evidence), ...(who[0] ? { who: who[0] } : {}), when: whenOf(o.evidence),
   };
 }

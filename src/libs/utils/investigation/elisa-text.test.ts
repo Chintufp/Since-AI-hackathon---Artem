@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import { Engine } from '../../../apps/service/engine.ts';
 import { actionPhrase, basisCaseId, DEFAULT_PHRASES } from './index.ts';
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../../../..');
+const ELISA = join(ROOT, 'private/Elisa_SinceAI2026/ELISA_HIDDEN_KNOWLEDGE_EXAMPLE_2026');
+const hasElisa = existsSync(join(ELISA, 'teams_chat.json')) && existsSync(join(ELISA, 'email.txt'));
 
 const requester = { id: 'ent_bfc503c11994c003a9cd', displayName: 'Veikko Vikkelä', groups: [] as string[], type: 'human' as const };
 const BAD = [/\s{2,}/, /\bundefined\b/i, /\bnull\b/i, /\(\s*\)/, /[{}]/, /\bNaN\b/, /\brollbacking\b/i, /\b(swaping|reseting)\b/i, /\b[a-z]+\.[a-z_]+\b/];
@@ -12,7 +19,7 @@ async function engine(): Promise<Engine> {
   return e;
 }
 
-test('elisa TRN-088: the heading and timeline follow the basis case and no repeat of the already-done action is advised', async () => {
+test('elisa TRN-088: the heading and timeline follow the basis case and no repeat of the already-done action is advised', { skip: !hasElisa && 'private Elisa files absent' }, async () => {
   const eng = await engine();
   const r = await eng.investigate({ text: 'At site now. Replaced the SFP on TRN-088, an older unit from 2018. Link is up, alarms cleared, RX power normal, but no traffic. Counters zero.', principal: requester, allowQuestions: true });
   const id = basisCaseId(r.state);

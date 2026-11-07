@@ -156,3 +156,9 @@ Before/after compare the demo store's own cases (the day also imports train and 
 
 ## D-B2-47 · The old E08-E10 placeholders are replaced, not kept under new ids
 The EXPERIMENTS table held E08-E10 as 'conditional' rows with other meanings (outcome-assessor fine-tune, sequential RL, preferences) that nothing implements. They are retitled to the brief's definitions, wired into `runOne`, `known` and the `all` order (after usefulness), with a comment saying what the ids meant before. Reverse: give the old ideas new ids (E11+) if they come back.
+
+## D-B2-48 · The Elisa TRN-088 text test skips when private/ is absent
+`investigation/elisa-text.test.ts` 'elisa TRN-088' needs the private Elisa files (resetDemo('elisa') imports them only when present), so it failed in a worktree without `private/` and blocked the "test green before every commit" rule. It now carries the same `hasElisa` skip guard as `memory/pipeline.test.ts` and `memory/case-view.test.ts` (same path, same two files). In the main checkout, where the files exist, it runs as before. Reverse: remove the `skip` option.
+
+## D-B2-49 · Part B audit: no rebuild
+The second-half items (extractor-llm with the union and per-claim provenance, generator-phrased with `validatePhrase`, store-health with the measured reward and live LinUCB in data/local, Settings -> Models with safeStorage keys, the honesty lines, the harness 'models' shot) were already committed (11de0fb, cea22fe, 1faa6fa, 922e574, ddb500c). This run checked each one against the brief and its tests and did not rewrite them. Reverse: n/a.

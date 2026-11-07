@@ -13,6 +13,19 @@ export interface CompareOptions {
    * raw year itself never counts as a match, conflict or gap.
    */
   ageFold?: AgeFold;
+  /**
+   * Keys the PROBLEM states but a case may not record at all (for example the model of the earlier unit). Per key, label
+   * templates ({label} = the problem condition's label, {value} = its value): `missing` when the case carries no such condition and nobody has
+   * answered, `match` / `conflict` once an attributed answer says the case's unit does / does not share the stated value.
+   * Keys not listed here are never reported missing just because the case lacks them.
+   */
+  problemStated?: Record<string, ProblemStatedLabels>;
+}
+
+export interface ProblemStatedLabels {
+  missing: string;
+  match: string;
+  conflict: string;
 }
 
 export interface AgeFold {
@@ -47,6 +60,9 @@ export interface ConditionComparison {
 }
 
 type Agreement = 'match' | 'conflict' | 'unknown';
+
+export const isAnswerMarker = (c: Pick<Condition, 'operator' | 'value'>): boolean =>
+  c.operator === 'eq' && (c.value === ANSWER_MATCHES_CASE || c.value === ANSWER_DIFFERS_FROM_CASE);
 
 const norm = (v: unknown): string => String(v).trim().toLowerCase();
 const same = (a: unknown, b: unknown): boolean => norm(a) === norm(b);
@@ -114,9 +130,15 @@ export function compareConditions(problemIn: Condition[], caseIn: Condition[], o
 
   const out: ConditionComparison = { matching: [], conflicting: [], missing: [], expectedTraits: [] };
   const seenMissing = new Set<string>();
+  // An attributed answer on a key outranks what the problem text said about it.
+  const problemFor = (key: string): Condition[] => {
+    const all = byKey.get(key) ?? [];
+    const answers = all.filter(isAnswerMarker);
+    return answers.length ? answers : all;
+  };
   for (const c of caseConditions) {
     if (ignored.has(c.key)) continue;
-    const ps = byKey.get(c.key) ?? [];
+    const ps = problemFor(c.key);
     if (history.has(c.key)) {
       if (ps.some((p) => agreement(p, c) === 'match')) out.matching.push(c);
       continue;
@@ -137,6 +159,24 @@ export function compareConditions(problemIn: Condition[], caseIn: Condition[], o
           basis: c.evidence,
         });
       }
+    }
+  }
+  for (const [key, labels] of Object.entries(opts.problemStated ?? {})) {
+    if (ignored.has(key) || history.has(key) || caseConditions.some((c) => c.key === key)) continue;
+    const all = byKey.get(key) ?? [];
+    const stated = all.find((p) => p.operator === 'eq' && p.value !== undefined && !isAnswerMarker(p) && p.origin !== 'inferred');
+    const answer = all.filter(isAnswerMarker).pop();
+    if (!stated && !answer) continue;
+    const base = stated ?? (answer as Condition);
+    const label = (stated?.label ?? `${key}=${describe(stated ?? (answer as Condition))}`).trim();
+    const fill = (t: string): string => t.replaceAll('{label}', label).replaceAll('{value}', String((stated ?? base).value));
+    if (answer && answer.value === ANSWER_MATCHES_CASE) {
+      out.matching.push({ ...base, label: fill(labels.match), evidence: answer.evidence });
+    } else if (answer) {
+      out.conflicting.push({ ...base, label: fill(labels.conflict), evidence: answer.evidence });
+    } else {
+      out.missing.push({ key, label: fill(labels.missing) });
+      out.expectedTraits.push({ condition: { key, label: fill(labels.missing), expected: (stated as Condition).value as string | number | boolean }, status: 'unchecked', basis: (stated as Condition).evidence });
     }
   }
   return out;

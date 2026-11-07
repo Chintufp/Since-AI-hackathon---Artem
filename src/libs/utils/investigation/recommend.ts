@@ -1,5 +1,5 @@
 import type { Condition, EvidenceRef, Recommendation } from '../contracts/index.ts';
-import { isSoftCondition } from '../retrieval/conditions.ts';
+import { isAnswerMarker, isSoftCondition } from '../retrieval/conditions.ts';
 import { casePhrase, capitalize, clampText, conflictInWords, plainLabel, symptomsPhrase } from './phrases.ts';
 import type { HypothesisDetail } from './types.ts';
 import type { InvestigationSettings } from './settings.ts';
@@ -65,13 +65,19 @@ function planFor(d: HypothesisDetail, s: RecommendSettings, problem: Condition[]
       why.push((used.length ? used : conflicts).map((c) => conflictInWords(c.label ?? c.key, s.hedgeMarkers)).join('; '));
     }
     if (support === 'contradicted') why.push('a reported outcome contradicts it');
+    // A conflict that rests on an attributed answer says so, so the unchanged-looking applicability value is not the whole story.
+    const answered = new Set(problem.filter(isAnswerMarker).map((c) => c.key));
+    const byAnswer = applicability === 'inapplicable' && conflicts.some((c) => answered.has(c.key));
+    const inapplicableCaveat = applicability === 'inapplicable'
+      ? [`${label} does not apply to this unit${byAnswer ? ', going by the answer you received' : ''}: ${(conflicts.filter((c) => dKeys.has(c.key)).length ? conflicts.filter((c) => dKeys.has(c.key)) : conflicts).map((c) => conflictInWords(c.label ?? c.key, s.hedgeMarkers)).join('; ')}.`]
+      : [];
     return {
       rank: 2, detail: d,
       rec: {
         kind: 'retain-uncertainty', basis, applicability: 'unsupported', actionClass: 'none',
         text: text(`Don't reuse the fix from ${label}: ${why.join('; ')}.`),
         nextStep: 'Treat the cause as unknown and gather more evidence before acting.',
-        caveats: ['The cause of the current problem is unconfirmed.', ...(support === 'contradicted' ? [contradictedCaveat] : [])],
+        caveats: ['The cause of the current problem is unconfirmed.', ...inapplicableCaveat, ...(support === 'contradicted' ? [contradictedCaveat] : [])],
       },
     };
   }

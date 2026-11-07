@@ -268,7 +268,8 @@ export class QuestionCoordinator {
       const key = gap?.targetCondition?.key ?? parsed.detail;
       const caseConds = foldYearToAge(this.store.get('case', parsed.caseId)?.conditions ?? [], this.d.settings.ageFold);
       const caseCond = caseConds.find((c) => c.key === key);
-      if (value !== 'unknown' && caseCond) {
+      // A key the problem states but the case never recorded (settings.problemStated) is answered the same way: does the earlier unit share it.
+      if (value !== 'unknown' && (caseCond || this.d.settings.problemStated[key])) {
         // The question asks whether the CASE's condition holds here, whatever its operator: record agreement/disagreement
         // with it (understood by agreement()), not an eq/neq of its value.
         condition = { key, operator: 'eq', value: value === 'yes' ? ANSWER_MATCHES_CASE : ANSWER_DIFFERS_FROM_CASE, origin: 'reported', evidence: [evRef], label: `${gap?.targetCondition?.label ?? parsed.detail}: ${value} (answered)` };

@@ -2,6 +2,8 @@
  * Reset the local demo database: clear it (settings are kept) and import the Elisa example (when present under
  * private/), the demo scenario families and the developer fixture.
  *   node scripts/demo-reset.ts [--db path] [--seed elisa|synthetic|empty]
+ * A reset service answers the checks documented in src/libs/utils/investigation/README.md (problem text parsing, model gap,
+ * answered-loop persistence); use `--db :memory:` on a spare port for manual runs, never the shared service.
  */
 import { parseArgs } from 'node:util';
 import { Engine } from '../src/apps/service/engine.ts';

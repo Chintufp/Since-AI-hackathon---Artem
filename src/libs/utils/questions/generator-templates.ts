@@ -1,6 +1,6 @@
 import type { Gap, InvestigationState, QuestionCandidate, QuestionGenerator } from '../contracts/index.ts';
 import { stableId } from '../contracts/index.ts';
-import { casePhrase, loadCaseFacts, parseGapId, plainLabel, shortCaseLabel, startedBy, withArticle } from '../investigation/index.ts';
+import { casePhrase, loadCaseFacts, parseGapId, parseProblemText, plainLabel, shortCaseLabel, startedBy, withArticle } from '../investigation/index.ts';
 import { evidenceGate, visibleCase } from '../retrieval/access.ts';
 import { routeInfo } from '../models/routes.ts';
 import { normalizeKey, type QuestionContext } from './context.ts';
@@ -13,6 +13,13 @@ const slotsFilled = (tpl: string, vars: Record<string, string>): boolean => [...
 const tidy = (s: string): string => s.replace(/\s+/g, ' ').replace(/\(\s*\)/g, '').replace(/\s+([?.,])/g, '$1').trim();
 /** Used when a specific template's slot is unknown, so the question stays askable and honest about what is unknown. */
 export const GENERIC_CONDITION_TEMPLATE = 'Is this true for {asset}: {label}?';
+
+/** The value the problem states for a condition key (problem text parse, then supplied observations). */
+function statedValue(state: InvestigationState, key: string): string | undefined {
+  const fromObs = (state.problem.observations ?? []).find((c) => c.key === key && c.operator === 'eq' && c.value !== undefined);
+  const c = fromObs ?? parseProblemText(state.problem.text, state.problem.id).conditions.find((x) => x.key === key);
+  return c?.value === undefined ? undefined : String(c.value);
+}
 
 /**
  * Route 'rules' question generator: templates over gaps. Only OPEN CONSEQUENTIAL gaps become questions, and gaps
@@ -60,16 +67,29 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
         const label = plainLabel(gap.targetCondition?.label ?? p.detail, settings.hedgeMarkers);
         // Specific templates assume equality ("installed in {value}"); other operators use the generic wording over the case label.
         const value = cond?.value === undefined ? '' : String(cond.value);
-        const vars = { asset: assetName, value, a_value: value ? withArticle(value) : '', label };
-        let tpl = (!cond || cond.operator === 'eq' ? settings.questions.conditionTemplates[p.detail] : undefined) ?? 'Is this true for {asset}: {label}?';
+        // The case records nothing for this key but the problem states a value: ask about the earlier unit with the stated value.
+        const aboutCase = !cond && !!settings.problemStated[p.detail];
+        const stated = aboutCase ? statedValue(state, p.detail) : undefined;
+        const vars = {
+          asset: assetName, value, a_value: value ? withArticle(value) : '', label,
+          case_label: caseLabel, problem_value: stated ?? '', a_problem_value: stated ? withArticle(stated) : '',
+        };
+        let tpl = (aboutCase
+          ? settings.questions.problemStatedTemplates[p.detail]
+          : !cond || cond.operator === 'eq' ? settings.questions.conditionTemplates[p.detail] : undefined) ?? 'Is this true for {asset}: {label}?';
         if (!slotsFilled(tpl, vars)) tpl = GENERIC_CONDITION_TEMPLATE;
         if (!label.trim()) continue;
         text = tidy(fill(tpl, vars));
         rationale = `${hyp ? `Hypothesis "${hyp.statement}" from ${caseLabel} applies only if ${label}. ` : ''}${gap.whatAnswerChanges}${cite}`;
-        consequences = {
-          yes: `${label} holds for ${assetName}: the response from ${caseLabel} becomes applicable.`,
-          no: `${label} does not hold for ${assetName}: the response from ${caseLabel} becomes inapplicable and uncertainty is retained.`,
-        };
+        consequences = aboutCase
+          ? {
+            yes: `Confirmed that ${label}: the response from ${caseLabel} becomes applicable.`,
+            no: `Not so (${label}): the response from ${caseLabel} becomes inapplicable and uncertainty is retained.`,
+          }
+          : {
+            yes: `${label} holds for ${assetName}: the response from ${caseLabel} becomes applicable.`,
+            no: `${label} does not hold for ${assetName}: the response from ${caseLabel} becomes inapplicable and uncertainty is retained.`,
+          };
         scope = { entityIds: own, caseId: c.id };
         dedup = normalizeKey(`missing:${p.detail}|${[...entityIds].sort().join(',')}`);
       } else {

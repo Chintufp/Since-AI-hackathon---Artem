@@ -5,6 +5,7 @@ import type {
 import { freshId, stableId } from '../contracts/index.ts';
 import { uniqueRoutes } from '../models/routes.ts';
 import { canSee, evidenceGate, type EvidenceGate } from '../retrieval/access.ts';
+import { isAnswerMarker } from '../retrieval/conditions.ts';
 import { resolveEntityIds } from '../retrieval/exact.ts';
 import { loadCaseFacts, OUTCOME_KEY, viewerOfState } from './case-facts.ts';
 import { casePhrase, shortCaseLabel } from './phrases.ts';
@@ -49,8 +50,9 @@ const dedupeRefs = (refs: EvidenceRef[]): EvidenceRef[] => {
 
 /** Problem text parse < supplied observations < recorded observations/answers (later wins per key). */
 function mergeConditions(layers: Condition[][]): Condition[] {
+  // An attributed yes/no answer is kept next to what was stated on the same key; comparison lets the answer decide.
   const byKey = new Map<string, Condition>();
-  for (const layer of layers) for (const c of layer) byKey.set(c.key, c);
+  for (const layer of layers) for (const c of layer) byKey.set(isAnswerMarker(c) ? `${c.key}#answer` : c.key, c);
   return [...byKey.values()];
 }
 
@@ -147,7 +149,7 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
   // Re-running the same problem is idempotent: carry over questions, decisions, events and gap resolutions.
   const previous = input.previous ?? store.get('investigation', id);
 
-  const parsed = parseProblemText(problem.text, problem.id, { olderThroughYear: settings.ageFold.olderThroughYear, ...deps.parser });
+  const parsed = parseProblemText(problem.text, problem.id, { olderThroughYear: settings.ageFold.olderThroughYear, ...(settings.modelParser !== undefined ? { modelParser: settings.modelParser } : {}), ...deps.parser });
   const recorded = store.list('observation', { where: { investigationId: id } }).sort((a, b) => a.at.localeCompare(b.at));
   const visibleEntities = store.list('entity').filter((e) => canSee(e.accessScope, principal));
   const { ids: entityIds } = resolveEntityIds(problem.text, visibleEntities, problem.entityIds ?? []);

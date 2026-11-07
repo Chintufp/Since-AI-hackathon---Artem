@@ -19,7 +19,7 @@ export function parseGapId(id: string): { investigationId: string; kind: GapKind
 export interface GapInput {
   investigationId: string;
   detail: HypothesisDetail;
-  settings: Pick<InvestigationSettings, 'distinguishingKeys' | 'requesterObservableKeys' | 'hedgeMarkers' | 'phrases'>;
+  settings: Pick<InvestigationSettings, 'distinguishingKeys' | 'requesterObservableKeys' | 'hedgeMarkers' | 'phrases'> & Partial<Pick<InvestigationSettings, 'problemStated'>>;
 }
 
 /**
@@ -47,13 +47,19 @@ export function buildGaps({ investigationId, detail, settings }: GapInput): Gap[
     if ((caseCond && isSoftCondition(caseCond, settings.hedgeMarkers)) || isSoftCondition({ origin: 'reported', label: m.label }, settings.hedgeMarkers)) continue;
     const word = plainLabel(m.label, settings.hedgeMarkers);
     const canSelfCheck = obsKeys.has(m.key);
+    // The case records nothing for this key but the problem states a value: what is unknown is the earlier unit, not this one.
+    const aboutCase = !caseCond && !!settings.problemStated?.[m.key];
     gaps.push({
       id: makeGapId(investigationId, 'missing', caseId, m.key),
-      description: canSelfCheck
+      description: aboutCase
+        ? `Unknown whether ${word}; the problem states it for this unit. It decides whether the response from ${label} applies.`
+        : canSelfCheck
         ? `Unknown for this problem: ${word}. The requester can check this directly.`
         : `Unknown for this problem: ${word}. It decides whether the response from ${label} applies.`,
       consequential: true,
-      whatAnswerChanges: `If ${word} holds here, the response from ${label} becomes applicable (currently qualified); if it does not, it becomes inapplicable and the recommendation reverts to retaining uncertainty.`,
+      whatAnswerChanges: aboutCase
+        ? `If so, the response from ${label} becomes applicable (currently qualified); if not, it becomes inapplicable and the recommendation reverts to retaining uncertainty.`
+        : `If ${word} holds here, the response from ${label} becomes applicable (currently qualified); if it does not, it becomes inapplicable and the recommendation reverts to retaining uncertainty.`,
       ...(claim ? { targetClaimId: claim.id } : {}),
       targetCondition: { key: m.key, label: trait?.condition.label ?? m.label },
       status: 'open',

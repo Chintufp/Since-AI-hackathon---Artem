@@ -4,7 +4,7 @@ import { budgetViolations, computeBudget } from './budget.ts';
 import { loadCaseFacts } from './case-facts.ts';
 import { isRelatedCandidate } from './related.ts';
 import type { PersonDirectory } from './directory.ts';
-import { actionIsGrounded, actionPhrase, fillTemplate, shortCaseLabel } from './phrases.ts';
+import { actionIsGrounded, actionPhrase, actionTerms, fillTemplate, shortCaseLabel } from './phrases.ts';
 import { isDiagnosticAction, type InvestigationSettings } from './settings.ts';
 
 export interface PeopleInput {
@@ -123,8 +123,16 @@ export function buildPeople(inp: PeopleInput): PersonResult[] {
         const action = found && actionIsGrounded(found, facts.evidenceText, P) ? found : undefined;
         const base = fillTemplate(action ? tpl.withAction : tpl.withoutAction, { action: action ? actionPhrase(action, P).noun : '', case: label });
         const firsthand = xs.some((l) => l.firsthand);
+        // The excerpt shown first is the span that actually mentions the action or check (not just any span of the same message).
+        const terms = found ? actionTerms(found, P).map((t) => t.toLowerCase()).filter(Boolean) : [];
+        const mentions = (r: EvidenceRef): boolean => {
+          const text = (r.excerpt ?? (r.span ? store.get('evidence', r.evidenceId)?.text.slice(r.span.start, r.span.end) : undefined) ?? '').toLowerCase();
+          return terms.some((t) => text.includes(t));
+        };
+        const evidence = evidenceOf(xs);
+        const ordered = terms.length ? [...evidence.filter(mentions), ...evidence.filter((r) => !mentions(r))] : evidence;
         reasons.push({
-          text: firsthand || /not firsthand/.test(base) ? base : `${base} (not firsthand)`, contribution, caseId, evidence: evidenceOf(xs), firsthand,
+          text: firsthand || /not firsthand/.test(base) ? base : `${base} (not firsthand)`, contribution, caseId, evidence: ordered, firsthand,
           rank: caseRank(caseId), order: orderIndex(contribution),
         });
       };

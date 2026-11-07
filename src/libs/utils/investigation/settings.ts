@@ -1,5 +1,6 @@
 import { defaultCoordinatorSettings, type CoordinatorSettings } from '../contracts/index.ts';
-import type { AgeFold } from '../retrieval/conditions.ts';
+import type { AgeFold, ProblemStatedLabels } from '../retrieval/conditions.ts';
+import type { ModelParserConfig } from './problem-parser.ts';
 import { DEFAULT_PHRASES, type PhraseSettings } from './phrases.ts';
 
 /** Which condition keys a person can observe, by directory group or role. Organization configuration. */
@@ -13,6 +14,11 @@ export interface QuestionTemplateSettings {
   conditionTemplates: Record<string, string>;
   /** Action name -> phrase for "Did <phrase> right after the <action>?" */
   outcomePhrases: Record<string, string>;
+  /**
+   * Condition key -> question about the EARLIER unit of a case that records no such condition, while the problem states one
+   * ({case_label} = short case label, {a_problem_value} = the stated value with an article, {problem_value}, {label}).
+   */
+  problemStatedTemplates: Record<string, string>;
   /** Maximum question candidates produced per request. */
   maxCandidates: number;
   /** Also emit an evaluative (preference) candidate when >= 2 factual candidates exist. Never mandatory. */
@@ -44,6 +50,13 @@ export interface InvestigationSettings {
    * in `ignoredKeys`, so only the age class decides applicability. `olderThroughYear: null` disables folding.
    */
   ageFold: AgeFold;
+  /**
+   * Keys the problem states but a case may not record (default: the unit model). Without a recorded value for the earlier unit
+   * the stated value is an unknown that decides applicability; an attributed answer settles it either way.
+   */
+  problemStated: Record<string, ProblemStatedLabels>;
+  /** Extractor for a stated model in the problem text; null disables it. Undefined uses the parser default. */
+  modelParser?: ModelParserConfig | null;
   /** Regex sources marking a case condition label as hedged in its source; hedged/inferred conditions never create consequential gaps. */
   hedgeMarkers: string[];
   /** A candidate drives recommendation, gaps, questions and people only if it matches at least this many non-history conditions or shares an entity with the problem. */
@@ -90,12 +103,16 @@ export function defaultInvestigationSettings(over: Partial<InvestigationSettings
         'unit.installed_year': 'Was {asset} installed in {value}?',
         'software.version': 'Is {asset} running software version {value}?',
       },
+      problemStatedTemplates: { 'unit.model': 'Is {case_label} {a_problem_value}?' },
       outcomePhrases: { 'interface.reset': 'traffic return' },
       maxCandidates: 4,
       evaluativePairs: false,
     },
     phrases: DEFAULT_PHRASES,
     ageFold: { yearKey: 'unit.installed_year', ageKey: 'unit.age', olderValue: 'older', olderThroughYear: 2019, hedgeMarkers: ['hedged in source'] },
+    problemStated: {
+      'unit.model': { missing: "Earlier unit's model is {value}", match: "Earlier unit's model is {value} (confirmed)", conflict: 'Another model (this problem: {label})' },
+    },
     hedgeMarkers: ['hedged in source'],
     relatedMinMatchingConditions: 2,
     maxPeople: 6,

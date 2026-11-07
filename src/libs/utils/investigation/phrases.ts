@@ -122,10 +122,15 @@ const stem = (w: string): string => w.toLowerCase().replace(/(?:ing|ed|es|s)$/, 
  * Does the case's evidence text mention this action? `evidenceText` is the lower-cased text of the evidence the viewer may
  * see; undefined means it could not be read (nothing to check against, so the action is kept as is).
  */
+/** Words that show an action is meant: the configured evidence terms, else the words of its own name. */
+export function actionTerms(action: string, p: Pick<PhraseSettings, 'actionEvidenceTerms'>): string[] {
+  const own = action.split(/[._-]/).filter((w) => w.length > 2);
+  return p.actionEvidenceTerms?.[action] ?? own.slice(0, Math.max(1, own.length - 1)).map(stem);
+}
+
 export function actionIsGrounded(action: string, evidenceText: string | undefined, p: Pick<PhraseSettings, 'actionEvidenceTerms'>): boolean {
   if (evidenceText === undefined) return true;
-  const own = action.split(/[._-]/).filter((w) => w.length > 2);
-  const terms = p.actionEvidenceTerms?.[action] ?? own.slice(0, Math.max(1, own.length - 1)).map(stem);
+  const terms = actionTerms(action, p);
   return terms.some((t) => t && evidenceText.includes(t.toLowerCase()));
 }
 
@@ -162,7 +167,12 @@ export function conflictInWords(label: string, hedgeMarkers: string[] = []): str
   return `${plainLabel(m[1] as string, hedgeMarkers)} there, ${plainLabel(m[2] as string, hedgeMarkers)} here`;
 }
 
-export const withArticle = (word: string): string => (/^[aeiou]/i.test(word) ? `an ${word}` : `a ${word}`);
+/** "an older unit", "an N5", "an SFP", "a U2": letter-named acronyms are read by the sound of their first letter. */
+export const withArticle = (word: string): string => {
+  const acronym = /^[A-Z][A-Z0-9-]*\d?$/.test(word) && /[A-Z]{2}|\d/.test(word);
+  const vowelSound = acronym ? /^[AEFHILMNORSX]/.test(word) : /^[aeiou]/i.test(word);
+  return vowelSound ? `an ${word}` : `a ${word}`;
+};
 
 /**
  * Short, human case label: the asset id the case is about ("TRN-042"); falls back to the part of the title before a colon

@@ -6,6 +6,13 @@ import { visibleCandidates } from '../../libs/utils/investigation/visible-candid
 import { buildCaseView } from '../../libs/utils/memory/index.ts';
 import { evidenceGate, type EvidenceGate } from '../../libs/utils/retrieval/index.ts';
 
+/**
+ * The case caveat in plain words. The sentence is produced by the memory layer ("...; 8 independent of 9 source record(s)");
+ * it is reworded here for every viewer so a reader learns what is counted.
+ */
+export const polishCaveat = (caveat: string): string =>
+  caveat.replace(/(\d+) independent of (\d+) source record\(s\)/, (_, a: string, b: string) => `${a} of ${b} source record${b === '1' ? '' : 's'} ${a === '1' ? 'is' : 'are'} independent (copies and retellings are not counted)`);
+
 export type InvestigationResult = ResultView & { state: InvestigationState };
 
 export const ACTIVE_QUESTION = new Set(['queued', 'delivered']);
@@ -24,6 +31,7 @@ function gatedCaseView(store: KnowledgeStore, caseId: string, viewer: Pick<Princ
   if (!cv) return undefined;
   return {
     ...cv,
+    caveat: polishCaveat(cv.caveat),
     timeline: cv.timeline.map((n) => ({ ...n, evidence: gate.refs(n.evidence) })),
     sources: cv.sources.filter((x) => gate.ref({ evidenceId: x.evidenceId })),
   };

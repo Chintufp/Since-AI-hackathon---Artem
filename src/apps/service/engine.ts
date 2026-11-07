@@ -11,7 +11,7 @@ import type {
 import { defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
 import { connectionCards } from '../../libs/utils/connectors/index.ts';
 import {
-  defaultInvestigationSettings, investigate, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
+  defaultInvestigationSettings, investigate, investigationId, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
   type InvestigationSettings, type PersonDirectory,
 } from '../../libs/utils/investigation/index.ts';
 import { buildCaseView, importFromPath, listCases, openStore } from '../../libs/utils/memory/index.ts';
@@ -23,7 +23,7 @@ import { applyDirectory } from './directory.ts';
 import { resetDemo } from './demo.ts';
 import { DEFAULT_DB_PATH } from './paths.ts';
 import { badRequest, conflict, forbidden, notFound, toServiceError } from './errors.ts';
-import { ACTIVE_QUESTION, personView, questionView, resultView, type InvestigationResult } from './views.ts';
+import { ACTIVE_QUESTION, personView, polishCaveat, questionView, resultView, type InvestigationResult } from './views.ts';
 
 export { DEFAULT_DB_PATH, REPO_ROOT } from './paths.ts';
 export const SERVICE_VERSION = '0.1.0';
@@ -278,13 +278,14 @@ export class Engine {
     const p = this.principalFor(principalId);
     return listCases(this.store, p, this.orgId)
       .map((c) => buildCaseView(this.store, c.id, p))
-      .filter((v): v is CaseView => v !== undefined);
+      .filter((v): v is CaseView => v !== undefined)
+      .map((v) => ({ ...v, caveat: polishCaveat(v.caveat) }));
   }
 
   caseView(id: string, principalId?: string): CaseView {
     const v = buildCaseView(this.store, id, this.principalFor(principalId));
     if (!v) throw notFound(`Unknown case ${id}`);
-    return v;
+    return { ...v, caveat: polishCaveat(v.caveat) };
   }
 
   async investigate(req: InvestigateRequest): Promise<InvestigationResult> {
@@ -299,9 +300,15 @@ export class Engine {
       ...(req.attachmentNames ? { attachmentNames: req.attachmentNames } : {}), createdAt: this.now().toISOString(),
     };
     let state: InvestigationState;
+    // The id is derived from the whole request, so a repeat carries no new observations or attachments: what the stored
+    // state says about the question loop (an answer already used) must survive the refresh.
+    const prior = this.store.get('investigation', investigationId(problemId));
     try {
       state = await investigate({ problem, store: this.store, principal, deps: { retriever: w.retriever, assessor: w.assessor, generator: w.generator, selector: w.selector, settings: w.settings, clock: this.clock, directory: w.directory } });
       if (req.allowQuestions !== false) state = (await w.coordinator.request(state)).state;
+      if (prior?.loop === 'answered' && state.loop === 'no-question-needed') {
+        state = this.store.put('investigation', { ...state, loop: 'answered', loopReason: prior.loopReason ?? w.settings.loopReasons.answered });
+      }
     } catch (e) {
       throw toServiceError(e);
     }
@@ -456,10 +463,13 @@ export class Engine {
   /** Plain prose only: what was recorded, and what it did to the recommendation. No status words or identifiers. */
   private receipt(value: 'yes' | 'no' | 'unknown', q: QuestionRecord, state: InvestigationState | undefined, points: number | undefined, changed?: boolean): ReceiptView {
     const label = { yes: 'Recorded: Yes', no: 'Recorded: No', unknown: 'Recorded: Not sure' }[value];
+    const gapKind = parseGapId(q.candidate.gapId)?.kind;
     const asked = `"${q.candidate.text.replace(/\s+/g, ' ').trim()}"`;
     const lead = value === 'unknown' ? `You were not sure about ${asked}.` : `You answered ${value} to ${asked}.`;
     const effect = value === 'unknown'
       ? 'No new fact was recorded, and you will not be asked this again.'
+      : state && value === 'no' && state.recommendation.kind === 'retain-uncertainty' && gapKind === 'missing' ? 'The earlier case does not apply to this unit, so the recommendation stays uncertain.'
+      : state && value === 'no' && state.recommendation.kind === 'retain-uncertainty' && gapKind === 'outcome' ? 'No recovery is reported in the earlier case, so the recommendation stays uncertain.'
       : state && changed === false ? 'Your answer was recorded, and the recommendation did not change.'
       : state ? `${RECOMMENDATION_PROSE[state.recommendation.kind] ?? 'The recommendation was updated'}.` : 'Your answer was saved as your own report.';
     return { title: label, detail: `${lead} ${effect}`, canUndo: true, ...(points ? { pointsAwarded: points } : {}) };
@@ -564,13 +574,27 @@ export class Engine {
     if (!person) throw forbidden(`${req.personEntityId} is not among the people available to this requester for ${state.id}`);
     const settings = this.invSettings();
     const recorded = this.store.list('observation', { where: { investigationId: state.id } });
-    const parsed = parseProblemText(state.problem.text, state.problem.id).conditions;
-    const label = (c: Condition): string => c.label ?? `${c.key} ${c.operator} ${String(c.value ?? '')}`.trim();
-    const all = [...parsed, ...(state.problem.observations ?? []), ...recorded.map((o) => o.condition)];
+    const parsed = parseProblemText(state.problem.text, state.problem.id, {
+      olderThroughYear: settings.ageFold.olderThroughYear, ...(settings.modelParser !== undefined ? { modelParser: settings.modelParser } : {}),
+    }).conditions;
+    // A condition is shown with its value; one without a value ("Installed year" observed but not stated) says nothing and is skipped.
+    const parsedSet = new Set<Condition>(parsed);
+    const label = (c: Condition): string => {
+      const base = c.label ?? c.key;
+      const v = c.value === undefined ? '' : String(c.value);
+      return !parsedSet.has(c) && v && typeof c.value !== 'boolean' && !base.toLowerCase().includes(v.toLowerCase()) ? `${base}: ${v}` : base;
+    };
+    const all = [...parsed, ...(state.problem.observations ?? []), ...recorded.map((o) => o.condition)].filter((c) => c.value !== undefined);
     const uniq = (xs: string[]): string[] => [...new Set(xs)];
     const performedKeys = new Set(['action.performed', 'component.replaced']);
     const isCheck = (c: Condition): boolean => performedKeys.has(c.key) || c.key.endsWith('.check') || settings.diagnosticActions.some((a) => String(c.value ?? '') === a);
-    const symptoms = uniq(all.filter((c) => !isCheck(c)).map(label));
+    // The main symptom opens the list in the requester's own words: the sentence that holds the first symptom the requester can observe.
+    const firstSymptom = parsed.filter((c) => settings.requesterObservableKeys.includes(c.key) && c.evidence[0]?.span)
+      .sort((a, b) => (a.evidence[0]?.span?.start ?? 0) - (b.evidence[0]?.span?.start ?? 0))[0];
+    const sentences = [...state.problem.text.matchAll(/[^.!?\n]+[.!?]*/g)].map((m) => ({ start: m.index ?? 0, text: m[0].trim() })).filter((x) => x.text);
+    const at = firstSymptom?.evidence[0]?.span?.start;
+    const main = (at === undefined ? sentences[0] : [...sentences].reverse().find((x) => x.start <= at) ?? sentences[0])?.text.replace(/[.!?]+$/, '');
+    const symptoms = uniq([...(main ? [main] : []), ...all.filter((c) => !isCheck(c)).map(label)]);
     const done = uniq(all.filter(isCheck).map(label));
     const gap = state.gaps.find((g) => g.status === 'open' && g.consequential);
     const open = questionsForInvestigation(this.store, state.id).find((q) => ACTIVE_QUESTION.has(q.status) && q.personEntityId === person.personEntityId);

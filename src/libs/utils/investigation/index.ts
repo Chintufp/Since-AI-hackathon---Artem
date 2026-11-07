@@ -2,10 +2,10 @@ export { investigate, investigationId, startedBy, basisCaseId } from './investig
 export type { InvestigateDeps, InvestigateInput } from './investigate.ts';
 export { defaultInvestigationSettings, isDiagnosticAction } from './settings.ts';
 export type { InvestigationSettings, LoopReasons, ObservabilityPolicy, QuestionTemplateSettings } from './settings.ts';
-export { DEFAULT_PHRASES, actionPhrase, casePhrase, actionIsGrounded, shortCaseLabel, plainLabel, conflictInWords, clampText, capitalize, withArticle } from './phrases.ts';
+export { DEFAULT_PHRASES, actionPhrase, casePhrase, actionIsGrounded, actionTerms, shortCaseLabel, plainLabel, conflictInWords, clampText, capitalize, withArticle } from './phrases.ts';
 export type { ActionPhrase, PhraseSettings, PersonVerbTemplate } from './phrases.ts';
-export { parseProblemText, DEFAULT_LEXICON } from './problem-parser.ts';
-export type { LexiconRule, ParserOptions, ParsedProblem } from './problem-parser.ts';
+export { parseProblemText, DEFAULT_LEXICON, DEFAULT_MODEL_PARSER } from './problem-parser.ts';
+export type { LexiconRule, ModelParserConfig, ParserOptions, ParsedProblem } from './problem-parser.ts';
 export { RulesAssessor, applicabilityFor } from './assessor.ts';
 export { loadCaseFacts, supportFor, OUTCOME_KEY } from './case-facts.ts';
 export type { CaseFacts, Support } from './case-facts.ts';

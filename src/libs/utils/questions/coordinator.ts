@@ -178,6 +178,19 @@ export class QuestionCoordinator {
       };
       store.put('question', question);
       state.questionIds = [...state.questionIds, question.id];
+      // B1 review: an investigation question preempts the person's open standing question, which moves to Later, so the
+      // person still has one open question at a time (D-B1-40).
+      if (cand.origin !== 'standing') {
+        for (const sq of store.list('question', { where: { personEntityId: question.personEntityId } })) {
+          if (sq.candidate.origin !== 'standing' || (sq.status !== 'delivered' && sq.status !== 'queued')) continue;
+          store.put('question', { ...sq, status: 'deferred', previousStatus: sq.status, updatedAt: now.toISOString() });
+          const sst = store.get('investigation', sq.candidate.investigationId);
+          if (sst && sst.id !== state.id) {
+            this.trace(sst, 'question.preempted', { questionId: sq.id, personEntityId: sq.personEntityId, by: question.id });
+            store.put('investigation', sst);
+          }
+        }
+      }
       this.trace(state, 'question.queued', { questionId: question.id, personEntityId: question.personEntityId, decisionId: decision.id });
       const qh = settings.coordinator.quietHours;
       if (qh && inQuiet(now, qh)) {

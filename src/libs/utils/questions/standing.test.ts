@@ -143,6 +143,9 @@ test('an investigation question outranks a standing one for the same person; sta
   assert.ok(iq, 'the investigation asked');
   assert.equal(iq.personEntityId, veikko.id);
   assert.equal(iq.status, 'delivered');
+  // One open question at a time: the standing one moved to Later (preempted), it was not cancelled.
+  assert.equal(e.store.get('question', pairing!.id)!.status, 'deferred');
+  assert.equal(e.store.list('question', { where: { personEntityId: veikko.id } }).filter((q) => q.status === 'delivered' || q.status === 'queued').length, 1);
 
   // While the investigation question is open, no further standing question goes to him (not even to Later).
   await e.answer(pairing!.id, { principal: veikko, value: 'no' });

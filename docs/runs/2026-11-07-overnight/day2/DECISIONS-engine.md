@@ -222,3 +222,8 @@ Reverse: `atKnown`/`apart`, `withinScope`, `isSetup` in standing-gaps.ts.
 
 When an older claim's `supersededBy` points at a claim the principal may not see, its row is shown as before that claim: status `provisional` (the status before supersession is not stored), no `validTo` when that close time came from the hidden claim, no `orderBasis`, `validAt` evaluated without the close. Before, the row's `superseded` status and `validTo` (with the hidden message's raw time) leaked. The investigation path is unchanged: for such a principal the access answer stays "No barrier code ... on file" (closed claims are not offered), which is the safer side and reveals nothing either; the two views differ only for that principal. Test: memory/context-assertions.test.ts.
 Reverse: the `hiddenNewer` branch in `contextAssertions`.
+
+## D-B1-40 · An investigation question preempts an open standing question (amends D-B1-27)
+
+When the coordinator creates a non-standing question for a person, that person's queued or delivered standing questions move to `deferred` (Later; previousStatus kept; `question.preempted` traced on the standing state). So "one open question at a time" holds again; nothing is cancelled and the standing question can still be answered from Later. Kept from D-B1-27, deliberately: the daily limit and cooldown of an investigation question do not count standing questions, so an investigation is never blocked by upkeep questions; a person can therefore receive more than 3 deliveries in a day when some are standing ones (standing questions themselves still respect every budget, counting everything). Test: standing.test.ts "an investigation question outranks a standing one".
+Reverse: the preemption loop in `coordinator.request`.

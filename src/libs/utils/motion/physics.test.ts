@@ -21,8 +21,8 @@ test('gravity is derived from the R28 launch: D0 still falls in exactly 900 ms, 
   assert.equal(fallDuration(0, 1000), 0);
 });
 
-test('landing tier by impact speed: <300 settle, <900 hop, else entrance', () => {
-  assert.deepEqual(LANDING_SPEED_PX_S, { hop: 300, entrance: 900 });
+test('landing tier by impact speed: <450 settle, <1100 hop, else entrance', () => {
+  assert.deepEqual(LANDING_SPEED_PX_S, { hop: 450, entrance: 1100 });
   assert.equal(landingTier(0), 'settle');
   assert.equal(landingTier(449.9), 'settle');
   assert.equal(landingTier(450), 'hop');

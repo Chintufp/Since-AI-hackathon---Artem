@@ -186,3 +186,8 @@ Reverse: revert the result files together with D-B1-18.
 
 `deliverNow` re-checks `inQuiet(now)` when quiet hours are configured: inside quiet hours the question stays `queued` and its `deliverAfter` moves to the next window; `deliverDue` skips it. Fixes the reviewers' 03:00-to-03:00 case (delivered at 03:00 EET the next night). Test: quiet-hours.test.ts, "03:00 to 03:00 holds it again".
 Reverse: the `inQuiet` branch in `deliverNow`.
+
+## D-B1-33 · A backfilled value re-closes the older one
+
+Rule (a) gains a backfill step: when a fresh claim with a known time falls strictly inside the known window of an already superseded claim of the same slot and subject (different value), the older claim's `to` moves to the fresh claim's `from` and its `supersededBy` to the fresh claim. So 5802 (20 Aug), 7731 (6 Oct), then a late 6000 (1 Sep) gives exactly one valid code at every moment. Known times only; human-touched claims are never moved. Test: supersession.test.ts "a backfilled code ...".
+Reverse: the backfill loop in `applySupersession`.

@@ -18,7 +18,7 @@ import { routeInfo } from '../models/routes.ts';
 import { isLive } from './case-builder.ts';
 import { defaultExtractionConfig, type ValidityCueLexicon } from './extraction-config.ts';
 import { claimConfirmedByHuman, correctionsFor } from './human.ts';
-import { isNewer } from './validity.ts';
+import { instantOf, isNewer } from './validity.ts';
 
 export interface SupersessionOptions {
   orgId: string;
@@ -68,6 +68,26 @@ export function applySupersession(store: KnowledgeStore, claimIds: string[], opt
           revision: c.revision + 1, updatedAt: opts.now,
         });
         close(older, newer.id);
+      }
+      // Backfill (B1 review): a dated value imported late can fall inside the window of an older value that a later one
+      // already closed (5802 closed by 7731 on 6 Oct; 6000 of 1 Sep arrives last). Re-close the older one at the fresh
+      // value, so two codes are never valid at the same moment. Known times only.
+      const n = byId.get(fresh.id)!;
+      const nFrom = instantOf(n.validity.from);
+      if (nFrom !== undefined) { // n may itself have just been closed by a later value: it still bounds the older one
+        for (const other of [...byId.values()]) {
+          if (other.id === n.id || other.status !== 'superseded' || humanTouched(store, other) || other.supersededBy === n.id) continue;
+          if (slot(other) !== slot(n) || !overlap(other.subjectEntityIds, n.subjectEntityIds)) continue;
+          if (other.condition?.value === undefined || String(other.condition.value) === String(n.condition!.value)) continue;
+          const oFrom = instantOf(other.validity.from);
+          const oTo = instantOf(other.validity.to);
+          if (oFrom === undefined || oTo === undefined || !(oFrom < nFrom && nFrom < oTo)) continue;
+          save({
+            ...other, supersededBy: n.id,
+            validity: { ...other.validity, to: n.validity.from, orderBasis: 'known-time', route },
+            revision: other.revision + 1, updatedAt: opts.now,
+          });
+        }
       }
     }
 

@@ -90,6 +90,22 @@ test('import order does not matter when both are dated: the older email imported
   assert.equal(code(s, '7731')?.status, 'provisional');
 });
 
+test('a backfilled code between an older and a newer one re-closes the older at the backfilled date: one code at a time', () => {
+  const MID = OLD_EMAIL.replace('Wed, 20 Aug 2026 09:12:00 +0300', 'Tue, 1 Sep 2026 09:00:00 +0300').replace('5802', '6000').replace('lockbox code 1946', 'lockbox code 1947');
+  const s = openStore(':memory:');
+  email(s, OLD_EMAIL);
+  email(s, NEW_EMAIL);
+  email(s, MID);
+  const o = code(s, '5802')!, m = code(s, '6000')!, n = code(s, '7731')!;
+  assert.equal(o.supersededBy, m.id);
+  assert.equal(o.validity.to?.iso, m.validity.from?.iso);
+  assert.equal(m.supersededBy, n.id);
+  const live = (iso: string) => [o, m, n].filter((c) => validAt(s.get('claim', c.id)!, Date.parse(iso))).map((c) => c.condition?.value);
+  assert.deepEqual(live('2026-08-25T00:00:00Z'), ['5802']);
+  assert.deepEqual(live('2026-09-15T00:00:00Z'), ['6000']);
+  assert.deepEqual(live('2026-10-20T00:00:00Z'), ['7731']);
+});
+
 test('undated values need an explicit replacement cue before import order may close anything', () => {
   const undated = (body: string) => `From: A <a@example.test>\nTo: B <b@example.test>\nSubject: XYZ-77 access\n\n${body}\n`;
   const s = openStore(':memory:');

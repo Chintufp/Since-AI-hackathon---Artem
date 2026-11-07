@@ -1,25 +1,32 @@
 /**
- * Electron main process. Launch behaviour (R05): a small transparent always-on-top window with
- * only Snowbally visible at the bottom-right; he falls in from the top of the screen once (R28) and idles; the panel
- * opens when he is clicked. Flip OPEN_ON_LAUNCH to start with the panel open instead.
+ * Electron main process. Launch behaviour (R05): a transparent always-on-top window with only Snowbally
+ * visible; he falls in from the top of the screen once (R28) and lands at his home spot; the panel opens when he
+ * is clicked. Flip OPEN_ON_LAUNCH to start with the panel open instead.
+ *
+ * desktop (R31..R36): the window covers the work area (KT_WINDOW_MODE=column keeps the R28 column), the flags in
+ * flags.ts reach the renderer as query params, and the shell (tray away/back, global shortcut, power events,
+ * right-click menu, click-through resets) is built by createShell() in window.ts.
  */
-import { app, BrowserWindow, Menu, session, Tray } from 'electron';
+import { app, BrowserWindow, session } from 'electron';
 import { spawn } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/service.ts';
-import { allowServiceCors, createCompanionWindow, handleMouseIgnore } from './window.ts';
-import { createTrayIcon } from './tray-icon.ts';
+import { allowServiceCors, createCompanionWindow, createShell, handleMouseIgnore } from './window.ts';
+import type { Shell } from './window.ts';
+import { flagsFromEnv, flagsToQuery } from './flags.ts';
 
 const OPEN_ON_LAUNCH = false;
 const HEALTH_TIMEOUT_MS = 10000;
 const mock = process.env.KT_MOCK === '1';
 const port = Number(process.env.KT_PORT) || DEFAULT_SERVICE_PORT;
 const serviceUrl = `http://127.0.0.1:${port}`;
+// desktop (R31..R36): KT_WINDOW_MODE, KT_COMPANION, KT_DRAG, KT_AWAY, KT_GAZE, KT_FIDGETS, KT_SHORTCUT.
+const flags = flagsFromEnv(process.env);
 
 let win: BrowserWindow | null = null;
-let tray: Tray | null = null;
+let shell: Shell | null = null;
 let service: ChildProcess | null = null;
 
 async function healthy(): Promise<boolean> {
@@ -58,18 +65,6 @@ async function ensureService(): Promise<boolean> {
   return false;
 }
 
-function showWindow(): void {
-  if (!win) return;
-  win.showInactive();
-  win.webContents.send('kt:show');
-}
-
-function toggleWindow(): void {
-  if (!win) return;
-  if (win.isVisible()) win.hide();
-  else showWindow();
-}
-
 async function resetDemo(): Promise<void> {
   if (mock) return;
   try {
@@ -80,34 +75,21 @@ async function resetDemo(): Promise<void> {
   }
 }
 
-function createTray(): void {
-  tray = new Tray(createTrayIcon());
-  tray.setToolTip('Snowbally');
-  tray.setContextMenu(
-    Menu.buildFromTemplate([
-      { label: 'Show / Hide Snowbally', click: toggleWindow },
-      { label: 'Reset demo', click: () => void resetDemo() },
-      { type: 'separator' },
-      { label: 'Quit', click: () => app.quit() },
-    ]),
-  );
-  tray.on('click', toggleWindow);
-}
-
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
-  app.on('second-instance', showWindow);
+  // desktop (R36): launching again brings him back (and shows the window if it was hidden).
+  app.on('second-instance', () => shell?.command('return'));
   handleMouseIgnore(() => win);
   void app.whenReady().then(() => {
     if (!mock) {
       allowServiceCors(session.defaultSession, serviceUrl);
       void ensureService();
     }
-    const query: Record<string, string> = {};
+    const query: Record<string, string> = flagsToQuery(flags);
     if (mock) query.mock = '1';
     if (OPEN_ON_LAUNCH) query.open = '1';
-    win = createCompanionWindow({ serviceUrl, query });
-    createTray();
+    win = createCompanionWindow({ serviceUrl, query, mode: flags.windowMode });
+    shell = createShell({ getWindow: () => win, flags, resetDemo: () => void resetDemo() });
   });
   app.on('window-all-closed', () => app.quit());
   app.on('before-quit', () => {

@@ -34,3 +34,23 @@ Hiding other undated threads is deliberate: a time-only thread cannot be ordered
 "what was known at 09:16 of this thread" cannot honestly include them. The page sends `at` = 1 ms before the earliest
 dated item on the axis together with the cutoff (D-B3-04).
 Reverse: drop the parameter from `gateAt` and its four callers.
+
+## D-B3-03 · The time axis is one pure function the page embeds as source text
+
+`context/time-axis.ts layoutTimeAxis(items, {x0, x1})` lays out the axis and the slider stops. It is written with no
+imports and no outer references so `/context.html` can embed `layoutTimeAxis.toString()` (the service runs under Node's
+type stripping, so the text is plain JavaScript); a test evaluates that text and compares it with the module. One
+implementation, unit-tested, no build step for the page.
+Reverse: inline a JavaScript copy in context-page.ts (and lose the test on what the browser runs).
+
+## D-B3-04 · Axis order: undated threads, calendar, '?' gutter; what each stop sends
+
+Segments left to right: one "same day, date unknown" segment per undated thread (clock minutes, then sequence; ticks
+are the raw clock text), the calendar for known instants (UTC short dates, as B1's `shortDate`), then a '?' gutter for
+items with no usable time (unknown, and date-only, whose raw text is not trusted onto a calendar). Undated threads come
+first because B1's validity rule treats an undated source as valid from before any dated moment; the gutter comes last
+because nothing places it in time. Stops: one per evidence item on a clock segment (`atEvidence` = that evidence,
+`at` = 1 ms before the earliest dated item on the axis, so no dated item counts), one per distinct dated moment
+(`at` = that instant), and `now` (no `at`). The visible set per stop mirrors `gateAt`: at a calendar stop every undated
+item counts (B1), even though the gutter is drawn to the right of the line; the page says so in the gutter's label.
+Reverse: `layoutTimeAxis` (the order of `parts`) and the stop builder.

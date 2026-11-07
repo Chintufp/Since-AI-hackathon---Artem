@@ -1,0 +1,758 @@
+{
+  "startedAt": "2026-11-07T00:26:12.298Z",
+  "electron": "45.2.3",
+  "chrome": "156.0.8078.80",
+  "node": "24.22.2",
+  "platform": "darwin",
+  "arch": "arm64",
+  "idleCpu": {
+    "windowSeconds": 3,
+    "state": "collapsed, idle poses only",
+    "totalPercent": 0.17,
+    "perProcess": [
+      {
+        "type": "Browser",
+        "percent": 0.01
+      },
+      {
+        "type": "GPU",
+        "percent": 0.1
+      },
+      {
+        "type": "Utility",
+        "name": "Network Service",
+        "percent": 0
+      },
+      {
+        "type": "Tab",
+        "percent": 0.06
+      }
+    ],
+    "avatarStatus": {
+      "mode": "idle3",
+      "lastFrame": 8,
+      "animating": true,
+      "reactionPlaying": false,
+      "idleLoop": true,
+      "idlePose": 1,
+      "visible": true,
+      "reduced": false,
+      "questionCue": false,
+      "scale": 4
+    }
+  },
+  "openFrames_420": {
+    "frames": 95,
+    "maxMs": 10.3,
+    "meanMs": 8.33,
+    "p95Ms": 10.1,
+    "over20ms": 0
+  },
+  "avatarModeRightAfterSend_420": "processing",
+  "closeFrames_420": {
+    "frames": 37,
+    "maxMs": 10.4,
+    "meanMs": 8.33,
+    "p95Ms": 10.3,
+    "over20ms": 0
+  },
+  "hitbox": {
+    "320": {
+      "initial": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "final": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "allStatesEqual": true
+    },
+    "420": {
+      "initial": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "final": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "allStatesEqual": true
+    }
+  },
+  "openFrames_320": {
+    "frames": 93,
+    "maxMs": 10.4,
+    "meanMs": 8.33,
+    "p95Ms": 10.3,
+    "over20ms": 0
+  },
+  "avatarModeRightAfterSend_320": "processing",
+  "closeFrames_320": {
+    "frames": 37,
+    "maxMs": 10.3,
+    "meanMs": 8.32,
+    "p95Ms": 10.3,
+    "over20ms": 0
+  },
+  "reducedMotion": {
+    "timingsMs": {
+      "nodeExpand": 23,
+      "people": 23,
+      "close": 23
+    },
+    "status": {
+      "view": "collapsed",
+      "panelOpen": false,
+      "uiMotion": {
+        "active": false,
+        "panelProgress": 0,
+        "panelTarget": 0,
+        "panelVelocity": 0,
+        "contextHeight": 0,
+        "contextTarget": 0,
+        "panelHeight": 412,
+        "viewTransition": false,
+        "detailHeights": [
+          {
+            "id": "problem",
+            "value": 0,
+            "target": 0
+          },
+          {
+            "id": "hypothesis",
+            "value": 82,
+            "target": 82
+          },
+          {
+            "id": "check",
+            "value": 0,
+            "target": 0
+          },
+          {
+            "id": "attempt",
+            "value": 0,
+            "target": 0
+          },
+          {
+            "id": "outcome",
+            "value": 0,
+            "target": 0
+          }
+        ]
+      },
+      "lastOpen": "people",
+      "openNodes": {
+        "question": null,
+        "result": "hypothesis",
+        "case": null
+      },
+      "expanded": false,
+      "attachments": [],
+      "draft": "",
+      "reduced": true,
+      "serviceDown": false,
+      "busy": false,
+      "openQuestions": 2,
+      "avatar": {
+        "mode": "idle3",
+        "lastFrame": 0,
+        "animating": false,
+        "reactionPlaying": false,
+        "idleLoop": false,
+        "idlePose": 0,
+        "visible": true,
+        "reduced": true,
+        "questionCue": false,
+        "scale": 4
+      }
+    },
+    "nonZeroTimingsIncludeIpcRoundTrip": true
+  },
+  "consoleErrors": [],
+  "states": [
+    {
+      "name": "collapsed",
+      "width": 420,
+      "file": "01-collapsed-420.png",
+      "view": "collapsed",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "input",
+      "width": 420,
+      "file": "02-input-420.png",
+      "view": "input",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "draft-attachments",
+      "width": 420,
+      "file": "03-draft-attachments-420.png",
+      "view": "input",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "result",
+      "width": 420,
+      "file": "04-result-420.png",
+      "view": "result",
+      "settleMs": 818,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "result-node-expanded",
+      "width": 420,
+      "file": "05-result-node-expanded-420.png",
+      "view": "result",
+      "settleMs": 160,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "people",
+      "width": 420,
+      "file": "06-people-420.png",
+      "view": "people",
+      "settleMs": 217,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "contact-draft",
+      "width": 420,
+      "file": "07-contact-draft-420.png",
+      "view": "contact",
+      "settleMs": 815,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "people-back",
+      "width": 420,
+      "file": "08-people-back-420.png",
+      "view": "people",
+      "settleMs": 196,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "case-from-people",
+      "width": 420,
+      "file": "09-case-from-people-420.png",
+      "view": "case",
+      "settleMs": 197,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "result-question-card",
+      "width": 420,
+      "file": "10-result-question-card-420.png",
+      "view": "question",
+      "settleMs": 1336,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "question-context",
+      "width": 420,
+      "file": "11-question-context-420.png",
+      "view": "question",
+      "settleMs": 242,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "question-context-node",
+      "width": 420,
+      "file": "12-question-context-node-420.png",
+      "view": "question",
+      "settleMs": 163,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "queue",
+      "width": 420,
+      "file": "13-queue-420.png",
+      "view": "queue",
+      "settleMs": 25,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "settings",
+      "width": 420,
+      "file": "14-settings-420.png",
+      "view": "settings",
+      "settleMs": 198,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "receipt-points-burst",
+      "width": 420,
+      "file": "15-receipt-points-burst-420.png",
+      "view": "receipt",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "receipt-undo",
+      "width": 420,
+      "file": "16-receipt-undo-420.png",
+      "view": "receipt",
+      "settleMs": 583,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "undo-returns-to-question",
+      "width": 420,
+      "file": "17-undo-returns-to-question-420.png",
+      "view": "question",
+      "settleMs": 205,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "error-unreachable",
+      "width": 420,
+      "file": "18-error-unreachable-420.png",
+      "view": "receipt",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "closed-again",
+      "width": 420,
+      "file": "19-closed-again-420.png",
+      "view": "collapsed",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "collapsed",
+      "width": 320,
+      "file": "20-collapsed-320.png",
+      "view": "collapsed",
+      "settleMs": 0,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "input",
+      "width": 320,
+      "file": "21-input-320.png",
+      "view": "input",
+      "settleMs": 0,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "draft-attachments",
+      "width": 320,
+      "file": "22-draft-attachments-320.png",
+      "view": "input",
+      "settleMs": 0,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "result",
+      "width": 320,
+      "file": "23-result-320.png",
+      "view": "result",
+      "settleMs": 809,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "result-node-expanded",
+      "width": 320,
+      "file": "24-result-node-expanded-320.png",
+      "view": "result",
+      "settleMs": 161,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "people",
+      "width": 320,
+      "file": "25-people-320.png",
+      "view": "people",
+      "settleMs": 196,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "contact-draft",
+      "width": 320,
+      "file": "26-contact-draft-320.png",
+      "view": "contact",
+      "settleMs": 808,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "people-back",
+      "width": 320,
+      "file": "27-people-back-320.png",
+      "view": "people",
+      "settleMs": 191,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "case-from-people",
+      "width": 320,
+      "file": "28-case-from-people-320.png",
+      "view": "case",
+      "settleMs": 211,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "result-question-card",
+      "width": 320,
+      "file": "29-result-question-card-320.png",
+      "view": "question",
+      "settleMs": 1350,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "question-context",
+      "width": 320,
+      "file": "30-question-context-320.png",
+      "view": "question",
+      "settleMs": 223,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "question-context-node",
+      "width": 320,
+      "file": "31-question-context-node-320.png",
+      "view": "question",
+      "settleMs": 177,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "queue",
+      "width": 320,
+      "file": "32-queue-320.png",
+      "view": "queue",
+      "settleMs": 24,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "settings",
+      "width": 320,
+      "file": "33-settings-320.png",
+      "view": "settings",
+      "settleMs": 212,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "receipt-points-burst",
+      "width": 320,
+      "file": "34-receipt-points-burst-320.png",
+      "view": "receipt",
+      "settleMs": 0,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "receipt-undo",
+      "width": 320,
+      "file": "35-receipt-undo-320.png",
+      "view": "receipt",
+      "settleMs": 561,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "undo-returns-to-question",
+      "width": 320,
+      "file": "36-undo-returns-to-question-320.png",
+      "view": "question",
+      "settleMs": 193,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "error-unreachable",
+      "width": 320,
+      "file": "37-error-unreachable-320.png",
+      "view": "receipt",
+      "settleMs": 0,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "closed-again",
+      "width": 320,
+      "file": "38-closed-again-320.png",
+      "view": "collapsed",
+      "settleMs": 0,
+      "hitbox": [
+        235,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "reduced-settings",
+      "width": 420,
+      "file": "39-reduced-settings-420.png",
+      "view": "settings",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": true
+    },
+    {
+      "name": "reduced-result-node",
+      "width": 420,
+      "file": "40-reduced-result-node-420.png",
+      "view": "result",
+      "settleMs": 23,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": true
+    },
+    {
+      "name": "reduced-collapsed",
+      "width": 420,
+      "file": "41-reduced-collapsed-420.png",
+      "view": "collapsed",
+      "settleMs": 23,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": true
+    }
+  ],
+  "finishedAt": "2026-11-07T00:26:51.924Z"
+}

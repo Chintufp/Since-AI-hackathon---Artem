@@ -1,0 +1,864 @@
+/**
+ * The v008 panel as a factory. It renders into `root` (id "kt-panel"), talks to the service only
+ * through an ApiClient and drives Snowbally only through the Avatar interface.
+ *
+ * Views: input, question, queue, settings, receipt (v008) plus result, people, case and contact
+ * (new, same visual language). Behaviour kept from app.js: avatar click toggles the panel and
+ * restores view/draft/attachments/expanded context/selected node, Back-to-questions arrow,
+ * Dismiss + Undo, Escape closes, Cmd/Ctrl+Enter sends, paste/drop attachments as chips,
+ * reduced motion settles instantly, stationary avatar hitbox.
+ */
+import { renderBurst, BURST } from '../motion/burst.ts';
+import type { Avatar, AvatarHost, AvatarStatus } from '../motion/avatar.ts';
+import type { UserSettings } from '../contracts/outcomes.ts';
+import { demoPrincipal } from '../contracts/service.ts';
+import type { Principal } from '../contracts/service.ts';
+import type { ContactDraft } from '../contracts/questions.ts';
+import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
+import { ApiError } from './api-client.ts';
+import type { ApiClient } from './api-client.ts';
+import { hydrateIcons, iconSvg } from './icons.ts';
+import { createPanelMotion } from './panel-motion.ts';
+import type { PanelMotion, PanelMotionStatus } from './panel-motion.ts';
+
+export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'receipt' | 'result' | 'people' | 'case' | 'contact';
+const RESTORABLE: ViewName[] = ['input', 'queue', 'settings'];
+const BACK: Partial<Record<ViewName, ViewName>> = { people: 'result', case: 'people', contact: 'people' };
+
+export interface PanelOptions {
+  root: HTMLElement;
+  api: ApiClient;
+  /** Build Snowbally on the panel's canvas. The host callbacks let him react to panel state. */
+  avatar: (canvas: HTMLCanvasElement, host: AvatarHost) => Avatar;
+  /** Groups for the principal; default comes from the shared contract's demo principal. */
+  groups?: string[];
+  /** Persist small per-viewer conveniences (draft, last view). Defaults to localStorage when available. */
+  storage?: Pick<Storage, 'getItem' | 'setItem'> | null;
+  /** Plays the launch entrance (R05). Disable for tests/screenshots that want a still start. */
+  entrance?: boolean;
+}
+
+export interface PanelStatus {
+  view: ViewName | 'collapsed';
+  panelOpen: boolean;
+  uiMotion: PanelMotionStatus;
+  lastOpen: ViewName;
+  openNodes: Record<string, string | null>;
+  expanded: boolean;
+  attachments: string[];
+  draft: string;
+  reduced: boolean;
+  serviceDown: boolean;
+  busy: boolean;
+  openQuestions: number;
+  avatar: AvatarStatus;
+}
+
+export interface Panel {
+  open(): void;
+  close(): void;
+  toggle(): void;
+  status(): PanelStatus;
+  /** Add files as attachment chips (same path as paste/drop). */
+  attachFiles(files: File[]): void;
+  /** Re-read settings and open questions (e.g. when the window is shown again). */
+  refresh(): Promise<void>;
+  /** Run the service connection check; used at startup and by Retry. */
+  connect(): Promise<boolean>;
+  destroy(): void;
+}
+
+interface ReceiptAction {
+  label: string;
+  run: () => void;
+}
+
+const TEMPLATE = `
+<div class="rf-stage" data-view="input">
+ <div class="rf-window">
+  <div class="rf-motion-skin" aria-hidden="true"></div>
+  <div class="rf-surface"><div class="rf-content">
+   <section class="rf-view rf-input" data-view="input" aria-label="Input">
+    <textarea class="rf-writing" aria-label="Message to your companion" placeholder="Tell me what happened…"></textarea>
+    <div class="rf-attachments" hidden></div>
+    <input class="rf-files" type="file" multiple aria-label="Attach files">
+   </section>
+   <section class="rf-view" data-view="question" hidden>
+    <div class="rf-question">
+     <p class="rf-case"></p><button class="rf-tool rf-close" type="button" data-action="queue" aria-label="Back to questions"><i data-icon="arrow-left"></i></button>
+     <h2></h2>
+     <div class="rf-responses"><button class="rf-answer" type="button" data-action="yes">Yes</button><button class="rf-answer" type="button" data-action="no">No</button></div>
+     <div class="rf-secondary-responses"><button class="rf-later" type="button" data-action="unknown">Not sure</button><button class="rf-later" type="button" data-action="later">Later</button><span class="rf-spacer"></span><button class="rf-later" type="button" data-action="dismiss">Dismiss</button></div>
+    </div>
+    <div class="rf-reveal" id="kt-context" inert><div class="rf-history"></div></div>
+    <button class="rf-context-button" type="button" data-action="context" aria-expanded="false" aria-controls="kt-context" data-open="false">Why this question?<i data-icon="chevron-down"></i></button>
+   </section>
+   <section class="rf-view rf-panel-content" data-view="queue" aria-label="Questions" hidden>
+    <h2>Questions</h2><button class="rf-tool rf-close" type="button" data-action="input" aria-label="Back to input"><i data-icon="corner-up-left"></i></button>
+    <div class="rf-queue-list rf-list-scroll"></div>
+   </section>
+   <section class="rf-view rf-panel-content" data-view="settings" aria-label="Settings" hidden>
+    <h2>Settings</h2><button class="rf-tool rf-close" type="button" data-action="input" aria-label="Back to input"><i data-icon="corner-up-left"></i></button>
+    <div class="rf-settings-rows">
+     <div class="rf-setting"><span>Server</span><span class="rf-setting-value rf-server rf-selectable"></span></div>
+     <label class="rf-setting"><span>Provider</span><select class="rf-provider" disabled aria-label="Provider"><option>Local only</option></select></label>
+     <div class="rf-setting"><span>Model</span><span class="rf-setting-value rf-model"></span></div>
+     <label class="rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox"></label>
+     <label class="rf-setting rf-option"><span>Reduced motion</span><input class="rf-motion" type="checkbox"></label>
+     <label class="rf-setting rf-option"><span>Points &amp; rewards</span><input class="rf-points" type="checkbox"></label>
+     <label class="rf-setting rf-option"><span>Sound</span><em class="rf-setting-note">No sounds yet</em><input class="rf-sound" type="checkbox" disabled aria-label="Sound (no sounds yet)"></label>
+     <div class="rf-setting rf-option"><span>Demo data</span><button class="rf-later" type="button" data-action="reset-demo">Reset demo</button></div>
+    </div>
+   </section>
+   <section class="rf-view rf-receipt" data-view="receipt" hidden aria-live="polite"><p class="rf-receipt-title"></p><div class="rf-receipt-detail"></div><div class="rf-reward" hidden><canvas width="${BURST.width}" height="${BURST.height}" aria-hidden="true"></canvas><span></span></div><button class="rf-undo" type="button" data-action="receipt-action">Undo</button></section>
+   <section class="rf-view rf-result" data-view="result" aria-label="Result" hidden>
+    <div class="rf-result-head"><p class="rf-result-title"></p><div class="rf-result-notes"></div></div>
+    <div class="rf-case-path"></div>
+    <div class="rf-result-rows"></div>
+   </section>
+   <section class="rf-view rf-panel-content" data-view="people" aria-label="People with relevant experience" hidden>
+    <h2>People with relevant experience</h2><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to result"><i data-icon="arrow-left"></i></button>
+    <div class="rf-people-list rf-list-scroll"></div>
+   </section>
+   <section class="rf-view rf-panel-content" data-view="case" aria-label="Case" hidden>
+    <p class="rf-case"></p><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to people"><i data-icon="arrow-left"></i></button>
+    <div class="rf-case-body"></div>
+   </section>
+   <section class="rf-view rf-receipt" data-view="contact" aria-label="Message draft" hidden aria-live="polite">
+    <button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to people"><i data-icon="arrow-left"></i></button>
+    <p class="rf-receipt-title"></p><div class="rf-receipt-detail">Draft for you to review · nothing is sent</div>
+    <p class="rf-draft-subject rf-selectable"></p><pre class="rf-draft-body rf-selectable"></pre>
+    <div class="rf-draft-actions"><button class="rf-answer" type="button" data-action="copy-draft">Copy</button><button class="rf-later" type="button" data-action="back">Back</button></div>
+   </section>
+  </div>
+  <footer class="rf-footer">
+   <button class="rf-tool" type="button" data-action="attach" aria-label="Attach text, images or files"><i data-icon="paperclip"></i></button>
+   <span class="rf-divider"></span>
+   <button class="rf-tool" type="button" data-action="queue" aria-label="Open questions"><i data-icon="messages-square"></i><span class="rf-count"></span></button>
+   <button class="rf-tool" type="button" data-action="settings" aria-label="Open settings"><i data-icon="sliders-horizontal"></i></button>
+   <span class="rf-spacer"></span>
+   <button class="rf-send" type="button" data-action="send" aria-label="Send message" disabled><i data-icon="arrow-up"></i></button>
+  </footer>
+  </div>
+  <button class="rf-avatar" type="button" data-action="avatar" aria-label="Close panel" aria-expanded="true"><canvas width="44" height="44" role="img" aria-label="White pixel companion at rest"></canvas></button>
+ </div>
+</div>`;
+
+const STORE_KEY = 'kt-panel.v1';
+
+export function createPanel(options: PanelOptions): Panel {
+  const { root, api } = options;
+  root.id = 'kt-panel';
+  root.innerHTML = TEMPLATE;
+  hydrateIcons(root);
+
+  const $ = <T extends HTMLElement = HTMLElement>(sel: string): T => {
+    const el = root.querySelector<T>(sel);
+    if (!el) throw new Error('kt-panel: missing ' + sel);
+    return el;
+  };
+  const surface = $('.rf-surface'), content = $('.rf-content'), footer = $('.rf-footer'), stage = $('.rf-stage'), win = $('.rf-window');
+  const field = $<HTMLTextAreaElement>('.rf-writing'), send = $<HTMLButtonElement>('.rf-send'), reveal = $('.rf-reveal');
+  const contextButton = $('.rf-context-button'), avatarButton = $('.rf-avatar'), canvas = $<HTMLCanvasElement>('.rf-avatar canvas');
+  const views = [...root.querySelectorAll<HTMLElement>('.rf-view')];
+  const viewEl = (name: ViewName): HTMLElement => views.find((v) => v.dataset.view === name)!;
+
+  const media = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
+  let systemReduced = !!media?.matches;
+
+  const storage: Pick<Storage, 'getItem' | 'setItem'> | null = options.storage !== undefined ? options.storage : (() => { try { return globalThis.localStorage ?? null; } catch { return null; } })();
+  const persisted = (() => { try { return JSON.parse(storage?.getItem(STORE_KEY) ?? 'null') as { draft?: string; lastOpen?: string } | null; } catch { return null; } })();
+  const persist = (): void => { try { storage?.setItem(STORE_KEY, JSON.stringify({ draft: field.value, lastOpen: RESTORABLE.includes(state.lastOpen) ? state.lastOpen : 'input' })); } catch { /* optional */ } };
+
+  const state = {
+    view: (RESTORABLE.includes(persisted?.lastOpen as ViewName) ? persisted!.lastOpen : 'input') as ViewName,
+    panelOpen: false,
+    lastOpen: 'input' as ViewName,
+    expanded: false,
+    active: null as string | null,
+    openNodes: { question: null, result: null, case: null } as Record<string, string | null>,
+    points: false,
+    reducedSetting: false,
+    serviceDown: false,
+    busy: false,
+  };
+  state.lastOpen = state.view;
+  if (persisted?.draft) field.value = persisted.draft;
+
+  let settings: UserSettings | null = null;
+  let attachments: File[] = [];
+  let open: QuestionView[] = [];
+  const cache = new Map<string, QuestionView>();
+  let result: (ResultView & { state?: unknown }) | null = null;
+  let caseView: CaseView | null = null;
+  let draftText = '';
+  let receiptAction: ReceiptAction | null = null;
+  let timers: Array<ReturnType<typeof setTimeout>> = [];
+  let pollTimer: ReturnType<typeof setInterval> | 0 = 0;
+  let destroyed = false;
+
+  const isReduced = (): boolean => state.reducedSetting || systemReduced;
+  const hasQuestion = (): boolean => state.panelOpen && state.view === 'question';
+  // Never invent an identity: without a resolved current person the panel neither lists nor answers questions.
+  const hasIdentity = (): boolean => Boolean(settings?.currentPersonEntityId);
+  const principal = (): Principal => {
+    const id = settings?.currentPersonEntityId;
+    if (!id) throw new ApiError('http', 'principal', 'Choose who you are in Settings first.', 400);
+    return demoPrincipal({ id, displayName: 'You' }, options.groups);
+  };
+
+  const avatar = options.avatar(canvas, { reduced: isReduced, hasQuestion });
+  const natural = (): number => {
+    const v = views.find((n) => !n.hidden);
+    return (v?.getBoundingClientRect().height || 0) + footer.getBoundingClientRect().height + 2;
+  };
+  const motion: PanelMotion = createPanelMotion({
+    surface, skin: $('.rf-motion-skin'), content, footer, canvas, reveal,
+    history: () => reveal.querySelector<HTMLElement>('.rf-history'),
+    naturalHeight: natural,
+    reduced: isReduced,
+  });
+
+  // ---- helpers ----
+  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] => {
+    const n = document.createElement(tag);
+    if (className) n.className = className;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  };
+  const later = (fn: () => void, ms: number): void => { const t = setTimeout(() => { timers = timers.filter((x) => x !== t); fn(); }, ms); timers.push(t); };
+
+  function evidencePath(nodes: TimelineNode[], scope: string, label: string): HTMLOListElement {
+    const path = el('ol', 'rf-evidence-path');
+    path.setAttribute('aria-label', label);
+    const opened = state.openNodes[scope] ?? null;
+    nodes.forEach((node) => {
+      const li = el('li', 'rf-evidence-node');
+      li.dataset.kind = node.kind;
+      const button = el('button', 'rf-node-title');
+      button.type = 'button';
+      button.dataset.action = 'node';
+      button.dataset.node = node.id;
+      button.dataset.scope = scope;
+      const id = `kt-${scope}-${node.id}`;
+      button.setAttribute('aria-controls', id);
+      button.setAttribute('aria-expanded', String(opened === node.id));
+      button.append(el('span', undefined, node.label));
+      button.insertAdjacentHTML('beforeend', iconSvg('chevron-down'));
+      const detail = el('div', 'rf-node-detail');
+      detail.id = id;
+      detail.dataset.node = node.id;
+      detail.setAttribute('aria-hidden', String(opened !== node.id));
+      const inner = el('div', 'rf-node-inner');
+      inner.append(el('p', undefined, node.detail));
+      const meta = [node.who, node.when].filter(Boolean).join(' · ');
+      if (meta) inner.append(el('p', 'rf-node-meta', meta));
+      detail.append(inner);
+      li.append(button, detail);
+      path.append(li);
+    });
+    return path;
+  }
+
+  const activeQuestion = (): QuestionView | null => (state.active ? cache.get(state.active) ?? null : null) ?? open[0] ?? null;
+
+  // ---- question view ----
+  function renderQuestion(): void {
+    const q = activeQuestion();
+    $('.rf-question h2').textContent = q?.text ?? 'No open question';
+    $('.rf-question .rf-case').textContent = q ? q.caseLabel + (q.deferred ? ' · later' : '') : '';
+    root.querySelectorAll<HTMLButtonElement>('.rf-answer[data-action], .rf-secondary-responses .rf-later').forEach((b) => (b.disabled = !q));
+    const h = $('.rf-history');
+    h.replaceChildren();
+    if (!q) return;
+    h.append(el('p', 'rf-why', q.why));
+    if (q.compare) {
+      const ul = el('ul', 'rf-compare');
+      q.compare.forEach((c, i) => ul.append(el('li', undefined, `${i === 0 ? 'A' : 'B'} · ${c.text}`)));
+      h.append(ul);
+    }
+    h.append(evidencePath(q.timeline, 'question', 'Incident context; expand a title for details'));
+    if (q.caveat) h.append(el('p', 'rf-context-caveat', q.caveat));
+    motion.registerDetails(state.openNodes.question);
+  }
+
+  function setExpanded(value: boolean, animate = true): void {
+    state.expanded = !!value;
+    reveal.inert = !state.expanded;
+    reveal.setAttribute('aria-hidden', String(!state.expanded));
+    contextButton.setAttribute('aria-expanded', String(state.expanded));
+    contextButton.dataset.open = String(state.expanded);
+    motion.context(state.expanded, animate);
+  }
+
+  // ---- queue ----
+  const openCount = (): number => open.length;
+  function updateCount(): void {
+    const count = openCount();
+    $('.rf-count').textContent = count ? String(count) : '';
+    $('.rf-footer [data-action="queue"]').setAttribute('aria-label', `Open questions (${count})`);
+  }
+  function renderQueue(): void {
+    const list = $('.rf-queue-list');
+    list.replaceChildren();
+    open.forEach((q) => {
+      const b = el('button', 'rf-question-item');
+      b.type = 'button';
+      b.dataset.action = 'open-question';
+      b.dataset.question = q.questionId;
+      b.append(el('small', undefined, q.caseLabel + (q.deferred ? ' · later' : '')), document.createTextNode(q.text));
+      list.append(b);
+    });
+    if (!open.length) {
+      const p = el('p', undefined, state.serviceDown ? 'Waiting for the service.' : !hasIdentity() ? 'Choose who you are to see your questions.' : 'All quiet.');
+      p.style.cssText = 'font-size:13px;color:#747b82;margin:0 0 12px';
+      list.append(p);
+    }
+  }
+  async function refreshQuestions(): Promise<void> {
+    if (!hasIdentity()) {
+      open = [];
+      state.serviceDown = false;
+      updateCount();
+      if (state.view === 'queue' && state.panelOpen) { renderQueue(); motion.view(false); }
+      return;
+    }
+    try {
+      const list = await api.questions({ personEntityId: settings?.currentPersonEntityId });
+      open = list.filter((q) => ['queued', 'delivered', 'deferred'].includes(q.status));
+      list.forEach((q) => cache.set(q.questionId, q));
+      state.serviceDown = false;
+      if (state.active && !cache.has(state.active)) state.active = null;
+      updateCount();
+      if (state.view === 'queue' && state.panelOpen) { renderQueue(); motion.view(false); }
+    } catch {
+      state.serviceDown = true;
+    }
+  }
+
+  // ---- result / people / case / contact ----
+  function renderRow(label: string, meta: string, action: string, target?: HTMLElement): HTMLButtonElement {
+    const b = el('button', 'rf-row-button');
+    b.type = 'button';
+    b.dataset.action = action;
+    b.append(el('span', undefined, label));
+    if (meta) b.append(el('span', 'rf-row-meta', meta));
+    b.insertAdjacentHTML('beforeend', iconSvg('chevron-right'));
+    target?.append(b);
+    return b;
+  }
+  function renderResult(): void {
+    if (!result) return;
+    const r = result.recommendation;
+    $('.rf-result-title').textContent = r.text;
+    const notes = $('.rf-result-notes');
+    notes.replaceChildren();
+    const line = [r.applicability, ...r.caveats].filter(Boolean).join(' ');
+    if (line) notes.append(el('p', 'rf-result-note', line));
+    if (r.nextStep) notes.append(el('p', 'rf-result-note', 'Next: ' + r.nextStep));
+    const path = $('.rf-case-path');
+    path.replaceChildren();
+    const cv = result.caseView;
+    if (cv?.timeline.length) {
+      path.hidden = false;
+      path.append(el('p', 'rf-case', cv.title));
+      path.append(evidencePath(cv.timeline, 'result', 'Matched case timeline; expand a title for details'));
+      if (cv.caveat) path.append(el('p', 'rf-context-caveat', cv.caveat));
+    } else path.hidden = true;
+    const rows = $('.rf-result-rows');
+    rows.replaceChildren();
+    renderRow('People with relevant experience', String(result.people.length), 'people', rows).disabled = !result.people.length;
+    if (result.question) {
+      // The engine routes the question to someone else, never the requester: show it read-only.
+      const asked = el('p', 'rf-asked', 'Asked a colleague with relevant experience');
+      asked.append(el('span', 'rf-row-meta', result.question.status));
+      rows.append(asked);
+    }
+    motion.registerDetails(state.openNodes.result, path);
+  }
+  function renderPeople(): void {
+    const list = $('.rf-people-list');
+    list.replaceChildren();
+    const people = result?.people ?? [];
+    people.forEach((p) => list.append(personRow(p)));
+    if (!people.length) list.append(el('p', 'rf-empty', 'No one found yet.'));
+  }
+  function personRow(p: PersonView): HTMLElement {
+    const row = el('div', 'rf-person');
+    const reason = p.reasons[0];
+    row.append(el('small', undefined, [p.name, p.role, reason && !reason.firsthand ? 'mentioned only' : ''].filter(Boolean).join(' · ')));
+    row.append(document.createTextNode(reason?.text ?? 'No specific reason recorded.'));
+    const actions = el('div', 'rf-person-actions');
+    if (reason?.caseId) {
+      const view = el('button', 'rf-later', 'View case');
+      view.type = 'button';
+      view.dataset.action = 'view-case';
+      view.dataset.caseId = reason.caseId;
+      actions.append(view);
+    }
+    if (p.askable) {
+      const prepare = el('button', 'rf-later', 'Prepare message');
+      prepare.type = 'button';
+      prepare.dataset.action = 'prepare';
+      prepare.dataset.person = p.personEntityId;
+      actions.append(prepare);
+    } else {
+      actions.append(el('span', 'rf-unavailable', 'Not available to ask right now'));
+    }
+    row.append(actions);
+    return row;
+  }
+  function renderCase(): void {
+    if (!caseView) return;
+    $('.rf-view[data-view="case"] .rf-case').textContent = caseView.title;
+    const body = $('.rf-case-body');
+    body.replaceChildren();
+    const wrap = el('div', 'rf-case-path');
+    wrap.style.borderTop = '0';
+    wrap.style.padding = '8px 0 0';
+    wrap.append(evidencePath(caseView.timeline, 'case', 'Case timeline; expand a title for details'));
+    if (caseView.caveat) wrap.append(el('p', 'rf-context-caveat', caseView.caveat));
+    body.append(wrap);
+    motion.registerDetails(state.openNodes.case, wrap);
+  }
+  function renderContact(draft: ContactDraft): void {
+    const v = viewEl('contact');
+    v.querySelector('.rf-receipt-title')!.textContent = 'Message to ' + draft.to.displayName;
+    v.querySelector('.rf-draft-subject')!.textContent = draft.subject;
+    v.querySelector('.rf-draft-body')!.textContent = draft.body;
+    draftText = draft.subject ? `${draft.subject}\n\n${draft.body}` : draft.body;
+    const copy = v.querySelector<HTMLButtonElement>('[data-action="copy-draft"]')!;
+    copy.textContent = 'Copy';
+  }
+
+  // ---- settings ----
+  function renderSettings(): void {
+    $('.rf-server').textContent = api.kind === 'mock' ? 'Dev mock · no service' : settings?.serverUrl || api.baseUrl;
+    $('.rf-model').textContent = settings?.model ?? '—';
+    $<HTMLInputElement>('.rf-mcp').checked = !!settings?.mcp;
+    $<HTMLInputElement>('.rf-points').checked = state.points;
+    const m = $<HTMLInputElement>('.rf-motion');
+    m.checked = isReduced();
+    m.disabled = systemReduced;
+    const reset = $<HTMLButtonElement>('[data-action="reset-demo"]');
+    reset.textContent = 'Reset demo';
+    delete reset.dataset.armed;
+  }
+  function applySettings(s: UserSettings): void {
+    settings = s;
+    state.points = !!s.points;
+    state.reducedSetting = !!s.reducedMotion;
+    syncMotion();
+    if (state.view === 'settings') renderSettings();
+  }
+  async function saveSetting(patch: Partial<UserSettings>): Promise<void> {
+    try { applySettings(await api.putSettings(patch)); } catch (e) { showError(e, () => void saveSetting(patch)); }
+  }
+
+  // ---- generic view switching (v008 setView) ----
+  function syncPanelA11y(): void {
+    avatarButton.setAttribute('aria-expanded', String(state.panelOpen));
+    avatarButton.setAttribute('aria-label', state.panelOpen ? 'Close panel' : 'Open panel');
+  }
+  function setView(view: ViewName, animate = true): void {
+    state.view = view;
+    if (!['receipt', 'contact'].includes(view)) state.lastOpen = view;
+    state.panelOpen = true;
+    stage.dataset.view = view;
+    views.forEach((v) => (v.hidden = v.dataset.view !== view));
+    send.hidden = view !== 'input';
+    contextButton.hidden = view !== 'question';
+    syncPanelA11y();
+    const compose = $('[data-action="attach"]');
+    compose.setAttribute('aria-label', view === 'input' ? 'Attach text, images or files' : 'Write a message');
+    compose.innerHTML = iconSvg(view === 'input' ? 'paperclip' : 'square-pen');
+    if (view === 'queue') renderQueue();
+    if (view === 'question') renderQuestion();
+    if (view === 'settings') renderSettings();
+    if (view === 'result') renderResult();
+    if (view === 'people') renderPeople();
+    if (view === 'case') renderCase();
+    // The expanded flag survives leaving the question view (restored on return); other views stay collapsed.
+    if (view === 'question') setExpanded(state.expanded, false);
+    else motion.context(false, false);
+    updateCount();
+    motion.panel(true, animate);
+    motion.view(animate);
+    avatar.refresh();
+    persist();
+  }
+  function closePanel(animate = true): void {
+    state.panelOpen = false;
+    syncPanelA11y();
+    motion.panel(false, animate);
+    avatar.refresh();
+    avatarButton.focus({ preventScroll: true });
+  }
+  function focusFor(view: ViewName): void {
+    const target =
+      view === 'input' ? field
+      : view === 'question' ? root.querySelector<HTMLElement>('[data-action="yes"]')
+      : view === 'receipt' ? (viewEl('receipt').querySelector<HTMLElement>('[data-action="receipt-action"]:not([hidden])') ?? $('[data-action="attach"]'))
+      : view === 'queue' ? root.querySelector<HTMLElement>('.rf-question-item') ?? $('.rf-view[data-view="queue"] [data-action="input"]')
+      : view === 'settings' ? $('.rf-view[data-view="settings"] [data-action="input"]')
+      : viewEl(view).querySelector<HTMLElement>('button:not([disabled])');
+    target?.focus({ preventScroll: true });
+  }
+  function openPanel(): void {
+    if (state.serviceDown) {
+      showError(new ApiError('unreachable', 'GET /health', 'Couldn’t reach the service'), () => void retryConnect());
+    } else if (!state.panelOpen) {
+      state.panelOpen = true;
+      if (state.view === 'queue') renderQueue();
+      else if (state.view === 'question') renderQuestion();
+      syncPanelA11y();
+      motion.panel(true);
+      focusFor(state.view);
+      avatar.play('hello');
+      persist();
+      return;
+    }
+  }
+
+  // ---- receipts and errors ----
+  function showReceipt(title: string, detail: string, action: ReceiptAction | null, points = 0): void {
+    $('.rf-receipt-title').textContent = title;
+    $('.rf-receipt-detail').textContent = detail;
+    const btn = $<HTMLButtonElement>('[data-action="receipt-action"]');
+    receiptAction = action;
+    btn.hidden = !action;
+    if (action) btn.textContent = action.label;
+    const reward = $('.rf-reward');
+    const show = state.points && points > 0;
+    reward.hidden = !show;
+    if (show) {
+      reward.querySelector('span')!.textContent = '+' + points;
+      runBurst(reward.querySelector('canvas')!);
+    }
+    setView('receipt');
+    focusFor('receipt');
+  }
+  function runBurst(c: HTMLCanvasElement): void {
+    const ctx = c.getContext('2d');
+    if (!ctx) return;
+    if (isReduced()) { ctx.clearRect(0, 0, BURST.width, BURST.height); return; }
+    let f = 0;
+    const tick = (): void => {
+      if (destroyed) return;
+      renderBurst(ctx, f);
+      if (++f < BURST.frames) later(tick, 1000 / BURST.fps);
+    };
+    tick();
+  }
+  function showError(e: unknown, retry: () => void, keptDraft = false): void {
+    const unreachable = e instanceof ApiError && (e.code === 'unreachable' || e.code === 'timeout');
+    state.busy = false;
+    setBusy(false);
+    avatar.play('error');
+    showReceipt(
+      unreachable ? 'Couldn’t reach the service' : 'Something went wrong',
+      unreachable ? (keptDraft ? 'Nothing was lost; your draft is still here.' : 'Nothing was changed. Try again when the service is back.') : e instanceof Error ? e.message : 'Please try again.',
+      { label: 'Retry', run: retry },
+    );
+    if (!state.panelOpen) { state.panelOpen = true; syncPanelA11y(); motion.panel(true); }
+  }
+
+  // ---- actions ----
+  async function respond(value: 'yes' | 'no' | 'unknown' | 'later' | 'dismiss'): Promise<void> {
+    const q = activeQuestion();
+    if (!q || state.busy) return;
+    state.busy = true;
+    state.expanded = false;
+    try {
+      const p = principal();
+      const res = value === 'later' ? await api.defer(q.questionId, p) : value === 'dismiss' ? await api.dismiss(q.questionId, p) : await api.answer(q.questionId, { principal: p, value });
+      state.busy = false;
+      const rc = res.receipt;
+      showReceipt(rc.title, rc.detail, rc.canUndo ? { label: 'Undo', run: () => void undo(q.questionId) } : null, rc.pointsAwarded ?? 0);
+      avatar.play('result');
+      void refreshQuestions();
+    } catch (e) {
+      showError(e, () => { setView('question'); void respond(value); });
+    }
+  }
+  async function undo(id: string): Promise<void> {
+    try {
+      await api.undo(id, principal());
+      const q = await api.question(id);
+      cache.set(id, q);
+      state.active = id;
+      await refreshQuestions();
+      setView('question');
+      focusFor('question');
+    } catch (e) { showError(e, () => void undo(id)); }
+  }
+  function setBusy(busy: boolean): void {
+    state.busy = busy;
+    field.readOnly = busy;
+    send.dataset.busy = String(busy);
+    stage.setAttribute('aria-busy', String(busy));
+    updateSend();
+  }
+  async function submit(): Promise<void> {
+    if (state.busy || send.disabled) return;
+    const text = field.value.trim();
+    const names = attachments.map((f) => f.name);
+    setBusy(true);
+    avatar.play('processing', { loop: true });
+    try {
+      const res = await api.investigate({ text, principal: principal(), attachmentNames: names, allowQuestions: true });
+      result = res;
+      state.openNodes.result = null;
+      field.value = '';
+      attachments = [];
+      renderAttachments();
+      setBusy(false);
+      state.serviceDown = false;
+      persist();
+      setView('result');
+      avatar.play('result');
+      void refreshQuestions();
+    } catch (e) {
+      showError(e, () => { setView('input'); void submit(); }, true);
+    }
+  }
+  function updateSend(): void {
+    send.disabled = state.busy || (!field.value.trim() && !attachments.length);
+  }
+  function renderAttachments(): void {
+    const wrap = $('.rf-attachments');
+    wrap.replaceChildren();
+    attachments.forEach((file, i) => {
+      const chip = el('div', 'rf-chip');
+      const remove = el('button', undefined, '×');
+      remove.type = 'button';
+      remove.dataset.action = 'remove-attachment';
+      remove.dataset.index = String(i);
+      remove.setAttribute('aria-label', 'Remove ' + file.name);
+      chip.append(el('span', undefined, file.name), remove);
+      wrap.append(chip);
+    });
+    wrap.hidden = !attachments.length;
+    updateSend();
+    motion.view(false);
+  }
+  function addFiles(files: File[]): void {
+    attachments.push(...files);
+    renderAttachments();
+    avatar.play('input');
+  }
+
+  async function copyDraft(btn: HTMLElement): Promise<void> {
+    let ok = false;
+    try { await navigator.clipboard.writeText(draftText); ok = true; } catch {
+      try {
+        const t = el('textarea');
+        t.value = draftText;
+        t.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+        document.body.append(t);
+        t.select();
+        ok = document.execCommand('copy');
+        t.remove();
+      } catch { ok = false; }
+    }
+    btn.textContent = ok ? 'Copied' : 'Select the text to copy';
+  }
+
+  function syncMotion(event?: { matches: boolean }): void {
+    if (typeof event?.matches === 'boolean') systemReduced = event.matches;
+    root.classList.toggle('rf-reduced', isReduced());
+    const m = $<HTMLInputElement>('.rf-motion');
+    m.checked = isReduced();
+    m.disabled = systemReduced;
+    if (isReduced()) { motion.settle(); avatar.refresh(); }
+  }
+
+  // ---- connection ----
+  async function connect(): Promise<boolean> {
+    const deadline = Date.now() + 12000;
+    for (;;) {
+      try {
+        applySettings(await api.getSettings());
+        state.serviceDown = false;
+        await refreshQuestions();
+        return true;
+      } catch {
+        if (destroyed || Date.now() > deadline) break;
+        await new Promise((r) => setTimeout(r, 600));
+      }
+    }
+    state.serviceDown = true;
+    avatar.play('error');
+    return false;
+  }
+  async function retryConnect(): Promise<void> {
+    avatar.play('processing', { loop: true });
+    const ok = await connect();
+    if (ok) { avatar.play('hello'); setView('input'); focusFor('input'); } else showError(new ApiError('unreachable', 'GET /health', 'Couldn’t reach the service'), () => void retryConnect());
+  }
+
+  // ---- events (delegated, so dynamic content needs no re-binding) ----
+  root.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLElement>('[data-action]');
+    if (!button || !root.contains(button)) return;
+    const a = button.dataset.action!;
+    switch (a) {
+      case 'avatar': state.panelOpen ? closePanel() : openPanel(); return;
+      case 'yes': case 'no': case 'unknown': case 'later': case 'dismiss': void respond(a); return;
+      case 'input': case 'settings': case 'queue':
+        if (a === 'queue') void refreshQuestions();
+        setView(a);
+        focusFor(a);
+        if (a === 'queue' && state.active) root.querySelector<HTMLElement>(`.rf-question-item[data-question="${CSS.escape(state.active)}"]`)?.focus({ preventScroll: true });
+        return;
+      case 'attach':
+        if (state.view === 'input') $<HTMLInputElement>('.rf-files').click();
+        else { setView('input'); field.focus({ preventScroll: true }); avatar.play('hello'); }
+        return;
+      case 'context': setExpanded(!state.expanded); return;
+      case 'node': {
+        const scope = button.dataset.scope!;
+        const id = button.dataset.node!;
+        state.openNodes[scope] = state.openNodes[scope] === id ? null : id;
+        button.closest('.rf-evidence-path')?.querySelectorAll<HTMLElement>('.rf-node-title').forEach((b) => b.setAttribute('aria-expanded', String(b.dataset.node === state.openNodes[scope])));
+        motion.node(state.openNodes[scope]!);
+        return;
+      }
+      case 'open-question': {
+        const id = button.dataset.question!;
+        if (state.active !== id) { state.openNodes.question = null; state.expanded = false; }
+        state.active = id;
+        setView('question');
+        focusFor('question');
+        avatar.play('question');
+        return;
+      }
+      case 'receipt-action': receiptAction?.run(); return;
+      case 'send': void submit(); return;
+      case 'remove-attachment': attachments.splice(Number(button.dataset.index), 1); renderAttachments(); return;
+      case 'people': setView('people'); focusFor('people'); return;
+      case 'back': { const to = BACK[state.view]; if (to) { setView(to); focusFor(to); } return; }
+      case 'view-case': {
+        const id = button.dataset.caseId!;
+        void (async () => {
+          try {
+            caseView = result?.caseView?.caseId === id ? result.caseView : await api.caseView(id);
+            state.openNodes.case = null;
+            setView('case');
+            focusFor('case');
+          } catch (e) { showError(e, () => { setView('people'); }); }
+        })();
+        return;
+      }
+      case 'prepare': {
+        const personId = button.dataset.person!;
+        void (async () => {
+          if (!result) return;
+          try {
+            const draft = await api.contactDraft({ principal: principal(), investigationId: result.investigationId, personEntityId: personId });
+            renderContact(draft);
+            setView('contact');
+            focusFor('contact');
+            avatar.play('result');
+          } catch (e) { showError(e, () => { setView('people'); }); }
+        })();
+        return;
+      }
+      case 'copy-draft': void copyDraft(button); return;
+      case 'reset-demo':
+        if (button.dataset.armed !== 'true') {
+          button.dataset.armed = 'true';
+          button.textContent = 'Click again to reset';
+          later(() => { if (button.dataset.armed === 'true') { delete button.dataset.armed; button.textContent = 'Reset demo'; } }, 3000);
+          return;
+        }
+        delete button.dataset.armed;
+        button.textContent = 'Resetting…';
+        void (async () => {
+          try {
+            await api.resetDemo();
+            result = null; cache.clear(); state.active = null; state.expanded = false; state.openNodes = { question: null, result: null, case: null };
+            await refreshQuestions();
+            button.textContent = 'Demo reset';
+            avatar.play('hello');
+          } catch (e) { button.textContent = 'Reset demo'; showError(e, () => { setView('settings'); }); }
+        })();
+        return;
+    }
+  });
+  field.addEventListener('input', () => { motion.settle(); updateSend(); if (field.value && !inputNoticed) { inputNoticed = true; avatar.play('input'); } if (!field.value) inputNoticed = false; persist(); });
+  let inputNoticed = false;
+  field.addEventListener('paste', (event) => { const files = event.clipboardData?.files; if (files?.length) { addFiles([...files]); } });
+  $<HTMLInputElement>('.rf-files').addEventListener('change', (event) => { const input = event.target as HTMLInputElement; addFiles([...(input.files ?? [])]); input.value = ''; });
+  let dragDepth = 0;
+  win.addEventListener('dragenter', (e) => { e.preventDefault(); dragDepth++; win.dataset.drag = 'true'; });
+  win.addEventListener('dragover', (e) => e.preventDefault());
+  win.addEventListener('dragleave', () => { dragDepth--; if (dragDepth <= 0) win.dataset.drag = 'false'; });
+  win.addEventListener('drop', (e) => {
+    e.preventDefault(); dragDepth = 0; win.dataset.drag = 'false';
+    if (state.view !== 'input') setView('input');
+    if (e.dataTransfer?.files.length) addFiles([...e.dataTransfer.files]);
+    else { const text = e.dataTransfer?.getData('text/plain'); if (text) field.value += (field.value ? '\n' : '') + text; updateSend(); persist(); }
+  });
+  const onKey = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape' && state.panelOpen) { event.preventDefault(); closePanel(); }
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && state.panelOpen && state.view === 'input' && !send.disabled) { event.preventDefault(); void submit(); }
+  };
+  document.addEventListener('keydown', onKey);
+  $<HTMLInputElement>('.rf-motion').addEventListener('change', (e) => void saveSetting({ reducedMotion: (e.target as HTMLInputElement).checked }));
+  $<HTMLInputElement>('.rf-points').addEventListener('change', (e) => void saveSetting({ points: (e.target as HTMLInputElement).checked }));
+  $<HTMLInputElement>('.rf-mcp').addEventListener('change', (e) => void saveSetting({ mcp: (e.target as HTMLInputElement).checked }));
+  const onMedia = (e: MediaQueryListEvent): void => syncMotion(e);
+  media?.addEventListener('change', onMedia);
+  const onResize = (): void => { motion.view(false); motion.settle(); };
+  window.addEventListener('resize', onResize);
+  avatarButton.addEventListener('pointerdown', () => motion.press(true));
+  const onPointerUp = (): void => motion.press(false);
+  window.addEventListener('pointerup', onPointerUp);
+  avatarButton.addEventListener('pointercancel', onPointerUp);
+
+  // ---- boot: panel starts collapsed (R05); Snowbally alone is visible ----
+  syncMotion();
+  setView(state.view, false);
+  state.panelOpen = false;
+  syncPanelA11y();
+  motion.panel(false, false);
+  updateSend();
+  if (options.entrance !== false) avatar.playEntranceThenRest();
+  void connect();
+  pollTimer = setInterval(() => { if (!document.hidden) void refreshQuestions(); }, 30000);
+
+  return {
+    open: () => { if (!state.panelOpen) openPanel(); },
+    close: () => { if (state.panelOpen) closePanel(); },
+    toggle: () => (state.panelOpen ? closePanel() : openPanel()),
+    attachFiles: addFiles,
+    refresh: async () => { try { applySettings(await api.getSettings()); } catch { state.serviceDown = true; return; } await refreshQuestions(); },
+    connect,
+    status: () => ({
+      view: state.panelOpen ? state.view : 'collapsed',
+      panelOpen: state.panelOpen,
+      uiMotion: motion.status(),
+      lastOpen: state.lastOpen,
+      openNodes: { ...state.openNodes },
+      expanded: state.expanded,
+      attachments: attachments.map((f) => f.name),
+      draft: field.value,
+      reduced: isReduced(),
+      serviceDown: state.serviceDown,
+      busy: state.busy,
+      openQuestions: open.length,
+      avatar: avatar.status(),
+    }),
+    destroy: () => {
+      destroyed = true;
+      timers.forEach(clearTimeout);
+      if (pollTimer) clearInterval(pollTimer);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('pointerup', onPointerUp);
+      media?.removeEventListener('change', onMedia);
+      avatar.destroy();
+    },
+  };
+}

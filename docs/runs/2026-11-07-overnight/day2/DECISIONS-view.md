@@ -150,3 +150,17 @@ hides the row. Activity page: a card above the rows filled by the same 2 s tick 
 log), titled "<name>'s cost · simulated seconds" when the demo clock is simulated. Not checked visually in the desktop
 app in this pass beyond the screenshot harness (D-B3-11).
 Reverse: the row in `panel.ts` TEMPLATE and `loadCosts`; the `cost()` call in `activity-page.ts`.
+
+## D-B3-10 · "Open the context layer" from the case view: one validated IPC channel, system browser
+
+The case view (`renderCase`) shows a button "Open the context layer" for the case's first non-person entity when the
+panel was given `openContext` (new optional panel option). The desktop renderer passes it only when the preload bridge
+has `openContext` and the panel is not on the mock (no page there), so the button is hidden in mock mode and in a plain
+browser. Path: `window.kt.openContext(name)` (preload checks `isEntityName`: 1-64 of letters, digits, `._ -`, no
+surrounding spaces) -> IPC `kt:open-context` -> `window.ts handleOpenContext` (only from the companion's own
+webContents) -> `flags.ts contextPageUrl(serviceUrl, name)` which yields `<serviceUrl>/context.html?entity=<encoded>`
+only for an http loopback service URL without credentials -> `shell.openExternal`. The window's navigation lock and
+window-open denial are unchanged. Chosen over an in-app BrowserWindow because the page is a wide chart (1280 px) and the
+judge already has a browser tab for the activity page. Tested: flags.test.ts (names, URL shapes, remote host, file URL,
+credentials). Not clicked at runtime in this pass (the desktop build passes).
+Reverse: drop the IPC entry, `handleOpenContext`, the preload function and the panel option.

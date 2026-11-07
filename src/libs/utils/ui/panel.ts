@@ -75,6 +75,8 @@ export interface PanelOptions {
    * and lasts until the service restarts.
    */
   keychain?: { save(provider: 'anthropic' | 'gemini', key: string): Promise<{ present: boolean; stored: boolean }> } | null;
+  /** B3: opens the Context Layer page for an entity name (desktop: the system browser). null/absent hides the button. */
+  openContext?: ((entityName: string) => void) | null;
   /**
    * desktop (R31..R36): the companion flags (drag, away, gaze, fidgets). Default: `window.__ktFlags`
    * (set by the desktop renderer). null, `companion: false` or `windowMode: 'column'` = the R28 panel.
@@ -641,6 +643,15 @@ export function createPanel(options: PanelOptions): Panel {
     wrap.style.padding = '8px 0 0';
     wrap.append(evidencePath(caseView.timeline, 'case', 'Case timeline; expand a title for details'));
     if (caseView.caveat) wrap.append(el('p', 'rf-context-caveat', caseView.caveat));
+    // B3: the case's asset on the Context Layer page (time axis, validity windows, t slider), when the host can open it.
+    const asset = caseView.entities.find((e) => e.type !== 'person');
+    if (options.openContext && asset) {
+      const open = el('button', 'rf-later rf-open-context', 'Open the context layer');
+      open.type = 'button';
+      open.dataset.action = 'open-context';
+      open.dataset.entity = asset.name;
+      wrap.append(open);
+    }
     body.append(wrap);
     // Artem 7 Nov: the people with relevant experience are listed on the case page.
     const cp = caseView.people ?? [];
@@ -1378,6 +1389,11 @@ export function createPanel(options: PanelOptions): Panel {
       case 'model-test': void testKey(button.dataset.vendor as ApiVendorName, button.dataset.model); return;
       case 'model-copy': void navigator.clipboard?.writeText(button.dataset.text ?? '').catch(() => undefined); button.textContent = 'Copied'; return;
       case 'back': { const to = state.view === 'points' ? pointsFrom : state.view === 'people' && peopleFromCase ? 'case' : BACK[state.view]; if (to) { setView(to); focusFor(to); } return; }
+      case 'open-context': {
+        const name = button.dataset.entity;
+        if (name) options.openContext?.(name);
+        return;
+      }
       case 'view-case': {
         const id = button.dataset.caseId!;
         void (async () => {

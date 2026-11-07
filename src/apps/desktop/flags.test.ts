@@ -243,3 +243,18 @@ test('external links: only the two key pages and the Ollama download page, over 
   for (const ok of ['https://console.anthropic.com/settings/keys', 'https://aistudio.google.com/app/apikey', 'https://ollama.com/download', 'https://ollama.com/download/mac']) assert.equal(isAllowedExternal(ok), true, ok);
   for (const bad of ['http://ollama.com/download', 'https://ollama.com/downloads-evil', 'https://ollama.com.evil.example/download', 'https://user:pw@ollama.com/download', 'https://console.anthropic.com/', 'javascript:alert(1)', 'file:///etc/passwd', 'not a url']) assert.equal(isAllowedExternal(bad), false, bad);
 });
+
+test('B3: the context page link: valid entity names only, only the configured loopback service, only /context.html', async () => {
+  const { contextPageUrl, isEntityName, IPC } = await import('./flags.ts');
+  assert.equal(IPC.openContext, 'kt:open-context');
+  for (const ok of ['TRN-042', 'RBS-310', 'Label printer LP-3', 'a.b_c']) assert.equal(isEntityName(ok), true, ok);
+  for (const bad of ['', ' TRN', 'TRN/../x', 'a?b=c', 'x'.repeat(65), 'TRN-042\n', 42, null, undefined, { name: 'TRN' }]) assert.equal(isEntityName(bad), false, String(bad));
+  assert.equal(contextPageUrl('http://127.0.0.1:47831', 'TRN-042'), 'http://127.0.0.1:47831/context.html?entity=TRN-042');
+  assert.equal(contextPageUrl('http://127.0.0.1:47831/', 'Label printer LP-3'), 'http://127.0.0.1:47831/context.html?entity=Label%20printer%20LP-3');
+  assert.equal(contextPageUrl('http://localhost:5000', 'RBS-310'), 'http://localhost:5000/context.html?entity=RBS-310');
+  assert.equal(contextPageUrl('http://127.0.0.1:47831', 'a&b'), undefined);
+  assert.equal(contextPageUrl('https://example.com', 'TRN-042'), undefined, 'never a remote host');
+  assert.equal(contextPageUrl('http://user:pw@127.0.0.1:1', 'TRN-042'), undefined);
+  assert.equal(contextPageUrl('file:///etc', 'TRN-042'), undefined);
+  assert.equal(contextPageUrl('not a url', 'TRN-042'), undefined);
+});

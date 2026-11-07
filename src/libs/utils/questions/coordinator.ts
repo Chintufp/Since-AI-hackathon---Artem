@@ -536,6 +536,7 @@ export class QuestionCoordinator {
     // BUILD_BRIEF 5.4: the store metric of the touched cases before the answer is stored, and the recipient's burden now.
     const touched = parsed ? [parsed.caseId] : q.candidate.scope.caseId ? [q.candidate.scope.caseId] : [];
     const before = this.measure(touched);
+    const scoresBefore = this.scores(touched);
     const burden = this.burden(q);
     const evText = `Answer "${value}" to: ${q.candidate.text}${text ? ` Note: ${text}` : ''} (answered by ${principal.displayName})`;
     const env = this.evidenceFor(state, principal, 'answer:desktop', answerId, evText, parsed?.caseId, { questionId, value });
@@ -583,9 +584,13 @@ export class QuestionCoordinator {
     // The rebuilt investigation is stored before measuring, so the retrieval weight sees it.
     this.store.put('investigation', state);
     const after = this.measure(touched);
+    const scoresAfter = this.scores(touched);
+    const scores = scoresBefore && scoresAfter
+      ? { completenessBefore: scoresBefore.completeness, completenessAfter: scoresAfter.completeness, correctnessBefore: scoresBefore.correctness, correctnessAfter: scoresAfter.correctness }
+      : undefined;
     // Unmeasurable before or after: no reward, the benefit stays null and the selector learns nothing (never a 0).
     const reward = before === null || after === null ? undefined
-      : this.learn(q.decisionId, updated.id, { method: STORE_METRIC_METHOD, cases: touched, before, after, delta: round4(after - before), burden, value: round4(after - before - burden), at: now });
+      : this.learn(q.decisionId, updated.id, { method: STORE_METRIC_METHOD, cases: touched, before, after, delta: round4(after - before), burden, value: round4(after - before - burden), at: now, ...(scores ? { scores } : {}) });
     const g = state.gaps.find((x) => x.id === q.candidate.gapId);
     if (g?.status === 'resolved' && g.resolvedBy) g.resolvedBy = { ...g.resolvedBy, answerId };
     this.setLoop(state, 'answered', recommendationChanged ? this.d.settings.loopReasons.answered : this.d.settings.loopReasons.answeredNoChange);
@@ -601,6 +606,13 @@ export class QuestionCoordinator {
   measure(caseIds: string[]): number | null {
     if (!caseIds.length) return null;
     return healthProductOrNull(storeHealth(this.store, undefined, { now: this.now(), caseIds, distinguishingKeys: this.d.settings.distinguishingKeys, outcomeKey: OUTCOME_KEY }));
+  }
+
+  /** The two scores of `caseIds` (reported beside the product; the reward is the product's change). */
+  private scores(caseIds: string[]): { completeness: number; correctness: number | null } | null {
+    if (!caseIds.length) return null;
+    const h = storeHealth(this.store, undefined, { now: this.now(), caseIds, distinguishingKeys: this.d.settings.distinguishingKeys, outcomeKey: OUTCOME_KEY });
+    return h.cases.length ? { completeness: h.completeness, correctness: h.correctness } : null;
   }
 
   /**
@@ -647,7 +659,9 @@ export class QuestionCoordinator {
       const after = this.measure(q.reward.cases);
       if (after === null || after === q.reward.after) continue;
       const delta = round4(after - q.reward.before);
-      this.learn(q.decisionId, q.id, { ...q.reward, after, delta, value: round4(delta - q.reward.burden), outcomeAt: this.now().toISOString() }, q.reward.value);
+      const now = this.scores(q.reward.cases);
+      const scores = q.reward.scores && now ? { ...q.reward.scores, completenessAfter: now.completeness, correctnessAfter: now.correctness } : q.reward.scores;
+      this.learn(q.decisionId, q.id, { ...q.reward, after, delta, value: round4(delta - q.reward.burden), outcomeAt: this.now().toISOString(), ...(scores ? { scores } : {}) }, q.reward.value);
       out.push(this.store.get('question', q.id)!);
     }
     return out;

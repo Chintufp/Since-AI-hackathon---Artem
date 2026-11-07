@@ -30,6 +30,7 @@ import { applyDirectory } from './directory.ts';
 import { resetDemo } from './demo.ts';
 import { DEFAULT_ACTIVITY_LOG, readActivity, type ActivityResponse } from './activity.ts';
 import { activityPage } from './activity-page.ts';
+import { caseProvenance } from './provenance-strip.ts';
 import { createDemoClock, type DemoClock, type DemoClockStatus } from './demo-clock.ts';
 import { DEFAULT_DB_PATH } from './paths.ts';
 import { badRequest, conflict, forbidden, notFound, toServiceError } from './errors.ts';
@@ -577,7 +578,8 @@ export class Engine {
         people = buildPeople({ store: this.store, directory, principal, gate, candidates: [candidate], selectedCaseId: id, entityIds: c.entityIds, settings, now: this.clock() }).map((p) => personView(p, gate));
       } catch { people = []; }
     }
-    return { ...v, caveat: polishCaveat(v.caveat), people };
+    const provenance = caseProvenance(this.store, id, evidenceGate(this.store, principal));
+    return { ...v, caveat: polishCaveat(v.caveat), people, ...(provenance ? { provenance } : {}) };
   }
 
   /**

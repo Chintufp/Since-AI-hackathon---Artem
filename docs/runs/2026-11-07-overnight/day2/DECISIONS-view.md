@@ -54,3 +54,31 @@ because nothing places it in time. Stops: one per evidence item on a clock segme
 (`at` = that instant), and `now` (no `at`). The visible set per stop mirrors `gateAt`: at a calendar stop every undated
 item counts (B1), even though the gutter is drawn to the right of the line; the page says so in the gutter's label.
 Reverse: `layoutTimeAxis` (the order of `parts`) and the stop builder.
+
+## D-B3-05 · Provenance strip: which claim, which words
+
+`service/provenance-strip.ts` builds `ProvenanceView` (additive on `ResultView`, `QuestionView`, `CaseView`; `text` is
+the one line the panel shows). Which claim a heading rests on: the result uses the recommendation's basis references
+(after the requester's gate, and as of the investigation's `at`/`atEvidence`); among visible claims supported by them
+it takes access-fact, then advice, hypothesis, outcome ... and, within a type, the latest in the thread. The question
+card uses the question's `targetClaimId`, else its investigation's basis. The case title uses the advice behind the
+case's corrective attempt (a recovered one first), else the case's latest advice. Words: the asserter (directory name of
+`assertedBy`, else the author of the visible message), the provider label (Teams, E-mail, Slack ...) plus
+`describeTime` for undated sources ("09:22 (date unknown)") and B1's short date ("14 Oct") for dated ones, "reported
+once" when exactly one independent visible source supports it (`independentSources`, visible references only), then the
+status: "still believed true"; "superseded 6 Oct by Eino Salo" (newer value visible and valid at the moment); for a
+claim bounded by a note (B1 D-B1-07, not superseded) "still believed true for software.version < 4.2 (bounded 14 Oct by
+Erkki Expert)", because the advice still holds below 4.2 and saying "superseded" for a unit of unknown version would
+mislead; "contradicted"; and the route only when a model proposed the claim ("local model qwen3:4b, committed by
+rules"). Measured on the Elisa store: "Erkki Expert · Teams 09:22 (date unknown) · reported once · still believed true"
+before 14 Oct, the bounded form after it, "Eino Salo · E-mail 6 Oct · reported once · still believed true" for the
+barrier code.
+Access: nothing is read except through the viewer's gate (scope plus at least one visible supporting reference); a
+superseding or bounding claim is named only when visible and valid at the moment; with no visible basis there is no
+strip. Test: views.test.ts (the member's strip rests on the private advice claim; the outsider's never does, has no
+more sources, and with only private basis references there is none).
+Panel: `<p class="rf-provenance">` between `.rf-result-title` and the notes, under the question's heading and under the
+case view's title, textContent only, one line with ellipsis (the full line is the tooltip). Not repeated under the
+matched case's title inside the result view (it would say the same thing twice in a height-capped block). The mock's
+POST /investigate carries a strip so the mock screenshots show it.
+Reverse: drop the three optional fields and `provenance-strip.ts`; the panel hides an absent strip.

@@ -67,3 +67,27 @@ test('views: a question rationale drops cited evidence and hypothesis text the v
   assert.match(insider, /Interface stuck/);
   assert.match(insider, /ev:c1:3/);
 });
+
+test('views (B3): the provenance strip is built through the viewer gate; restricted evidence omits or reduces it', async () => {
+  const { store, state } = await stateFor(member);
+  const own = resultView(store, state, member);
+  assert.ok(own.provenance, 'the member sees a strip');
+  assert.match(own.provenance.text, / · /);
+  assert.ok(own.provenance.when.length > 0 && own.provenance.providerLabel.length > 0);
+  // The member's strip rests on a claim the outsider may not see (the private advice/hypothesis claims).
+  const claim = store.get('claim', own.provenance.claimId)!;
+  assert.deepEqual(claim.accessScope, PRIVATE, 'the member strip rests on the private advice claim');
+  const asRequester: InvestigationState = { ...state, events: state.events.map((e) => (e.type === 'investigation.started' ? { ...e, data: { ...e.data, principal: requesterPrincipal() } } : e)) };
+  const r = resultView(store, asRequester, requesterPrincipal());
+  const outsiderGate = evidenceGate(store, requesterPrincipal());
+  if (r.provenance) {
+    const c = store.get('claim', r.provenance.claimId)!;
+    assert.ok(outsiderGate.scope(c.accessScope) && outsiderGate.supported(c.supporting), 'the outsider strip names only a claim the outsider may see');
+    assert.ok(r.provenance.sources <= own.provenance.sources, 'never more sources than the member sees');
+    assert.notEqual(r.provenance.claimId, claim.id, 'never the private claim');
+  }
+  // With every basis reference private, there is no strip at all.
+  const allPrivate: InvestigationState = { ...asRequester, recommendation: { ...asRequester.recommendation, basis: [{ evidenceId: 'ev:c1:3' }, { evidenceId: 'ev:c1:4' }] } };
+  assert.equal(resultView(store, allPrivate, requesterPrincipal()).provenance, undefined);
+  assert.ok(resultView(store, { ...allPrivate, events: state.events }, member).provenance, 'the member still gets one from the same refs');
+});

@@ -185,3 +185,9 @@ test('the mock matches the service: GET /settings carries the slots, api chips c
   fetch.setModelsScenario('default');
   assert.deepEqual(Object.values((await busy.models()).slots).map((x) => x.chip), ['off', 'off', 'off']);
 });
+
+test('mock (B3): POST /investigate carries a provenance strip for the screenshot harness', async () => {
+  const r = await createMockApi().investigate({ text: 'blank labels', principal: mockPrincipal() });
+  assert.ok(r.provenance);
+  assert.match(r.provenance.text, /^Noor Ahmadi · Teams 09:22 \(date unknown\) · reported once · still believed true$/);
+});

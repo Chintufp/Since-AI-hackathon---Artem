@@ -29,6 +29,31 @@ export interface CaseView {
   sources: Array<{ evidenceId: string; provider: string; author: string; when: string; excerpt: string; reference?: string }>;
   /** People with firsthand links to this case (Artem 7 Nov: shown on the case page), gated for the viewer. */
   people?: PersonView[];
+  /** B3: provenance strip under the case title (the case's advice), gated for the viewer. */
+  provenance?: ProvenanceView;
+}
+
+/**
+ * B3: the provenance strip under a heading (BUILD_BRIEF 3.4), built through the viewer's evidence gate. `text` is the
+ * one line the UI shows, e.g. "Erkki Expert · Teams 09:22 (date unknown) · reported once · still believed true".
+ */
+export interface ProvenanceView {
+  claimId: string;
+  person?: string;
+  providerLabel: string;
+  /** describeTime wording for undated sources ("09:22 (date unknown)"); "14 Oct" for a known date. */
+  when: string;
+  /** Independent visible sources of the claim. */
+  sources: number;
+  reportedOnce: boolean;
+  stillBelievedTrue: boolean;
+  /** "superseded 6 Oct by Eino Salo" (a newer value replaced it). */
+  supersededBy?: string;
+  /** B1 D-B1-07: a note bounds the claim; it still holds inside `condition` ("bounded 14 Oct by Erkki Expert"). */
+  bound?: { condition: string; by: string };
+  /** "rules", or B2's "local model qwen3:4b, committed by rules". */
+  route: string;
+  text: string;
 }
 
 export interface QuestionView {
@@ -54,6 +79,8 @@ export interface QuestionView {
   wordedBy?: string;
   /** B2: the template's wording when a model's wording is shown. */
   templateText?: string;
+  /** B3: provenance strip of the claim the question tests, gated for the viewer. */
+  provenance?: ProvenanceView;
 }
 
 export interface PersonView {
@@ -74,6 +101,8 @@ export interface ResultView {
   loopReason?: string;
   routes: Array<{ route: string; version: string }>;
   caseView?: CaseView;
+  /** B3: provenance strip under the recommendation, gated for the requester (absent when nothing is visible). */
+  provenance?: ProvenanceView;
 }
 
 export interface ReceiptView {

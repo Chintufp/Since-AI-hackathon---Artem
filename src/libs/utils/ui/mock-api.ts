@@ -236,6 +236,11 @@ function makeHandlers(s: MockState): Handlers {
         loop: quiet ? 'deferred' : 'question-open',
         routes: [{ route: 'replay', version: 'ui-dev-mock' }],
         caseView: CASE,
+        // B3: the provenance strip, so the screenshot harness shows it under the heading.
+        provenance: {
+          claimId: 'claim_mock_advice', person: 'Noor Ahmadi', providerLabel: 'Teams', when: '09:22 (date unknown)', sources: 1,
+          reportedOnce: true, stillBelievedTrue: true, route: 'rules', text: 'Noor Ahmadi · Teams 09:22 (date unknown) · reported once · still believed true',
+        },
       };
       const state: InvestigationState = {
         id, orgId: ORG, createdAt: NOW(), updatedAt: NOW(),

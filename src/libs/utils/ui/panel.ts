@@ -15,7 +15,7 @@ import type { ParticipationOptIn, ParticipationRating, UserSettings } from '../c
 import type { DirectoryEntry, InstallJobView, ModelsView, Principal, PullJobView } from '../contracts/service.ts';
 import type { ModelSlotName, ModelSlots, SlotChoice } from '../contracts/models.ts';
 import type { ContactDraft } from '../contracts/questions.ts';
-import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
+import type { CaseView, PersonView, ProvenanceView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
 import { ApiError } from './api-client.ts';
 import type { ApiClient } from './api-client.ts';
 import { hydrateIcons, iconSvg } from './icons.ts';
@@ -155,7 +155,7 @@ const TEMPLATE = `
    <section class="rf-view" data-view="question" hidden>
     <div class="rf-question">
      <p class="rf-case"></p><button class="rf-tool rf-close" type="button" data-action="queue" aria-label="Back to questions"><i data-icon="arrow-left"></i></button>
-     <h2></h2>
+     <h2></h2><p class="rf-provenance" hidden></p>
      <textarea class="rf-free-text" aria-label="Your answer in your own words" placeholder="What did you see?" hidden></textarea>
      <div class="rf-responses"><button class="rf-answer" type="button" data-action="yes">Yes</button><button class="rf-answer" type="button" data-action="no">No</button></div>
      <div class="rf-secondary-responses"><button class="rf-later" type="button" data-action="unknown">Not sure</button><button class="rf-later" type="button" data-action="later">Later</button><span class="rf-spacer"></span><button class="rf-later" type="button" data-action="dismiss">Dismiss</button></div>
@@ -208,7 +208,7 @@ const TEMPLATE = `
     <div class="rf-models-body rf-list-scroll"></div>
    </section>
    <section class="rf-view rf-result" data-view="result" aria-label="Result" hidden>
-    <div class="rf-result-head"><p class="rf-result-title"></p><div class="rf-result-notes"></div><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to writing"><i data-icon="arrow-left"></i></button></div>
+    <div class="rf-result-head"><p class="rf-result-title"></p><p class="rf-provenance" hidden></p><div class="rf-result-notes"></div><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to writing"><i data-icon="arrow-left"></i></button></div>
     <div class="rf-case-path"></div>
     <div class="rf-result-rows"></div>
    </section>
@@ -218,6 +218,7 @@ const TEMPLATE = `
    </section>
    <section class="rf-view rf-panel-content" data-view="case" aria-label="Case" hidden>
     <p class="rf-case"></p><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to people"><i data-icon="arrow-left"></i></button>
+    <p class="rf-provenance" hidden></p>
     <div class="rf-case-body"></div>
    </section>
    <section class="rf-view rf-receipt" data-view="contact" aria-label="Message draft" hidden aria-live="polite">
@@ -414,6 +415,7 @@ export function createPanel(options: PanelOptions): Panel {
     const q = activeQuestion();
     $('.rf-question h2').textContent = q?.text ?? 'No open question';
     $('.rf-question .rf-case').textContent = q ? q.caseLabel + (q.deferred ? ' · later' : '') : '';
+    setProvenance($('.rf-question .rf-provenance'), q?.provenance);
     root.querySelectorAll<HTMLButtonElement>('.rf-answer[data-action], .rf-secondary-responses .rf-later').forEach((b) => (b.disabled = !q));
     // B1 review: a free-text question (a standing missing symptom) takes words; Yes becomes Send and No goes away.
     const free = q?.answerType === 'free-text';
@@ -531,10 +533,17 @@ export function createPanel(options: PanelOptions): Panel {
     target?.append(b);
     return b;
   }
+  /** B3: the provenance strip under a heading; one line, textContent only, hidden when the service sent none. */
+  function setProvenance(p: HTMLElement, v: ProvenanceView | undefined): void {
+    p.textContent = v?.text ?? '';
+    p.title = v?.text ?? '';
+    p.hidden = !v;
+  }
   function renderResult(): void {
     if (!result) return;
     const r = result.recommendation;
     $('.rf-result-title').textContent = r.text;
+    setProvenance($('.rf-result-head .rf-provenance'), result.provenance);
     const notes = $('.rf-result-notes');
     notes.replaceChildren();
     // The engine's applicability is a one-word enum (qualified, ...): the sentence above already says it, so only prose is shown.
@@ -622,6 +631,7 @@ export function createPanel(options: PanelOptions): Panel {
   function renderCase(): void {
     if (!caseView) return;
     $('.rf-view[data-view="case"] .rf-case').textContent = caseView.title;
+    setProvenance($('.rf-view[data-view="case"] .rf-provenance'), caseView.provenance);
     const body = $('.rf-case-body');
     body.replaceChildren();
     const wrap = el('div', 'rf-case-path');

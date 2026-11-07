@@ -34,6 +34,11 @@ export interface RunnerOptions {
   syncServiceClock?: boolean;
   /** Stop condition hook (Ctrl-C). */
   shouldStop?: () => boolean;
+  /**
+   * R46: simulated people take part in points (default true; `--no-points`). Each person who has not chosen yet is
+   * opted in when they appear in the directory; the judge's own person is never opted in by the stream.
+   */
+  points?: boolean;
 }
 
 export interface RunSummary {
@@ -48,6 +53,8 @@ export interface RunSummary {
   judgeAttempts: number;
   agentCalls: number;
   errors: number;
+  /** R46: points rows written (simulated people's awards). */
+  pointsRows: number;
 }
 
 interface Known {
@@ -70,7 +77,7 @@ interface Reply {
 type Investigation = ResultView & { state: { id: string; problem: { requester: { id: string; displayName: string; agentId?: string } }; loop: string; loopReason?: string } };
 type Event = { id: string; at: string; type: string; traceId: string };
 type Settings = { currentPersonEntityId?: string };
-type ImportResult = { batch: { counts: { seen: number; inserted: number; unchangedDuplicates: number } }; cases: number; claims: number; people: number };
+type ImportResult = { batch: { counts: { seen: number; inserted: number; unchangedDuplicates: number } }; cases: number; claims: number; people: number; points?: Array<{ personEntityId: string; points: number }> };
 
 const RECOMMENDATION_WORDS: Record<string, string> = {
   reuse: 'reuse the earlier fix', 'check-first': 'check first', qualified: 'conditional, with a check first', 'retain-uncertainty': 'keep the uncertainty', none: 'no recommendation',
@@ -83,7 +90,7 @@ export async function runDay(opts: RunnerOptions): Promise<RunSummary> {
   const tickMs = (opts.tickMinutes ?? 5) * MIN;
   const endMs = clock.startMs + plan.hours * 60 * MIN;
   const rng = createRng(opts.seed * 48271 + 11);
-  const summary: RunSummary = { investigations: 0, evidenceImports: 0, questionsAsked: 0, answered: 0, deferred: 0, dismissed: 0, unanswered: 0, judgeQuestions: 0, judgeAttempts: 0, agentCalls: 0, errors: 0 };
+  const summary: RunSummary = { investigations: 0, evidenceImports: 0, questionsAsked: 0, answered: 0, deferred: 0, dismissed: 0, unanswered: 0, judgeQuestions: 0, judgeAttempts: 0, agentCalls: 0, errors: 0, pointsRows: 0 };
 
   let directory: DirectoryEntry[] = [];
   let profiles = new Map<string, SimProfile>();
@@ -109,6 +116,32 @@ export async function runDay(opts: RunnerOptions): Promise<RunSummary> {
     const next = buildProfiles(directory, opts.seed);
     for (const [id, p] of next) if (!profiles.has(id)) profiles.set(id, p);
     profiles = new Map([...profiles].filter(([id]) => next.has(id)).concat([...next].filter(([id]) => !profiles.has(id))));
+    await optInNewPeople();
+  };
+  /** R46: simulated people take part in points; a person who already chose (either way) and the judge are left alone. */
+  const optInConsidered = new Set<string>();
+  async function optInNewPeople(): Promise<void> {
+    if (opts.points === false) return;
+    const names: string[] = [];
+    for (const d of directory) {
+      if (optInConsidered.has(d.personEntityId) || d.personEntityId === judgeId) continue;
+      optInConsidered.add(d.personEntityId);
+      try {
+        const current = await client.get<{ participates: boolean; since: string }>(`/participation/${encodeURIComponent(d.personEntityId)}/optin`);
+        if (current.since) continue;
+        const principal: Principal = { id: d.personEntityId, displayName: d.name, groups: d.groups, type: 'human' };
+        await client.put(`/participation/${encodeURIComponent(d.personEntityId)}/optin`, { principal, participates: true });
+        names.push(d.name);
+      } catch (e) {
+        fail(`opting ${d.name} into points`, e);
+      }
+    }
+    if (names.length) row({ kind: 'points', text: `${names.length} simulated ${names.length === 1 ? 'person takes' : 'people take'} part in points: ${names.join(', ')}`, why: `simulated opt-in (their choice is played by the stream); you are never opted in automatically${judgeId ? `, ${nameOf(judgeId)} decides in Settings → Points & rating` : ''}`, detail: { personEntityIds: directory.filter((d) => names.includes(d.name)).map((d) => d.personEntityId) } });
+  }
+  const pointsRow = (who: string, personEntityId: string, points: number, what: string, detail: Record<string, unknown>): void => {
+    if (points <= 0) return;
+    summary.pointsRows++;
+    row({ kind: 'points', who, text: `+${points} to ${who} for ${what}`, why: 'simulated; points count contributions and never judge whether the answer was right', detail: { personEntityId, points, ...detail } });
   };
   const refreshJudge = async (): Promise<void> => {
     try {
@@ -159,8 +192,11 @@ export async function runDay(opts: RunnerOptions): Promise<RunSummary> {
   async function runPlanEvent(e: PlanEvent): Promise<void> {
     if (e.kind === 'directory') {
       try {
-        // The directory travels with the first source of its family; the service applies it on import.
+        // The directory is applied on its own first (an import without evidence), so the family's people exist, and can
+        // take part in points (R46), before their evidence arrives; it also travels with every later source of the family.
+        await client.post<ImportResult>('/import', { format: 'teams-json', payload: { messages: [] }, directory: e.directory as PeopleDirectory });
         row({ kind: 'evidence', text: `Directory update from family ${e.family}: ${e.directory.people.length} people (roles, groups, availability)`, detail: { family: e.family } });
+        await refreshDirectory();
       } catch (err) {
         fail('directory', err);
       }
@@ -176,6 +212,7 @@ export async function runDay(opts: RunnerOptions): Promise<RunSummary> {
           detail: { family: e.family, format: e.source.format, counts: c, cases: r.cases, claims: r.claims },
         });
         await refreshDirectory();
+        for (const p of r.points ?? []) pointsRow(nameOf(p.personEntityId), p.personEntityId, p.points, 'evidence that became knowledge', { family: e.family, kind: 'evidence' });
       } catch (err) {
         fail(`import ${e.source.label}`, err);
       }
@@ -310,9 +347,10 @@ export async function runDay(opts: RunnerOptions): Promise<RunSummary> {
         row({ kind: 'answer', who: person.name, text: `${person.name} dismissed "${k.text}"`, why: `${r.reason}; no fact recorded`, detail: { questionId: r.questionId, value: 'dismiss' } });
         return;
       }
-      const res = await client.post<{ receipt: { detail: string } }>(`${path}/answer`, { principal, value: r.action });
+      const res = await client.post<{ receipt: { detail: string; pointsAwarded?: number } }>(`${path}/answer`, { principal, value: r.action });
       summary.answered++;
       k.done = true;
+      pointsRow(person.name, person.personEntityId, res.receipt.pointsAwarded ?? 0, 'answering', { questionId: r.questionId, kind: `answer-${r.action}` });
       const inv = await client.get<Investigation>(`/investigations/${encodeURIComponent(k.investigationId)}`).catch(() => undefined);
       const after = inv ? `${RECOMMENDATION_WORDS[inv.recommendation.kind] ?? inv.recommendation.kind} — ${inv.recommendation.text}` : '';
       row({
@@ -391,9 +429,9 @@ export async function runDay(opts: RunnerOptions): Promise<RunSummary> {
   }
 
   // ---- main loop ----
+  await refreshJudge(); // before the directory, so the judge's person is known when simulated people are opted in (R46)
   await refreshDirectory();
   await syncClock();
-  await refreshJudge();
   row({ kind: 'clock', text: `Simulated day starts (${plan.hours} h; 1 simulated hour = ${clock.hourSeconds || 0} real seconds; seed ${opts.seed}); every row below is simulated`, detail: { seed: opts.seed, hours: plan.hours, hourSeconds: clock.hourSeconds, judgeEveryMinutes: plan.judgeEveryMinutes } });
   await pollEvents();
   while (!opts.shouldStop?.()) {
@@ -415,7 +453,7 @@ export async function runDay(opts: RunnerOptions): Promise<RunSummary> {
   for (const k of open) if (k.personEntityId !== judgeId) summary.unanswered++;
   row({
     kind: 'summary',
-    text: `Simulated day over: ${summary.investigations} investigations, ${summary.evidenceImports} evidence imports, ${summary.questionsAsked} questions asked (${summary.answered} answered, ${summary.deferred} later, ${summary.dismissed} dismissed, ${summary.unanswered} unanswered), ${summary.judgeQuestions} for you, ${summary.agentCalls} agent calls over MCP, ${summary.errors} errors`,
+    text: `Simulated day over: ${summary.investigations} investigations, ${summary.evidenceImports} evidence imports, ${summary.questionsAsked} questions asked (${summary.answered} answered, ${summary.deferred} later, ${summary.dismissed} dismissed, ${summary.unanswered} unanswered), ${summary.judgeQuestions} for you, ${summary.pointsRows} points awards (simulated people), ${summary.agentCalls} agent calls over MCP, ${summary.errors} errors`,
     detail: { ...summary, openQuestions: open.map((k) => ({ questionId: k.questionId, who: nameOf(k.personEntityId) })) },
   });
   return summary;

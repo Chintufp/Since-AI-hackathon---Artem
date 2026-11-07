@@ -102,8 +102,8 @@ test('outcome reports and observations earn for a requester who takes part; summ
   const kinds = b.events.map((e: { kind: string; points: number }) => `${e.kind}:${e.points}`);
   assert.ok(kinds.includes('outcome-report:3'), kinds.join());
   assert.ok(kinds.includes('correction:3'), kinds.join());
-  assert.equal(kinds.filter((k) => k === 'outcome-report:3').length, 1, 'an identical report awards once');
-  assert.equal(kinds.filter((k) => k === 'correction:3').length, 1, 'the same observation awards once');
+  assert.equal(kinds.filter((k: string) => k === 'outcome-report:3').length, 1, 'an identical report awards once');
+  assert.equal(kinds.filter((k: string) => k === 'correction:3').length, 1, 'the same observation awards once');
   const text = JSON.stringify(b);
   assert.ok(!text.includes('SECRET'), 'no report or observation text in the balance');
   assert.ok(b.events.every((e: { refId?: string }) => e.refId === investigationId));

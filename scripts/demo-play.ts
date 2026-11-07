@@ -1,7 +1,7 @@
 /**
  * Simulated real-time activity stream for the judge demo.
  *   pnpm demo:play [-- --seed 1 --hour-seconds 10 --hours 10 --start 07:30 --judge-every 120 --url http://127.0.0.1:47831
- *                     --families train,validation --log data/local/demo-activity.jsonl --no-clock --append --quiet]
+ *                     --families train,validation --log data/local/demo-activity.jsonl --no-clock --append --quiet --no-points]
  * Drives the RUNNING service (start it with `pnpm service` or `pnpm desktop`) through a scripted, clock-driven day:
  * synthetic Teams/e-mail/Slack evidence arrives, simulated engineers investigate, the real coordinator asks simulated
  * colleagues (within its limits), and they answer after plausible delays. Everything is simulated and labelled so;
@@ -37,6 +37,8 @@ const { values } = parseArgs({
     instant: { type: 'boolean', default: false },
     /** Real seconds to wait before the day begins (so a judge can do the 3-minute walkthrough on the seeded data first). */
     delay: { type: 'string', default: '0' },
+    /** R46: do not opt the simulated people into points (the judge's own person is never opted in by the stream). */
+    'no-points': { type: 'boolean', default: false },
   },
 });
 
@@ -147,7 +149,7 @@ if (delay > 0 && !stop) {
 }
 try {
   if (stop) process.exit(130);
-  const summary = await runDay({ client, plan, clock, seed, sink, judgePrompts, syncServiceClock: !values['no-clock'], shouldStop: () => stop });
+  const summary = await runDay({ client, plan, clock, seed, sink, judgePrompts, syncServiceClock: !values['no-clock'], shouldStop: () => stop, points: !values['no-points'] });
   process.stdout.write(`\nDone. ${summary.questionsAsked} questions asked, ${summary.answered} answered, ${summary.judgeQuestions} for the judge, ${summary.errors} errors. Log: ${values.log}\n`);
   process.exitCode = summary.errors ? 1 : 0;
 } finally {

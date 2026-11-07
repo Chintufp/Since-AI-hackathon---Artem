@@ -98,6 +98,20 @@ test('a simulated day asks real questions, answers them as simulated people and 
   assert.ok(judgeQs.length >= 1, 'the judge prompt reached the judge');
   assert.ok(rows.some((r) => r.kind === 'question' && r.forYou === true));
   assert.equal(summary.judgeQuestions, 1);
+  // R46: simulated people take part in points and their awards are rows; the judge is never opted in by the stream.
+  const optRows = rows.filter((r) => r.kind === 'points' && /take part in points/.test(String(r.text)));
+  assert.ok(optRows.length >= 1, 'an opt-in row');
+  assert.ok(!String(optRows[0]!.text).includes('Jukka Salo'), 'the judge is not in the opted-in list');
+  const judgeOpt = await svc.call('GET', `/participation/${encodeURIComponent(helmi.personEntityId)}/optin`);
+  assert.equal(judgeOpt.participates, false);
+  const awards = rows.filter((r) => r.kind === 'points' && /^\+\d+ to /.test(String(r.text)));
+  assert.equal(awards.length, summary.pointsRows);
+  if (summary.answered > 0) {
+    assert.ok(awards.some((r) => /for answering$/.test(String(r.text))), `an answer award row: ${rows.filter((r) => r.kind === 'points').map((r) => r.text).join(' | ')}`);
+    const rating = await svc.call('GET', '/participation/rating');
+    assert.ok(rating.participants.length >= 1 && rating.totals.points > 0);
+    assert.ok(!JSON.stringify(rating).includes(helmi.personEntityId), 'the judge appears nowhere in the rating');
+  }
   // Simulated people's answers are real attributed answers in the service.
   const all: QuestionView[] = await svc.call('GET', '/questions?status=all');
   const answered = all.filter((q) => q.status === 'answered');

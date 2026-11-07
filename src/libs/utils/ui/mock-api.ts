@@ -10,7 +10,7 @@ import type { QuestionRecord, QuestionStatus } from '../contracts/questions.ts';
 import { defaultUserSettings } from '../contracts/outcomes.ts';
 import { DEFAULT_MODEL_SLOTS } from '../contracts/models.ts';
 import type { ModelSlotName } from '../contracts/models.ts';
-import type { CatalogEntry, ModelsView, PullJobView, SlotStatusView } from '../contracts/service.ts';
+import type { CatalogEntry, InstallJobView, ModelsView, PullJobView, SlotStatusView } from '../contracts/service.ts';
 import type { ParticipationEvent, ParticipationOptIn, ParticipationRating, UserSettings } from '../contracts/outcomes.ts';
 import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
 import { createApiClient, parseRoute } from './api-client.ts';
@@ -63,13 +63,19 @@ interface MockState {
   installed: string[];
   pulls: Map<string, PullJobView>;
   keys: { anthropic: boolean; gemini: boolean };
+  install: InstallJobView;
 }
+
+const MOCK_INSTALL: InstallJobView = { state: 'idle', brew: true, log: [], downloadUrl: 'https://ollama.com/download', setup: ['brew install ollama', 'ollama serve', 'ollama pull bge-m3'] };
 
 function mockModels(s: MockState): ModelsView {
   const slots = s.settings.models ?? DEFAULT_MODEL_SLOTS;
-  const entry = (model: string, why: string, recommended = false): CatalogEntry => {
+  const RAM_GB = 24;
+  const entry = (model: string, sizeGb: number, minRamGb: number, why: string, recommended = false): CatalogEntry => {
     const installed = s.installed.includes(model);
-    return { model, why, installed, ...(recommended ? { recommended } : {}), availability: installed ? 'ready' : 'not-downloaded', label: installed ? 'installed · ready' : 'not downloaded · Download' };
+    const availability: CatalogEntry['availability'] = installed ? 'ready' : minRamGb > RAM_GB ? 'too-large' : 'not-downloaded';
+    const label = availability === 'ready' ? 'installed · ready' : availability === 'too-large' ? 'too large for this Mac' : `not downloaded · ${sizeGb.toFixed(1)} GB · Download`;
+    return { model, why, installed, sizeBytes: sizeGb * 1e9, minRamGb, ...(recommended ? { recommended } : {}), availability, label };
   };
   const status = (slot: ModelSlotName): SlotStatusView => {
     const c = slots[slot];
@@ -79,11 +85,11 @@ function mockModels(s: MockState): ModelsView {
     return s.installed.includes(model) ? { choice: c, state: 'ready', chip: 'ready' } : { choice: c, state: 'not-downloaded', chip: 'not downloaded' };
   };
   return {
-    detection: { installed: true, running: true, version: 'dev-mock', totalMemBytes: 24e9, freeDiskBytes: 300e9, installedModels: s.installed.map((name) => ({ name, capabilities: name === 'bge-m3' ? ['embedding'] : ['completion'] })), setup: ['brew install ollama', 'ollama serve', 'ollama pull bge-m3'] },
+    detection: { installed: true, running: true, version: 'dev-mock', totalMemBytes: RAM_GB * 1e9, freeDiskBytes: 300e9, installedModels: s.installed.map((name) => ({ name, capabilities: name === 'bge-m3' ? ['embedding'] : ['completion'] })), setup: ['brew install ollama', 'ollama serve', 'ollama pull bge-m3'] },
     catalog: {
-      embed: [entry('bge-m3', 'Multilingual embeddings (dev mock).', true)],
-      extract: [entry('qwen3:4b', 'Schema-constrained extraction (dev mock).', true)],
-      phrase: [entry('qwen3:8b', 'Natural question wording (dev mock).', true)],
+      embed: [entry('bge-m3', 1.2, 8, 'Multilingual, finds cases by meaning (dev mock).', true), entry('nomic-embed-text', 0.3, 4, 'Light and fast, English-first (dev mock).')],
+      extract: [entry('qwen3:4b', 2.5, 8, 'Fills the extraction form with a JSON schema (dev mock).', true), entry('qwen3:8b', 5.2, 12, 'Better recall on messy threads (dev mock).')],
+      phrase: [entry('qwen3:8b', 5.2, 12, 'Natural one-sentence questions (dev mock).', true), entry('qwen3:32b', 20, 32, 'Smoothest wording; needs a big Mac (dev mock).')],
     },
     slots: { embed: status('embed'), extract: status('extract'), phrase: status('phrase') },
     apiKeys: { ...s.keys },
@@ -119,7 +125,7 @@ function mockRating(s: MockState): ParticipationRating {
 function freshState(): MockState {
   const records = new Map<string, QuestionRecord>();
   SEED_QUESTIONS.forEach((q, i) => records.set(q.id, record(q, 'queued', i)));
-  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS(), installed: ['qwen3:8b'], pulls: new Map(), keys: { anthropic: false, gemini: false } };
+  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS(), installed: ['qwen3:8b'], pulls: new Map(), keys: { anthropic: false, gemini: false }, install: { ...MOCK_INSTALL } };
 }
 
 function record(q: SeedQuestion, status: QuestionStatus, i: number): QuestionRecord {
@@ -321,6 +327,12 @@ function makeHandlers(s: MockState): Handlers {
       s.keys[body.provider] = body.key.trim().length > 0;
       return { provider: body.provider, present: s.keys[body.provider] };
     },
+    // Ollama is already installed in the mock: the install finishes at once with a short log.
+    'POST /models/install': () => {
+      s.install = { ...MOCK_INSTALL, state: 'done', brew: true, log: ['$ brew install ollama', '==> ollama is already installed (dev mock)'], startedAt: NOW(), finishedAt: NOW() };
+      return s.install;
+    },
+    'GET /models/install': () => s.install,
   };
   return h;
 }

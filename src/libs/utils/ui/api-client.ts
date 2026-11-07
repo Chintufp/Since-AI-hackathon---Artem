@@ -74,6 +74,8 @@ export interface ApiClient {
   pullJob(jobId: string): Promise<ResOf<'GET /models/pull/:id'>>;
   testModelKey(provider: 'anthropic' | 'gemini', model?: string): Promise<ResOf<'POST /models/test'>>;
   setModelKey(provider: 'anthropic' | 'gemini', key: string): Promise<ResOf<'POST /models/key'>>;
+  installOllama(): Promise<ResOf<'POST /models/install'>>;
+  installJob(): Promise<ResOf<'GET /models/install'>>;
 }
 
 /** Split "POST /questions/:id/answer" into method and path template. */
@@ -174,5 +176,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     pullJob: (jobId) => call('GET /models/pull/:id', { params: { id: jobId } }),
     testModelKey: (provider, model) => call('POST /models/test', { body: { provider, ...(model ? { model } : {}) } }),
     setModelKey: (provider, key) => call('POST /models/key', { body: { provider, key } }),
+    installOllama: () => call('POST /models/install', { body: {} }),
+    installJob: () => call('GET /models/install'),
   };
 }

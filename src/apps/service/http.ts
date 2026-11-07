@@ -8,7 +8,7 @@ import type { Engine } from './engine.ts';
 import { ServiceError, toServiceError } from './errors.ts';
 import {
   activityQuerySchema, answerSchema, cancelSchema, clockSchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema,
-  modelKeySchema, modelPullSchema, modelTestSchema, observationSchema, optInSchema, outcomeSchema, participationQuerySchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, ratingQuerySchema, settingsPatchSchema,
+  modelInstallSchema, modelKeySchema, modelPullSchema, modelTestSchema, observationSchema, optInSchema, outcomeSchema, participationQuerySchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, ratingQuerySchema, settingsPatchSchema,
 } from './schemas.ts';
 
 /** A handler result that is served as-is (HTML) instead of JSON. */
@@ -99,6 +99,11 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
       const b = parse(modelKeySchema, c.body);
       return engine.setModelKey(b.provider, b.key);
     },
+    'POST /models/install': (c) => {
+      parse(modelInstallSchema, c.body ?? {});
+      return engine.installOllama();
+    },
+    'GET /models/install': () => engine.installJob(),
   };
   return table;
 }

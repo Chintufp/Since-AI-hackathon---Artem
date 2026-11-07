@@ -119,6 +119,8 @@ export const modelPullSchema = z.object({ model: z.string().trim().min(1).max(20
 /** POST /models/test: one tiny call to the api provider. */
 export const modelTestSchema = z.object({ provider: z.enum(['anthropic', 'gemini']), model: z.string().min(1).max(200).optional() }).strict();
 /** POST /models/key: held in memory only, never persisted. An empty key forgets it. */
+/** POST /models/install takes no fields. */
+export const modelInstallSchema = z.object({}).strict();
 export const modelKeySchema = z.object({ provider: z.enum(['anthropic', 'gemini']), key: z.string().max(400) }).strict();
 
 export const demoResetSchema = z.object({ seed: z.enum(['elisa', 'synthetic', 'empty']).optional(), defaultPerson: z.string().min(1).optional() });

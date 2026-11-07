@@ -8,7 +8,7 @@
 import { spawn, type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { CatalogEntry, ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView, SlotStatusView } from '../../libs/utils/contracts/index.ts';
+import type { CatalogEntry, InstallJobView, ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView, SlotStatusView } from '../../libs/utils/contracts/index.ts';
 import {
   API_DEFAULT_MODELS, ApiProvider, DEFAULT_KEEP_ALIVE, EmbeddingCache, OllamaProvider, type ApiVendor, type DetectResult, type FetchFn, type ModelProvider,
 } from '../../libs/utils/models/providers/index.ts';
@@ -35,7 +35,40 @@ export interface ModelManagerOptions {
   /** fetch for the api provider (tests). */
   apiFetch?: FetchFn;
   now?: () => Date;
+  /** Installs Ollama (default: `brew install ollama` on macOS when Homebrew exists). Tests inject a fake. */
+  installer?: OllamaInstaller;
 }
+
+export interface OllamaInstaller {
+  /** The brew binary, or undefined when Homebrew is absent (or not macOS). */
+  brewPath(): Promise<string | undefined>;
+  /** Run the install, streaming output lines; resolves on exit 0. */
+  run(brew: string, onLine: (line: string) => void): Promise<void>;
+}
+
+export const OLLAMA_DOWNLOAD_URL = 'https://ollama.com/download';
+const MAX_LOG_LINES = 200;
+
+export const brewInstaller: OllamaInstaller = {
+  brewPath: async () => (process.platform !== 'darwin' ? undefined : ['/opt/homebrew/bin/brew', '/usr/local/bin/brew'].find((p) => existsSync(p))),
+  run: (brew, onLine) => new Promise<void>((resolve, reject) => {
+    const child = spawn(brew, ['install', 'ollama'], { stdio: ['ignore', 'pipe', 'pipe'] });
+    let rest = '';
+    const feed = (chunk: Buffer): void => {
+      const lines = (rest + chunk.toString('utf8')).split(/\r?\n/);
+      rest = lines.pop() ?? '';
+      for (const l of lines) if (l.trim()) onLine(l);
+    };
+    child.stdout?.on('data', feed);
+    child.stderr?.on('data', feed);
+    child.on('error', reject);
+    child.on('close', (code) => {
+      if (rest.trim()) onLine(rest);
+      if (code === 0) resolve();
+      else reject(new Error(`brew install ollama exited with code ${code}`));
+    });
+  }),
+};
 
 /** 'bge-m3' and 'bge-m3:latest' are the same Ollama model. */
 export const sameModel = (a: string, b: string): boolean => {
@@ -57,6 +90,7 @@ export class ModelManager {
   private readonly keys: Partial<Record<ApiVendor, string>> = {};
   private server: ChildProcess | undefined;
   private jobSeq = 0;
+  private install: InstallJobView = { state: 'idle', brew: false, log: [], downloadUrl: OLLAMA_DOWNLOAD_URL, setup: SETUP };
   private lastDetect: DetectResult | undefined;
 
   constructor(opts: ModelManagerOptions = {}) {
@@ -267,6 +301,44 @@ export class ModelManager {
   pullJob(id: string): PullJobView | undefined {
     const j = this.jobs.get(id);
     return j ? publicJob(j) : undefined;
+  }
+
+  // ---- installing Ollama (only ever from a click) ------------------------------------------------------
+
+  installJob(): InstallJobView {
+    return { ...this.install, log: [...this.install.log] };
+  }
+
+  /**
+   * POST /models/install: `brew install ollama` with its output kept for the panel; afterwards `ollama serve` is
+   * started as a child this service owns (stopped on shutdown). Without Homebrew the job is 'unavailable' and the
+   * panel offers the download page and the commands to copy. A second click while it runs returns the same job.
+   */
+  async startInstall(): Promise<InstallJobView> {
+    if (this.install.state === 'running') return this.installJob();
+    const inst = this.opts.installer ?? brewInstaller;
+    const brew = await inst.brewPath();
+    if (!brew) {
+      this.install = { state: 'unavailable', brew: false, log: [], downloadUrl: OLLAMA_DOWNLOAD_URL, setup: SETUP, error: 'Homebrew was not found' };
+      return this.installJob();
+    }
+    this.install = { state: 'running', brew: true, log: [`$ ${brew} install ollama`], downloadUrl: OLLAMA_DOWNLOAD_URL, setup: SETUP, startedAt: this.now() };
+    const job = this.install;
+    const push = (line: string): void => {
+      job.log.push(line);
+      if (job.log.length > MAX_LOG_LINES) job.log.splice(0, job.log.length - MAX_LOG_LINES);
+    };
+    void inst.run(brew, push).then(() => {
+      job.state = 'done';
+      job.finishedAt = this.now();
+      push('Ollama installed; starting ollama serve.');
+      if (!this.server) this.server = (this.opts.startServer ?? defaultStartServer)();
+    }, (e: unknown) => {
+      job.state = 'failed';
+      job.error = e instanceof Error ? e.message : String(e);
+      job.finishedAt = this.now();
+    });
+    return this.installJob();
   }
 
   // ---- api keys (memory only) ---------------------------------------------------------------------

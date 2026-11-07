@@ -17,6 +17,8 @@ interface KtBridge {
   onArea?(cb: (area: Area) => void): void;
   reportState?(state: ShellState): void;
   showContextMenu?(): void;
+  // B2
+  saveModelKey?(vendor: 'anthropic' | 'gemini', key: string): Promise<{ present: boolean; stored: boolean }>;
 }
 declare global {
   interface Window {
@@ -55,6 +57,8 @@ const panel = createPanel({
   storage: shots ? null : undefined,
   entrance: params.get('entrance') !== '0',
   companion: flags,
+  // B2: api keys go through the main process (safeStorage); the mock keeps them in the mock service's memory.
+  keychain: !mock && window.kt?.saveModelKey ? { save: (vendor, key) => window.kt!.saveModelKey!(vendor, key) } : null,
 });
 
 // Click-through: the window is transparent; only Lumi and the open panel take the mouse.

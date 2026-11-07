@@ -155,6 +155,7 @@ export const IPC = {
   area: 'kt:area', // main → renderer { width, height }
   state: 'kt:state', // renderer → main ShellState
   contextMenu: 'kt:context-menu', // renderer → main (no payload)
+  keySave: 'kt:key-save', // renderer → main (invoke) { vendor, key } → { present, stored } (B2: safeStorage)
 } as const;
 
 /**

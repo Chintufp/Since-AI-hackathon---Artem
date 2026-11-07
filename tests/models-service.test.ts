@@ -219,3 +219,42 @@ test('embed=local: imports index evidence, claims and case cards; a paraphrase i
     await svc.close();
   }
 });
+
+test('POST /models/install: runs the installer with a visible log, then starts ollama serve; without Homebrew it offers the download page', async () => {
+  let finish: ((ok: boolean) => void) | undefined;
+  const started: string[] = [];
+  const installer = {
+    brewPath: async () => '/opt/homebrew/bin/brew',
+    run: (brew: string, onLine: (l: string) => void) => new Promise<void>((resolve, reject) => {
+      onLine('==> Downloading ollama');
+      finish = (ok) => (ok ? resolve() : reject(new Error('brew install ollama exited with code 1')));
+    }),
+  };
+  const svc = await startService({ modelManager: { local: fakeLocal(), installer, startServer: () => { started.push('serve'); return undefined; } } });
+  try {
+    assert.equal((await svc.call('GET', '/models/install')).state, 'idle');
+    const j = await svc.call('POST', '/models/install', {});
+    assert.equal(j.state, 'running');
+    assert.equal(j.brew, true);
+    assert.deepEqual(j.log, ['$ /opt/homebrew/bin/brew install ollama', '==> Downloading ollama']);
+    // a second click while it runs is the same job
+    assert.equal((await svc.call('POST', '/models/install', {})).startedAt, j.startedAt);
+    finish!(true);
+    await tick();
+    const done = await svc.call('GET', '/models/install');
+    assert.equal(done.state, 'done');
+    assert.deepEqual(started, ['serve']);
+    await svc.call('POST', '/models/install', { brew: 'rm -rf /' }, 400);
+  } finally {
+    await svc.close();
+  }
+  const none = await startService({ modelManager: { local: fakeLocal(), installer: { brewPath: async () => undefined, run: async () => { throw new Error('never'); } } } });
+  try {
+    const j = await none.call('POST', '/models/install', {});
+    assert.equal(j.state, 'unavailable');
+    assert.equal(j.downloadUrl, 'https://ollama.com/download');
+    assert.deepEqual(j.setup, ['brew install ollama', 'ollama serve', 'ollama pull bge-m3']);
+  } finally {
+    await none.close();
+  }
+});

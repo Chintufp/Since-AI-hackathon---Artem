@@ -152,6 +152,25 @@ export interface ApiRoutes {
   'POST /models/test': { req: { provider: 'anthropic' | 'gemini'; model?: string }; res: ModelTestResult };
   /** Holds an api key in memory only (never SQLite, data/ or the repo). An empty key forgets it. */
   'POST /models/key': { req: { provider: 'anthropic' | 'gemini'; key: string }; res: { provider: 'anthropic' | 'gemini'; present: boolean } };
+  /** Installs Ollama with Homebrew (macOS; only ever from a click), with a visible log; 'unavailable' plus the download link when Homebrew is absent. */
+  'POST /models/install': { req: Record<string, never>; res: InstallJobView };
+  'GET /models/install': { res: InstallJobView };
+}
+
+/** The Ollama install started from Settings -> Models. */
+export interface InstallJobView {
+  state: 'idle' | 'running' | 'done' | 'failed' | 'unavailable';
+  /** Homebrew was found (the install runs `brew install ollama`). */
+  brew: boolean;
+  /** The last lines of the installer's output. */
+  log: string[];
+  /** Where to download Ollama by hand. */
+  downloadUrl: string;
+  /** The commands to copy instead. */
+  setup: string[];
+  error?: string;
+  startedAt?: string;
+  finishedAt?: string;
 }
 
 /** One row of the model catalog (data/models/catalog.json), or an installed model that is not in it. */

@@ -137,3 +137,19 @@ test('the mock implements the B2 model routes and merges a partial models patch 
   assert.deepEqual(await api.setModelKey('anthropic', 'k'), { provider: 'anthropic', present: true });
   assert.equal((await api.testModelKey('anthropic')).ok, true);
 });
+
+test('the mock Models view has sizes, a recommended model, a too-large entry and an install route with a log', async () => {
+  const api = createMockApi();
+  const v = await api.models();
+  const embed = v.catalog.embed.find((e) => e.recommended)!;
+  assert.equal(embed.model, 'bge-m3');
+  assert.ok(embed.sizeBytes && embed.why);
+  const big = v.catalog.phrase.find((e) => e.availability === 'too-large')!;
+  assert.equal(big.label, 'too large for this Mac');
+  assert.ok(big.minRamGb! * 1e9 > v.detection.totalMemBytes!);
+  assert.equal((await api.installJob()).state, 'idle');
+  const j = await api.installOllama();
+  assert.equal(j.state, 'done');
+  assert.ok(j.log.length > 0);
+  assert.deepEqual(j.setup, ['brew install ollama', 'ollama serve', 'ollama pull bge-m3']);
+});

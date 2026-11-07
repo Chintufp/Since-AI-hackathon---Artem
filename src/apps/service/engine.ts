@@ -9,7 +9,7 @@ import type {
   InvestigateRequest, InvestigationState, KnowledgeStore, ObservationRequest, OutcomeReport, OutcomeRequest, ParticipationBalance, ParticipationOptIn, ParticipationRating, PeopleDirectory,
   PersonView, PreferenceFeedback, Principal, Problem, QuestionGenerator, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
 import { DEFAULT_MODEL_SLOTS, defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
-import type { ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView } from '../../libs/utils/contracts/index.ts';
+import type { InstallJobView, ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView } from '../../libs/utils/contracts/index.ts';
 import { fallbackRoute, vendorOf, type ApiVendor, type ModelProvider } from '../../libs/utils/models/providers/index.ts';
 import { EmbeddingIndex, type IndexReport } from '../../libs/utils/retrieval/index.ts';
 import { caseCard, createLlmExtractor, enrichWithModel, RULES_ROUTE, storeHealth, type EnrichItem, type EnrichReport, type StoreHealth } from '../../libs/utils/memory/index.ts';
@@ -866,6 +866,16 @@ export class Engine {
     const j = this.models.pullJob(id);
     if (!j) throw notFound(`Unknown download ${id}`);
     return j;
+  }
+
+  /** Only ever called from a click (POST /models/install). */
+  installOllama(): Promise<InstallJobView> {
+    this.trace('models', 'models.install', { id: 'system', displayName: 'models' }, {});
+    return this.models.startInstall();
+  }
+
+  installJob(): InstallJobView {
+    return this.models.installJob();
   }
 
   /** Memory only: the key is never stored, traced or returned. */

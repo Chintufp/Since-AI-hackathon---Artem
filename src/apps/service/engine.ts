@@ -297,7 +297,7 @@ export class Engine {
     if (phrase && 'unavailable' in phrase) this.models.recordFailure('phrase', phrase.unavailable);
     const selector = this.selector(settings.coordinator.selectorId);
     const coordinator = new QuestionCoordinator({ store: this.store, settings, selector, generator, retriever, assessor, directory, clock: this.clock, onSelectorUpdated: (sel) => this.selectorUpdated(sel) });
-    return { settings, directory, retriever, assessor, generator, selector, coordinator };
+    return { settings, directory, retriever, assessor, templates, generator, selector, coordinator };
   }
 
   /**
@@ -341,9 +341,8 @@ export class Engine {
    * requested only when some recipient is eligible now, so a busy person leaves no decision records behind; a person with
    * an open question (an investigation's, or another standing one) is not eligible. Most useful kind first.
    */
-  async askStanding(): Promise<QuestionRecord[]> {
+  async askStanding(w: ReturnType<Engine['wiring']> = this.wiring()): Promise<QuestionRecord[]> {
     if (!this.opts.standingGaps?.ask) return [];
-    const w = this.wiring();
     const ctx = { store: this.store, settings: w.settings, directory: w.directory, clock: this.clock };
     const rank = (st: InvestigationState): number => {
       const kinds = st.gaps.filter((g) => g.status === 'open').map((g) => parseGapId(g.id)?.kind);
@@ -354,7 +353,9 @@ export class Engine {
     const out: QuestionRecord[] = [];
     for (const st of states) {
       if (questionsForInvestigation(this.store, st.id).some((q) => ACTIVE_QUESTION.has(q.status))) continue;
-      const cands = await w.generator.generate(st, w.settings.questions.maxCandidates);
+      // Who could be asked does not depend on the wording: the pre-check uses the templates, so only the question that
+      // is actually requested goes to the phrase model (integration review, D-INT-12).
+      const cands = await w.templates.generate(st, w.settings.questions.maxCandidates);
       if (!cands.some((c) => c.recipientIds.some((pid) => evaluateEligibility(ctx, st, c, pid).eligible))) continue;
       const r = await w.coordinator.request(st);
       if (r.question) out.push(r.question);
@@ -801,7 +802,8 @@ export class Engine {
       const points = this.award({ personEntityId: q.personEntityId, contributionEventId: r.answer.id, kind, summary: `Answered a question (${req.value === 'unknown' ? 'not sure' : req.value})`, refId: q.id });
       const receipt = this.receipt(req.value, r.question, r.state, points, r.recommendationChanged);
       this.afterChange();
-      await this.askStanding();
+      // The standing pass shares this request's wiring, so the answer has one phrase budget (D-B2-57), not two (D-INT-12).
+      await this.askStanding(w);
       return { answer: r.answer, receipt, question: r.question };
     } catch (e) {
       throw toServiceError(e);

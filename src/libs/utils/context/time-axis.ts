@@ -73,10 +73,11 @@ export function layoutTimeAxis(items: AxisItem[], opts: { x0: number; x1: number
   const threads: string[] = [];
   for (const it of timeOnly) if (!threads.includes(it.thread ?? '')) threads.push(it.thread ?? '');
 
-  // Widths: each time-only thread 1, the calendar 1.4, the gutter 0.4 (when present); gaps between them.
+  // Widths: each time-only thread 1.5, the calendar 1.4 (0.6 for a single moment), the gutter 0.4; gaps between them.
+  const moments = new Set(known.map(ms)).size;
   const parts: Array<{ kind: AxisSegment['kind']; thread?: string; weight: number }> = [
-    ...threads.map((t) => ({ kind: 'time-only' as const, thread: t, weight: 1 })),
-    ...(known.length ? [{ kind: 'calendar' as const, weight: 1.4 }] : []),
+    ...threads.map((t) => ({ kind: 'time-only' as const, thread: t, weight: 1.5 })),
+    ...(known.length ? [{ kind: 'calendar' as const, weight: moments > 1 ? 1.4 : 0.6 }] : []),
     ...(unknown.length ? [{ kind: 'unknown' as const, weight: 0.4 }] : []),
   ];
   const total = parts.reduce((s, p) => s + p.weight, 0) || 1;

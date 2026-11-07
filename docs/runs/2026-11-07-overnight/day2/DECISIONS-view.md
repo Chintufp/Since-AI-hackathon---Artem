@@ -82,3 +82,29 @@ case view's title, textContent only, one line with ellipsis (the full line is th
 matched case's title inside the result view (it would say the same thing twice in a height-capped block). The mock's
 POST /investigate carries a strip so the mock screenshots show it.
 Reverse: drop the three optional fields and `provenance-strip.ts`; the panel hides an absent strip.
+
+## D-B3-06 · The Context Layer page: what it reads, how it draws, who it views as
+
+`GET /context.html` (`context-page.ts`, an `HtmlResponse` like the activity page) holds no data: its script fetches
+`GET /settings` + `GET /directory` (who "you" are), `GET /context?entity=&principalId=` (rows), and on every slider stop
+`GET /context?at=` (each claim's `validAt` then) and `POST /investigate` with `preview: true`, `allowQuestions: false`,
+the stop's `at`/`atEvidence`, the entity id and the viewer as principal. The viewer is `?principalId=` or the settings'
+current person (shown as "viewing as <name> (groups)"); with neither, an anonymous group-less principal that sees
+organization-wide knowledge only. Access is therefore applied per request, exactly as for the panel.
+GET /context gained three additive fields for the page (B1's builder, `memory/context-assertions.ts`):
+`source.thread` (evidence thread id, so undated items group per thread), `conditionedBy` (the visible note that bounds a
+claim, only when the condition itself is shown) and `route` (the claim's route in words via B2's `modelProvenance`).
+Drawing: diamonds per source evidence; one lane per claim, bar from its source position to `validTo` (known), or to the
+superseder's position for an undated supersession, or open (gradient fade into the status column) with "still believed
+true"; superseded bars grey with an arrow to the superseder's bar and "superseded 6 Oct by Eino Salo"; a claim bounded by
+a note (TRN-042 after Erkki's 14 Oct firmware note) is hatched from the note's position with "superseded 14 Oct by Erkki
+Expert · still true for software.version < 4.2" (B1 bounds rather than supersedes; the words keep both facts). Status
+column says "status now"; dimming says what counts at t (source not visible at the stop, or `validAt` false then).
+Bindings are chips (hedged dashed), people are lanes with a dot per assertion. The card shows kind, text, the provenance
+strip, up to four caveats, applicability and the next step; results are cached per stop and problem text, requests
+debounced 150 ms; stale responses are dropped. Default problem text per story (`CONTEXT_STORIES`): TRN-042 "on firmware
+4.2" so the superseded caveat appears after 14 Oct (without a version B1 keeps the advice, D-B1-07), RBS-310 the barrier
+code question; editable on the page and settable with `?text=`.
+Not added: an api-client method or a mock handler for the page (it is a page, not JSON, like `GET /demo/activity.html`;
+the panel's link to it is hidden in mock mode, D-B3-09).
+Reverse: delete `context-page.ts` and the route; the three additive fields are inert.

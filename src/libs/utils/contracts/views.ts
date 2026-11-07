@@ -135,9 +135,14 @@ export interface ContextAssertion {
   /** How validTo was ordered against the newer claim: known event times, or import order (undated sources). */
   orderBasis?: 'known-time' | 'import-order';
   assertedBy?: { id: string; displayName: string };
-  source: { evidenceId: string; provider: string; time: string; position: TimePosition };
+  /** B3: `thread` is the source evidence's thread id (the Context Layer page groups undated items by it). */
+  source: { evidenceId: string; provider: string; time: string; position: TimePosition; thread?: string };
   excerpt: string;
   caseId?: string;
+  /** B3: the visible note that bounds this claim (with `validityCondition`), e.g. Erkki's 14 Oct firmware note. */
+  conditionedBy?: string;
+  /** B3: who read the claim, in words: "rules", or B2's "proposed by local model qwen3:4b, committed by rules". */
+  route?: string;
 }
 
 /** B1: a person or class bound to the entity: firsthand work links, or hedged/inferred class conditions. */

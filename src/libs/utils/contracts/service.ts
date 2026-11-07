@@ -155,6 +155,8 @@ export interface ApiRoutes {
   'GET /demo/activity': { query: { since?: number; limit?: number }; res: ActivityView };
   /** Standalone local page (text/html) that polls GET /demo/activity, for a browser tab next to the companion. */
   'GET /demo/activity.html': { res: string };
+  /** B3: the Context Layer page (text/html) for ?entity=<name>[&principalId=]; it fetches GET /context and POST /investigate (preview). */
+  'GET /context.html': { query: { entity?: string; principalId?: string }; res: string };
   /** Settings -> Models: machine detection, the catalog per slot (merged with installed models) and a status chip per slot. */
   'GET /models': { res: ModelsView };
   /** Starts `ollama pull` for one model (only ever from a click); progress by polling GET /models/pull/:id. */

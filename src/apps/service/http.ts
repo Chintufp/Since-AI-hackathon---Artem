@@ -92,6 +92,7 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
     },
     'GET /demo/activity': (c) => engine.activity(parse(activityQuerySchema, q(c))),
     'GET /demo/activity.html': () => new HtmlResponse(engine.activityPage()),
+    'GET /context.html': () => new HtmlResponse(engine.contextPage()),
     'GET /models': () => engine.modelsView(),
     'POST /models/pull': (c) => engine.pullModel(parse(modelPullSchema, c.body).model),
     'GET /models/pull/:id': (c) => engine.pullJob(c.params.id!),

@@ -31,6 +31,7 @@ import { resetDemo } from './demo.ts';
 import { DEFAULT_ACTIVITY_LOG, readActivity, type ActivityResponse } from './activity.ts';
 import { activityPage } from './activity-page.ts';
 import { caseProvenance } from './provenance-strip.ts';
+import { contextPage } from './context-page.ts';
 import { createDemoClock, type DemoClock, type DemoClockStatus } from './demo-clock.ts';
 import { DEFAULT_DB_PATH } from './paths.ts';
 import { badRequest, conflict, forbidden, notFound, toServiceError } from './errors.ts';
@@ -1157,6 +1158,11 @@ export class Engine {
 
   activityPage(): string {
     return activityPage();
+  }
+
+  /** B3: the Context Layer page; it holds no data (it fetches GET /context and POST /investigate per viewer). */
+  contextPage(): string {
+    return contextPage();
   }
 }
 

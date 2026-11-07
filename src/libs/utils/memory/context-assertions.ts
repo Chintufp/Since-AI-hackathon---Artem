@@ -10,6 +10,7 @@ import type {
 import { describeTime } from '../connectors/time.ts';
 import { canSee, evidenceGate, visibleCase, type PrincipalLike } from '../retrieval/access.ts';
 import { defaultExtractionConfig } from './extraction-config.ts';
+import { modelProvenance } from './provenance.ts';
 import { timePosition, validAt } from './validity.ts';
 
 const norm = (s: string): string => s.toLowerCase().normalize('NFKC').replace(/\s+/g, ' ').trim();
@@ -54,13 +55,15 @@ export function contextAssertions(store: KnowledgeStore, entity: Entity, princip
       validFrom: timePosition(c.validity.from),
       ...(c.validity.to ? { validTo: timePosition(c.validity.to) } : {}),
       ...(showCondition ? { validityCondition: c.validity.condition } : {}),
+      ...(showCondition && c.validity.conditionedBy && visibleClaim(note) ? { conditionedBy: c.validity.conditionedBy } : {}),
       ...(c.supersededBy && visibleClaim(newer) ? { supersededBy: c.supersededBy } : {}),
       validAt: validAt(c, atMs),
       ...(c.validity.orderBasis ? { orderBasis: c.validity.orderBasis } : {}),
       ...(c.assertedBy ? { assertedBy: { id: c.assertedBy.id, displayName: c.assertedBy.displayName } } : {}),
-      source: { evidenceId: ref.evidenceId, provider: ev?.provider ?? 'unknown', time: describeTime(time), position: timePosition(time) },
+      source: { evidenceId: ref.evidenceId, provider: ev?.provider ?? 'unknown', time: describeTime(time), position: timePosition(time), ...(ev?.thread.threadId ? { thread: ev.thread.threadId } : {}) },
       excerpt: ref.excerpt ?? (ev ? ev.text.slice(0, 200) : c.statement),
       ...(c.caseId ? { caseId: c.caseId } : {}),
+      route: modelProvenance(c.extraction) ?? 'rules',
     });
   }
   // Undated rows first (valid from before any dated moment), then by known time; ties keep the store's order.

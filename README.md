@@ -11,7 +11,23 @@ The pitch addresses four problems:
 3. Similar problems can require different responses, and historical advice can be incomplete or wrong.
 4. Knowledge must reach engineers and autonomous agents with minimal extra work.
 
-**Status:** planning documents, an interactive architecture map and a static avatar are available. The operational pipeline, trained policy, MCP service and packaged desktop app remain to be implemented. The points experience and cinematic pitch film are planned work.
+**Status (7 November 2026, overnight run):** a runnable local prototype exists on branch `run/2026-11-07-overnight`: local service (SQLite, HTTP API, MCP), Electron companion (Snowbally + the v008 panel), synthetic scenario families, evaluator and bounded experiments. See [the run report](docs/runs/2026-11-07-overnight/REPORT.md) and [decisions](docs/runs/2026-11-07-overnight/DECISIONS.md). Nothing is deployed; the Slack connector is fixture-tested only.
+
+## Run it locally
+
+```bash
+pnpm install
+```
+
+```bash
+pnpm demo:reset
+```
+
+```bash
+pnpm desktop
+```
+
+`pnpm desktop` builds the renderer, starts the local service on `127.0.0.1:47831` if it is not already running (SQLite at `data/local/knowledge-twin.sqlite`), and opens Snowbally bottom-right. He drops in once and then idles; click him to open the panel. Settings → **You** chooses whose questions you see. `pnpm service` runs the service alone; `pnpm mcp` runs the MCP stdio server (`{"command":"node","args":["src/apps/service/mcp.ts"]}` in a client config). `pnpm test`, `pnpm typecheck`, `node experiments/run.ts all`, `node scripts/screenshot.mjs`.
 
 ## Documentation
 

@@ -103,6 +103,35 @@ The membership `slack-channel:C001CO` on Antti came from the export's channel me
 
 **What the live Slack path would do, and what it needs.** The live connector (`src/libs/utils/connectors/slack-live.ts`) maps `conversations.history` payloads with the same code as the export (fixture-tested); it refuses any network call unless it is constructed with `{liveAuthorized: true, token}` (an environment variable alone is not authorization), and its connection card reads *awaiting authorization*. Demonstrating it needs a sandbox workspace that Artem names explicitly, a bot token with `channels:read`, `channels:history`, `groups:read`, `groups:history`, `users:read`, and the channels to read; nothing is connected before that (open question U25). No Slack credential on this machine was used for anything in this demo.
 
+## Your own Claude over MCP (optional, 2 minutes)
+
+Our code never calls a model; the agent is **your** Claude. Add this to a `.mcp.json` in the repository root (Claude Code) or to Claude Desktop's MCP configuration, with the service's database already seeded (`pnpm demo:reset` or `pnpm demo:judge`):
+
+```json
+{
+  "mcpServers": {
+    "knowledge-twin": {
+      "command": "node",
+      "args": ["src/apps/service/mcp.ts", "--agent-id", "agent:claude-code", "--agent-name", "Claude Code", "--agent-groups", "noc"]
+    }
+  }
+}
+```
+
+(`--db <path>` points it at another database; `--org-policy none` disables the organization observability policy. The flags are those of `src/apps/service/mcp.ts`.) Start Claude Code in the repository and ask:
+
+> A field tech reports TRN-301: link up, no traffic after an SFP swap. What do we know and what should he check first? Ask a colleague if you need to.
+
+What you should see, tool by tool (the recorded run is in [docs/runs/2026-11-07-overnight/demo/mcp-transcript.md](runs/2026-11-07-overnight/demo/mcp-transcript.md), the fallback if you have no MCP client):
+
+1. `kt_investigate` → the qualified recommendation *Confirm the unit details (older unit) before disabling and re-enabling the interface.* with the caveats, the matching cases (TRN-042 with what matched and what is unknown), the people with their actual contributions and the open gap *Unknown for this problem: older unit. It decides whether the response from TRN-042 applies.* No human is asked yet (agents default to `allowQuestions: false`).
+2. `kt_request_clarification` → `question-open`, *Is TRN-301 an older unit?* The companion's badge shows it for **Erkki Expert** (Settings → You = Erkki). Tap **Yes** there.
+3. `kt_clarification_status` → `answered`, value `yes`, answered by Erkki's person id.
+4. `kt_get_context` → the recommendation is now *Check the traffic counters before replacing the SFP again.* (check-first), loop *answered*.
+5. When the tech reports back, `kt_record_outcome` (result `recovered`, attemptedAction `interface.reset`) → stored as the agent's own attributed outcome report with lasting effect `unknown`; the historical case is not rewritten.
+
+While the stream runs, the agent's calls appear in the activity page as **agent** rows (`Agent Claude Code (agent:claude-code) investigated over MCP: …`, `reported an outcome …`).
+
 ## Privacy and no cloud, in one breath
 
 The service listens on loopback only and refuses non-loopback host names. The data is one SQLite file under `data/local/`. Nothing contacts a model provider: a network guard in the code throws if anything tries. Message drafts are text for the user to review; nothing is sent to Teams, e-mail or Slack. Elisa's example files are read from an ignored folder and never copied into the repository. Access is enforced per piece of evidence: a person or agent only ever sees cases, timelines, people reasons and questions built from evidence their groups may see (tested, including over MCP).

@@ -24,9 +24,9 @@ test('health lists every contract route', async () => {
   assert.equal(h.ok, true);
   assert.ok(h.routes.includes('POST /investigate') && h.routes.includes('GET /events'));
   // 32 before day 2, plus GET /context (B1) and the seven B2 model routes: GET /models, POST /models/pull,
-  // GET /models/pull/:id, POST /models/test, POST /models/key, POST /models/install, GET /models/install; B3: GET /context.html.
-  assert.equal(h.routes.length, 41);
-  for (const r of ['GET /context', 'GET /context.html', 'GET /models', 'POST /models/pull', 'GET /models/pull/:id', 'POST /models/test', 'POST /models/key', 'POST /models/install', 'GET /models/install']) assert.ok(h.routes.includes(r), r);
+  // GET /models/pull/:id, POST /models/test, POST /models/key, POST /models/install, GET /models/install; B3: GET /context.html, GET /costs.
+  assert.equal(h.routes.length, 42);
+  for (const r of ['GET /context', 'GET /context.html', 'GET /costs', 'GET /models', 'POST /models/pull', 'GET /models/pull/:id', 'POST /models/test', 'POST /models/key', 'POST /models/install', 'GET /models/install']) assert.ok(h.routes.includes(r), r);
 });
 
 test('import dev-family-01, then GET /cases has the cases', async () => {

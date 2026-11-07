@@ -9,7 +9,7 @@ import type {
   InvestigateRequest, InvestigationState, KnowledgeStore, ObservationRequest, OutcomeReport, OutcomeRequest, ParticipationBalance, ParticipationOptIn, ParticipationRating, PeopleDirectory,
   PersonView, PreferenceFeedback, Principal, Problem, QuestionGenerator, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
 import { DEFAULT_MODEL_SLOTS, defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
-import type { InstallJobView, ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView } from '../../libs/utils/contracts/index.ts';
+import type { ExpertCostView, InstallJobView, ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView } from '../../libs/utils/contracts/index.ts';
 import { fallbackRoute, vendorOf, type ApiVendor, type ModelProvider } from '../../libs/utils/models/providers/index.ts';
 import { EmbeddingIndex, type IndexReport } from '../../libs/utils/retrieval/index.ts';
 import { caseCard, createLlmExtractor, enrichWithModel, RULES_ROUTE, storeHealth, type EnrichItem, type EnrichReport, type StoreHealth } from '../../libs/utils/memory/index.ts';
@@ -32,6 +32,7 @@ import { DEFAULT_ACTIVITY_LOG, readActivity, type ActivityResponse } from './act
 import { activityPage } from './activity-page.ts';
 import { caseProvenance } from './provenance-strip.ts';
 import { contextPage } from './context-page.ts';
+import { expertCost, storeHealthLine } from './costs.ts';
 import { createDemoClock, type DemoClock, type DemoClockStatus } from './demo-clock.ts';
 import { DEFAULT_DB_PATH } from './paths.ts';
 import { badRequest, conflict, forbidden, notFound, toServiceError } from './errors.ts';
@@ -1126,7 +1127,39 @@ export class Engine {
   }
 
   async resetDemo(seed: 'elisa' | 'synthetic' | 'empty' | undefined, defaultPerson?: string): Promise<ApiRoutes['POST /demo/reset']['res'] & { defaultPersonEntityId?: string }> {
-    return resetDemo(this, seed, this.opts, defaultPerson);
+    const r = await resetDemo(this, seed, this.opts, defaultPerson);
+    // B3: the store-health baseline for "completeness 0.71 -> 0.83 after 5 questions" (in memory; D-B3-08).
+    this.healthBaselines.clear();
+    this.healthBaselines.set('', { at: this.now().toISOString(), health: this.storeHealth() });
+    return r;
+  }
+
+  private readonly healthBaselines = new Map<string, { at: string; health: StoreHealth }>();
+
+  /**
+   * B3: GET /costs. The person's cost and reuse (`costs.ts`), plus the store line (BUILD_BRIEF 5.5) over the cases the
+   * principal may see. Default person: the most-asked person, else the settings' current person.
+   */
+  costs(query: { personEntityId?: string; principalId?: string }): ExpertCostView {
+    const dir = storeDirectory(this.store);
+    let id = query.personEntityId ? dir.resolve(query.personEntityId) ?? query.personEntityId : undefined;
+    if (!id) {
+      const asked = new Map<string, number>();
+      for (const q of this.store.list('question')) asked.set(q.personEntityId, (asked.get(q.personEntityId) ?? 0) + 1);
+      id = [...asked.entries()].filter(([p]) => !!dir.get(p)).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ?? (this.getSettings().currentPersonEntityId || undefined);
+    }
+    if (!id || !dir.get(id)) throw notFound(`Unknown person ${query.personEntityId ?? '(none: no one was asked and no current person is set)'}`);
+    const view = expertCost(this.store, id, { simulated: this.clockStatus().mode === 'simulated' });
+    try {
+      const key = query.principalId ?? '';
+      const health = this.storeHealth(query.principalId);
+      if (!this.healthBaselines.has(key)) this.healthBaselines.set(key, { at: this.now().toISOString(), health });
+      const base = this.healthBaselines.get(key)!;
+      const answeredSince = this.store.list('answer').filter((a) => a.at > base.at).length;
+      return { ...view, storeHealth: storeHealthLine(health, { health: base.health, answeredSince }) };
+    } catch {
+      return view; // the cost stands on its own; the store line is optional
+    }
   }
 
   // ---- demo clock and simulated activity (read-only views for the judge) ---------------------------

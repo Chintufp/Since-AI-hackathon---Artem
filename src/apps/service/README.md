@@ -14,7 +14,7 @@ pnpm demo:reset [-- --db path --seed elisa|synthetic|empty]   # scripts/demo-res
 ## Files
 `engine.ts` (composition and all behavior), `http.ts` (router, validation, errors), `mcp-tools.ts` (tool registration) + `mcp.ts` (stdio entry), `views.ts` (ResultView/QuestionView/PersonView builders), `schemas.ts` (zod), `directory.ts` (people.json -> person entities), `demo.ts` (demo reset), `errors.ts`, `paths.ts`. Participation lives in `src/libs/utils/participation`.
 
-## HTTP API (contracts/service.ts `ApiRoutes`, 41 routes)
+## HTTP API (contracts/service.ts `ApiRoutes`, 42 routes)
 | Route | Notes |
 |---|---|
 | `GET /health` | `{ok, version, store, routes}` (routes actually served) |
@@ -41,6 +41,7 @@ pnpm demo:reset [-- --db path --seed elisa|synthetic|empty]   # scripts/demo-res
 | `GET /participation/rating` | rating among the people who take part (balance, last 7 days, answers, outcomes, rank, totals); `?personEntityId=` (must be the caller) fills `me` with the last 10 events. People who do not take part appear nowhere |
 | `POST /demo/reset` | `{seed?, defaultPerson?}`: clear (settings kept), import Elisa example if present under `private/`, the `demo` split families (sources + people.json only), `data/fixtures/dev-family-01` and (B1) the generated dated follow-ups in `data/demo/followups/`; `empty` only clears |
 | `GET /demo/activity`, `GET /demo/activity.html` | the activity log (`since`, `limit`) as JSON, and a page that shows it |
+| `GET /costs` | B3, "Erkki's cost": `?personEntityId=` (default: the most-asked person, else the settings' current person; 404 for an unknown person) `&principalId=` (scopes the store line). From store records only (questions, answers, evaluations, investigations): asked / answered / deferred / dismissed / open / cancelled, answer seconds (delivery to answer on the engine clock, labelled `simulated` under the demo clock), reuse of the person's knowledge by people and by agents (distinct stored investigations with a reuse / check-first / qualified recommendation citing their messages or claims; previews, point-in-time views and standing upkeep never count), and `storeHealth` (BUILD_BRIEF 5.5 line with denominators; the "before" is the last demo reset, kept in memory). `costs.ts` |
 | `GET /context.html` | B3: the Context Layer page for `?entity=<name>` (`&principalId=`, `&text=`): evidence diamonds, claim bars with validity windows, bindings and people on a time axis that never invents a date, and a t slider; the card shows what an agent is told at t from `POST /investigate` with `preview: true`. The page holds no data; it fetches per viewer (`context-page.ts`) |
 | `GET /events` | trace events by `traceId` / `since` |
 

@@ -7,7 +7,7 @@ import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/index.ts';
 import type { Engine } from './engine.ts';
 import { ServiceError, toServiceError } from './errors.ts';
 import {
-  activityQuerySchema, answerSchema, cancelSchema, clockSchema, contextQuerySchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema,
+  activityQuerySchema, answerSchema, costsQuerySchema, cancelSchema, clockSchema, contextQuerySchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema,
   modelInstallSchema, modelKeySchema, modelPullSchema, modelTestSchema, observationSchema, optInSchema, outcomeSchema, participationQuerySchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, ratingQuerySchema, settingsPatchSchema,
 } from './schemas.ts';
 
@@ -93,6 +93,7 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
     'GET /demo/activity': (c) => engine.activity(parse(activityQuerySchema, q(c))),
     'GET /demo/activity.html': () => new HtmlResponse(engine.activityPage()),
     'GET /context.html': () => new HtmlResponse(engine.contextPage()),
+    'GET /costs': (c) => engine.costs(parse(costsQuerySchema, q(c))),
     'GET /models': () => engine.modelsView(),
     'POST /models/pull': (c) => engine.pullModel(parse(modelPullSchema, c.body).model),
     'GET /models/pull/:id': (c) => engine.pullJob(c.params.id!),

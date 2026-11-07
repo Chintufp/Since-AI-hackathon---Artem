@@ -340,6 +340,21 @@ function makeHandlers(s: MockState): Handlers {
         requiresReview: true, createdAt: NOW(),
       };
     },
+    // B3: Erkki's cost (dev data, deterministic for the screenshot harness)
+    'GET /costs': ({ query }) => {
+      const who = query.personEntityId ?? 'person:mock:noor';
+      const name = PEOPLE.find((p) => p.personEntityId === who)?.name ?? 'Dev User';
+      return {
+        personEntityId: who, name, asked: 3, answered: 2, deferred: 1, dismissed: 0, open: 0, cancelled: 0,
+        seconds: { total: 21, median: 9, answers: 2, clock: 'real' as const }, reuse: { people: 3, agents: 2, total: 5 },
+        storeHealth: {
+          cases: 14, completeness: 0.83, completenessBefore: 0.71, answeredSince: 5, correctness: 0.92, singletons: 2,
+          denominators: { cases: 14, retrievals: 9, caseClaims: 120, supportedClaims: 110 },
+          line: 'Store: 14 cases · completeness 0.71 → 0.83 after 5 questions · correctness 0.92 · 2 singletons left',
+        },
+        line: `${name}: asked 3 · answered 2 · 21 s · reused 5 (3 by people, 2 by agents)`,
+      };
+    },
     // R46: points (dev data; the rating is deterministic for the screenshot harness)
     'GET /participation/rating': ({ query }) => {
       if (query.personEntityId && query.personEntityId !== ME) throw new MockHttpError(403, 'Only your own points');

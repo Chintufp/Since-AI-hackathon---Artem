@@ -191,3 +191,9 @@ test('mock (B3): POST /investigate carries a provenance strip for the screenshot
   assert.ok(r.provenance);
   assert.match(r.provenance.text, /^Noor Ahmadi · Teams 09:22 \(date unknown\) · reported once · still believed true$/);
 });
+
+test('mock (B3): GET /costs answers with the cost line and the store line', async () => {
+  const c = await createMockApi().costs();
+  assert.match(c.line, /asked 3 · answered 2 · 21 s · reused 5 \(3 by people, 2 by agents\)$/);
+  assert.match(c.storeHealth!.line, /^Store: 14 cases · completeness 0\.71 → 0\.83 after 5 questions/);
+});

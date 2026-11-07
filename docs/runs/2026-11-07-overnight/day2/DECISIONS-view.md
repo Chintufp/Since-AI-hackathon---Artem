@@ -108,3 +108,35 @@ code question; editable on the page and settable with `?text=`.
 Not added: an api-client method or a mock handler for the page (it is a page, not JSON, like `GET /demo/activity.html`;
 the panel's link to it is hidden in mock mode, D-B3-09).
 Reverse: delete `context-page.ts` and the route; the three additive fields are inert.
+
+## D-B3-07 · Erkki's cost: GET /costs from store records, reuse by distinct stored investigation
+
+New route `GET /costs` (`costs.ts`, `Engine.costs`; route count 40 -> 42 with `GET /context.html`; the brief's "40 ->
+41" counted only this route). Counted from store records, never from the JSONL activity log: the person's question
+records by status (asked = all, answered, deferred, dismissed, open = queued + delivered, cancelled), seconds = the
+answered questions' `EvaluationRecord.response.latencyMs` (delivery, else creation, to the answer, on the engine clock;
+`clock: 'simulated'` and "(simulated)" in the line when the demo clock is simulated; under a host-fixed clock the label
+is `real`), total and median. Reuse = distinct stored investigations whose recommendation is reuse, check-first or
+qualified and whose basis cites the person (a basis message they wrote, or a claim they asserted that a basis message
+supports), split by the `investigation.started` principal type. Investigation ids are stable, so a repeated identical
+request is one reuse; previews are never stored (D-B3-01); states with `problem.at` (B1 D-B1-12 asks exactly this) and
+standing upkeep states are skipped. Not counted: an answer reused inside another investigation without a recommendation
+citing it (no record says so).
+Default person: `personEntityId`, else the most-asked person (ties by id), else the settings' current person, else 404.
+Any person's counts may be read: the same facts are already readable through `GET /questions?personEntityId=` in this
+unauthenticated prototype, and only counts are returned (no question text, no answer value).
+Tests (tests/costs.test.ts, explicit clock): asked/answered/open, 42 s between delivery and answer, the default person,
+the store line's shape; reuse by a person, unchanged by a repeated request, +1 by an agent, unchanged by a preview and a
+point-in-time view.
+Reverse: drop the route, `costs.ts` and the client/mock entries.
+
+## D-B3-08 · The store line and its "before"
+
+`storeHealth` on the cost view is B2's `storeHealth` (D-B2-29 definitions) over the cases the `principalId` may see
+(all cases without one), printed as BUILD_BRIEF 5.5: "Store: N cases · completeness a → b after k questions ·
+correctness c · s singletons left". The "before" is captured in memory by `Engine.resetDemo` (store-wide) or, for a
+principal or after a restart, at that principal's first request; k = answers stored since. The arrow is shown only
+when k > 0 and the two values differ at two decimals. Not persisted: writing a baseline record into the store at every
+reset would add a record type or a trace event that other counts (E00, event tests) would see; a restart simply starts
+a new "before". A failure in the store metric never fails the cost (the block is left out).
+Reverse: drop `healthBaselines` and the `storeHealth` block.

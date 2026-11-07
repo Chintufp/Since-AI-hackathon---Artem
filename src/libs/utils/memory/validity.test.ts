@@ -47,4 +47,6 @@ test('timePosition never synthesises an iso; shortDate only for known times; par
   assert.equal(parseAt('2026-10-01'), at('2026-10-01T00:00:00Z'));
   assert.equal(parseAt('2026-10-01T10:00'), undefined);
   assert.equal(parseAt('yesterday'), undefined);
+  assert.equal(parseAt('2026-10-14T10:05:00 03:00'), at('2026-10-14T07:05:00Z'), "an unencoded '+' decoded as a space");
+  assert.equal(parseAt('2026-10-14T10:05:00+03:00'), at('2026-10-14T07:05:00Z'));
 });

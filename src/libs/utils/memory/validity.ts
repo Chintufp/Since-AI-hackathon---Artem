@@ -67,6 +67,9 @@ export function shortDate(t: TimeRef | undefined): string | undefined {
 /** Parse an `at` value: ISO 8601 with a zone only (the same rule as parseTimeRef); undefined otherwise. */
 export function parseAt(at: string | undefined): number | undefined {
   if (!at) return undefined;
+  // An unencoded '+' in a query string arrives as a space ("…T10:05:00 03:00"): read a space before a time-of-day
+  // offset as '+'. Only after a clock time, so "2026-10-01 10:00" (no zone) still has no zone.
+  at = at.replace(/(T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?) (\d{2}:?\d{2})$/, '$1+$2');
   if (!/^\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?\s?(?:Z|[+-]\d{2}:?\d{2}))?$/i.test(at.trim())) return undefined;
   const ms = Date.parse(at.trim().length === 10 ? `${at.trim()}T00:00:00Z` : at.trim());
   return Number.isFinite(ms) ? ms : undefined;

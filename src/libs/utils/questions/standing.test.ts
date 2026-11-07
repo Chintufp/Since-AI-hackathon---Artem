@@ -216,3 +216,13 @@ test('an installation is not a fix: no missing-symptom question for "Installed t
   await flush();
   assert.ok(!e.store.list('investigation').some((s) => s.origin === 'standing' && s.gaps.some((g) => parseGapId(g.id)?.kind === 'missing-symptom' && g.status === 'open')));
 });
+
+test('a failure in background upkeep is traced as standing.failed, never swallowed', async () => {
+  const { e } = setup();
+  (e as unknown as { askStanding: () => Promise<never> }).askStanding = async () => { throw new Error('boom'); };
+  e.importData({ format: 'teams-json', payload: FIX_062 });
+  await flush();
+  const ev = e.store.list('trace').find((t) => t.type === 'standing.failed');
+  assert.equal(ev?.data?.error, 'boom');
+  assert.equal(ev?.data?.after, 'import');
+});

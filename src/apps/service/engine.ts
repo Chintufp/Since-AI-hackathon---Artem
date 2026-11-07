@@ -254,6 +254,13 @@ export class Engine {
 
   // ---- trace --------------------------------------------------------------------------------
 
+  /** B1 review: background upkeep never fails silently; the failure is a trace event (the request itself succeeded). */
+  private standingFailed(after: 'import' | 'clock', e: unknown): void {
+    try {
+      this.trace('standing', 'standing.failed', { id: 'system', displayName: 'standing gaps' }, { after, error: e instanceof Error ? e.message : String(e) });
+    } catch { /* the store itself is gone (closed); nothing left to record into */ }
+  }
+
   private trace(traceId: string, type: string, actor: TraceEvent['actor'], data: Record<string, unknown> = {}): TraceEvent {
     const e: TraceEvent = { id: freshId('evt'), at: this.now().toISOString(), type, traceId, ...(actor ? { actor } : {}), data };
     this.store.put('trace', e);
@@ -321,7 +328,7 @@ export class Engine {
     // A scenario directory imports several sources, each its own batch; the response's batch id is their combination.
     const points = this.awardEvidence(new Set(this.store.list('importBatch').map((b) => b.id).filter((id) => !batchesBefore.has(id))));
     this.trace(res.batch.id, 'import.completed', { id: 'system', displayName: 'import' }, { format: req.format, counts: res.batch.counts, cases: res.cases, claims: res.claims, people: res.people, ...(points.length ? { points } : {}) });
-    if (this.opts.standingGaps?.ask) void this.askStanding().catch(() => undefined);
+    if (this.opts.standingGaps?.ask) void this.askStanding().catch((e) => this.standingFailed('import', e));
     return points.length ? { ...res, points } : res;
   }
 
@@ -868,7 +875,7 @@ export class Engine {
     try {
       const s = this.demoClock.set(input);
       this.trace('demo', 'demo.clock', { id: 'system', displayName: 'demo' }, { mode: s.mode, now: s.now, rate: s.rate });
-      void this.upkeep().catch(() => undefined);
+      void this.upkeep().catch((e) => this.standingFailed('clock', e));
       return s;
     } catch (e) {
       throw badRequest(e instanceof Error ? e.message : String(e));

@@ -227,3 +227,20 @@ Reverse: the `hiddenNewer` branch in `contextAssertions`.
 
 When the coordinator creates a non-standing question for a person, that person's queued or delivered standing questions move to `deferred` (Later; previousStatus kept; `question.preempted` traced on the standing state). So "one open question at a time" holds again; nothing is cancelled and the standing question can still be answered from Later. Kept from D-B1-27, deliberately: the daily limit and cooldown of an investigation question do not count standing questions, so an investigation is never blocked by upkeep questions; a person can therefore receive more than 3 deliveries in a day when some are standing ones (standing questions themselves still respect every budget, counting everything). Test: standing.test.ts "an investigation question outranks a standing one".
 Reverse: the preemption loop in `coordinator.request`.
+
+## D-B1-41 · Small robustness fixes from the review
+
+(1) `parseAt` reads a space before a time-of-day offset as '+' ("…T10:05:00 03:00" is what an unencoded '+' in a query string becomes), so a hand-built `GET /context?at=…+03:00` no longer returns 400; a date with a clock time and no zone still has no zone. Test: validity.test.ts. (2) The background `askStanding` after an import and `upkeep` after a clock move trace `standing.failed` (with the error and what triggered it) instead of swallowing errors. Not changed: `POST /demo/clock` still returns before upkeep finishes (upkeep is async because asking is); a concurrent investigate for the same person is serialised by the single-threaded event loop at each store write, and eligibility is re-checked at delivery. Test: standing.test.ts "standing.failed".
+Reverse: the replace in `parseAt`; `standingFailed` in engine.ts.
+
+## D-B1-42 · The 6 Oct barrier-code e-mail stays org-visible (review finding kept as is)
+
+The generated follow-up e-mail has the same scope as the 20 Aug e-mail it replaces (data/scenarios/remote-power-access, org-visible, TEST_LOCK, the known 1/42 tolerated leak). Restricting only the new e-mail would leave the old code readable by everyone while the current one is not, and the follow-ups directory is imported as one `scenario-dir`. Who may be told a code is a policy question for the organization's access groups, not for this demo file; documented in data/demo/followups/README.md.
+Reverse: import the e-mail on its own with `accessGroups: ['access', 'field']` in demo.ts.
+
+## Review findings rejected or only documented
+
+- Undated newer value closes a dated older one at every moment (reviewer 1, minor): kept as D-B1-02/D-B1-08 say. A time-only message has no date, so any close time (for example its capture time) would be invented, and closing at the capture time would leave both codes valid between the old date and the import. The undated newer claim needs an explicit replacement cue before it closes anything.
+- Standing outcome gaps skip advice-only threads (reviewer 2, minor): kept (D-B1-26). An advice claim names who should act only loosely ("you"), and asking someone about an action nobody reported doing invites false outcomes; the investigation outcome gap still covers advice when someone asks. In the reset demo store no standing gap is open at reset because every demo thread has its symptom and outcome; standing.test.ts shows each kind.
+- Pairing similarity is trigram cosine, not an embedding: as D-B1-26; B2's embeddings can replace `embedTrigrams`.
+- The 'replaces' cues act only on `newerValueKeys` (site.access_code, software.version): kept. "No longer applies" on advice or a hypothesis has no value to compare and no subject slot; bounding advice is the superseding-note rule (b). Extending it needs a claim-level target, which is not in this item.

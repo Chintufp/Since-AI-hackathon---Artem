@@ -21,6 +21,9 @@ import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieva
 import { awardPoints, balanceOf, revokeContribution, type ParticipationKind } from '../../libs/utils/participation/index.ts';
 import { applyDirectory } from './directory.ts';
 import { resetDemo } from './demo.ts';
+import { DEFAULT_ACTIVITY_LOG, readActivity, type ActivityResponse } from './activity.ts';
+import { activityPage } from './activity-page.ts';
+import { createDemoClock, type DemoClock, type DemoClockStatus } from './demo-clock.ts';
 import { DEFAULT_DB_PATH } from './paths.ts';
 import { badRequest, conflict, forbidden, notFound, toServiceError } from './errors.ts';
 import { ACTIVE_QUESTION, personView, polishCaveat, questionView, resultView, type InvestigationResult } from './views.ts';
@@ -53,7 +56,12 @@ export interface EngineOptions {
   /** Use an already-open store (tests); the engine then does not close it. */
   store?: KnowledgeStore;
   orgId?: string;
+  /** Fixed clock (tests). When given, the demo clock routes cannot move time. */
   clock?: () => Date;
+  /** Movable demo clock (default: a fresh one in real time); the simulated activity stream drives it through POST /demo/clock. */
+  demoClock?: DemoClock;
+  /** JSONL file written by the simulated activity stream and tailed by GET /demo/activity. */
+  activityLogPath?: string;
   /** Organization configuration for investigation (distinguishing keys, observability groups, templates ...). */
   investigation?: Partial<InvestigationSettings>;
   /** Overrides for the question limits (daily limit, cooldown, max open, per-investigation cap). */
@@ -86,11 +94,14 @@ export class Engine {
   private readonly opts: EngineOptions;
   private readonly selectors = new Map<string, Selector>();
   private readonly directoryFiles = new Set<string>();
+  private readonly inlineDirectories: PeopleDirectory[] = [];
+  private readonly demoClock: DemoClock;
 
   constructor(opts: EngineOptions = {}) {
     this.opts = opts;
     this.orgId = opts.orgId ?? 'org:local';
-    this.clock = opts.clock ?? (() => new Date());
+    this.demoClock = opts.demoClock ?? createDemoClock();
+    this.clock = opts.clock ?? (() => this.demoClock.now());
     if (opts.store) {
       this.store = opts.store;
       this.ownsStore = false;
@@ -245,6 +256,7 @@ export class Engine {
       throw badRequest(`Import failed: ${e instanceof Error ? e.message : String(e)}`);
     }
     if (req.format === 'scenario-dir' && req.path) this.loadDirectoryFile(join(req.path, 'people.json'));
+    if (req.directory) this.inlineDirectories.push(req.directory);
     this.reapplyDirectory();
     this.trace(res.batch.id, 'import.completed', { id: 'system', displayName: 'import' }, { format: req.format, counts: res.batch.counts, cases: res.cases, claims: res.claims, people: res.people });
     return res;
@@ -256,6 +268,7 @@ export class Engine {
 
   /** Later imports can widen a person's scope; the visible directory is the authority for groups, so re-apply it. */
   private reapplyDirectory(): void {
+    for (const d of this.inlineDirectories) applyDirectory(this.store, this.orgId, d);
     for (const f of this.directoryFiles) {
       try {
         applyDirectory(this.store, this.orgId, JSON.parse(readFileSync(f, 'utf8')) as PeopleDirectory);
@@ -648,12 +661,43 @@ export class Engine {
     const keep = this.store.get('settings', SETTINGS_ID);
     this.store.clear();
     this.directoryFiles.clear();
+    this.inlineDirectories.length = 0;
     if (keep) this.store.put('settings', keep);
     this.trace('demo', 'demo.reset', { id: 'system', displayName: 'demo' });
   }
 
   async resetDemo(seed: 'elisa' | 'synthetic' | 'empty' | undefined, defaultPerson?: string): Promise<ApiRoutes['POST /demo/reset']['res'] & { defaultPersonEntityId?: string }> {
     return resetDemo(this, seed, this.opts, defaultPerson);
+  }
+
+  // ---- demo clock and simulated activity (read-only views for the judge) ---------------------------
+
+  clockStatus(): DemoClockStatus {
+    return this.opts.clock ? { mode: 'real', now: this.now().toISOString(), rate: 1 } : this.demoClock.status();
+  }
+
+  /** Move the engine's clock to a simulated moment (the activity stream does this); `null` returns to real time. */
+  setClock(input: { now: string; rate?: number } | null): DemoClockStatus {
+    if (this.opts.clock) throw conflict('The service clock is fixed by its host and cannot be moved');
+    try {
+      const s = this.demoClock.set(input);
+      this.trace('demo', 'demo.clock', { id: 'system', displayName: 'demo' }, { mode: s.mode, now: s.now, rate: s.rate });
+      return s;
+    } catch (e) {
+      throw badRequest(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  activityLogPath(): string {
+    return this.opts.activityLogPath ?? DEFAULT_ACTIVITY_LOG;
+  }
+
+  activity(query: { since?: number; limit?: number }): ActivityResponse {
+    return readActivity(this.activityLogPath(), query);
+  }
+
+  activityPage(): string {
+    return activityPage();
   }
 }
 

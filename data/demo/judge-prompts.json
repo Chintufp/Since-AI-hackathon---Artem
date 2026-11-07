@@ -1,0 +1,46 @@
+{
+  "note": "Scripted problems the simulated day uses when it tries to involve the judge's own person (Settings → You). Each is asked by a simulated requester (the requester is never asked, so choosing it steers who is eligible); `targets` lists the directory names the question reached on a freshly reset demo database (the real coordinator still decides, and limits, cooldowns and earlier answers can change the pick). '*' = whoever the coordinator picks. All synthetic; no real people.",
+  "prompts": [
+    {
+      "text": "TRN-042 again: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.",
+      "requester": "Erkki Expert",
+      "targets": ["Veikko Vikkelä"],
+      "note": "The Elisa asset itself; the person who was there firsthand (performed the reset) is asked, the requester (Erkki) is excluded"
+    },
+    {
+      "text": "TRN-301: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.",
+      "requester": "Marja Niemi",
+      "targets": ["Erkki Expert"],
+      "note": "A new asset with the TRN-042 symptoms and an unknown unit age; the network expert is asked through the observability policy"
+    },
+    {
+      "text": "TRN-412 after an SFP change: interface up, optical level fine, counters stay at zero. No idea whether this is one of the 2019 units.",
+      "requester": "Outi Heino",
+      "targets": ["Erkki Expert"],
+      "note": "Same shape as TRN-301 on another unit"
+    },
+    {
+      "text": "TRN-117: replaced the SFP again this morning, link up, alarms cleared, counters zero. Not sure which unit generation this is.",
+      "requester": "Helmi Virtanen",
+      "targets": ["Aarne Koskela"],
+      "note": "Firsthand people on TRN-117 are asked before role-based observers; with Helmi asking, Aarne is the one left"
+    },
+    {
+      "text": "TRN-117: replaced the SFP again this morning, link up, alarms cleared, counters zero. Not sure which unit generation this is.",
+      "requester": "Marja Niemi",
+      "targets": ["Helmi Virtanen"],
+      "note": "Same problem asked by a NOC engineer: Helmi (performed the SFP replacement) is picked first"
+    },
+    {
+      "text": "RTR-203 BGP sessions flapping after the firmware update, hold timers look default. Roll back like RTR-117?",
+      "requester": "Tapio Lehto",
+      "targets": ["*"],
+      "note": "Developer fixture lookalike"
+    },
+    {
+      "text": "TRN-508: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.",
+      "requester": "Liisa Mäkelä",
+      "targets": ["*"]
+    }
+  ]
+}

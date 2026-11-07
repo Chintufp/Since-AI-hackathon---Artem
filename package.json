@@ -18,7 +18,11 @@
     "desktop": "node scripts/build.mjs && electron dist/desktop/main.cjs",
     "dev": "node scripts/dev.mjs",
     "experiments": "node experiments/run.ts",
-    "benchmark": "node benchmarks/run.ts"
+    "benchmark": "node benchmarks/run.ts",
+    "demo:play": "node scripts/demo-play.ts",
+    "demo:judge": "node scripts/demo-judge.mjs",
+    "demo:agent": "node scripts/mcp-demo.ts",
+    "demo:slack": "node scripts/slack-demo.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

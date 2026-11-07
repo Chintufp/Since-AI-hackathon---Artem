@@ -29,6 +29,8 @@ export interface CaseView {
 export interface QuestionView {
   questionId: string;
   investigationId: string;
+  /** The recipient (a person entity id); lets a list over everyone (GET /questions without a person) say whose each one is. */
+  personEntityId?: string;
   caseLabel: string;
   text: string;
   kind: 'quick' | 'evaluative';

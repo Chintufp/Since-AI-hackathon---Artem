@@ -9,6 +9,8 @@ export type { SlackExportData } from './slack-export.ts';
 export { SlackConnector, SLACK_CAPABILITIES } from './slack-live.ts';
 export type { SlackConnectorConfig, SlackHistoryPayload } from './slack-live.ts';
 export { mapSlackMessage, cleanSlackText } from './slack-map.ts';
+export { checkLiveGuard, pullChannelReadOnly, slackWebClient, SlackApiError, WorkspaceMismatchError, SLACK_READ_METHODS, SLACK_READ_SCOPES } from './slack-live-pull.ts';
+export type { SlackReadClient, SlackReadMethod, LiveGuardInput, LiveGuardResult, PullOptions, PullResult } from './slack-live-pull.ts';
 export type { SlackChannel, SlackMessage, SlackUser } from './slack-map.ts';
 export { parsePaste, PASTE_CONNECTION_ID } from './paste.ts';
 export type { PastePayload } from './paste.ts';

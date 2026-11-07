@@ -68,6 +68,7 @@ export function questionView(store: KnowledgeStore, q: QuestionRecord, viewer: P
   return {
     questionId: q.id,
     investigationId: q.candidate.investigationId,
+    personEntityId: q.personEntityId,
     caseLabel: cv?.title ?? (entityNames.join(', ') || 'Related case'),
     text: q.candidate.text,
     kind: q.candidate.kind,

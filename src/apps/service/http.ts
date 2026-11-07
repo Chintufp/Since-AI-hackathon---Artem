@@ -7,9 +7,17 @@ import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/index.ts';
 import type { Engine, ExtendedSettings } from './engine.ts';
 import { ServiceError, toServiceError } from './errors.ts';
 import {
-  answerSchema, cancelSchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema, observationSchema,
-  outcomeSchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, settingsPatchSchema,
+  activityQuerySchema, answerSchema, cancelSchema, clockSchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema,
+  observationSchema, outcomeSchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, settingsPatchSchema,
 } from './schemas.ts';
+
+/** A handler result that is served as-is (HTML) instead of JSON. */
+export class HtmlResponse {
+  readonly html: string;
+  constructor(html: string) {
+    this.html = html;
+  }
+}
 
 type RouteKey = keyof ApiRoutes;
 interface Ctx {
@@ -69,6 +77,13 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
       return engine.resetDemo(b.seed, b.defaultPerson);
     },
     'GET /events': (c) => engine.events(parse(eventsQuerySchema, q(c))),
+    'GET /demo/clock': () => engine.clockStatus(),
+    'POST /demo/clock': (c) => {
+      const b = parse(clockSchema, c.body ?? {});
+      return engine.setClock(b.now ? { now: b.now, ...(b.rate !== undefined ? { rate: b.rate } : {}) } : null);
+    },
+    'GET /demo/activity': (c) => engine.activity(parse(activityQuerySchema, q(c))),
+    'GET /demo/activity.html': () => new HtmlResponse(engine.activityPage()),
   };
   return table;
 }
@@ -84,7 +99,7 @@ function compile(keys: RouteKey[]): CompiledRoute[] {
   return keys.map((key) => {
     const [method, path] = key.split(' ') as [string, string];
     const names: string[] = [];
-    const rx = new RegExp('^' + path.replace(/:([A-Za-z]+)/g, (_m, n: string) => (names.push(n), '([^/]+)')) + '/?$');
+    const rx = new RegExp('^' + path.replace(/\./g, '\\.').replace(/:([A-Za-z]+)/g, (_m, n: string) => (names.push(n), '([^/]+)')) + '/?$');
     return { key, method, rx, names };
   });
 }
@@ -130,8 +145,9 @@ export function startHttp(opts: HttpOptions): Promise<RunningHttp> {
   const routes = compile(Object.keys(table) as RouteKey[]);
 
   const send = (res: ServerResponse, status: number, body: unknown): void => {
-    const text = JSON.stringify(body);
-    res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'content-length': Buffer.byteLength(text), 'cache-control': 'no-store' });
+    const html = body instanceof HtmlResponse;
+    const text = html ? body.html : JSON.stringify(body);
+    res.writeHead(status, { 'content-type': html ? 'text/html; charset=utf-8' : 'application/json; charset=utf-8', 'content-length': Buffer.byteLength(text), 'cache-control': 'no-store' });
     res.end(text);
   };
 

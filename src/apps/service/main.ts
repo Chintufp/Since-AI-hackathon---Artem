@@ -31,7 +31,12 @@ if (values.seed !== undefined && !['elisa', 'synthetic', 'empty'].includes(value
   process.exit(2);
 }
 
-const engine = new Engine({ dbPath: values.db, investigation: values['org-policy'] === 'none' ? {} : { observability: defaultObservabilityPolicy } });
+const engine = new Engine({
+  dbPath: values.db,
+  investigation: values['org-policy'] === 'none' ? {} : { observability: defaultObservabilityPolicy },
+  // The simulated activity stream (scripts/demo-play.ts) writes this file; the service only reads it.
+  ...(process.env.KT_ACTIVITY_LOG ? { activityLogPath: process.env.KT_ACTIVITY_LOG } : {}),
+});
 if (values.seed) {
   const r = await engine.resetDemo(values.seed as 'elisa' | 'synthetic' | 'empty');
   process.stderr.write(`demo seed "${values.seed}": ${r.imported.length} imports\n`);

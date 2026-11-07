@@ -19,6 +19,17 @@
 
 **Tests:** 248 application tests + 78 benchmark/experiment tests pass; typecheck clean. An independent Opus integration review reproduced the setup, the HTTP and MCP paths, an access audit across every endpoint (zero private evidence reaching outsiders) and the desktop walkthrough; its three major findings were fixed afterwards (private-channel members now see their own channel; the parser keeps "no traffic" and equipment models; an answered question survives re-sending the same text). All of it is on branch `run/2026-11-07-overnight` in small commits; `main` is untouched; nothing was pushed.
 
+### 1a. The UX pass (7 Nov, daytime; R31–R36, after your morning feedback)
+
+Built with a three-proposal design round, two judges, four build workers on exclusive paths, a three-lens adversarial review (41 findings, 12 of 13 majors confirmed) and a fix pass; details in `ux-pass/` and `worker-reports/ux-*.md`. What is true now, measured by the harness (`screenshots/checks.json`, `screenshots/companion/`):
+
+- **Shell.** One transparent click-through window covering the work area (idle CPU 0.19 % in, 0.02 % away, 0 % perched; 0 requestAnimationFrame calls while idle, away or perched); the v008 card is the carrier that moves with him, so the panel is never detached; `KT_WINDOW_MODE=column` is the R28 fallback.
+- **Touch.** Press pose on the next frame, Springy tap on every click, drag with the carried pose (dangling feet, floor shadow left behind), catch mid-air, release with the launch-derived gravity and three landing tiers (settle / hop / full plop), push past an edge to send him away. Frame p95 ≈ 9 ms, max ≤ 11 ms for drag, falls, roll, peek and arrival; hitbox equals his carrier in 32/32 states; the window ignores the mouse after every scenario (20/20).
+- **Away is home.** After the hello he rolls off to the nearer edge; a 12 px sliver stays; the cursor within 160 px makes him peek, dwell or come closer and he hops in with a hello; 20 s without interaction and he leaves again; the panel closing starts the same timer.
+- **Questions reach the person.** A 90 s poll while collapsed; one arrival per question (he comes to the perch with the authored glyph, waits 90 s, tucks back with the cue visible, tray shows ' ?'), one reminder after 20 min away, Later snoozes; local engagement counters.
+- **Fixed in review.** The mid-roll freeze (a roll back after closing the panel left him in the roll pose), a frame-starvation watchdog with resume on focus/visibility, falls that could strand him in the air, the keyboard focus ring after mouse clicks, focus after an open, the right-edge question cue, click-through pinning on right-clicks, duplicate area updates.
+- **Not verified by the harness:** a real mouse on the full-area window (you did that by hand), the tray and shortcut from the main process, lock/resume, multiple displays. Fidgets are off by default; no sound.
+
 ## 2. How to launch
 
 ```bash

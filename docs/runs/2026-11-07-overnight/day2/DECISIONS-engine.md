@@ -217,3 +217,8 @@ Reverse: use `dateOnly(to)` again in `applyValidityCues`.
 
 (1) The pairing gap's description (the question's "Why this question?") states hours or days apart only when both cases have known event times; with a capture-time fallback it says "(message times unknown; captured within a day of each other)". Ranking still uses the capture time (D-B1-26). (2) A partner case is proposed only when it is no more restricted than the orphan fix (org-visible, or group-scoped within the orphan's groups), because the standing state is readable with the orphan's groups; before, any non-private partner could be named. (3) `setupVerbs` (install, provision, commission) are never a fix, so an installation gets no missing-symptom or outcome gap ("You installed on PE-09 ..." no longer appears). Tests: standing.test.ts (three new).
 Reverse: `atKnown`/`apart`, `withinScope`, `isSetup` in standing-gaps.ts.
+
+## D-B1-39 · GET /context masks a hidden supersession
+
+When an older claim's `supersededBy` points at a claim the principal may not see, its row is shown as before that claim: status `provisional` (the status before supersession is not stored), no `validTo` when that close time came from the hidden claim, no `orderBasis`, `validAt` evaluated without the close. Before, the row's `superseded` status and `validTo` (with the hidden message's raw time) leaked. The investigation path is unchanged: for such a principal the access answer stays "No barrier code ... on file" (closed claims are not offered), which is the safer side and reveals nothing either; the two views differ only for that principal. Test: memory/context-assertions.test.ts.
+Reverse: the `hiddenNewer` branch in `contextAssertions`.

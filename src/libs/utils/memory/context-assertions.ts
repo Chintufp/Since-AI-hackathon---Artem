@@ -30,8 +30,20 @@ export function contextAssertions(store: KnowledgeStore, entity: Entity, princip
   const visibleClaim = (c: Claim | undefined): c is Claim => !!c && gate.scope(c.accessScope) && c.supporting.length > 0 && gate.supported(c.supporting);
   const claims = store.list('claim').filter((c) => (c.subjectEntityIds.includes(entity.id) || (!!c.caseId && caseIds.has(c.caseId))) && visibleClaim(c));
   const rows: ContextAssertion[] = [];
-  for (const c of claims) {
-    const ref = gate.refs(c.supporting)[0]!;
+  for (const raw of claims) {
+    const ref = gate.refs(raw.supporting)[0]!;
+    // B1 review: a superseding claim the principal may not see must not show through the older row either (its status,
+    // its close time or its order basis would reveal that restricted evidence exists and when). Present the row as it was
+    // before that claim: live, with no close time from it. (Its status before supersession is not stored: provisional.)
+    const hiddenNewer = raw.status === 'superseded' && !!raw.supersededBy && !visibleClaim(store.get('claim', raw.supersededBy));
+    const closedByNewer = hiddenNewer && JSON.stringify(raw.validity.to) === JSON.stringify(store.get('claim', raw.supersededBy!)?.validity.from ?? { known: false });
+    const c: Claim = hiddenNewer
+      ? (() => {
+        const { to: _to, orderBasis: _ob, ...rest } = raw.validity;
+        const { supersededBy: _sb, ...plain } = raw;
+        return { ...plain, status: 'provisional', validity: closedByNewer ? rest : { ...rest, ...(raw.validity.to ? { to: raw.validity.to } : {}) } } as Claim;
+      })()
+      : raw;
     const ev = store.get('evidence', ref.evidenceId);
     const time = ev?.eventTime ?? { known: false };
     const newer = c.supersededBy ? store.get('claim', c.supersededBy) : undefined;

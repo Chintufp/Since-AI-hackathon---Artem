@@ -1124,6 +1124,22 @@
           168
         ],
         "box": null
+      },
+      {
+        "file": "frames/peek-54.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/peek-55.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
       }
     ]
   },
@@ -1511,6 +1527,22 @@
       },
       {
         "file": "frames/arrival-47.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-48.png",
+        "css": [
+          120,
+          168
+        ],
+        "box": null
+      },
+      {
+        "file": "frames/arrival-49.png",
         "css": [
           120,
           168

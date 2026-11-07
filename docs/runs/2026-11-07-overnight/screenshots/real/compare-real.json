@@ -1,182 +1,97 @@
 {
  "01-collapsed-420.png": {
-  "status": "changed",
-  "changedPct": 1.007,
-  "bbox": [
-   626,
-   1200,
-   762,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "02-settings-you-420.png": {
-  "status": "changed",
-  "changedPct": 27.889,
-  "bbox": [
-   0,
-   248,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "03-input-420.png": {
-  "status": "changed",
-  "changedPct": 14.503,
-  "bbox": [
-   0,
-   912,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "04-result-420.png": {
-  "status": "changed",
-  "changedPct": 24.558,
-  "bbox": [
-   0,
-   224,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "05-result-node-expanded-420.png": {
-  "status": "changed",
-  "changedPct": 25.487,
-  "bbox": [
-   0,
-   224,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "06-result-last-node-420.png": {
-  "status": "changed",
-  "changedPct": 26.98,
-  "bbox": [
-   0,
-   224,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "07-people-420.png": {
-  "status": "changed",
-  "changedPct": 23.736,
-  "bbox": [
-   0,
-   274,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "08-contact-draft-420.png": {
-  "status": "changed",
-  "changedPct": 28.66,
-  "bbox": [
-   0,
-   226,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "09-result-second-420.png": {
-  "status": "changed",
-  "changedPct": 27.183,
-  "bbox": [
-   0,
-   206,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "10-settings-recipient-420.png": {
-  "status": "changed",
-  "changedPct": 27.885,
-  "bbox": [
-   0,
-   248,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "11-queue-420.png": {
-  "status": "changed",
-  "changedPct": 12.465,
-  "bbox": [
-   0,
-   906,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "12-question-420.png": {
-  "status": "changed",
-  "changedPct": 15.017,
-  "bbox": [
-   0,
-   748,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "13-question-context-420.png": {
-  "status": "changed",
-  "changedPct": 25.841,
-  "bbox": [
-   0,
-   148,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "14-receipt-no-420.png": {
-  "status": "changed",
-  "changedPct": 13.793,
-  "bbox": [
-   0,
-   834,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "15-undo-returns-to-question-420.png": {
   "status": "changed",
-  "changedPct": 14.833,
+  "changedPct": 2.901,
   "bbox": [
    0,
-   754,
-   830,
-   1352
+   776,
+   806,
+   1180
   ]
  },
  "16-receipt-yes-420.png": {
-  "status": "changed",
-  "changedPct": 13.042,
-  "bbox": [
-   0,
-   870,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "17-result-after-answer-420.png": {
-  "status": "changed",
-  "changedPct": 24.36,
-  "bbox": [
-   0,
-   258,
-   830,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  },
  "18-collapsed-end-420.png": {
-  "status": "changed",
-  "changedPct": 1.06,
-  "bbox": [
-   626,
-   1196,
-   762,
-   1352
-  ]
+  "status": "same",
+  "changedPct": 0.0,
+  "bbox": null
  }
 }

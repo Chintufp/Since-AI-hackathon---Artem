@@ -1,5 +1,5 @@
 {
-  "startedAt": "2026-11-07T09:08:52.221Z",
+  "startedAt": "2026-11-07T09:49:34.184Z",
   "electron": "45.2.3",
   "chrome": "156.0.8078.80",
   "node": "24.22.2",
@@ -13,12 +13,12 @@
   },
   "mouseForwarding": "isolated (recorded, not applied; the window ignores the real mouse)",
   "cursorAtStart": {
-    "x": 863,
-    "y": 540
+    "x": 777,
+    "y": 570
   },
   "workAreaLog": [
     {
-      "t": "2026-11-07T09:08:52.257Z",
+      "t": "2026-11-07T09:49:34.213Z",
       "event": "start",
       "workArea": {
         "x": 0,
@@ -28,7 +28,7 @@
       }
     },
     {
-      "t": "2026-11-07T09:08:52.324Z",
+      "t": "2026-11-07T09:49:34.282Z",
       "event": "window-created",
       "workArea": {
         "x": 0,
@@ -38,7 +38,7 @@
       }
     },
     {
-      "t": "2026-11-07T09:09:04.696Z",
+      "t": "2026-11-07T09:49:46.666Z",
       "event": "window-created",
       "workArea": {
         "x": 0,
@@ -48,7 +48,7 @@
       }
     },
     {
-      "t": "2026-11-07T09:09:14.330Z",
+      "t": "2026-11-07T09:49:56.295Z",
       "event": "window-created",
       "workArea": {
         "x": 0,
@@ -571,7 +571,7 @@
       "width": 420,
       "file": "04-result-420.png",
       "view": "result",
-      "settleMs": 809,
+      "settleMs": 785,
       "hitbox": [
         1401,
         798,
@@ -611,7 +611,7 @@
       "width": 420,
       "file": "05-result-node-expanded-420.png",
       "view": "result",
-      "settleMs": 189,
+      "settleMs": 193,
       "hitbox": [
         1401,
         798,
@@ -651,7 +651,7 @@
       "width": 420,
       "file": "06-result-last-node-420.png",
       "view": "result",
-      "settleMs": 178,
+      "settleMs": 194,
       "hitbox": [
         1401,
         798,
@@ -691,7 +691,7 @@
       "width": 420,
       "file": "07-people-420.png",
       "view": "people",
-      "settleMs": 197,
+      "settleMs": 192,
       "hitbox": [
         1401,
         798,
@@ -851,7 +851,7 @@
       "width": 420,
       "file": "11-queue-420.png",
       "view": "queue",
-      "settleMs": 31,
+      "settleMs": 32,
       "hitbox": [
         1401,
         798,
@@ -891,7 +891,7 @@
       "width": 420,
       "file": "12-question-420.png",
       "view": "question",
-      "settleMs": 1344,
+      "settleMs": 1330,
       "hitbox": [
         1401,
         798,
@@ -931,7 +931,7 @@
       "width": 420,
       "file": "13-question-context-420.png",
       "view": "question",
-      "settleMs": 233,
+      "settleMs": 223,
       "hitbox": [
         1401,
         798,
@@ -1011,7 +1011,7 @@
       "width": 420,
       "file": "15-undo-returns-to-question-420.png",
       "view": "question",
-      "settleMs": 23,
+      "settleMs": 1040,
       "hitbox": [
         1401,
         798,
@@ -1167,5 +1167,5 @@
       }
     }
   ],
-  "finishedAt": "2026-11-07T09:09:27.251Z"
+  "finishedAt": "2026-11-07T09:50:10.192Z"
 }

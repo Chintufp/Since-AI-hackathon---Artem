@@ -1,7 +1,9 @@
 export { investigate, investigationId, startedBy } from './investigate.ts';
 export type { InvestigateDeps, InvestigateInput } from './investigate.ts';
 export { defaultInvestigationSettings, isDiagnosticAction } from './settings.ts';
-export type { InvestigationSettings, ObservabilityPolicy, QuestionTemplateSettings } from './settings.ts';
+export type { InvestigationSettings, LoopReasons, ObservabilityPolicy, QuestionTemplateSettings } from './settings.ts';
+export { DEFAULT_PHRASES, actionPhrase, shortCaseLabel, plainLabel, conflictInWords, clampText, capitalize, withArticle } from './phrases.ts';
+export type { ActionPhrase, PhraseSettings, PersonVerbTemplate } from './phrases.ts';
 export { parseProblemText, DEFAULT_LEXICON } from './problem-parser.ts';
 export type { LexiconRule, ParserOptions, ParsedProblem } from './problem-parser.ts';
 export { RulesAssessor, applicabilityFor } from './assessor.ts';

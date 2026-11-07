@@ -1,4 +1,6 @@
 import { defaultCoordinatorSettings, type CoordinatorSettings } from '../contracts/index.ts';
+import type { AgeFold } from '../retrieval/conditions.ts';
+import { DEFAULT_PHRASES, type PhraseSettings } from './phrases.ts';
 
 /** Which condition keys a person can observe, by directory group or role. Organization configuration. */
 export interface ObservabilityPolicy {
@@ -35,14 +37,42 @@ export interface InvestigationSettings {
   observability: ObservabilityPolicy;
   coordinator: CoordinatorSettings;
   questions: QuestionTemplateSettings;
+  /** Human wording (action phrases, people verbs, condition phrases). */
+  phrases: PhraseSettings;
+  /**
+   * Fold a stated installation year into an age class: years up to `olderThroughYear` mean "older". The raw year key is
+   * in `ignoredKeys`, so only the age class decides applicability. `olderThroughYear: null` disables folding.
+   */
+  ageFold: AgeFold;
+  /** Regex sources marking a case condition label as hedged in its source; hedged/inferred conditions never create consequential gaps. */
+  hedgeMarkers: string[];
+  /** A candidate drives recommendation, gaps, questions and people only if it matches at least this many non-history conditions or shares an entity with the problem. */
+  relatedMinMatchingConditions: number;
+  maxPeople: number;
+  maxReasonsPerPerson: number;
+  /** Texts for the question-loop status shown in the UI (loopReason). */
+  loopReasons: LoopReasons;
+}
+
+export interface LoopReasons {
+  noQuestionNeeded: string;
+  noRecipient: string;
+  budgetUsed: string;
+  everyoneAsked: string;
+  peopleBusy: string;
+  holding: string;
+  answered: string;
+  /** {name} = recipient display name. */
+  waiting: string;
+  preparing: string;
 }
 
 export function defaultInvestigationSettings(over: Partial<InvestigationSettings> = {}): InvestigationSettings {
   return {
     k: 8,
     relativeScoreFloor: 0.3,
-    distinguishingKeys: ['unit.age', 'unit.model', 'unit.revision', 'unit.installed_year', 'software.version'],
-    ignoredKeys: ['site.id', 'site.region', 'site.access', 'time.since_change'],
+    distinguishingKeys: ['unit.age', 'unit.model', 'unit.revision', 'software.version'],
+    ignoredKeys: ['site.id', 'site.region', 'site.access', 'time.since_change', 'unit.installed_year'],
     historyKeys: ['action.performed', 'component.replaced'],
     requesterObservableKeys: ['interface.status', 'optical.level', 'traffic.counters', 'traffic.state', 'alarms.state', 'power.state', 'temperature.state', 'bgp.session'],
     diagnosticActions: ['counters.check', 'optics.check', 'logs.check'],
@@ -50,7 +80,7 @@ export function defaultInvestigationSettings(over: Partial<InvestigationSettings
     coordinator: { ...defaultCoordinatorSettings },
     questions: {
       conditionTemplates: {
-        'unit.age': 'Was {asset} on the {value} unit revision?',
+        'unit.age': 'Is {asset} {a_value} unit?',
         'unit.model': 'Is {asset} the {value} model?',
         'unit.revision': 'Is {asset} on revision {value}?',
         'unit.installed_year': 'Was {asset} installed in {value}?',
@@ -59,6 +89,23 @@ export function defaultInvestigationSettings(over: Partial<InvestigationSettings
       outcomePhrases: { 'interface.reset': 'traffic return' },
       maxCandidates: 4,
       evaluativePairs: false,
+    },
+    phrases: DEFAULT_PHRASES,
+    ageFold: { yearKey: 'unit.installed_year', ageKey: 'unit.age', olderValue: 'older', olderThroughYear: 2019, hedgeMarkers: ['hedged in source'] },
+    hedgeMarkers: ['hedged in source'],
+    relatedMinMatchingConditions: 2,
+    maxPeople: 6,
+    maxReasonsPerPerson: 3,
+    loopReasons: {
+      noQuestionNeeded: 'Existing evidence and your own observations settle the next step',
+      noRecipient: 'No one with firsthand knowledge is available to ask right now',
+      budgetUsed: 'The question budget for this investigation is used up',
+      everyoneAsked: 'Everyone who could answer has already been asked',
+      peopleBusy: 'The people who could answer are busy or were asked recently; try again later',
+      holding: 'Holding the question: asking now is not expected to help enough',
+      answered: 'The answer was used to update the recommendation',
+      waiting: 'Waiting for {name} to answer one quick question',
+      preparing: 'One quick question to someone with firsthand knowledge could settle this',
     },
     ...over,
   };

@@ -6,6 +6,7 @@ import {
   buildSyntheticStore, cond, ORG, P, personPrincipal, requesterActor, SYMPTOM_TEXT, NOW_ISO,
 } from '../models/testing/fixtures.ts';
 import type { InMemoryStore } from '../models/testing/in-memory-store.ts';
+import { defaultInvestigationSettings } from '../investigation/index.ts';
 import { evaluateEligibility, evaluativePair, findRecipients } from './index.ts';
 import { makeHarness, type Harness } from './testing/harness.ts';
 
@@ -32,7 +33,7 @@ test('(3) missing distinguishing condition -> one consequential gap -> one quick
   assert.equal(r.candidates.length, 1);
   const cand = r.candidates[0]!;
   assert.equal(cand.kind, 'quick');
-  assert.equal(cand.text, 'Was Asset-B2 on the older unit revision?');
+  assert.equal(cand.text, 'Is Asset-B2 an older unit?');
   assert.match(cand.rationale, /Evidence: /);
   assert.ok(cand.consequences.yes && cand.consequences.no);
   assert.deepEqual(cand.recipientIds, [P.site.entity]);
@@ -104,7 +105,9 @@ test('(3) answer unknown -> no claim update, gap stays open, nobody is re-asked'
   assert.equal(again.question, undefined);
   assert.equal(again.decision?.chosen, 'defer');
   assert.ok(again.eligibility.some((e) => e.violations.includes('already-asked')));
-  assert.equal(again.state.loop, 'exhausted');
+  // nobody else can be asked, but the per-investigation budget is not used: deferred, not exhausted
+  assert.equal(again.state.loop, 'deferred');
+  assert.match(again.state.loopReason ?? '', /already been asked/);
 });
 
 test('only the addressed recipient can answer', async () => {
@@ -121,7 +124,7 @@ test('outcome question goes to firsthand actor/reporter/advisor of that case, no
   assert.deepEqual(recs.map((x) => x.personEntityId).sort(), [P.exp.entity, P.op.entity].sort());
   assert.ok(recs.every((x) => x.firsthand));
   const r = await h.coordinator.request(st);
-  assert.match(r.question!.candidate.text, /^Did traffic return right after the interface reset in /);
+  assert.match(r.question!.candidate.text, /^Did traffic return right after the interface reset on Asset-/);
   const res = await h.coordinator.answer(r.question!.id, 'yes', r.question!.personEntityId === P.op.entity ? op() : personPrincipal(P.exp, ['noc', 'field']));
   assert.equal(res.state.hypotheses.find((x) => x.sourceClaimIds.includes('cl_c1_hyp'))?.support, 'supported');
   assert.equal(res.state.recommendation.kind, 'check-first');
@@ -301,7 +304,7 @@ test('evaluative pair is optional and only built from >= 2 factual candidates', 
 
 // ---- fix pass ----------------------------------------------------------------------------------
 
-test('fix: a year unrelated to the hardware does not infer unit.age; unit year still does and still leaves the gap open', async () => {
+test('fix: a year unrelated to the hardware does not infer unit.age; a unit year folds into the age class', async () => {
   const { parseProblemText } = await import('../investigation/problem-parser.ts');
   const keys = (t: string): string[] => parseProblemText(t, 'x').conditions.map((c) => c.key);
   assert.ok(!keys('Asset-B2: link is up but counters zero. Customer since 2018.').includes('unit.age'));
@@ -311,10 +314,10 @@ test('fix: a year unrelated to the hardware does not infer unit.age; unit year s
   const st = await h.start('pyr', `${B2}. Customer account open since 2018.`);
   assert.equal(st.recommendation.kind, 'qualified');
   assert.equal(st.gaps.filter((g) => g.consequential && g.status === 'open').length, 1);
-  // even a hardware-context year (inferred unit.age) does not settle the distinguishing key
+  // a hardware-context year is folded into the age class through the configurable olderThroughYear (2019): it settles unit.age
   const st2 = await h.start('pyr2', `${B2}. Unit installed in 2018.`);
-  assert.equal(st2.recommendation.kind, 'qualified');
-  assert.equal(st2.gaps.filter((g) => g.consequential && g.status === 'open').length, 1);
+  assert.equal(st2.recommendation.kind, 'check-first');
+  assert.equal(st2.gaps.filter((g) => g.consequential && g.status === 'open').length, 0);
 });
 
 test('fix: an answer in one investigation is reused as attributed evidence in a later investigation on the same asset', async () => {
@@ -357,7 +360,7 @@ test('fix: answers about conditions with non-eq operators use agreement with the
     const st = await h.start(`pop_${operator}`, B2);
     const r = await h.coordinator.request(st);
     assert.ok(r.question, `question for ${operator}`);
-    assert.doesNotMatch(r.question!.candidate.text, /installed in/);
+    assert.doesNotMatch(r.question!.candidate.text, /^Was \S+ installed in/);
     const no = await h.coordinator.answer(r.question!.id, 'no', site());
     assert.equal(no.state.gaps.find((g) => g.targetCondition?.key === 'unit.age')?.status, 'resolved');
     assert.equal(no.state.recommendation.kind, 'retain-uncertainty');
@@ -403,4 +406,32 @@ test('fix: undoing a requester cancellation requires the requester or an agent',
   await assert.rejects(h.coordinator.undo(qid, outsider), /requester or an agent/);
   const requester = personPrincipal(P.req, ['noc']);
   assert.equal((await h.coordinator.undo(qid, requester)).status, 'delivered');
+});
+
+// ---- polish pass 2: loop states and reasons -----------------------------------------------------------------------
+
+test('polish: no eligible recipient -> deferred (not exhausted) with a plain reason', async () => {
+  const store = buildSyntheticStore();
+  const site0 = store.get('entity', P.site.entity)!;
+  store.put('entity', { ...site0, attributes: { ...site0.attributes, available: { value: false, origin: 'reported', evidence: [] } } });
+  const h = makeHarness(store);
+  const st = await h.start('pl_def', B2);
+  const r = await h.coordinator.request(st);
+  assert.equal(r.question, undefined);
+  assert.equal(r.state.loop, 'deferred');
+  assert.ok(r.state.loopReason && r.state.loopReason.length > 0);
+});
+
+test('polish: exhausted only when the per-investigation question budget is used', async () => {
+  const h = makeHarness(buildSyntheticStore(), { settings: { coordinator: { ...defaultInvestigationSettings().coordinator, maxQuestionsPerInvestigation: 1 } } });
+  const st = await h.start('pl_exh', B2);
+  const r = await h.coordinator.request(st);
+  assert.equal(r.state.loop, 'question-open');
+  assert.match(r.state.loopReason ?? '', /Waiting for .* to answer/);
+  const res = await h.coordinator.answer(r.question!.id, 'unknown', site());
+  assert.equal(res.state.loop, 'answered');
+  assert.ok(res.state.loopReason);
+  const again = await h.coordinator.request(res.state);
+  assert.equal(again.state.loop, 'exhausted');
+  assert.match(again.state.loopReason ?? '', /budget/);
 });

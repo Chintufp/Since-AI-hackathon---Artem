@@ -32,6 +32,9 @@ export const DEFAULT_LEXICON: LexiconRule[] = [
   { id: 'rebooted', pattern: String.raw`\b(?:re-?booted|restarted)\b`, key: 'action.performed', value: 'device.reboot', label: 'Device rebooted' },
   { id: 'power-cycled', pattern: String.raw`\bpower[\s-]?cycled\b`, key: 'action.performed', value: 'power.cycle', label: 'Power cycled' },
   { id: 'reset', pattern: String.raw`\b(?:reset|bounced|flapped)\s+(?:the\s+)?(?:interface|port|link)\b`, key: 'action.performed', value: 'interface.reset', label: 'Interface reset' },
+  { id: 'bgp-flapping', pattern: String.raw`\bbgp\b[^.;\n]{0,30}?\bflap(?:s|ping|ped)?\b`, key: 'bgp.session', value: 'flapping', label: 'BGP session flapping' },
+  { id: 'bgp-session', pattern: String.raw`\bbgp\b[^.;\n]{0,30}?\b(down|established|up)\b`, key: 'bgp.session', valueGroup: 1, label: 'BGP session state' },
+  { id: 'config-changed', pattern: String.raw`\b(?:after|since|following)\s+(?:the\s+|a\s+)?(?:(?:firmware|software|config(?:uration)?)\s+)?(?:update|upgrade|change|release)\b`, key: 'config.changed', value: true, label: 'Recent change', negatable: false },
   { id: 'site-access', pattern: String.raw`\b(?:barrier|locked\s+gate|gate\s+(?:is\s+)?locked|gate\s+code|key\s*box)\b`, key: 'site.access', value: 'barrier', label: 'Site access restriction', negatable: false },
 ];
 

@@ -7,10 +7,12 @@ import { uniqueRoutes } from '../models/routes.ts';
 import { canSee } from '../retrieval/access.ts';
 import { resolveEntityIds } from '../retrieval/exact.ts';
 import { loadCaseFacts, OUTCOME_KEY } from './case-facts.ts';
+import { shortCaseLabel } from './phrases.ts';
 import { storeDirectory, type PersonDirectory } from './directory.ts';
 import { buildGaps, parseGapId } from './gaps.ts';
 import { buildPeople } from './people.ts';
 import { parseProblemText, type ParserOptions } from './problem-parser.ts';
+import { isRelatedCandidate } from './related.ts';
 import { recommend } from './recommend.ts';
 import type { InvestigationSettings } from './settings.ts';
 import type { HypothesisDetail } from './types.ts';
@@ -72,7 +74,7 @@ async function buildHypothesis(
       id: stableId('hyp', state.id, candidate.caseId), statement, basis, sourceClaimIds: claimIds,
       support: assessment.support, applicability: assessment.applicability, assessment: assessment.route, notes: assessment.reasons,
     };
-    return { hypothesis, candidate, assessment, title: facts.case.title, facts };
+    return { hypothesis, candidate, assessment, title: facts.case.title, label: shortCaseLabel(store, facts.case), facts };
   }
   const proc = candidate.procedureId ? store.get('procedure', candidate.procedureId) : undefined;
   if (!proc) return undefined;
@@ -80,7 +82,7 @@ async function buildHypothesis(
     id: stableId('hyp', state.id, proc.id), statement: proc.purpose, basis: [], sourceClaimIds: [],
     support: assessment.support, applicability: assessment.applicability, assessment: assessment.route, notes: assessment.reasons,
   };
-  return { hypothesis, candidate, assessment, title: proc.purpose };
+  return { hypothesis, candidate, assessment, title: proc.purpose, label: proc.purpose.length > 40 ? `${proc.purpose.slice(0, 39).trimEnd()}…` : proc.purpose };
 }
 
 /**
@@ -144,16 +146,13 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
   // Re-running the same problem is idempotent: carry over questions, decisions, events and gap resolutions.
   const previous = input.previous ?? store.get('investigation', id);
 
-  const parsed = parseProblemText(problem.text, problem.id, deps.parser);
+  const parsed = parseProblemText(problem.text, problem.id, { olderThroughYear: settings.ageFold.olderThroughYear, ...deps.parser });
   const recorded = store.list('observation', { where: { investigationId: id } }).sort((a, b) => a.at.localeCompare(b.at));
   const visibleEntities = store.list('entity').filter((e) => canSee(e.accessScope, principal));
   const { ids: entityIds } = resolveEntityIds(problem.text, visibleEntities, problem.entityIds ?? []);
   const prior = priorAnswerConditions(store, id, entityIds, principal);
-  // A parser inference (origin 'inferred') never settles a distinguishing key: the key stays missing and is asked or checked.
-  const dKeys = new Set(settings.distinguishingKeys);
-  const parsedUsable = parsed.conditions.filter((c) => !(c.origin === 'inferred' && dKeys.has(c.key)));
   const conditions = mergeConditions([
-    parsedUsable, prior, problem.observations ?? [], recorded.map((o) => o.condition).filter((c) => c.key !== OUTCOME_KEY),
+    parsed.conditions, prior, problem.observations ?? [], recorded.map((o) => o.condition).filter((c) => c.key !== OUTCOME_KEY),
   ]);
 
   const candidates = await deps.retriever.search({
@@ -174,30 +173,43 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
     if (d) details.push(d);
   }
 
-  const { recommendation, selected } = recommend(details, settings);
+  // Only related candidates may drive the recommendation (hypotheses of unrelated lookalikes stay listed but inert).
+  const related = details.filter((d) => isRelatedCandidate(d.candidate, d.facts?.case, entityIds, settings));
+  const { recommendation, selected } = recommend(related, settings, conditions);
   const gaps = carryGaps(previous, selected ? buildGaps({ investigationId: id, detail: selected, settings }) : [], recorded);
 
   const requesterEntityId = directory.resolve(problem.requester.id);
   const people = buildPeople({
     store, directory, principal, ...(requesterEntityId ? { requesterEntityId } : {}),
-    caseIds: relevant.flatMap((c) => (c.caseId ? [c.caseId] : [])), entityIds, settings, now,
+    investigationId: id, candidates: relevant, ...(selected?.candidate.caseId ? { selectedCaseId: selected.candidate.caseId } : {}), entityIds, settings, now,
   });
 
   const state: InvestigationState = {
     ...draft, hypotheses: details.map((d) => d.hypothesis), gaps, recommendation, people,
-    loop: 'no-question-needed',
+    loop: 'no-question-needed', loopReason: settings.loopReasons.noQuestionNeeded,
   };
 
   const routes: Array<RouteInfo | undefined> = [parsed.route, deps.retriever.route, ...candidates.map((c) => c.retrieval), ...details.map((d) => d.assessment.route)];
-  const wantsQuestion = gaps.some((g) => g.consequential && g.status === 'open');
-  if (deps.generator && wantsQuestion) {
+  // A gap the requester can observe themselves is answered by checking, not by asking another person.
+  const askable = (g: Gap): boolean => {
+    const p = parseGapId(g.id);
+    return g.consequential && g.status === 'open' && !(p?.kind === 'missing' && settings.requesterObservableKeys.includes(p.detail));
+  };
+  const wantsQuestion = gaps.some(askable);
+  const reasons = settings.loopReasons;
+  const settle = (loop: InvestigationState['loop'], loopReason: string): void => {
+    state.loop = loop;
+    state.loopReason = loopReason;
+  };
+  if (!wantsQuestion) {
+    settle('no-question-needed', reasons.noQuestionNeeded);
+  } else if (deps.generator) {
     routes.push(deps.generator.route);
     const asked = await deps.generator.generate(state, settings.questions.maxCandidates);
-    state.loop = asked.length > 0 ? 'deferred' : 'no-question-needed';
-  } else if (deps.generator) {
-    state.loop = 'no-question-needed';
+    if (asked.some((c) => c.recipientIds.length > 0)) settle('deferred', reasons.preparing);
+    else settle('deferred', reasons.noRecipient);
   } else {
-    state.loop = wantsQuestion ? 'deferred' : 'no-question-needed';
+    settle('deferred', reasons.preparing);
   }
   state.routes = uniqueRoutes(routes);
 

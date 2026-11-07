@@ -7,5 +7,7 @@ export interface HypothesisDetail {
   candidate: CandidateMatch;
   assessment: Assessment;
   title: string;
+  /** Short human label of the case (asset id, e.g. "TRN-042"); never a raw id. */
+  label: string;
   facts?: CaseFacts;
 }

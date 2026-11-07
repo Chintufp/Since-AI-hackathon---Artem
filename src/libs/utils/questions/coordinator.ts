@@ -61,6 +61,15 @@ export class QuestionCoordinator {
     return this.ctx.clock();
   }
 
+  private setLoop(state: InvestigationState, loop: InvestigationState['loop'], reason: string): void {
+    state.loop = loop;
+    state.loopReason = reason;
+  }
+
+  private waitingReason(personEntityId: string): string {
+    return this.d.settings.loopReasons.waiting.replace('{name}', this.ctx.directory.get(personEntityId)?.name ?? 'the recipient');
+  }
+
   private trace(state: InvestigationState, type: string, data: Record<string, unknown>): TraceEvent {
     const e: TraceEvent = { id: freshId('evt'), at: this.now().toISOString(), type, traceId: state.id, actor: { id: 'system', displayName: 'coordinator' }, data };
     state.events = [...state.events, e];
@@ -105,7 +114,7 @@ export class QuestionCoordinator {
 
     const active = questionsForInvestigation(store, state.id).find((q) => ACTIVE.has(q.status));
     if (active) {
-      state.loop = 'question-open';
+      this.setLoop(state, 'question-open', this.waitingReason(active.personEntityId));
       store.put('investigation', state);
       return { state, question: active, candidates: [], eligibility: [] };
     }
@@ -162,15 +171,19 @@ export class QuestionCoordinator {
       state.questionIds = [...state.questionIds, question.id];
       this.trace(state, 'question.queued', { questionId: question.id, personEntityId: question.personEntityId, decisionId: decision.id });
       if (opts.deliver !== false) question = await this.deliver(question.id);
-      state.loop = 'question-open';
-    } else if (candidates.length === 0) {
-      state.loop = 'no-question-needed';
-    } else if (eligible.length === 0 && eligibility.length > 0 && eligibility.every((e) => e.violations.some((x) => PERMANENT_VIOLATIONS.includes(x)))) {
-      state.loop = 'exhausted';
-    } else if (eligibility.length === 0) {
-      state.loop = 'exhausted';
+      this.setLoop(state, 'question-open', this.waitingReason((chosen as EligibleAction).personEntityId));
     } else {
-      state.loop = 'deferred';
+      const reasons = this.d.settings.loopReasons;
+      const used = questionsForInvestigation(store, state.id).filter((q) => q.status !== 'cancelled').length;
+      const asked = (e: RecipientEligibility): boolean => e.violations.includes('already-asked') || e.violations.includes('duplicate');
+      if (candidates.length === 0) this.setLoop(state, 'no-question-needed', reasons.noQuestionNeeded);
+      // 'exhausted' means only one thing: the per-investigation question budget is used.
+      else if (used >= settings.coordinator.maxQuestionsPerInvestigation) this.setLoop(state, 'exhausted', reasons.budgetUsed);
+      else if (eligibility.length === 0) this.setLoop(state, 'deferred', reasons.noRecipient);
+      else if (eligible.length === 0 && eligibility.every(asked)) this.setLoop(state, 'deferred', reasons.everyoneAsked);
+      else if (eligible.length === 0 && eligibility.every((e) => e.violations.some((x) => PERMANENT_VIOLATIONS.includes(x)))) this.setLoop(state, 'deferred', reasons.noRecipient);
+      else if (eligible.length === 0) this.setLoop(state, 'deferred', reasons.peopleBusy);
+      else this.setLoop(state, 'deferred', reasons.holding);
     }
     this.trace(state, 'decision.recorded', { decisionId: decision.id, chosen: chosen === 'defer' ? 'defer' : actionKey(chosen as EligibleAction), reason: decision.reason });
     state.updatedAt = now.toISOString();
@@ -273,7 +286,7 @@ export class QuestionCoordinator {
     state = await this.rebuild(state.id);
     const g = state.gaps.find((x) => x.id === q.candidate.gapId);
     if (g?.status === 'resolved' && g.resolvedBy) g.resolvedBy = { ...g.resolvedBy, answerId };
-    state.loop = 'answered';
+    this.setLoop(state, 'answered', this.d.settings.loopReasons.answered);
     this.store.put('investigation', state);
     const cancelled = await this.cancelObsolete(state.id);
     return { answer, question: updated, state: this.load(state.id), cancelled };
@@ -288,7 +301,7 @@ export class QuestionCoordinator {
       problem: prev.problem, store: this.store, principal, previous: prev,
       deps: { retriever: this.d.retriever, assessor: this.d.assessor, generator: this.d.generator, settings: this.d.settings, clock: this.ctx.clock, directory: this.ctx.directory },
     });
-    next.loop = prev.loop === 'question-open' ? 'question-open' : next.loop;
+    if (prev.loop === 'question-open') this.setLoop(next, 'question-open', prev.loopReason ?? this.d.settings.loopReasons.preparing);
     return next;
   }
 
@@ -372,7 +385,7 @@ export class QuestionCoordinator {
       const { answerId: _drop, ...rest } = restored;
       this.store.put('question', rest);
       const state = await this.rebuild(q.candidate.investigationId);
-      state.loop = 'question-open';
+      this.setLoop(state, 'question-open', this.waitingReason(q.personEntityId));
       this.store.put('investigation', state);
       return rest;
     }

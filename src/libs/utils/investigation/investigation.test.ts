@@ -50,10 +50,13 @@ test('(1) reuse path: matching unit.age -> reference case first, supported+appli
   assert.equal(h.applicability, 'applicable');
   assert.equal(st.recommendation.kind, 'check-first');
   assert.equal(st.recommendation.actionClass, 'diagnostic-check');
+  // wording: heading is a short human sentence naming the check first; the reset is in nextStep with the short case label
   const t = st.recommendation.text;
-  assert.ok(t.indexOf('counters.check') >= 0 && t.indexOf('counters.check') < t.indexOf('interface.reset'));
-  assert.match(t, /Unconfirmed/);
-  assert.doesNotMatch(t, /will fix/i);
+  assert.ok(t.length <= 140);
+  assert.match(t, /^Check the traffic counters/);
+  assert.match(st.recommendation.nextStep ?? '', /disabling and re-enabling the interface reportedly restored traffic in Asset-/);
+  assert.doesNotMatch(`${t} ${st.recommendation.nextStep}`, /case_|interface\.reset|counters\.check|will fix/);
+  assert.ok(st.recommendation.caveats.some((c) => /not verified/.test(c)));
   assert.equal(st.loop, 'no-question-needed');
   assert.equal(st.gaps.filter((g) => g.consequential).length, 0);
   // the non-consequential lasting gap is recorded but not asked
@@ -67,8 +70,8 @@ test('(2) lookalike with a conflicting distinguishing condition -> inapplicable,
   assert.equal(h?.applicability, 'inapplicable');
   assert.equal(h?.support, 'supported');
   assert.equal(st.recommendation.kind, 'retain-uncertainty');
-  assert.match(st.recommendation.text, /Older unit revision/);
-  assert.match(st.recommendation.text, /unit\.age=newer|Newer unit/);
+  assert.match(st.recommendation.text, /older unit revision/i);
+  assert.match(st.recommendation.text, /newer unit/i);
   assert.equal(st.gaps.filter((g) => g.status === 'open' && g.consequential).length, 0);
 });
 
@@ -85,7 +88,7 @@ test('missing distinguishing condition -> qualified, one consequential gap, hypo
   const store = buildSyntheticStore();
   const st = await run(store, { id: 'p_missing', text: `Asset-B2: ${SYMPTOM_TEXT}` });
   assert.equal(st.recommendation.kind, 'qualified');
-  assert.match(st.recommendation.text, /Older unit revision/);
+  assert.match(st.recommendation.text, /older unit revision/i);
   const open = st.gaps.filter((g) => g.consequential && g.status === 'open');
   assert.equal(open.length, 1);
   assert.ok(open[0]?.whatAnswerChanges.length);
@@ -171,4 +174,67 @@ test('(10) every route used is listed in state.routes, with honest labels', asyn
 
 test('hypotheses reference E ids only through configuration (no hard-coded incident)', () => {
   assert.ok(E.a1 && CASE_REF);
+});
+
+// ---- polish pass 2: wording, hedged conditions, loop reasons, people ------------------------------------------------
+
+test('polish: unit.installed_year is not distinguishing; years fold into unit.age through the configurable olderThroughYear', () => {
+  const s = defaultInvestigationSettings();
+  assert.ok(!s.distinguishingKeys.includes('unit.installed_year'));
+  assert.ok(s.distinguishingKeys.includes('unit.age'));
+  assert.ok(s.ignoredKeys.includes('unit.installed_year'));
+  const folded = parseProblemText('Unit from 2015', 'pf', { olderThroughYear: s.ageFold.olderThroughYear });
+  assert.equal(folded.conditions.find((c) => c.key === 'unit.age')?.value, 'older');
+  const off = parseProblemText('Unit from 2015', 'pf2', { olderThroughYear: null });
+  assert.equal(off.conditions.find((c) => c.key === 'unit.age'), undefined);
+});
+
+test('polish: a hedged distinguishing case condition is shown as unknown but creates no consequential gap and no question', async () => {
+  const store = buildSyntheticStore();
+  const c = store.get('case', CASE_REF)!;
+  store.put('case', { ...c, conditions: c.conditions.map((x) => (x.key === 'unit.age' ? { ...x, label: `${x.label ?? 'Older unit'} (hedged in source)` } : x)) });
+  const st = await run(store, { id: 'p_hedged', text: `Asset-B2: ${SYMPTOM_TEXT}` });
+  assert.equal(st.gaps.filter((g) => g.consequential).length, 0);
+  assert.equal(st.loop, 'no-question-needed');
+  assert.match(st.loopReason ?? '', /settle the next step/);
+  assert.ok(st.recommendation.caveats.some((x) => /^Unknown for this unit: .*older unit/i.test(x)), st.recommendation.caveats.join(' | '));
+  assert.doesNotMatch(st.recommendation.caveats.join(' '), /hedged in source/);
+});
+
+test('polish: recommendation text is a short heading with plain words, short case labels and no raw ids or action codes', async () => {
+  const store = buildSyntheticStore();
+  for (const [id, obs] of [['w1', [cond('unit.age', 'older', 'Older unit')]], ['w2', [cond('unit.age', 'newer', 'Newer unit')]], ['w3', []]] as const) {
+    const st = await run(store, { id: `p_word_${id}`, text: `Asset-B2: ${SYMPTOM_TEXT}`, observations: [...obs] });
+    const r = st.recommendation;
+    assert.ok(r.text.length <= 140, r.text);
+    const all = [r.text, r.nextStep ?? '', ...r.caveats].join(' ');
+    assert.doesNotMatch(all, /case_|\b[a-z]+\.(reset|check|replace|reboot)\b|"/, all);
+  }
+});
+
+test('polish: people are limited to related cases, deduplicated, at most 3 reasons each and 6 people, mentioned-only last', async () => {
+  const store = buildSyntheticStore();
+  const st = await run(store, { id: 'p_people2', text: `Asset-B2: ${SYMPTOM_TEXT}` });
+  assert.ok(st.people.length <= 6);
+  for (const p of st.people) {
+    assert.ok(p.reasons.length >= 1 && p.reasons.length <= 3);
+    assert.equal(new Set(p.reasons.map((r) => `${r.caseId}|${r.contribution}`)).size, p.reasons.length);
+    assert.ok(p.reasons.every((r) => !/case_|"/.test(r.text)));
+  }
+  const firstMentionedOnly = st.people.findIndex((p) => p.reasons.every((r) => !r.firsthand));
+  if (firstMentionedOnly >= 0) assert.ok(st.people.slice(firstMentionedOnly).every((p) => p.reasons.every((r) => !r.firsthand)));
+});
+
+test('polish: every loop value carries a loopReason', async () => {
+  const store = buildSyntheticStore();
+  const settled = await run(store, { id: 'p_loop1', text: `Asset-E5: ${SYMPTOM_TEXT}`, observations: [cond('unit.age', 'older')] });
+  assert.equal(settled.loop, 'no-question-needed');
+  assert.ok(settled.loopReason && settled.loopReason.length > 0);
+});
+
+test('polish: parser lexicon covers session-state and recent-change phrases with vocabulary keys', () => {
+  const { conditions } = parseProblemText('BGP sessions flapping on the edge router after the firmware update', 'pbgp');
+  const m = Object.fromEntries(conditions.map((c) => [c.key, c.value]));
+  assert.equal(m['bgp.session'], 'flapping');
+  assert.equal(m['config.changed'], true);
 });

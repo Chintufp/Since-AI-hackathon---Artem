@@ -3,7 +3,7 @@
 Question candidates, question-specific recipients, hard eligibility and the request/answer lifecycle.
 
 ## Public interface (`index.ts`)
-- `TemplateQuestionGenerator(ctx)` implements `QuestionGenerator` (route `rules`): only open, consequential gaps become quick yes/no questions ("Was Asset-B2 on the older unit revision?", "Did traffic return right after the interface reset in ..."), with rationale citing evidence ids, `consequences {yes, no}`, normalised `dedupKey` (gap key + scope) and `recipientIds`. `evaluativePair(a, b)` builds an optional preference candidate (never mandatory, never factual evidence).
+- `TemplateQuestionGenerator(ctx)` implements `QuestionGenerator` (route `rules`): only open, consequential gaps become quick yes/no questions ("Is Asset-B2 an older unit?" using the problem's asset and the plain condition label, "Did traffic return right after the interface reset on TRN-042?" using the case's short label and the configured action phrase), with rationale citing evidence ids, `consequences {yes, no}`, normalised `dedupKey` (gap key + scope) and `recipientIds`. `evaluativePair(a, b)` builds an optional preference candidate (never mandatory, never factual evidence).
 - `findRecipients(ctx, state, gap)`: past action/outcome questions -> people with firsthand links on that case (performed-action, reported-outcome, advised); current/inventory-condition questions -> people with firsthand links to the problem's entities plus people whose directory groups/roles are configured to observe that key; the requester is excluded.
 - `evaluateEligibility(ctx, state, candidate, person)` -> `RecipientEligibility` with violations `gap-resolved`, `self`, `not-answerable`, `unavailable`, `access` (recipient must be allowed to see the cited case), `budget` (daily limit, max open, per-investigation cap), `cooldown`, `already-asked`, `duplicate`.
 - `QuestionCoordinator`: `request(state)` -> candidates -> eligibility -> selector -> `PolicyDecision` (+ `EvaluationRecord`, assessedBenefit null) -> `QuestionRecord` queued then delivered after an eligibility recheck; `answer(questionId, value, principal)`; `defer`/`dismiss`/`undo`/`cancel`; `recordObservation`; `cancelObsolete`; `rebuild`.
@@ -13,7 +13,7 @@ Question candidates, question-specific recipients, hard eligibility and the requ
 - Stored historical `Claim` rows are never mutated: answers are separate attributed evidence applied at assessment time (undo of an answer withdraws it cleanly).
 - An observation or answer that resolves a gap cancels queued/delivered questions with `cancelReason: gap-resolved` (`obsolete` when the gap is gone, `duplicate` for twins).
 - Budgets are derived from persisted question records (delivered today, last delivered, open ids); nothing else holds counters.
-- Loop status after `request`: `question-open`, `no-question-needed` (no candidates), `exhausted` (every pair blocked by a permanent violation), `deferred` (transient violations or the selector deferred); `answered` after an answer.
+- Loop status after `request` (each with a `loopReason` from `settings.loopReasons`): `question-open` (waiting for the named recipient), `no-question-needed` (no candidates), `exhausted` only when the per-investigation question budget is used, `deferred` otherwise (no eligible recipient, everyone already asked, people busy/cooling down, or the selector held the question); `answered` after an answer.
 
 ## Dependencies
 `contracts`, `investigation`, `retrieval/access`, `policies/features` (feature names, `actionKey`), `models/routes`.

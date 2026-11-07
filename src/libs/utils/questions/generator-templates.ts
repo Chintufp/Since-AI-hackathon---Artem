@@ -1,11 +1,10 @@
 import type { Gap, InvestigationState, QuestionCandidate, QuestionGenerator } from '../contracts/index.ts';
 import { stableId } from '../contracts/index.ts';
-import { parseGapId } from '../investigation/index.ts';
+import { actionPhrase, parseGapId, plainLabel, shortCaseLabel, withArticle } from '../investigation/index.ts';
 import { routeInfo } from '../models/routes.ts';
 import { normalizeKey, type QuestionContext } from './context.ts';
 import { findRecipients, problemEntityIds } from './recipients.ts';
 
-const humanize = (action: string): string => action.replace(/[._]/g, ' ');
 const fill = (tpl: string, vars: Record<string, string>): string => tpl.replace(/\{(\w+)\}/g, (_, k: string) => vars[k] ?? '');
 
 /**
@@ -32,6 +31,7 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
       if (!p || p.kind === 'lasting') continue;
       const c = store.get('case', p.caseId);
       if (!c) continue;
+      const caseLabel = shortCaseLabel(store, c);
       const hyp = state.hypotheses.find((h) => h.id === stableId('hyp', state.id, p.caseId));
       const evIds = [...new Set((hyp?.basis ?? []).map((b) => b.evidenceId))].slice(0, 4);
       const cite = evIds.length ? ` Evidence: ${evIds.join(', ')}.` : '';
@@ -41,14 +41,15 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
       if (p.kind === 'missing') {
         if (settings.requesterObservableKeys.includes(p.detail)) continue;
         const cond = c.conditions.find((x) => x.key === p.detail);
-        const label = gap.targetCondition?.label ?? p.detail;
+        const label = plainLabel(gap.targetCondition?.label ?? p.detail, settings.hedgeMarkers);
         // Specific templates assume equality ("installed in {value}"); other operators use the generic wording over the case label.
-        const tpl = (!cond || cond.operator === 'eq' ? settings.questions.conditionTemplates[p.detail] : undefined) ?? 'For {asset}: is it true that {label}?';
-        text = fill(tpl, { asset: assetName, value: cond?.value === undefined ? '' : String(cond.value), label });
-        rationale = `${hyp ? `Hypothesis "${hyp.statement}" from "${c.title}" applies only if ${label}. ` : ''}${gap.whatAnswerChanges}${cite}`;
+        const tpl = (!cond || cond.operator === 'eq' ? settings.questions.conditionTemplates[p.detail] : undefined) ?? 'Is this true for {asset}: {label}?';
+        const value = cond?.value === undefined ? '' : String(cond.value);
+        text = fill(tpl, { asset: assetName, value, a_value: value ? withArticle(value) : '', label });
+        rationale = `${hyp ? `Hypothesis "${hyp.statement}" from ${caseLabel} applies only if ${label}. ` : ''}${gap.whatAnswerChanges}${cite}`;
         consequences = {
-          yes: `${label} holds for ${assetName}: the response from "${c.title}" becomes applicable.`,
-          no: `${label} does not hold for ${assetName}: the response from "${c.title}" becomes inapplicable and uncertainty is retained.`,
+          yes: `${label} holds for ${assetName}: the response from ${caseLabel} becomes applicable.`,
+          no: `${label} does not hold for ${assetName}: the response from ${caseLabel} becomes inapplicable and uncertainty is retained.`,
         };
         scope = { entityIds, caseId: c.id };
         dedup = normalizeKey(`missing:${p.detail}|${[...entityIds].sort().join(',')}`);
@@ -56,11 +57,11 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
         const attempt = store.get('attempt', p.detail);
         const action = attempt?.action ?? 'the action';
         const phrase = settings.questions.outcomePhrases[action] ?? 'the problem clear';
-        text = `Did ${phrase} right after the ${humanize(action)} in "${c.title}"?`;
+        text = `Did ${phrase} right after ${actionPhrase(action, settings.phrases).noun} on ${caseLabel}?`;
         rationale = `${gap.description} ${gap.whatAnswerChanges}${cite}`;
         consequences = {
-          yes: `Recovery after ${action} is reported by this person: the response becomes supported (single reported outcome).`,
-          no: `No recovery after ${action}: the hypothesis is contradicted and the recommendation retains uncertainty.`,
+          yes: `Recovery after ${actionPhrase(action, settings.phrases).noun} is reported by this person: the response becomes supported (single reported outcome).`,
+          no: `No recovery after ${actionPhrase(action, settings.phrases).noun}: the hypothesis is contradicted and the recommendation retains uncertainty.`,
         };
         scope = { entityIds: c.entityIds, caseId: c.id };
         dedup = normalizeKey(`outcome:${p.caseId}:${p.detail}`);

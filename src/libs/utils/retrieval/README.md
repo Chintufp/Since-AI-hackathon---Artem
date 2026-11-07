@@ -18,7 +18,7 @@ Candidate retrieval for a new problem: which historical cases/procedures might a
 `contracts`, `models/routes` (route labels). No other module.
 
 ## Configuration
-`RetrieverOptions`: `vector` (default true), `rrfK`, `weights`, `minRelative`, `ignoredKeys` (identity keys such as `site.id`), `historyKeys` (multi-valued keys such as `action.performed`, which can only match).
+`RetrieverOptions`: `ageFold` (fold a stated year into an age class; `foldYearToAge`, `isSoftCondition` exported), `vector` (default true), `rrfK`, `weights`, `minRelative`, `ignoredKeys` (identity keys such as `site.id`), `historyKeys` (multi-valued keys such as `action.performed`, which can only match).
 
 ## Checks run
 `node --test 'src/libs/utils/retrieval/**/*.test.ts'`: 9 tests passing (tokenizer, BM25, trigram vectors, exact-id, all three retrievers and route labels, access filtering, RRF, condition comparison, negative answers).

@@ -56,6 +56,7 @@ export interface ResultView {
   people: PersonView[];
   question?: QuestionView;
   loop: string;
+  loopReason?: string;
   routes: Array<{ route: string; version: string }>;
   caseView?: CaseView;
 }

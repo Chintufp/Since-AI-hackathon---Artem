@@ -98,6 +98,8 @@ export interface InvestigationState {
   decisionIds: string[];
   /** Status of the question loop. */
   loop: 'no-question-needed' | 'question-open' | 'deferred' | 'answered' | 'exhausted';
+  /** Short human reason for 'deferred' / 'exhausted' / 'no-question-needed' (shown in the UI). */
+  loopReason?: string;
   events: TraceEvent[];
   /** Explicit list of routes used, so simulated/replayed stages are visible. */
   routes: RouteInfo[];

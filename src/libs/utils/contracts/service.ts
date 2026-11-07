@@ -21,6 +21,14 @@ export interface Principal {
   type: 'human' | 'agent';
 }
 
+export interface DirectoryEntry {
+  personEntityId: string;
+  name: string;
+  role?: string;
+  groups: string[];
+  available: boolean;
+}
+
 export interface ImportRequest {
   /** 'teams-json' | 'email-text' | 'slack-export' | 'scenario-dir' */
   format: 'teams-json' | 'email-text' | 'slack-export' | 'scenario-dir';
@@ -100,6 +108,8 @@ export interface ApiRoutes {
   'POST /outcomes': { req: OutcomeRequest; res: OutcomeReport };
   'GET /people': { query: { investigationId: string; principalId: string }; res: PersonView[] };
   'POST /contact-draft': { req: ContactDraftRequest; res: ContactDraft };
+  /** Visible organization directory (ids, names, roles, groups, availability); never knowledge or answers. */
+  'GET /directory': { res: DirectoryEntry[] };
   'GET /settings': { res: UserSettings };
   'PUT /settings': { req: Partial<UserSettings>; res: UserSettings };
   'GET /participation/:personEntityId': { res: ParticipationBalance };

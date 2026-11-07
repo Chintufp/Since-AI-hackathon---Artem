@@ -16,6 +16,8 @@ import { applyMembershipGrants } from './membership.ts';
 export { openStore } from './sqlite-store.ts';
 export type { SqliteKnowledgeStore, StoreOptions } from './sqlite-store.ts';
 export { buildCaseView } from './case-view.ts';
+export { caseCard, defaultCaseCardConfig } from './case-card.ts';
+export type { CaseCardConfig } from './case-card.ts';
 export { caseLabel } from './case-label.ts';
 export { defaultViewConfig, humanAction, pastAction } from './view-config.ts';
 export type { ViewConfig } from './view-config.ts';

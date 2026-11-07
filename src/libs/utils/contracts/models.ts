@@ -119,6 +119,11 @@ export interface Selector {
   select(context: SelectorContext): PolicyDecision;
   /** Batch update from logged records; absent for pure rules. */
   update?(records: EvaluationRecord[]): void;
+  /**
+   * The benefit of a record already learned from was re-measured (an outcome landed): apply only the change from
+   * `previousValue`, without counting the decision a second time. Absent: the selector does not learn the correction.
+   */
+  correct?(record: EvaluationRecord, previousValue: number): void;
   /** Serialize learned parameters (versioned JSON artifact). */
   toArtifact?(): Record<string, unknown>;
 }

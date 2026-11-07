@@ -203,3 +203,5 @@ export function storeHealth(store: KnowledgeStore, principal: { id: string; grou
 
 /** completeness x correctness, the quantity the reward is the change of (correctness null counts as 0 here). */
 export const healthProduct = (h: StoreHealth): number => round(h.completeness * (h.correctness ?? 0));
+/** completeness x correctness, or null when it cannot be measured (no case, or no case claim so correctness is null). */
+export const healthProductOrNull = (h: StoreHealth): number | null => (h.cases.length === 0 || h.correctness === null ? null : round(h.completeness * h.correctness));

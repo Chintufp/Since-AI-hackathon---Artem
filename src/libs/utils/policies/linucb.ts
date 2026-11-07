@@ -76,6 +76,14 @@ export class LinUcb implements Selector {
     }
   }
 
+  /** Re-measured benefit of a decision already observed: b moves by the reward difference; A (the exposure) does not. */
+  correct(record: EvaluationRecord, previousValue: number): void {
+    if (record.action === 'defer' || record.assessedBenefit === null) return;
+    const x = vectorize(record.stateFeatures);
+    const d = record.assessedBenefit.value - previousValue;
+    for (let i = 0; i < FEATURE_DIM; i++) this.b[i] = (this.b[i] as number) + d * (x[i] as number);
+  }
+
   select(ctx: SelectorContext): PolicyDecision {
     const info = { id: this.id, version: this.version, route: this.route };
     const at = this.clock();

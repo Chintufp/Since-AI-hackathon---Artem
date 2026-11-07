@@ -1,6 +1,6 @@
 {
   "manifestId": "e10-store-metric",
-  "finishedAt": "2026-11-07T16:41:46.303Z",
+  "finishedAt": "2026-11-07T17:09:25.958Z",
   "variants": [
     {
       "variantId": "rules@store-metric",
@@ -61,8 +61,8 @@
         },
         "reward.mean": {
           "min": -0.0292,
-          "max": 0,
-          "runs": 3
+          "max": -0.01,
+          "runs": 2
         }
       }
     },

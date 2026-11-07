@@ -104,7 +104,7 @@
     "investigations": 24,
     "questionsPerPoint": null,
     "rewards": 0,
-    "meanReward": 0,
+    "meanReward": null,
     "sumDeltaPoints": 0,
     "positiveDeltas": 0,
     "touchedCasesWithNoSupportedClaim": 0,

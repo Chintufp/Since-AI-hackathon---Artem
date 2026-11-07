@@ -150,3 +150,43 @@ test('reward: for an outcome question the same record is measured again when the
     e.close();
   }
 });
+
+test('reward: an unmeasurable store metric (no case, no case claim) gives no reward; the benefit stays null and the selector learns nothing', async () => {
+  const seen: EvaluationRecord[] = [];
+  const rules = new RulesSelector({ clock: () => NOW });
+  const spy: Selector = { id: 'spy', version: '1', route: 'rules', select: (c) => rules.select(c), update: (records) => { seen.push(...records); } };
+  const h = makeHarness(buildSyntheticStore(), { selector: spy });
+  assert.equal(h.coordinator.measure([]), null);
+  assert.equal(h.coordinator.measure(['case:none']), null);
+  const st = await h.start('p_reward_null', `Asset-B2: ${SYMPTOM_TEXT}`);
+  const req = await h.coordinator.request(st);
+  assert.ok(req.question);
+  h.coordinator.measure = () => null;
+  const person = h.store.get('entity', req.question.personEntityId)!;
+  const a = await h.coordinator.answer(req.question.id, 'no', { id: person.id, displayName: person.name, groups: ['noc', 'field'], type: 'human' });
+  assert.equal(a.question.reward, undefined);
+  assert.equal((h.store.get('evaluation', req.question.decisionId) as EvaluationRecord).assessedBenefit, null);
+  assert.equal(seen.length, 0);
+});
+
+test('live LinUCB: an outcome re-measurement corrects b without observing the decision a second time', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'kt-linucb-'));
+  const path = join(dir, 'linucb-live.json');
+  const e = engine({ linucbStatePath: path });
+  try {
+    e.putSettings({ selectorId: 'linucb' });
+    const { q, a } = await askAndAnswer(e, 'yes');
+    const s1 = JSON.parse(readFileSync(path, 'utf8')).parameters;
+    assert.equal(s1.updates, 1);
+    await e.recordOutcome({ principal: REQ, investigationId: q.candidate.investigationId, caseId: q.candidate.scope.caseId!, result: 'recovered', lasting: 'confirmed' });
+    const again = e.store.get('question', q.id)!.reward!;
+    assert.notEqual(again.value, a.question.reward!.value);
+    const s2 = JSON.parse(readFileSync(path, 'utf8')).parameters;
+    assert.equal(s2.updates, 1, 'one decision, one observation');
+    assert.deepEqual(s2.aInv, s1.aInv, 'the exposure is not counted twice');
+    assert.notDeepEqual(s2.b, s1.b, 'the reward difference moves b');
+  } finally {
+    e.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

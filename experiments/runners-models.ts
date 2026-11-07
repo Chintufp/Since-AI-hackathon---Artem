@@ -562,6 +562,8 @@ export async function runE10Arm(selector: 'rules' | 'linucb', seed: number, hour
 
 const mean = (xs: number[]): number => (xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : 0);
 const r4 = (x: number): number => Math.round(x * 10_000) / 10_000;
+/** Mean of measured rewards: null when none was measured (never a 0 for "nothing to average"). */
+const meanOrNull = (xs: number[]): number | null => (xs.length ? r4(mean(xs)) : null);
 
 export async function runE10(seeds = [1, 2, 3]): Promise<void> {
   const selectors: Array<'rules' | 'linucb'> = ['rules', 'linucb'];
@@ -594,7 +596,7 @@ export async function runE10(seeds = [1, 2, 3]): Promise<void> {
   for (const seed of seeds) for (const s of selectors) {
     arms.push(await runE10Arm(s, seed));
     const a = arms.at(-1)!;
-    console.log(`  seed ${seed} ${s.padEnd(6)} asked ${a.summary.questionsAsked} answered ${a.summary.answered}; product (same cases) ${r4(product(a.before))} -> ${r4(product(a.afterSameCases))}; mean reward ${r4(mean(a.rewards))}`);
+    console.log(`  seed ${seed} ${s.padEnd(6)} asked ${a.summary.questionsAsked} answered ${a.summary.answered}; product (same cases) ${r4(product(a.before))} -> ${r4(product(a.afterSameCases))}; mean reward ${meanOrNull(a.rewards) ?? 'none measured'}`);
   }
   const variants: VariantResult[] = [];
   const perSeed: Array<Record<string, unknown>> = [];
@@ -610,7 +612,7 @@ export async function runE10(seeds = [1, 2, 3]): Promise<void> {
         caseClaimsBefore: a.before.denominators.caseClaims, supportedBefore: a.before.denominators.supportedClaims, caseClaimsAfterSameCases: a.afterSameCases.denominators.caseClaims, supportedAfterSameCases: a.afterSameCases.denominators.supportedClaims,
         productBefore: r4(product(a.before)), productAfterSameCases: r4(product(a.afterSameCases)), gainPoints: r4(100 * gain),
         asked: a.summary.questionsAsked, answered: a.summary.answered, deferred: a.summary.deferred, dismissed: a.summary.dismissed, unanswered: a.summary.unanswered, investigations: a.summary.investigations,
-        questionsPerPoint: gain > 0 ? r4(a.summary.questionsAsked / (100 * gain)) : null, rewards: a.rewards.length, meanReward: r4(mean(a.rewards)), sumDeltaPoints: r4(100 * a.deltas.reduce((x, y) => x + y, 0)), positiveDeltas: a.deltas.filter((d) => d > 0).length, touchedCasesWithNoSupportedClaim: a.zeroCorrectnessTouches,
+        questionsPerPoint: gain > 0 ? r4(a.summary.questionsAsked / (100 * gain)) : null, rewards: a.rewards.length, meanReward: meanOrNull(a.rewards), sumDeltaPoints: r4(100 * a.deltas.reduce((x, y) => x + y, 0)), positiveDeltas: a.deltas.filter((d) => d > 0).length, touchedCasesWithNoSupportedClaim: a.zeroCorrectnessTouches,
         productAfterAll: r4(product(a.after)), selectorUpdates: a.selectorUpdates, errors: a.summary.errors,
         singletonsBefore: a.before.singletons, singletonsAfterSameCases: a.afterSameCases.singletons, thinPairsBefore: a.before.thinPairs, thinPairsAfterSameCases: a.afterSameCases.thinPairs,
       });
@@ -635,13 +637,13 @@ export async function runE10(seeds = [1, 2, 3]): Promise<void> {
         'store.completeness.before': r4(mean(mine.map((a) => a.before.completenessUnweighted))), 'store.completeness.after.sameCases': r4(mean(mine.map((a) => a.afterSameCases.completenessUnweighted))),
         'store.correctness.before': r4(mean(mine.map((a) => a.before.correctness ?? 0))), 'store.correctness.after.sameCases': r4(mean(mine.map((a) => a.afterSameCases.correctness ?? 0))),
         'store.product.gainPoints.mean': r4(100 * meanGain), 'questions.perPointGained': meanGain > 0 ? r4(mean(mine.map((a) => a.summary.questionsAsked)) / (100 * meanGain)) : null,
-        'reward.mean': r4(mean(rewards)),
+        'reward.mean': meanOrNull(rewards),
         'reward.deltaPoints.sum': r4(100 * mine.reduce((n, a) => n + a.deltas.reduce((x, y) => x + y, 0), 0)),
         'reward.deltas.positive': mine.reduce((n, a) => n + a.deltas.filter((d) => d > 0).length, 0),
         'questions.perMeasuredPoint': (() => { const pts = 100 * mine.reduce((n, a) => n + a.deltas.reduce((x, y) => x + y, 0), 0); return pts > 0 ? r4(asked / pts) : null; })(),
       },
       failures: [], failureSlicesByTag: {},
-      repeatVariation: { 'store.product.gainPoints': span(gains.map((g) => 100 * g)), 'questions.asked': span(mine.map((a) => a.summary.questionsAsked)), 'reward.mean': span(mine.map((a) => mean(a.rewards))) },
+      repeatVariation: { 'store.product.gainPoints': span(gains.map((g) => 100 * g)), 'questions.asked': span(mine.map((a) => a.summary.questionsAsked)), 'reward.mean': span(mine.filter((a) => a.rewards.length).map((a) => mean(a.rewards))) },
     });
   }
   const wins = seeds.filter((sd) => {

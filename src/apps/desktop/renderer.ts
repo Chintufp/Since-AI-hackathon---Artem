@@ -46,7 +46,7 @@ if (shots) document.body.classList.add('shots');
 // Dev mock (?mock=1): the real ApiClient over an in-renderer fake fetch. `failing` lets the screenshot
 // harness show the unreachable-service state.
 let failing = false;
-const mockFetch = createMockFetch();
+const mockFetch = createMockFetch({ demo: flags.demo }); // B6: the demo chips' two people in the mock directory
 const api = mock
   ? createApiClient({ baseUrl: MOCK_BASE_URL, kind: 'mock', fetch: (u, i) => (failing ? Promise.reject(new TypeError('mock: service unreachable')) : mockFetch(u, i)) })
   : createApiClient({ baseUrl: window.kt?.serviceUrl ?? 'http://127.0.0.1:47831' });

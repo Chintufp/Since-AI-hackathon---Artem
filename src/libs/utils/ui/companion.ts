@@ -33,6 +33,11 @@ export const COMPANION = {
   LEAVE_AFTER_LAUNCH_MS: 4000,
   /** R33: he leaves after this long without interaction (pointer out of his zone, no drag, panel closed); closing the panel starts it. */
   LEAVE_AFTER_IDLE_MS: 20000,
+  /**
+   * B6 (demo flag only, KT_DEMO=1 from `pnpm demo:judge`): he starts in and stays in until this long has passed without
+   * pointer or keyboard activity, so a judge who sits down sees him; it replaces both leave delays above in demo mode.
+   */
+  DEMO_LEAVE_AFTER_IDLE_MS: 120000,
   /** R33: a peek that the pointer abandons goes back to the sliver after this long. */
   PEEK_RETREAT_MS: 1500,
   /** R33: pointer dwell in the zone that turns a peek into a return. */
@@ -193,7 +198,24 @@ export interface CompanionFlags {
   away: boolean;
   gaze: boolean;
   fidgets: boolean;
+  /** B6: demo mode (desktop KT_DEMO); see COMPANION.DEMO_LEAVE_AFTER_IDLE_MS. Absent = off. */
+  demo?: boolean;
   windowMode?: string;
+}
+
+/** B6: the two leave delays for a flag set: the product's 4 s / 20 s, or 120 s for both in demo mode. */
+export function leaveDelays(flags: Pick<CompanionFlags, 'demo'>): { launchMs: number; idleMs: number } {
+  return flags.demo === true
+    ? { launchMs: COMPANION.DEMO_LEAVE_AFTER_IDLE_MS, idleMs: COMPANION.DEMO_LEAVE_AFTER_IDLE_MS }
+    : { launchMs: COMPANION.LEAVE_AFTER_LAUNCH_MS, idleMs: COMPANION.LEAVE_AFTER_IDLE_MS };
+}
+
+/**
+ * B6: when the idle timer fires, how long is still left since the last pointer or keyboard activity (0 = leave now).
+ * Activity only counts in demo mode; without it `lastActivityAt` stays -Infinity and the timer leaves when it fires.
+ */
+export function idleLeftMs(lastActivityAt: number, now: number, idleMs: number): number {
+  return Math.max(0, lastActivityAt + idleMs - now);
 }
 
 export interface CompanionClock {
@@ -293,6 +315,8 @@ export interface Companion {
   arrive(id: string, kind: 'arrival' | 'reminder'): boolean;
   setFidgets(on: boolean): void;
   fidgets(): boolean;
+  /** B6: keyboard (or other) activity; in demo mode it pushes the idle leave back. A no-op otherwise. */
+  activity(): void;
   status(): CompanionStatus;
   destroy(): void;
 }
@@ -316,6 +340,10 @@ export function createCompanion(deps: CompanionDeps): Companion {
   const raf = deps.raf ?? defaultRaf;
   const random = deps.random ?? Math.random;
   const awayOn = flags.away;
+  // B6: demo mode starts in for 120 s and counts any pointer or keyboard activity as interaction.
+  const demo = flags.demo === true;
+  const delays = leaveDelays(flags);
+  let activityAt = -Infinity;
 
   const saved = loadPlacement(deps.storage);
   let homeFromRight = saved.homeFromRight;
@@ -549,7 +577,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
 
   // ---- leave timer (R33: LEAVE_AFTER_IDLE_MS without interaction; launch uses its own delay) ----
   const canLeave = (): boolean => awayOn && st === 'in' && !panel.isOpen() && !gesture && !pointerNear;
-  function syncIdle(ms: number = COMPANION.LEAVE_AFTER_IDLE_MS, restart = false): void {
+  function syncIdle(ms: number = delays.idleMs, restart = false): void {
     if (!canLeave()) {
       clear('idle');
       return;
@@ -557,6 +585,11 @@ export function createCompanion(deps: CompanionDeps): Companion {
     if (timers.has('idle') && !restart) return;
     timer('idle', ms, () => {
       if (!canLeave()) return;
+      const left = idleLeftMs(activityAt, clock.now(), delays.idleMs);
+      if (left > 0) {
+        syncIdle(left, true);
+        return;
+      }
       if (panel.busy()) {
         syncIdle();
         return;
@@ -577,7 +610,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
       const to = clamp(bodyX + dir * d, GEOMETRY.CARD_MIN_X, W - GEOMETRY.CARD_RIGHT_INSET);
       if (Math.abs(to - bodyX) < 20) { avatar.play('peek'); return; }
       setState('returning');
-      roll(to, () => { avatar.run('hello', 0, 3); setState('in'); syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true); armFidget(); });
+      roll(to, () => { avatar.run('hello', 0, 3); setState('in'); syncIdle(delays.idleMs, true); armFidget(); });
       return;
     }
     avatar.play(r < 0.55 ? 'stretching' : r < 0.8 ? 'peek' : 'hop');
@@ -728,7 +761,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
         deps.onReturn?.();
       }
       if (options.open && !panel.isOpen()) panel.open();
-      syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
+      syncIdle(delays.idleMs, true);
     };
     travel(panel.isOpen() || options.open ? roomX(homeX(), W) : homeX(), COMPANION.RETURN_MOTION, finish);
   }
@@ -754,7 +787,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
   function launched(): void {
     if (st !== 'launching') return;
     setState('in');
-    if (canLeave()) syncIdle(COMPANION.LEAVE_AFTER_LAUNCH_MS, true);
+    if (canLeave()) syncIdle(delays.launchMs, true);
   }
 
   // ---- proximity and gaze ----
@@ -784,12 +817,13 @@ export function createCompanion(deps: CompanionDeps): Companion {
     if (destroyed) return;
     ptr = x === null ? null : { x, y };
     lastAlive = clock.now();
+    if (demo && x !== null) activityAt = lastAlive;
     if (gesture) return;
     const was = pointerNear;
     pointerNear = nearNow();
     switch (st) {
       case 'in':
-        if (pointerNear !== was) syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
+        if (pointerNear !== was) syncIdle(delays.idleMs, true);
         if (flags.gaze && (pointerNear || was || gazeShown !== 0)) applyGaze();
         break;
       case 'away':
@@ -906,7 +940,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
         panel.toggle();
         // make-room plays the hop while it slides; otherwise the tap continues from frame 2.
         if (animKind !== 'room') tap();
-        syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
+        syncIdle(delays.idleMs, true);
       }
     }
   }
@@ -944,7 +978,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
       pointerNear = nearNow();
       setState('in');
       if (panel.isOpen()) makeRoom();
-      syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
+      syncIdle(delays.idleMs, true);
     };
     const signature = (): string => {
       const a = avatar.status();
@@ -1022,7 +1056,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
       st = 'in';
       pointerNear = nearNow();
       tap();
-      syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
+      syncIdle(delays.idleMs, true);
     }
     emitState();
     return true;
@@ -1044,7 +1078,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
         setState('returning');
         travel(to, COMPANION.RETURN_MOTION, () => {
           setState('in');
-          syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
+          syncIdle(delays.idleMs, true);
         });
         if (refresh) deps.onReturn?.();
         return true;
@@ -1074,11 +1108,11 @@ export function createCompanion(deps: CompanionDeps): Companion {
           // run() keeps a processing base, unlike rest()).
           avatar.run('hello');
           setState('in');
-          syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
+          syncIdle(delays.idleMs, true);
         });
         return;
       }
-      syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
+      syncIdle(delays.idleMs, true);
       armFidget();
       // R45: a small move after the panel closes, when the pointer has moved away.
       if (fidgetsOn) timer('afterclose', COMPANION.AFTER_CLOSE_MOVE_MS, () => idleMove(false));
@@ -1216,6 +1250,9 @@ export function createCompanion(deps: CompanionDeps): Companion {
       armFidget();
     },
     fidgets: () => fidgetsOn,
+    activity() {
+      if (demo && !destroyed) activityAt = clock.now();
+    },
     status: () => ({
       state: st,
       bodyX,
@@ -1322,6 +1359,8 @@ export function attachCompanion(c: Companion, { root, avatarButton, win }: Compa
     if (typeof event === 'string' && POWER.has(event)) c.power(event as CompanionPower);
   };
   const onArea = (): void => c.area();
+  // B6: a key press is activity too (demo mode pushes the idle leave back; otherwise a no-op).
+  const onKey = (): void => c.activity();
 
   avatarButton.addEventListener('pointerdown', onDown);
   avatarButton.addEventListener('pointermove', onMove);
@@ -1340,6 +1379,7 @@ export function attachCompanion(c: Companion, { root, avatarButton, win }: Compa
   win.addEventListener('focus', onResume);
   win.addEventListener('pageshow', onResume);
   doc.addEventListener('visibilitychange', onVisibility);
+  doc.addEventListener('keydown', onKey, { passive: true });
   return () => {
     if (suppressTimer) clearTimeout(suppressTimer);
     avatarButton.removeEventListener('pointerdown', onDown);
@@ -1359,5 +1399,6 @@ export function attachCompanion(c: Companion, { root, avatarButton, win }: Compa
     win.removeEventListener('focus', onResume);
     win.removeEventListener('pageshow', onResume);
     doc.removeEventListener('visibilitychange', onVisibility);
+    doc.removeEventListener('keydown', onKey);
   };
 }

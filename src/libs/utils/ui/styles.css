@@ -29,6 +29,15 @@
 #kt-panel .rf-count { position:absolute; top:0; right:0; font-size:11px; color:#65696e; background:#fff; padding:1px; line-height:1; }
 #kt-panel .rf-divider { width:1px; height:12px; background:#edeeef; margin:0 5px; }
 #kt-panel .rf-spacer { flex:1; }
+/* B6 (demo flag only): "Be Veikko / Be Erkki" chips as a first row of the footer; without the flag the footer is unchanged. */
+#kt-panel .rf-footer[data-demo="true"] { flex-wrap:wrap; height:auto; min-height:48px; padding-top:8px; padding-bottom:8px; row-gap:4px; }
+#kt-panel .rf-surface[data-demo="true"] { grid-template-rows:minmax(0,1fr) auto; }
+#kt-panel .rf-demo-chips { flex-basis:100%; display:flex; align-items:center; gap:6px; }
+#kt-panel .rf-demo-chips[hidden] { display:none; }
+#kt-panel .rf-demo-tag { font-size:11px; color:#838990; letter-spacing:.025em; margin-right:2px; }
+#kt-panel .rf-demo-chip { border:1px solid #e3e4e5; background:#fff; border-radius:999px; padding:3px 9px; font-size:11px; line-height:1.3; color:#59636b; white-space:nowrap; }
+#kt-panel .rf-demo-chip:hover { color:#303438; background:#f4f4f4; }
+#kt-panel .rf-demo-chip[aria-pressed="true"] { background:#303336; border-color:#303336; color:#fff; }
 #kt-panel .rf-send { width:30px; height:30px; border:0; border-radius:8px; background:#303336; color:#fff; display:grid; place-items:center; padding:6px; }
 #kt-panel .rf-send:disabled { background:#eeeff0; color:#bbbfc2; }
 #kt-panel .rf-send:not(:disabled):hover { background:#17191b; }

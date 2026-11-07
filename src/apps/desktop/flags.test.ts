@@ -258,3 +258,17 @@ test('B3: the context page link: valid entity names only, only the configured lo
   assert.equal(contextPageUrl('file:///etc', 'TRN-042'), undefined);
   assert.equal(contextPageUrl('not a url', 'TRN-042'), undefined);
 });
+
+test('flags (B6): demo is off by default and in the column; KT_DEMO=1 turns it on; demo:judge sets it', async () => {
+  assert.equal(DEFAULT_FLAGS.demo, false);
+  assert.equal(COLUMN_FLAGS.demo, false);
+  assert.equal(flagsFromEnv({}).demo, false);
+  assert.equal(flagsFromEnv({ KT_DEMO: '1' }).demo, true);
+  assert.equal(flagsFromEnv({ KT_WINDOW_MODE: 'column', KT_DEMO: '1' }).demo, true, 'the chips work in the column too (no away there)');
+  const f = flagsFromEnv({ KT_DEMO: '1' });
+  assert.equal(flagsToQuery(f).demo, '1');
+  assert.deepEqual(parseFlags(new URLSearchParams(flagsToQuery(f))), f);
+  const { readFileSync } = await import('node:fs');
+  const script = readFileSync(new URL('../../../scripts/demo-judge.mjs', import.meta.url), 'utf8');
+  assert.match(script, /KT_DEMO: process\.env\.KT_DEMO \?\? '1'/, 'the judge command is the one switch (KT_DEMO=0 opts out)');
+});

@@ -1,4 +1,10 @@
 /**
+ * B6: the label the simulated day carries on the second screen, always visible (a sticky banner with the simulated
+ * clock). It appears on this page only: the companion panel shows real-time state and never this label or that clock.
+ */
+export const SIMULATED_DAY_LABEL = 'Simulated day';
+
+/**
  * Standalone page for a browser tab next to the companion. Same type scale and palette as the panel (Inter, #252729
  * text, white 16 px cards); plain HTML, no framework, polls the JSON route every two seconds.
  */
@@ -35,11 +41,16 @@ export function activityPage(): string {
   .cost-title { font-size: 11px; color: #838990; letter-spacing: .025em; margin: 0 0 4px; }
   .cost-line { font-size: 14px; line-height: 1.45; letter-spacing: -.01em; margin: 0; font-variant-numeric: tabular-nums; }
   .cost-store { font-size: 12px; color: #676e74; line-height: 1.45; margin: 4px 0 0; font-variant-numeric: tabular-nums; }
+  .sim { position: sticky; top: 0; z-index: 1; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; background: #303336; color: #fff; border-radius: 0 0 12px 12px; padding: 9px 16px; margin: 0 0 14px; font-size: 13px; letter-spacing: -.01em; }
+  .sim b { font-weight: 600; }
+  .sim .sim-clock { font-variant-numeric: tabular-nums; }
+  .sim .sim-note { font-size: 11px; color: #c9cdd1; letter-spacing: .025em; }
   @media (max-width: 480px) { main { padding: 16px 16px 40px; } .row { grid-template-columns: 44px 1fr; gap: 8px; } }
 </style>
 </head>
 <body>
 <main>
+  <div class="sim" id="sim" role="note" aria-label="${SIMULATED_DAY_LABEL}: not real people, not real time"><b>${SIMULATED_DAY_LABEL}</b><span class="sim-clock" id="sim-clock">clock not read yet</span><span class="sim-note">not real people, not real time · the companion shows real time only</span></div>
   <header>
     <h1>Simulated activity<span class="badge">simulated · local · no model calls</span></h1>
     <div class="meta" id="meta">waiting for the stream…</div>
@@ -52,7 +63,7 @@ export function activityPage(): string {
 </main>
 <script>
 (function () {
-  var rowsEl = document.getElementById('rows'), metaEl = document.getElementById('meta');
+  var rowsEl = document.getElementById('rows'), metaEl = document.getElementById('meta'), simClockEl = document.getElementById('sim-clock');
   var seen = 0, started = false;
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
   function hhmm(iso) { var d = new Date(iso); if (isNaN(d)) return ''; return d.toTimeString().slice(0, 5); }
@@ -82,6 +93,7 @@ export function activityPage(): string {
       if (a.rows.length) { render(a.rows); seen = a.rows[a.rows.length - 1].seq; }
       fetch('/demo/clock', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (c) {
         metaEl.textContent = (c.mode === 'simulated' ? 'simulated clock ' : 'real clock ') + hhmm(c.now) + ' · ' + a.total + ' rows' + (a.present ? '' : ' · log not found');
+        simClockEl.textContent = c.mode === 'simulated' ? 'simulated ' + hhmm(c.now) + (c.rate ? ' · ' + Math.round(c.rate) + '× speed' : '') : 'not running · real clock ' + hhmm(c.now);
       }).catch(function () {});
     }).catch(function () { metaEl.textContent = 'service not reachable'; });
   }

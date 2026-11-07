@@ -23,6 +23,7 @@ import type { ApiClient } from './api-client.ts';
 import { hydrateIcons, iconSvg } from './icons.ts';
 import { createPanelMotion } from './panel-motion.ts';
 import { costRow, setProvenance } from './b3-rows.ts';
+import { demoChips } from './demo-chips.ts';
 import type { PanelMotion, PanelMotionStatus } from './panel-motion.ts';
 import { attachCompanion, createCompanion } from './companion.ts';
 import type { Companion, CompanionCommand, CompanionFlags, CompanionPower, CompanionStatus } from './companion.ts';
@@ -85,6 +86,11 @@ export interface PanelOptions {
    * (set by the desktop renderer). null, `companion: false` or `windowMode: 'column'` = the R28 panel.
    */
   companion?: CompanionFlags | null;
+  /**
+   * B6: demo mode (desktop KT_DEMO, set by `pnpm demo:judge`): the "Be Veikko / Be Erkki" chips in the footer.
+   * Default: `window.__ktFlags.demo`; absent = off, and the footer is the normal one.
+   */
+  demo?: boolean;
 }
 
 /** desktop (R31..R36): harness / test surface of the companion (also `panel.status().companion`). */
@@ -708,6 +714,47 @@ export function createPanel(options: PanelOptions): Panel {
   }
   async function loadDirectory(): Promise<void> {
     try { directory = await api.directory(); } catch { /* older service or offline: guest only */ }
+    renderDemoChips();
+  }
+  /** Act as another directory person: Settings -> You and the B6 demo chips share this path. */
+  async function switchPerson(id: string): Promise<void> {
+    await saveSetting({ currentPersonEntityId: id });
+    cache.clear(); state.active = null; state.expanded = false; state.openNodes.question = null;
+    pointsOptIn = null; pointsRating = null;
+    await refreshQuestions();
+  }
+  // ---- B6 (demo flag only): "Be Veikko / Be Erkki" chips in the footer ----
+  const demoMode = options.demo !== undefined ? options.demo : globalFlags()?.demo === true;
+  const demoChipsEl: HTMLElement | null = demoMode ? el('span', 'rf-demo-chips') : null;
+  if (demoChipsEl) {
+    demoChipsEl.setAttribute('role', 'group');
+    demoChipsEl.setAttribute('aria-label', 'Demo: act as');
+    demoChipsEl.hidden = true;
+    footer.dataset.demo = 'true';
+    surface.dataset.demo = 'true'; // the surface grid's footer row grows by the chip row
+    footer.prepend(demoChipsEl);
+    demoChipsEl.addEventListener('click', (e) => {
+      const b = (e.target as Element).closest<HTMLButtonElement>('button[data-person]');
+      if (!b || b.getAttribute('aria-pressed') === 'true') return;
+      void switchPerson(b.dataset.person!);
+    });
+  }
+  function renderDemoChips(): void {
+    if (!demoChipsEl) return;
+    const chips = demoChips(directory, settings?.currentPersonEntityId);
+    demoChipsEl.replaceChildren(el('span', 'rf-demo-tag', 'Demo'), ...chips.map((c) => {
+      const b = el('button', 'rf-demo-chip', c.label);
+      b.type = 'button';
+      b.dataset.person = c.personEntityId;
+      b.dataset.persona = c.key;
+      b.title = `Act as ${c.name} (${c.part === 'field' ? 'asks' : 'answers'}); same as Settings -> You`;
+      b.setAttribute('aria-pressed', String(c.active));
+      return b;
+    }));
+    const wasHidden = demoChipsEl.hidden;
+    demoChipsEl.hidden = !chips.length;
+    // The footer grew or shrank by the chip row: re-fit the card as a resize does.
+    if (wasHidden !== demoChipsEl.hidden) { motion.view(false); motion.settle(); }
   }
   // ---- points (desktop, R46): opt-in toggle, balance, rank, recent events, participants ----
   const POINTS_NOTE = 'Points count what you contribute, never whether an answer was right. Opting out hides your points; nothing is deleted.';
@@ -1024,6 +1071,7 @@ export function createPanel(options: PanelOptions): Panel {
     state.reducedSetting = !!s.reducedMotion;
     syncMotion();
     if (state.view === 'settings') renderSettings();
+    renderDemoChips();
   }
   async function saveSetting(patch: Omit<Partial<UserSettings>, 'models'> & { models?: Partial<ModelSlots> }): Promise<void> {
     try { applySettings(await api.putSettings(patch)); } catch (e) { showError(e, () => void saveSetting(patch)); }
@@ -1541,12 +1589,7 @@ export function createPanel(options: PanelOptions): Panel {
   $<HTMLSelectElement>('.rf-you').addEventListener('change', (e) => {
     const id = (e.target as HTMLSelectElement).value;
     if (!id) return;
-    void (async () => {
-      await saveSetting({ currentPersonEntityId: id });
-      cache.clear(); state.active = null; state.expanded = false; state.openNodes.question = null;
-      pointsOptIn = null; pointsRating = null;
-      await refreshQuestions();
-    })();
+    void switchPerson(id);
   });
   $<HTMLInputElement>('.rf-points').addEventListener('change', (e) => void saveSetting({ points: (e.target as HTMLInputElement).checked }));
   $<HTMLInputElement>('.rf-optin').addEventListener('change', (e) => void setOptIn((e.target as HTMLInputElement).checked));

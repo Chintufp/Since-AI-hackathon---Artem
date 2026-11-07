@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMockApi, createMockFetch, MOCK_BASE_URL, mockPrincipal } from './mock-api.ts';
+import { createMockApi, createMockFetch, MOCK_BASE_URL, MOCK_ERKKI, MOCK_VEIKKO, mockPrincipal } from './mock-api.ts';
+import { demoChips } from './demo-chips.ts';
 import { createApiClient } from './api-client.ts';
 import type { TimelineKind } from '../contracts/views.ts';
 
@@ -218,4 +219,44 @@ test('B4: the mock serves POST /import for "Remember this": a pasted thread is c
   for (const bad of [{ payload: 'x'.repeat(1_000_001) }, { payload: 42 }, { payload: { notText: 1 } }, { path: '/etc/hosts', payload: 'hi' }]) {
     await assert.rejects(api.call('POST /import', { body: { format: 'paste', ...bad } }), (e: { status?: number }) => e.status === 400);
   }
+});
+
+test('B6 demo chips over the mock: the chip person drives /investigate and /questions (ask as Veikko, answer as Erkki)', async () => {
+  const plain = createMockApi();
+  assert.deepEqual(demoChips(await plain.directory()), [], 'without demo mode the mock directory has no chip people (normal footer)');
+
+  const api = createMockApi({ demo: true });
+  const directory = await api.directory();
+  const chips = demoChips(directory, (await api.getSettings()).currentPersonEntityId);
+  assert.deepEqual(chips.map((c) => [c.label, c.personEntityId, c.active]), [['Be Veikko', MOCK_VEIKKO, false], ['Be Erkki', MOCK_ERKKI, false]]);
+  const asPrincipal = (id: string) => {
+    const d = directory.find((x) => x.personEntityId === id)!;
+    return { id, displayName: d.name, groups: [...d.groups], type: 'human' as const };
+  };
+
+  // Be Veikko: the chip writes Settings -> You, then the principal of /investigate is Veikko.
+  let s = await api.putSettings({ currentPersonEntityId: chips[0]!.personEntityId });
+  assert.equal(s.currentPersonEntityId, MOCK_VEIKKO);
+  assert.deepEqual(demoChips(directory, s.currentPersonEntityId).map((c) => c.active), [true, false]);
+  const res = await api.investigate({ text: 'LP-3 prints blank labels after a ribbon swap', principal: asPrincipal(s.currentPersonEntityId!), attachmentNames: [], allowQuestions: true });
+  assert.equal(res.state.problem.requester.id, MOCK_VEIKKO);
+  assert.equal(res.question?.status, 'delivered');
+  assert.equal((await api.questions({ personEntityId: MOCK_VEIKKO })).length, 0, 'the requester is not asked');
+  await assert.rejects(api.answer(res.question!.questionId, { principal: asPrincipal(MOCK_VEIKKO), value: 'yes' }), /not the recipient/);
+
+  // Be Erkki: his /questions list shows the one question, and he answers it as himself.
+  s = await api.putSettings({ currentPersonEntityId: chips[1]!.personEntityId });
+  assert.deepEqual(demoChips(directory, s.currentPersonEntityId).map((c) => c.active), [false, true]);
+  const mine = await api.questions({ personEntityId: s.currentPersonEntityId });
+  assert.deepEqual(mine.map((q) => q.questionId), [res.question!.questionId]);
+  assert.equal(mine[0]!.text, 'Was this the older printhead revision?');
+  const answered = await api.answer(mine[0]!.questionId, { principal: asPrincipal(MOCK_ERKKI), value: 'yes' });
+  assert.equal(answered.answer.personEntityId, MOCK_ERKKI);
+  assert.equal(answered.receipt.pointsAwarded, undefined, 'points stay the dev user\'s own');
+  assert.equal((await api.questions({ personEntityId: MOCK_ERKKI })).length, 0);
+
+  // An investigation by anyone else (or one that may not ask) opens nothing for Erkki.
+  await api.investigate({ text: 'again', principal: asPrincipal(MOCK_VEIKKO), attachmentNames: [], allowQuestions: false });
+  await api.investigate({ text: 'again', principal: mockPrincipal(), attachmentNames: [], allowQuestions: true });
+  assert.equal((await api.questions({ personEntityId: MOCK_ERKKI })).length, 0);
 });

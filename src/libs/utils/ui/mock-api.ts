@@ -46,6 +46,17 @@ const PEOPLE: PersonView[] = [
   { personEntityId: 'person:mock:tomas', name: 'Tomas Reyes', role: 'Maintenance planner', askable: false, reasons: [{ text: 'Mentioned in a forwarded summary; not a firsthand participant.', caseId: CASE.caseId, firsthand: false, evidence: [] }] },
 ];
 
+/**
+ * B6 (demo flag only): the two people of the "Be Veikko / Be Erkki" chips, so the mock shows the ask-as-one,
+ * answer-as-the-other loop: an investigation by Veikko that may ask opens the revision question for Erkki.
+ */
+export const MOCK_VEIKKO = 'person:mock:veikko';
+export const MOCK_ERKKI = 'person:mock:erkki';
+const DEMO_DIRECTORY = [
+  { personEntityId: MOCK_VEIKKO, name: 'Veikko Vikkelä', role: 'Field Engineer', groups: [], available: true },
+  { personEntityId: MOCK_ERKKI, name: 'Erkki Expert', role: 'Network Expert', groups: [], available: true },
+];
+
 interface SeedQuestion { id: string; text: string; why: string; nodes: string[]; caveat: string }
 const SEED_QUESTIONS: SeedQuestion[] = [
   { id: 'q:mock:timing', text: 'Did the blank prints start right after the ribbon swap?', why: 'The missing timing changes whether the ribbon is treated as the likely cause.', nodes: ['problem', 'hypothesis', 'attempt', 'outcome'], caveat: 'Timing alone won’t prove the cause or a lasting fix.' },
@@ -69,6 +80,8 @@ interface MockState {
   failures: Partial<Record<ModelSlotName, string>>;
   /** B4: texts already captured through "Remember this" (a second paste is 'already known'). */
   pasted: Set<string>;
+  /** B6: demo mode (Veikko and Erkki in the directory; Veikko's investigation asks Erkki). */
+  demo: boolean;
 }
 
 /**
@@ -145,23 +158,23 @@ function mockRating(s: MockState): ParticipationRating {
 function freshState(): MockState {
   const records = new Map<string, QuestionRecord>();
   SEED_QUESTIONS.forEach((q, i) => records.set(q.id, record(q, 'queued', i)));
-  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS(), installed: ['qwen3:8b'], pulls: new Map(), keys: { anthropic: false, gemini: false }, install: { ...MOCK_INSTALL }, failures: {}, pasted: new Set() };
+  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS(), installed: ['qwen3:8b'], pulls: new Map(), keys: { anthropic: false, gemini: false }, install: { ...MOCK_INSTALL }, failures: {}, pasted: new Set(), demo: false };
 }
 
-function record(q: SeedQuestion, status: QuestionStatus, i: number): QuestionRecord {
+function record(q: SeedQuestion, status: QuestionStatus, i: number, to: { personEntityId: string; id: string; investigationId: string } = { personEntityId: ME, id: q.id, investigationId: 'inv:mock:seed' }): QuestionRecord {
   const at = NOW();
   return {
-    id: q.id, orgId: ORG, personEntityId: ME, decisionId: `decision:mock:${i}`, status, createdAt: at, updatedAt: at,
+    id: to.id, orgId: ORG, personEntityId: to.personEntityId, decisionId: `decision:mock:${i}`, status, createdAt: at, updatedAt: at,
     candidate: {
-      id: q.id, orgId: ORG, investigationId: 'inv:mock:seed', gapId: `gap:mock:${i}`, kind: 'quick', text: q.text, answerType: 'yes-no-unknown',
+      id: to.id, orgId: ORG, investigationId: to.investigationId, gapId: `gap:mock:${i}`, kind: 'quick', text: q.text, answerType: 'yes-no-unknown',
       scope: { entityIds: ['entity:mock:lp3'], caseId: CASE.caseId }, rationale: q.why, consequences: { yes: 'Recorded as an attributed observation.', no: 'Recorded as an attributed observation.' },
-      generatedBy: { route: 'rules', version: 'ui-dev-mock' }, dedupKey: q.id, recipientIds: [ME],
+      generatedBy: { route: 'rules', version: 'ui-dev-mock' }, dedupKey: q.id, recipientIds: [to.personEntityId],
     },
   };
 }
 
 function viewOf(rec: QuestionRecord): QuestionView {
-  const seed = SEED_QUESTIONS.find((s) => s.id === rec.id) ?? SEED_QUESTIONS[0]!;
+  const seed = SEED_QUESTIONS.find((s) => s.id === rec.id || s.id === rec.candidate.dedupKey) ?? SEED_QUESTIONS[0]!;
   const nodes = timeline().filter((n) => seed.nodes.includes(n.id));
   return {
     questionId: rec.id, investigationId: rec.candidate.investigationId, caseLabel: 'PKG-117', text: rec.candidate.text, kind: rec.candidate.kind, why: seed.why,
@@ -196,8 +209,8 @@ function makeHandlers(s: MockState): Handlers {
     rec.status = status;
     rec.updatedAt = NOW();
     // R46: points only for a person who takes part; the display switch (settings.points) is the panel's business.
-    const awarded = s.optIn ? points : 0;
-    if (s.optIn && summary) s.events.push({ id: `part:mock:${++s.counter}`, orgId: ORG, personEntityId: ME, contributionEventId: `${status}:${rec.id}`, kind: points ? 'answer-yes' : 'answer-unknown', points: awarded, summary, refId: rec.id, at: NOW() });
+    const awarded = s.optIn && rec.personEntityId === ME ? points : 0;
+    if (s.optIn && rec.personEntityId === ME && summary) s.events.push({ id: `part:mock:${++s.counter}`, orgId: ORG, personEntityId: ME, contributionEventId: `${status}:${rec.id}`, kind: points ? 'answer-yes' : 'answer-unknown', points: awarded, summary, refId: rec.id, at: NOW() });
     return { title, detail, canUndo: true, ...(awarded ? { pointsAwarded: awarded } : {}) };
   };
   const optInView = (): ParticipationOptIn => ({ id: 'optin:mock:you', orgId: ORG, personEntityId: ME, participates: s.optIn, since: POINTS_FIXED });
@@ -245,7 +258,12 @@ function makeHandlers(s: MockState): Handlers {
     },
     'POST /investigate': ({ body }) => {
       const id = `inv:mock:${++s.counter}`;
-      const question = viewOf(s.records.get(SEED_QUESTIONS[0]!.id)!);
+      // B6 (demo): Veikko asks, the revision question goes to Erkki (the requester is never asked, as on the service).
+      const asked = s.demo && body.allowQuestions && body.principal.id === MOCK_VEIKKO
+        ? record(SEED_QUESTIONS[1]!, 'delivered', s.counter, { personEntityId: MOCK_ERKKI, id: `q:mock:demo:${s.counter}`, investigationId: id })
+        : undefined;
+      if (asked) s.records.set(asked.id, asked);
+      const question = viewOf(asked ?? s.records.get(SEED_QUESTIONS[0]!.id)!);
       const quiet = /\bno one to ask\b/i.test(body.text);
       const result: ResultView = {
         investigationId: id,
@@ -338,6 +356,7 @@ function makeHandlers(s: MockState): Handlers {
     'GET /directory': () => [
       { personEntityId: ME, name: 'Dev User', role: 'Line technician', groups: [], available: true },
       ...PEOPLE.map((p) => ({ personEntityId: p.personEntityId, name: p.name, ...(p.role ? { role: p.role } : {}), groups: [], available: p.askable })),
+      ...(s.demo ? DEMO_DIRECTORY.map((d) => ({ ...d, groups: [...d.groups] })) : []),
     ],
     'GET /people': () => PEOPLE,
     // B1: one undated assertion and one dated note that conditions it (dev data, synthetic).
@@ -456,8 +475,9 @@ function applyModelsScenario(s: MockState, scenario: MockModelsScenario): void {
   s.failures = { phrase: 'phrase: no answer within 20000 ms' };
 }
 
-export function createMockFetch(opts: { models?: MockModelsScenario } = {}): FetchLike & { setModelsScenario(scenario: MockModelsScenario): void } {
+export function createMockFetch(opts: { models?: MockModelsScenario; demo?: boolean } = {}): FetchLike & { setModelsScenario(scenario: MockModelsScenario): void } {
   const state = freshState();
+  state.demo = opts.demo === true;
   if (opts.models) applyModelsScenario(state, opts.models);
   const handlers = makeHandlers(state);
   const table = (Object.keys(handlers) as RouteKey[]).map((route) => {
@@ -494,8 +514,8 @@ export function createMockFetch(opts: { models?: MockModelsScenario } = {}): Fet
   return Object.assign(fetchLike, { setModelsScenario: (scenario: MockModelsScenario) => applyModelsScenario(state, scenario) });
 }
 
-export function createMockApi(): ApiClient {
-  return createApiClient({ baseUrl: MOCK_BASE_URL, fetch: createMockFetch(), kind: 'mock' });
+export function createMockApi(opts: { demo?: boolean } = {}): ApiClient {
+  return createApiClient({ baseUrl: MOCK_BASE_URL, fetch: createMockFetch(opts), kind: 'mock' });
 }
 
 export const mockPrincipal = (): Principal => ({ id: ME, displayName: 'You', groups: [], type: 'human' });

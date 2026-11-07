@@ -288,3 +288,20 @@ seen at all.
 The Settings cost row is stacked (label above, the two lines full width, left-aligned): the generic `.rf-setting >
 span { flex: 0 0 77px }` rule squeezed the value column to 77 px at 320 px.
 Reverse: inline the two helpers again; the closing tag must stay.
+
+### D-B3-21 · Screenshots re-taken after the review
+
+The context shots were re-run with the same command as D-B3-11 after D-B3-12/16 (same cards at every moment; the
+bounded bars now read "bounded 14 Oct by Erkki Expert · holds for software.version < 4.2"). The mock panel harness was
+run into the scratchpad (never over the committed day-1 set) and three of its frames are committed under new names:
+`panel-mock-result-strip-420.png`, `panel-mock-result-strip-320.png` (the strip under the result title, one line with
+ellipsis) and `panel-mock-settings-cost-320.png` (the stacked cost row). Not shown: the case view's strip and its
+"Open the context layer" button. The mock hides the button by design (D-B3-10), and the harness's case step now clicks
+the first "View case", which is an "Also similar" row the mock does not serve ("Unknown case"; harness-and-mock
+issue from the base, not B3). The button was still not clicked at runtime in Electron.
+
+### Review findings not changed
+
+- Cost numbers come from store records, not service events (reviewer 1, "partly"): kept as D-B3-07 says. The JSONL
+  activity log is a demo convenience that previews and restarts do not keep consistent. The store records are what
+  the counts are about.

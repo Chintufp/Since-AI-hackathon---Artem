@@ -1,5 +1,5 @@
 {
-  "startedAt": "2026-11-07T18:01:24.786Z",
+  "startedAt": "2026-11-07T18:49:38.702Z",
   "electron": "45.2.3",
   "chrome": "156.0.8078.80",
   "node": "24.22.2",
@@ -13,12 +13,12 @@
   },
   "mouseForwarding": "isolated (recorded, not applied; the window ignores the real mouse)",
   "cursorAtStart": {
-    "x": 716,
-    "y": 828
+    "x": 895,
+    "y": 654
   },
   "workAreaLog": [
     {
-      "t": "2026-11-07T18:01:24.827Z",
+      "t": "2026-11-07T18:49:38.750Z",
       "event": "start",
       "workArea": {
         "x": 0,
@@ -28,7 +28,7 @@
       }
     },
     {
-      "t": "2026-11-07T18:01:24.885Z",
+      "t": "2026-11-07T18:49:38.818Z",
       "event": "window-created",
       "workArea": {
         "x": 0,
@@ -38,7 +38,7 @@
       }
     },
     {
-      "t": "2026-11-07T18:01:25.501Z",
+      "t": "2026-11-07T18:49:39.433Z",
       "event": "display-metrics-changed: workArea",
       "workArea": {
         "x": 0,
@@ -89,7 +89,7 @@
       "zoom": 0.7963709677419355,
       "kind": "qualified",
       "text": "Check the traffic counters first; the fix from TRN-042 was superseded for this version.",
-      "provenance": "Erkki Expert · Teams 09:22 (date unknown) · reported once · still believed true for software.version < 4.2 (bounded 14 Oct by Erkki Expert)",
+      "provenance": "Erkki Expert · Teams 09:22 (date unknown) · reported once · bounded 14 Oct by Erkki Expert · holds for software.version < 4.2",
       "caveats": "Superseded on 14 Oct by Erkki Expert: fixed in firmware 4.2 | Reported once; cause and lasting effect not verified. | Unknown for this unit: older unit.",
       "dimmed": "0 of 38"
     },
@@ -100,7 +100,7 @@
       "zoom": 0.7963709677419355,
       "kind": "qualified",
       "text": "Check the traffic counters first; the fix from TRN-042 was superseded for this version.",
-      "provenance": "Erkki Expert · Teams 09:22 (date unknown) · reported once · still believed true for software.version < 4.2 (bounded 14 Oct by Erkki Expert)",
+      "provenance": "Erkki Expert · Teams 09:22 (date unknown) · reported once · bounded 14 Oct by Erkki Expert · holds for software.version < 4.2",
       "caveats": "Superseded on 14 Oct by Erkki Expert: fixed in firmware 4.2 | Reported once; cause and lasting effect not verified. | Unknown for this unit: older unit.",
       "dimmed": "0 of 38"
     },
@@ -141,5 +141,5 @@
   "consoleErrors": [],
   "notes": [],
   "states": [],
-  "finishedAt": "2026-11-07T18:01:31.318Z"
+  "finishedAt": "2026-11-07T18:49:45.017Z"
 }

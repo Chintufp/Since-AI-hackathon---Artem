@@ -541,6 +541,9 @@ export function createPanel(options: PanelOptions): Panel {
     const prose = /\s/.test(r.applicability) ? [r.applicability] : [];
     [...prose, ...r.caveats.slice(0, 3)].filter(Boolean).forEach((t) => notes.append(el('p', 'rf-result-note', t)));
     if (r.nextStep) notes.append(el('p', 'rf-result-note', 'Next: ' + r.nextStep));
+    // B5: other experts' advice on record for this problem, never merged into the recommendation above.
+    // An alternative that does not apply here is already a caveat ("TRN-512 does not apply: ..."), so it is not repeated.
+    (result.alternatives ?? []).filter((a) => a.applicability !== 'inapplicable').slice(0, 2).forEach((a) => notes.append(el('p', 'rf-result-note rf-on-record', 'Also on record: ' + a.text)));
     modelNotes(result.routes ?? []).forEach((t) => notes.append(el('p', 'rf-model-note', t)));
     const path = $('.rf-case-path');
     path.replaceChildren();

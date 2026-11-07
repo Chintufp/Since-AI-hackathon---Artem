@@ -85,8 +85,8 @@ related hypothesis except the selected one, with support not contradicted and an
 corrective attempt, else of another advised attempt, else the author of an advice claim. An attempt the problem says was
 already done (the SFP the requester just replaced) is skipped, as `recommend()` does. `deciding` is the plain label of
 the first missing distinguishing condition, else of the first conflicting one (the case's own value, "2021 batch").
-`text`: "<expert> advised <gerund> in <case> (<applicability>, depends on <deciding>)". Sorted applicable, qualified,
-unknown, inapplicable; at most 3. Stored as optional `InvestigationState.alternatives` (contracts/investigation.ts
+`text`: "<expert> advised <gerund> in <case> (<applicability>, depends on <deciding>)". Sorted qualified (the branches a
+fact can still decide), applicable, unknown, inapplicable; at most 3. Stored as optional `InvestigationState.alternatives` (contracts/investigation.ts
 `AlternativeHypothesis`) and copied to optional `ResultView.alternatives` (contracts/views.ts), filtered to the cases
 among the viewer's visible candidates (`sanitizeState`). The MCP `agentResult` spreads the view, so it carries them too.
 Why in `investigate()` and not in `views.ts`: the attempt, its adviser and the related set are only available there
@@ -102,3 +102,18 @@ TRN-512's hypothesis now scores above TRN-042's for that text, and TRN-117's own
 recipients are what the prompts record, so the file is left as it is; the B5 prompt is added. Not caused by B5 and not
 fixed here: the TRN-412 prompt (target Erkki) asks nothing ("Existing evidence and your own observations settle the next
 step") with or without the thread.
+
+## D-B5-11 · The panel shows up to two alternatives, not the inapplicable ones
+
+Under the recommendation's notes (after Next:), one line per alternative: "Also on record: <text>", at most two. An
+inapplicable alternative is left out of the panel because the recommendation already carries it as a caveat ("TRN-512
+does not apply: 2021 batch there, older unit here."); it stays in `ResultView.alternatives` for the API and MCP. Not
+checked visually in the Electron companion (no DOM test harness for `renderResult`); `mock-api` carries an example
+(PKG-118, Priya Nair) so the dev mock shows the line. Reversal: remove the two lines in `panel.ts`.
+
+## D-B5-12 · Judge prompt and DEMO.md
+
+`data/demo/judge-prompts.json` gets the B5 problem with requester Liisa Mäkelä; on a fresh elisa reset the question
+"Is TRN-577 from the 2021 batch?" goes to Erkki Expert (checked). `docs/DEMO.md` gets an "Experts disagree" section with
+the paste text, and the TRN-088 step lists the extra caveat that the seeded thread adds ("TRN-512 does not apply ...").
+The heading, next step and people of the TRN-088 and TRN-301 steps are unchanged (checked with and without the thread).

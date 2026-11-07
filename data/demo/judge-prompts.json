@@ -38,6 +38,12 @@
       "note": "Developer fixture lookalike"
     },
     {
+      "text": "Replaced the SFP on TRN-577, link up, alarms cleared, no traffic, counters zero. Not sure which batch this unit is from.",
+      "requester": "Liisa Mäkelä",
+      "targets": ["Erkki Expert"],
+      "note": "B5 experts disagree: Helmi's TRN-512 (2021 batch: clear the forwarding table) and Erkki's TRN-042 (older units: reset the interface) are both qualified; one question 'Is TRN-577 from the 2021 batch?' picks the branch (data/demo/experts-disagree)"
+    },
+    {
       "text": "TRN-508: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.",
       "requester": "Liisa Mäkelä",
       "targets": ["*"]

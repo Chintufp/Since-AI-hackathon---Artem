@@ -42,7 +42,7 @@ At site now. Replaced the SFP on TRN-088, an older unit from 2018. Link is up, a
 You see the result card:
 
 - Heading: **Check the traffic counters before replacing the SFP again.**
-- Caveat: *Reported once; cause and lasting effect not verified.*
+- Caveats: *Reported once; cause and lasting effect not verified.* and *TRN-512 does not apply: 2021 batch there, older unit here.* (Helmi's 2021-batch case, see "Experts disagree" below, is ruled out by the stated age).
 - Next: *If the interface is up and counters stay at zero, disabling and re-enabling the interface reportedly restored traffic in TRN-042 (older unit).*
 - Below it the basis case **TRN-042 · no traffic after SFP change** as a timeline: Reported problem (red) → Reported conditions → Possible cause → Suggested checks → Attempted counter check → Attempted interface reset (yellow) → Reported outcome (green).
 - A row **People with relevant experience · 4** and a line *Existing evidence and your own observations settle the next step* (no one is asked: Veikko stated the unit age himself).
@@ -72,6 +72,27 @@ pnpm demo:agent
 ```
 
 This is a plain MCP client (no model) starting the same MCP server on the same database and calling the tools an agent would: `kt_investigate` prints the qualified recommendation with its caveats, matches, people and open gaps; `kt_find_people` the same people with reasons; `kt_request_clarification` opens the one question (`status: question-open`, `text: "Is TRN-301 an older unit?"`); `kt_clarification_status` shows it `delivered` until a human answers. The agent's investigation is its own (an agent principal), so the question is opened again for Erkki: switch **You** to Erkki in the companion and the badge shows the agent's question too. Say: *"Same engine, same limits, same access rules for an agent as for a person; the agent cannot read restricted evidence or exceed anyone's question budget."* To let a real agent drive it, see "Your own Claude over MCP" below. (Run this before the simulated day starts, or expect the coordinator to pick another NOC person once more people are in the directory.)
+
+## Experts disagree (optional, 1 minute)
+
+Two experts gave different fixes for the same symptoms: Erkki (TRN-042, older units: disable and re-enable the interface)
+and Helmi Virtanen (TRN-512, a generated synthetic thread in `data/demo/experts-disagree`: "on the 2021 batch the interface
+reset does not help, clear the forwarding table"). Every demo reset imports Helmi's thread. As any field engineer (for
+example **You** = Liisa Mäkelä), paste:
+
+```
+Replaced the SFP on TRN-577, link up, alarms cleared, no traffic, counters zero. Not sure which batch this unit is from.
+```
+
+Heading: **Confirm the unit details (2021 batch) before clearing the forwarding table.** Under it: *Also on record: Erkki
+Expert advised disabling and re-enabling the interface in TRN-042 (qualified, depends on older unit)* (and a second line
+for Helmi's own TRN-117 case). One question went
+out: **Is TRN-577 from the 2021 batch?** (to Erkki, through his Network Expert role). Answer it as Erkki: **Yes** makes
+the forwarding-table clear the recommendation with Erkki's case still listed under it; **No** makes Helmi's case not
+apply and Erkki's interface reset the recommendation. Say: *"Neither expert is overwritten. The system keeps both, says
+what decides between them, and asks one person one question to pick the branch."* (Without Elisa's files the other
+expert is Helmi's own TRN-117 case, which has no deciding fact, so the second branch shows only in the test:
+`tests/experts-disagree.test.ts`.)
 
 ## The simulated real-time stream (what the browser tab shows)
 

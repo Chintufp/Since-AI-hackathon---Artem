@@ -4,7 +4,8 @@ import { casePhrase, plainLabel } from './phrases.ts';
 import type { InvestigationSettings } from './settings.ts';
 import type { HypothesisDetail } from './types.ts';
 
-const ORDER: Record<Hypothesis['applicability'], number> = { applicable: 0, qualified: 1, unknown: 2, inapplicable: 3 };
+// A qualified branch first: it is the disagreement a fact (and so one answer) can still decide; then the rest.
+const ORDER: Record<Hypothesis['applicability'], number> = { qualified: 0, applicable: 1, unknown: 2, inapplicable: 3 };
 
 /**
  * B5 "experts disagree": the related hypotheses the recommendation did not pick, each with the person who advised it

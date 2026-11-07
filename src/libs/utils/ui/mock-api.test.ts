@@ -21,6 +21,7 @@ test('the mock answers through the real ApiClient with contract-shaped results',
   assert.ok(res.investigationId && res.state.id === res.investigationId);
   assert.ok(res.recommendation.text && res.recommendation.applicability && Array.isArray(res.recommendation.caveats));
   assert.ok(res.routes.length > 0 && res.routes.every((r) => r.route && r.version), 'routes are labelled');
+  assert.match(res.alternatives?.[0]?.text ?? '', /^Priya Nair advised .+ \(qualified, depends on .+\)$/, 'B5: the mock carries an alternative with its expert');
   assert.ok(!res.routes.some((r) => r.route === 'local'), 'the mock never claims a measured model route');
   for (const node of res.caseView!.timeline) {
     assert.ok(KINDS.includes(node.kind), node.kind);

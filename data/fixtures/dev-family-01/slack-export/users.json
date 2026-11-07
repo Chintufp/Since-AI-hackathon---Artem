@@ -1,0 +1,26 @@
+[
+  {
+    "id": "U01",
+    "name": "hanna",
+    "real_name": "Hanna Mäkelä",
+    "profile": {
+      "real_name": "Hanna Mäkelä"
+    }
+  },
+  {
+    "id": "U02",
+    "name": "olli",
+    "real_name": "Olli Rautio",
+    "profile": {
+      "real_name": "Olli Rautio"
+    }
+  },
+  {
+    "id": "U03",
+    "name": "jukka",
+    "real_name": "Jukka Salo",
+    "profile": {
+      "real_name": "Jukka Salo"
+    }
+  }
+]

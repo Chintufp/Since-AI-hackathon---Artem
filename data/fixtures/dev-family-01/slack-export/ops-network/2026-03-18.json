@@ -1,0 +1,24 @@
+[
+  {
+    "type": "message",
+    "ts": "1773841200.000001",
+    "user": "U03",
+    "text": "RTR-203 BGP sessions keep flapping after the firmware update on Monday. Same as RTR-117?",
+    "thread_ts": "1773841200.000001",
+    "reply_count": 3
+  },
+  {
+    "type": "message",
+    "ts": "1773841440.000001",
+    "user": "U02",
+    "text": "Maybe not. This looks like a duplicate router id after the update. Check the peer config before touching the timers.",
+    "thread_ts": "1773841200.000001"
+  },
+  {
+    "type": "message",
+    "ts": "1773842280.000001",
+    "user": "U03",
+    "text": "Router id was duplicated. I changed it. Sessions are up again.",
+    "thread_ts": "1773841200.000001"
+  }
+]

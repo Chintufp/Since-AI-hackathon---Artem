@@ -1,0 +1,30 @@
+[
+  {
+    "type": "message",
+    "ts": "1773133200.000001",
+    "user": "U03",
+    "text": "<@U01> welcome back, anything open from yesterday?"
+  },
+  {
+    "type": "message",
+    "ts": "1773133500.000001",
+    "user": "U01",
+    "text": "Follow-up on RTR-117: the BGP flapping stopped after we set the hold timer back to 90 seconds and cleared the sessions. I will keep an eye on it overnight.",
+    "thread_ts": "1773133500.000001",
+    "reply_count": 2
+  },
+  {
+    "type": "message",
+    "ts": "1773133680.000001",
+    "user": "U02",
+    "text": "Good. Check the logs again tomorrow morning for hold timer expired messages.",
+    "thread_ts": "1773133500.000001"
+  },
+  {
+    "type": "message",
+    "ts": "1773135000.000001",
+    "user": "U03",
+    "subtype": "channel_join",
+    "text": "<@U03> has joined the channel"
+  }
+]

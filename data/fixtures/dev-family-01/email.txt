@@ -1,0 +1,17 @@
+From: Hanna Mäkelä
+To: Maintenance Team
+Subject: RE: RTR-117 BGP flapping after firmware update
+
+Hi team,
+
+For the record, here is what Olli and I worked out on RTR-117 earlier:
+
+> Hanna: Hi Olli, BGP sessions on edge router RTR-117 keep flapping since the firmware update this morning. Neighbors go down and up every few minutes. Any idea?
+> Olli: Ok. Don't roll back yet. Sometimes the new release resets the BGP hold timers to a lower default, which makes the sessions drop under load.
+> Hanna: Yes. Logs show hold timer expired on all three neighbors. BGP session flapping.
+> Olli: That's it. Set the hold timer back to 90 seconds on the neighbors, then clear the sessions once. Don't power cycle the router unless that fails.
+
+Short version: check the logs before rolling back the firmware.
+
+Regards,
+Hanna

@@ -13,3 +13,16 @@ Same pattern as `selectorId` (the host option is the default, the stored user ch
 
 ## D-B2-04 · The API key never travels in settings
 `settingsPatchSchema` is still `.strict()`, and each slot object is `.strict()` too, so a `key` inside `models` is a 400. Keys go through `POST /models/key` (memory only). Reverse: n/a (a brief rule).
+
+## D-B2-05 · Provider details chosen here
+- `keep_alive` default `'30m'` on every Ollama call (matches the warm-up), seed default 7, temperature 0, `think:false` always.
+- `warm`/`unload` of an embedding model go through `/api/embed` with `input: []` (verified live on 0.40.9: returns `{"embeddings":[]}`); generative models through `/api/generate` with no prompt (verified: `done_reason: "unload"` with keep_alive 0).
+- A 404 whose message says "not found" becomes `ProviderError('model-missing')`, so the status chip can say "not downloaded" rather than "failed".
+- `withFallback` has its own deadline (the slot timeout) on top of the provider's AbortSignal, so a provider that ignores its signal still cannot stall a call. The fallback label is `<rules version>[fallback:<slot>:<code>]`, with the full reason in `fallback.reason`.
+Reverse: constants in `providers/ollama.ts` and `providers/fallback.ts`.
+
+## D-B2-06 · The api provider has no embed model in this build; vendor is picked from the model name
+`ApiProvider.embed` throws `unsupported` (the brief allows "or none, keep local"), so embed=api always falls back to rules with that reason. A model whose name starts with `gemini` goes to Gemini, anything else to Anthropic. Gemini uses `responseJsonSchema`. Reverse: add Voyage / `text-embedding-004` in `api.ts` behind the same key check.
+
+## D-B2-07 · Providers read `globalThis.fetch` at call time
+So `installNetworkGuard()` still blocks them in experiments (tested). Tests inject a fake fetch; none needs Ollama or the internet.

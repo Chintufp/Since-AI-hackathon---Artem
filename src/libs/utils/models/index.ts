@@ -5,3 +5,4 @@ export { LogisticHashed, hashedFeatures } from './logistic-hashed.ts';
 export type { LabeledText, TrainOptions } from './logistic-hashed.ts';
 export { saveArtifact, loadArtifact, listArtifacts, defaultModelsDir } from './artifacts.ts';
 export { createRng, shuffleInPlace } from './rng.ts';
+export * from './providers/index.ts';

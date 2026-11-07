@@ -201,4 +201,8 @@ test('B4: the mock serves POST /import for "Remember this": a pasted thread is c
   assert.equal(again.captured?.alreadyKnown, true);
   assert.equal(again.batch.counts.inserted, 0);
   await assert.rejects(api.call('POST /import', { body: { format: 'paste', payload: '  ' } }), (e: { status?: number }) => e.status === 400);
+  // The service's limits: a paste over 1 MB, a non-text payload or a path is a 400 in the mock too.
+  for (const bad of [{ payload: 'x'.repeat(1_000_001) }, { payload: 42 }, { payload: { notText: 1 } }, { path: '/etc/hosts', payload: 'hi' }]) {
+    await assert.rejects(api.call('POST /import', { body: { format: 'paste', ...bad } }), (e: { status?: number }) => e.status === 400);
+  }
 });

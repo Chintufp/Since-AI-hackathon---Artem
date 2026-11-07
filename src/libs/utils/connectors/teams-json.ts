@@ -8,6 +8,12 @@ export interface TeamsExport {
   note?: string;
   participants?: Array<{ name: string; role?: string }>;
   messages: Array<{ seq?: number; time?: string; author: string; role?: string; text: string }>;
+  /**
+   * B4: key the conversation on every message's author and text, not only the first one. Set for pasted threads: two
+   * different pastes that open with the same greeting are two conversations, while a re-paste (in any clipboard shape,
+   * since times are left out) is the same one.
+   */
+  keyAllMessages?: boolean;
 }
 
 export const TEAMS_CONNECTION_ID = 'import:teams:file';
@@ -24,7 +30,8 @@ export function parseTeamsJson(payload: unknown, opts: AdapterOptions): Evidence
   const roles = new Map<string, string>();
   for (const p of data.participants ?? []) if (p.role) roles.set(normName(p.name), p.role);
   // Conversation key is derived from the first message so two different exports of channel "teams" never collide.
-  const convKey = textFingerprint(data.messages.slice(0, 1).map((m) => `${m.author}|${m.text}`).join('||')).slice(0, 12);
+  const keyed = data.keyAllMessages ? data.messages : data.messages.slice(0, 1);
+  const convKey = textFingerprint(keyed.map((m) => `${m.author}|${m.text}`).join('||')).slice(0, 12);
   const threadId = `teams:${channel}:${convKey}`;
   return data.messages.map((m, idx) => {
     const seq = m.seq ?? idx + 1;

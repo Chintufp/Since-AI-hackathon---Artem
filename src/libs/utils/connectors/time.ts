@@ -2,7 +2,7 @@ import type { Iso, TimeRef } from '../contracts/index.ts';
 
 /**
  * Parse a source timestamp without ever inventing information.
- * - clock time only ("09:14")  -> known:false, partial:'time-only', raw kept
+ * - clock time only ("09:14", "9.14")-> known:false, partial:'time-only', raw kept
  * - date only ("2026-03-02")   -> known:false, partial:'date-only'
  * - ISO 8601 / RFC 2822 date+time that states a zone -> known:true, iso
  * - zoneless or ambiguous (slash dates) -> known:false, raw kept (never guessed)
@@ -14,7 +14,8 @@ export function parseTimeRef(raw: string | undefined | null, sequence?: number):
   if (sequence !== undefined) base.sequence = sequence;
   const s = String(raw ?? '').trim();
   if (!s) return base;
-  if (/^\d{1,2}:\d{2}(:\d{2})?(\s?[AaPp][Mm])?$/.test(s)) return { ...base, partial: 'time-only' };
+  // '9.14' (the Finnish clock) is a time too.
+  if (/^\d{1,2}[:.]\d{2}([:.]\d{2})?(\s?[AaPp]\.?[Mm]\.?)?$/.test(s)) return { ...base, partial: 'time-only' };
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return { ...base, partial: 'date-only' };
   // known:true only when the string states its own zone: ISO 8601 with Z/offset, or RFC 2822 with a zone.
   // Zoneless date-times and slash dates (12/03 is 12 March or 3 December) are never guessed: raw kept, known:false.

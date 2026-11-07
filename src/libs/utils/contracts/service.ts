@@ -77,6 +77,11 @@ export interface ImportCaptured {
   dateKnown: boolean;
   /** Nothing new: every message was already stored (a second paste of the same text). */
   alreadyKnown: boolean;
+  /**
+   * The paste named access groups, but some of what it holds was already stored with a wider scope (org-wide, or other
+   * groups): a re-paste never narrows what is stored, so the receipt says the content is already visible more widely.
+   */
+  widerAccess?: boolean;
 }
 
 export interface InvestigateRequest {

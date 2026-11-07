@@ -20,6 +20,8 @@ export function capturedSummary(store: KnowledgeStore, ids: NonNullable<ImportFr
   const from = show(stamps[0]);
   const to = show(stamps[stamps.length - 1]);
   const c = batch.counts;
+  const mine = new Set(accessGroups ?? []);
+  const wider = mine.size > 0 && evidence.some((e) => e!.accessScope.visibility === 'org' || (e!.accessScope.groups ?? []).some((g) => !mine.has(g)));
   return {
     cases,
     entities: names(ids.entities, false),
@@ -28,5 +30,6 @@ export function capturedSummary(store: KnowledgeStore, ids: NonNullable<ImportFr
     ...(to && to !== from ? { to } : {}),
     dateKnown: evidence.some((e) => e!.eventTime.known),
     alreadyKnown: c.inserted === 0 && c.revised === 0,
+    ...(wider ? { widerAccess: true } : {}),
   };
 }

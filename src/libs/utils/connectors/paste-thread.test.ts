@@ -60,3 +60,38 @@ test('paste sniffing: a body line with a time and a "Label:" line inside a timed
   assert.equal(t.messages.length, 2);
   assert.equal(t.messages[0]!.text, 'Did that at 9:20\nNote: counters zero');
 });
+
+test('paste sniffing: labelled problem notes are notes, never threads with made-up people', () => {
+  for (const note of [
+    'Optics: ok\nFirmware: 4.2.1\nTraffic: none',
+    'SFP Module: replaced\nOptical Levels: ok\nTraffic Counters: zero',
+    'SFP Module: replaced on TRN-301\nOptical Levels: ok',
+    'Interface: TRN-301 ge-0/0/1\nOptical Level: -3 dBm\nStatus Check: failed',
+    'Monday: changed SFP\nTuesday: still no traffic',
+  ]) assert.equal(detectPasteKind(note), 'note', note);
+  // Real two-person exchanges still are threads, with or without full names.
+  assert.equal(detectPasteKind('Veikko: changed SFP on TRN-301\nErkki: check counters'), 'thread');
+  assert.equal(detectPasteKind('Veikko Vikkelä: changed the SFP on TRN-301, link up, no traffic\nErkki Expert: check the counters'), 'thread');
+});
+
+test('paste sniffing: a stated date in a header is kept verbatim with the time; 9.14 is a time-only stamp', () => {
+  const bracketDate = '[11/7 9:14 AM] Aarne Koskela\nLink is up, no traffic.\n[11/7 9:16 AM] Helmi Virtanen\nReset the interface.';
+  assert.deepEqual(parsePastedThread(bracketDate)!.messages.map((m) => m.time), ['11/7 9:14 AM', '11/7 9:16 AM']);
+  const fiHeader = 'Aarne Koskela  7.11. 09:14\nLink is up, no traffic.\n\nHelmi Virtanen  7.11. 09:16\nReset the interface.';
+  assert.equal(detectPasteKind(fiHeader), 'thread');
+  assert.deepEqual(parsePastedThread(fiHeader)!.messages.map((m) => m.time), ['7.11. 09:14', '7.11. 09:16']);
+  const env = parseTeamsJson(parsePastedThread(fiHeader)!, { orgId: 'org1' });
+  assert.equal(env[0]!.eventTime.known, false); // zoneless: kept raw, never guessed
+  const dotted = parseTeamsJson(parsePastedThread('[9.14] Aarne Koskela: link up\n[9.16] Helmi Virtanen: reset it')!, { orgId: 'org1' });
+  assert.equal(dotted[0]!.eventTime.partial, 'time-only');
+});
+
+test('paste sniffing: two different threads opening with the same line are two conversations; a re-paste in another shape is the same one', () => {
+  const a = parseTeamsJson(parsePastedThread('Aarne Koskela  9:00 AM\nHi Helmi, quick one.\n\nHelmi Virtanen  9:01 AM\nSure, about TRN-117?')!, { orgId: 'o' });
+  const b = parseTeamsJson(parsePastedThread('Aarne Koskela  2:00 PM\nHi Helmi, quick one.\n\nHelmi Virtanen  2:03 PM\nRTR-555 is flapping again.')!, { orgId: 'o' });
+  assert.notEqual(a[1]!.sourceId, b[1]!.sourceId);
+  assert.notEqual(a[0]!.thread!.threadId, b[0]!.thread!.threadId);
+  const again = parseTeamsJson(parsePastedThread(teamsCopy)!, { orgId: 'o' });
+  const other = parseTeamsJson(parsePastedThread(bracket)!, { orgId: 'o' });
+  assert.deepEqual(again.map((e) => e.sourceId), other.map((e) => e.sourceId));
+});

@@ -1247,7 +1247,8 @@ export function createPanel(options: PanelOptions): Panel {
       const from = got.map((c) => c.from).find(Boolean);
       const end = got.map((c) => c.to ?? c.from).filter(Boolean).at(-1);
       const range = from ? `${from}${end && end !== from ? '–' + end : ''}${got.some((c) => c.dateKnown) ? '' : ' (date unknown)'}` : got.some((c) => c.dateKnown) ? '' : 'date unknown';
-      const detail = [bound.length ? `bound to ${bound.join(', ')}` : 'no asset or person named', range, notRead].filter(Boolean).join(' · ');
+      const wider = got.some((c) => c.widerAccess) ? 'already visible beyond your groups' : '';
+      const detail = [bound.length ? `bound to ${bound.join(', ')}` : 'no asset or person named', range, wider, notRead].filter(Boolean).join(' · ');
       if (got.length && got.every((c) => c.alreadyKnown)) showReceipt('Already captured', detail, null);
       else showReceipt(`Captured: ${cases.size} case${cases.size === 1 ? '' : 's'} · ${claims} claim${claims === 1 ? '' : 's'}`, detail, null);
       if (companion) react('hop');

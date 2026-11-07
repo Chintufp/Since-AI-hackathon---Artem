@@ -218,10 +218,13 @@ function makeHandlers(s: MockState): Handlers {
     // B4 "Remember this": the same sniffing as the service, a made-up case per asset token, nothing stored for real.
     'POST /import': ({ body }) => {
       if (body.format !== 'paste') throw new MockHttpError(400, 'The mock imports pasted text only');
-      const p = body.payload as string | { text?: string } | undefined;
-      const text = typeof p === 'string' ? p : p?.text ?? '';
+      // Same validation as the service's importSchema: inline text only (no path), a string or {text}, at most 1 MB.
+      const p = body.payload as unknown;
+      const text = typeof p === 'string' ? p : p && typeof p === 'object' && typeof (p as { text?: unknown }).text === 'string' ? (p as { text: string }).text : undefined;
+      if (body.path !== undefined || text === undefined || text.length > 1_000_000 || detectPasteKind(text) === 'empty') {
+        throw new MockHttpError(400, 'paste needs payload text (a string or {text}) that is not blank');
+      }
       const kind = detectPasteKind(text);
-      if (kind === 'empty') throw new MockHttpError(400, 'paste needs payload text (a string or {text}) that is not blank');
       const thread = kind === 'thread' ? parsePastedThread(text) : null;
       const messages = thread?.messages ?? [{ author: 'Unknown author', text }];
       const already = s.pasted.has(text);

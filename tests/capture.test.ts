@@ -132,3 +132,35 @@ test('done line: the Elisa thread copied as text gives one case bound to its nod
     await svc.close();
   }
 });
+
+test('POST /import paste: two pastes opening with the same greeting stay separate; an author object in the payload is ignored', async () => {
+  const svc = await startService();
+  try {
+    await svc.call('POST', '/import', { format: 'paste', payload: 'Aarne Koskela  9:00 AM\nHi Helmi, quick one.\n\nHelmi Virtanen  9:01 AM\nIs TRN-117 one of the older units?' });
+    const r = await svc.call('POST', '/import', { format: 'paste', payload: 'Aarne Koskela  2:00 PM\nHi Helmi, quick one.\n\nHelmi Virtanen  2:03 PM\nRTR-555 is flapping again since noon.' });
+    assert.equal(r.batch.counts.revised, 0);
+    assert.equal(r.batch.counts.inserted, 2);
+    assert.equal(r.captured.from, '2:00 PM');
+    const ids = svc.engine.store.list('evidence').map((e) => e.sourceId);
+    assert.equal(new Set(ids).size, ids.length);
+    const n = await svc.call('POST', '/import', { format: 'paste', payload: { text: 'The link on TRN-117 is up but no traffic.', author: { id: 'person:slack:U102', displayName: 'Erkki Expert', provider: 'slack' } } });
+    assert.equal(n.batch.counts.inserted, 1);
+    const note = svc.engine.store.list('evidence').find((e) => e.provider === 'paste')!;
+    assert.notEqual(note.author.id, 'person:slack:U102');
+    assert.notEqual(note.author.displayName, 'Erkki Expert');
+  } finally {
+    await svc.close();
+  }
+});
+
+test('POST /import paste: re-pasting org-wide content with a group says it is already visible more widely', async () => {
+  const svc = await startService();
+  try {
+    assert.equal((await svc.call('POST', '/import', { format: 'paste', payload: THREAD })).captured.widerAccess, undefined);
+    const r = await svc.call('POST', '/import', { format: 'paste', payload: THREAD, accessGroups: ['secret'] });
+    assert.equal(r.captured.alreadyKnown, true);
+    assert.equal(r.captured.widerAccess, true);
+  } finally {
+    await svc.close();
+  }
+});

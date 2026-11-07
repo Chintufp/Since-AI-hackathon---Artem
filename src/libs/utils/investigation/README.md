@@ -62,3 +62,9 @@ Turns a new problem into an `InvestigationState`: candidates, hypotheses with se
 - **Loop persistence**: re-POSTing an identical request when the stored loop is `answered` and nothing new needs asking keeps `answered` and its reason (`Engine.investigate`).
 - **Contact draft** ("What I see now"): starts with the sentence holding the first requester-observable symptom, lists every parsed condition that has a value and skips valueless ones.
 - **Wording**: after a contradicting answer the caveats say the case does not apply to this unit, going by the answer (no enum words in prose); the receipt says so too; `polishCaveat` (views.ts) rewords the memory layer's "8 independent of 9 source record(s)" as "8 of 9 source records are independent (copies and retellings are not counted)"; a person's reason lists the evidence span that mentions the action first.
+
+## Point in time and superseded advice (B1)
+
+- `Problem.at`: `investigate()` uses an evidence gate at the moment (`retrieval/access.ts gateAt`: known-dated evidence after `at` invisible, undated stays visible), leaves out observations and reused answers recorded after `at`, and `loadCaseFacts(..., atMs)` / `buildCorpus(..., atMs)` keep only claims valid at `at` (candidate conditions at a past `at` come from condition claims valid then). Without `at` only superseded claims drop out.
+- `CaseFacts.bounds`: superseding notes that bound the case's advice/hypothesis, visible and valid at the moment. `recommend.ts applyBounds`: when the problem states a value inside the bound (`software.version` >= 4.2), the first caveat is "Superseded on 14 Oct by Erkki Expert: fixed in firmware 4.2" and the kind is capped at `qualified` (the case's check) or `none`. No stated version, no change.
+- `problem-parser.ts`: `software-version` rules ("firmware 4.2", "on 4.2", "running 4.2", "4.2 firmware").

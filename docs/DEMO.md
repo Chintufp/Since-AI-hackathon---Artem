@@ -16,7 +16,7 @@ pnpm install
 pnpm demo:judge
 ```
 
-That one command resets the demo data, starts the service on `127.0.0.1:47831`, launches the companion, opens the activity page in your browser and starts the **simulated** activity stream, whose day begins four minutes later so the script below runs on untouched data first (`--stream-delay 0` starts it at once, `--no-stream` never). Snowbally falls in from the top of the screen and lands bottom-right. Ctrl-C in that terminal stops everything.
+That one command resets the demo data, starts the service on `127.0.0.1:47831`, launches the companion, opens the activity page in your browser and starts the **simulated** activity stream, whose day begins four minutes later so the script below runs on untouched data first (`--stream-delay 0` starts it at once, `--no-stream` never). Snowbally falls in from the top of the screen, lands bottom-right, says hello and, a few seconds later, rolls off to the right edge: that is where he lives. A sliver of him stays visible at the edge. Move the cursor near that corner and he peeks and hops back in; clicking the sliver works too, and so does ⌘⌥S or the menu-bar icon. He goes back to the edge after about 20 s without interaction, and comes by himself when a question arrives for you. Ctrl-C in that terminal stops everything.
 
 The reset prints what was captured, for example:
 
@@ -29,7 +29,7 @@ That is the **capture** step: Erkki's Teams thread and his e-mail imported as th
 
 ## The 3-minute script
 
-**0:00 Open the companion.** Click Snowbally. The card opens with "Tell me what happened…". At the bottom there are three icons: paperclip, questions (speech bubbles, with a count when there are open questions), settings (sliders).
+**0:00 Open the companion.** Bring the cursor to the bottom-right corner so Snowbally hops in, then click him (he does a springy tap). The card opens with "Tell me what happened…". At the bottom there are three icons: paperclip, questions (speech bubbles, with a count when there are open questions), settings (sliders).
 
 **0:10 Be Veikko.** Click the sliders icon → Settings. In the **You** row choose `Veikko Vikkelä · Field Engineer`. Click the back arrow (top right). Say: *"Veikko is the field engineer from the Elisa example. He is at another site today."*
 

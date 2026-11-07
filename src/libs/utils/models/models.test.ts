@@ -7,7 +7,7 @@ import { cond, makeCase, ORG } from './testing/fixtures.ts';
 import { InMemoryStore } from './testing/in-memory-store.ts';
 import { createRng } from './rng.ts';
 import { assertRouteInfo, blockedProviderCall, installNetworkGuard, NetworkProviderBlockedError, routeInfo, uniqueRoutes } from './routes.ts';
-import { hashInput, ReplayMismatchError, ReplayProvider } from './replay.ts';
+import { hashInput, ReplayMismatchError, ReplayOutputMismatchError, ReplayProvider } from './replay.ts';
 import { LogisticHashed, type LabeledText } from './logistic-hashed.ts';
 import { listArtifacts, loadArtifact, saveArtifact } from './artifacts.ts';
 
@@ -126,4 +126,16 @@ test('InMemoryStore mirrors the embedding table: unchanged hash skips, list in w
   assert.equal(t.deleteRef('case', 'a'), 1);
   s.clear();
   assert.equal(t.count(), 0);
+});
+
+test('replay: an edited output is refused (output hash), and a locked fixture refuses an entry without one', () => {
+  const input = { model: 'm', prompt: 'p' };
+  const output = { claims: [{ statement: 'recorded' }] };
+  const entry = { inputHash: hashInput(input), outputHash: hashInput(output), output };
+  assert.deepEqual(new ReplayProvider({ id: 'f', entries: { k: entry } }).get('k', input)!.output, output);
+  const edited = { ...entry, output: { claims: [] } };
+  assert.throws(() => new ReplayProvider({ id: 'f', entries: { k: edited } }).get('k', input), ReplayOutputMismatchError);
+  const { outputHash: _h, ...unlocked } = entry;
+  assert.ok(new ReplayProvider({ id: 'f', entries: { k: unlocked } }).get('k', input));
+  assert.throws(() => new ReplayProvider({ id: 'f', entries: { k: unlocked } }, { requireOutputHash: true }).get('k', input), ReplayOutputMismatchError);
 });

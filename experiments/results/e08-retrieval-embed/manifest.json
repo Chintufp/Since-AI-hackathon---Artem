@@ -12,7 +12,7 @@
     "maxWallSeconds": 600,
     "networkCalls": 0
   },
-  "startedAt": "2026-11-07T14:02:14.754Z",
+  "startedAt": "2026-11-07T17:10:32.290Z",
   "id": "e08-retrieval-embed",
   "hypothesis": "A local embedding model (bge-m3) finds the relevant case by meaning: the fusion with bge-m3 in place of the trigram list keeps recall@3 and the lookalike rejection of the shipped hybrid on the hash-locked splits, and finds the judge's paraphrased problem that the lexical lists miss.",
   "splits": [
@@ -51,7 +51,7 @@
     "k": 8,
     "embedModel": "bge-m3",
     "fixture": "data/replays/e08-bge-m3/embeddings.json",
-    "fixtureSha256": "ab3462168a5d8813",
+    "fixtureSha256": "f9c12a9c4330cd09",
     "mode": "replay",
     "index": "evidence text, live claim statements and case cards (memory/case-card.ts), indexed once after the import; brute-force cosine, hits below 0.3 dropped, aggregated to the case by max; the embed list is pruned at 0.75 of its best hit (retrieval/hybrid.ts defaults)",
     "decisionSplit": "validation",

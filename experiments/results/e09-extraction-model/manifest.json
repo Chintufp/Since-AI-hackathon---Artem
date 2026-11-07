@@ -10,7 +10,7 @@
     "maxWallSeconds": 600,
     "networkCalls": 0
   },
-  "startedAt": "2026-11-07T16:57:35.870Z",
+  "startedAt": "2026-11-07T17:10:33.477Z",
   "id": "e09-extraction-model",
   "hypothesis": "A local schema-constrained model (qwen3:4b, four few-shot examples, evidence-substring validator) recovers claims the rules extractor misses on the E01 families, and the union commit (rules first, model-only claims labelled with the model's route) raises claim recall without lowering precision or merging cases falsely.",
   "splits": [
@@ -55,12 +55,12 @@
       ]
     },
     "fixtureSha256": {
-      "bgp-firmware-flaps": "8e12410c8ba3d85e",
-      "fan-temperature": "f6493e2669e774b2",
-      "config-rollback-private": "9e9f54eea78e3bb9",
-      "cabling-pinch": "43cea63db26f3cfa",
-      "weak-mains-psu": "478a0adfd14e7c1c",
-      "bgp-linecard-private": "229c13a45d4367cf"
+      "bgp-firmware-flaps": "30bb9d5b9c8c9d9e",
+      "fan-temperature": "51f89f2dd9a02f2e",
+      "config-rollback-private": "1995d0043edda422",
+      "cabling-pinch": "371f4d7482507740",
+      "weak-mains-psu": "0b5f536aaad100d2",
+      "bgp-linecard-private": "f7784f4454acc2c1"
     },
     "prompt": "memory/extractor-llm.ts buildExtractionPrompt (four few-shot examples, indexed messages with evidence and actor ids); Ollama format = the zod schema as JSON schema; think:false, temperature 0, seed 7",
     "validator": "validateExtraction: drop any claim/entity/link citing an unknown message or an excerpt not in the message text (whitespace-tolerant); links to unknown people dropped",

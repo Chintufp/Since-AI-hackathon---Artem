@@ -3,6 +3,7 @@
  "entries": {
   "qwen3:4b|2a902043bb8a94122858b60c": {
    "inputHash": "bc511d5cb5d56b7987bd5017",
+   "outputHash": "0574ebe09c7245760ef53c43",
    "output": {
     "value": {
      "claims": [
@@ -212,6 +213,7 @@
   },
   "qwen3:4b|8526a17f804b329de5487a27": {
    "inputHash": "df7120b42dd6d50e38d57c27",
+   "outputHash": "00a2ce4a25bfa962e67195f6",
    "output": {
     "value": {
      "claims": [
@@ -406,6 +408,7 @@
   },
   "qwen3:4b|a8631aa64a1aacc13c158d97": {
    "inputHash": "34d378f1594bc78bb05e2e8c",
+   "outputHash": "48d8cef6876d913b34c7e113",
    "output": {
     "value": {
      "claims": [
@@ -473,6 +476,7 @@
   },
   "qwen3:4b|ee3bf687c7ce79192e1748fa": {
    "inputHash": "60015d14254866ee403525c9",
+   "outputHash": "7e666ec7354d1bd09da12a17",
    "output": {
     "value": {
      "claims": [

@@ -3,7 +3,8 @@
  * Ollama into data/replays/<fixture>/ with `node experiments/run.ts e08|e09 --record` (the only mode that lifts the
  * network guard, for 127.0.0.1:11434 alone). Every other run replays the fixture through models/replay.ts ReplayProvider:
  * each entry carries the hash of the exact input that produced it, so a changed prompt, schema, text or model is a
- * ReplayMismatchError or a missing recording, never a silently different number.
+ * ReplayMismatchError or a missing recording, never a silently different number; and the hash of its output, so an
+ * edited output is a ReplayOutputMismatchError.
  *
  * Nothing here is an application route: the stored claims of a replayed run carry route 'replay'.
  */
@@ -17,7 +18,7 @@ import type { Embedder } from '../src/libs/utils/retrieval/index.ts';
 export const REPLAYS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'data', 'replays');
 export type ReplayMode = 'replay' | 'record';
 
-/** Fixture directory name for a model: e08-bge-m3, e09-qwen3-8b ... */
+/** Fixture directory name for a model: e08-bge-m3, e09-qwen3-4b ... */
 export const fixtureDir = (experiment: 'e08' | 'e09', model: string): string => join(REPLAYS_DIR, `${experiment}-${model.replace(/:latest$/, '').replace(/[^A-Za-z0-9.]+/g, '-')}`);
 
 export interface ReplayStats {
@@ -35,10 +36,11 @@ class FixtureFile<T> {
   constructor(path: string, id: string) {
     this.path = path;
     this.fixture = existsSync(path) ? (JSON.parse(readFileSync(path, 'utf8')) as ReplayFixture<T>) : { id, entries: {} };
-    this.provider = new ReplayProvider<T>(this.fixture); // shares fixture.entries, so recorded entries are served at once
+    // shares fixture.entries, so recorded entries are served at once; every entry's output is hash-locked (D-B2-61)
+    this.provider = new ReplayProvider<T>(this.fixture, { requireOutputHash: true });
   }
   put(key: string, input: unknown, output: T, recordedBy: string): void {
-    this.fixture.entries[key] = { inputHash: hashInput(input), output, recordedBy } satisfies ReplayEntry<T>;
+    this.fixture.entries[key] = { inputHash: hashInput(input), outputHash: hashInput(output), output, recordedBy } satisfies ReplayEntry<T>;
     this.dirty = true;
   }
   save(): void {

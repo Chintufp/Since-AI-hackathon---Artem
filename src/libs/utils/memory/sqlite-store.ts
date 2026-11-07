@@ -157,6 +157,12 @@ export function openStore(path: string | ':memory:', options: StoreOptions = {})
     if (!rec.id || typeof rec.id !== 'string') throw new Error(`record of type ${type} needs a string id`);
     const tbl = tableOf(type);
     const existing = prep(`SELECT created_seq FROM ${tbl} WHERE id = ?`).get(rec.id) as { created_seq: number } | undefined;
+    // B7 (D-B7-10): another process may share this file (the service and an MCP server on one database): a new row's
+    // counter is past what is on disk too, so the search rowid never collides with one the other process wrote.
+    if (!existing) {
+      const disk = prep(`SELECT MAX(COALESCE((SELECT MAX(created_seq) FROM ${tbl}),0), COALESCE((SELECT MAX(rid) FROM search_docs),0)) AS m`).get() as { m: number };
+      seq = Math.max(seq, disk.m);
+    }
     const rid = existing ? existing.created_seq : ++seq;
     prep(`INSERT INTO ${tbl}(id, json, created_seq) VALUES (?,?,?) ON CONFLICT(id) DO UPDATE SET json = excluded.json`).run(
       rec.id, JSON.stringify(record), rid,

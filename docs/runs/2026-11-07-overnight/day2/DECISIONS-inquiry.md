@@ -97,3 +97,32 @@ is returned (as before), and the reason says so when it is for another gap or an
 through the directory (an entity id, or an actor id of that person). Refusal reason: the person's gates in plain words
 plus who the engine would ask instead (`wouldAsk {personEntityId, name, because, gapId, text}`), or that nobody else can
 be asked now.
+
+## D-B7-10 · Two processes on one database file: the new-row counter also reads the disk (fix)
+
+The night sequence has two writers on one SQLite file: the service (Erkki's tap) and the MCP server (the agent's
+outcome report). `sqlite-store` kept its insertion counter (`created_seq`, also the `search_docs`/FTS rowid) in memory,
+read once at open, so the MCP server's next insert reused a rowid the service had just written: `kt_record_outcome`
+failed with "UNIQUE constraint failed: search_docs.rid" (also on the run branch: the old demo:agent `--outcome` after a
+tap in the panel). Now a new row first moves the counter past `MAX(created_seq)` of its table and `MAX(rid)` of
+`search_docs` on disk (two indexed MAX lookups, only for new ids). Test: sqlite-store.test.ts "two stores on one file"
+(fails without the fix). Order across tables stays monotonic per writer; nothing else changes.
+Reverse: the `if (!existing)` block in `put`.
+
+## D-B7-11 · demo:agent is the 03:00 sequence; quiet hours on for it (reverses D-B1-35 for demo:agent only)
+
+`pnpm demo:agent` starts the MCP server with `--clock 2026-11-08T01:00:00Z` (03:00 Helsinki) and `--quiet-hours on`;
+`pnpm demo:judge` keeps quiet hours off (D-B1-35 stands for it). Sequence: kt_investigate -> kt_list_gaps (gaps and the
+confidence block) -> the first askable gap that decides applicability -> kt_find_people -> kt_request_clarification with
+`gapId` and `preferPersonEntityId` = the person whose name contains `--prefer` (default "Erkki"; refused -> the script
+takes the engine's `wouldAsk`) -> queued, `deliverAfter` 07:00 printed -> the clock moves to 07:30 (`--morning`): when
+`GET /health` on KT_PORT (`--port`) reports the SAME database file, `POST /demo/clock` on that service, so the companion
+delivers Erkki's question; otherwise the MCP server is restarted with `--clock 07:30` (it delivers on its own clock) ->
+"Waiting for Erkki's tap" and `kt_clarification_status` polled up to `--wait` seconds (default 180) -> kt_get_context and
+kt_list_gaps after -> kt_record_outcome with `--outcome`. `--simulate-tap` answers as the asked person (`--answer`,
+default yes) through the service's answer route when it serves the database, else through an in-process Engine on the
+same file with the org configuration and the morning clock. A service on another database is never touched. The service
+clock goes back to real time at the end unless `--keep-clock`. `--day` runs on real time with quiet hours off.
+`tests/service-main.test.ts` now guards these flags instead of `--quiet-hours off`.
+Why the real date in `--night`: the brief names it; on a later date it still works (only the order of capture time and
+the simulated night changes). Reverse: `--day` behaviour as the default.

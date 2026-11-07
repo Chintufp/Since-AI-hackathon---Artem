@@ -86,6 +86,23 @@ This is a plain MCP client (no model) starting the same MCP server on the same d
 
 The same rows are appended as JSON lines to `data/local/demo-activity.jsonl` (git-ignored) and served by `GET /demo/activity`. `pnpm demo:play -- --seed 2` replays a different day; `--hour-seconds 5` runs it faster; `--instant` runs it in one go; `--delay 0` skips the quiet period when you run it by hand.
 
+## The Slack path (1 minute, synthetic export)
+
+Slack is captured through the same pipeline as Teams and e-mail, with one addition: a private channel's member list becomes an access grant, so what was said there is visible only to its members. Run, with the service up:
+
+```bash
+pnpm demo:slack
+```
+
+It imports the **synthetic** export of the `config-rollback-private` family (`data/scenarios/config-rollback-private/sources/slack-export`: private `#change-review` with four members, public `#noc-general`; no workspace is contacted) through the `slack-export` connector, then asks the same question as two people:
+
+- **Elina Mattila · Junior NOC Engineer · groups [noc]** sees one case, `ACC-12 · voice VLAN dropped about ten minutes`, and gets *Confirm the unit details (…) before rolling back the config.*
+- **Antti Korhonen · NOC Engineer · groups [noc, change-board, slack-channel:C001CO]** sees `ACC-12` **and** `ACC-30 · now uplink ports down`, with its five private-channel messages listed (Sirkka Lindholm: *"Do not roll back N5 units. The v6 template cannot address their port layout. Apply the v7.1 patch…"*); `ACC-30` is among his matches and not among Elina's.
+
+The membership `slack-channel:C001CO` on Antti came from the export's channel member list; the directory (people.json) stays the authority for organization groups and never loses a membership. The same gate applies to timelines, people reasons, question wording and MCP results (tested: zero private evidence reaches non-members).
+
+**What the live Slack path would do, and what it needs.** The live connector (`src/libs/utils/connectors/slack-live.ts`) maps `conversations.history` payloads with the same code as the export (fixture-tested); it refuses any network call unless it is constructed with `{liveAuthorized: true, token}` (an environment variable alone is not authorization), and its connection card reads *awaiting authorization*. Demonstrating it needs a sandbox workspace that Artem names explicitly, a bot token with `channels:read`, `channels:history`, `groups:read`, `groups:history`, `users:read`, and the channels to read; nothing is connected before that (open question U25). No Slack credential on this machine was used for anything in this demo.
+
 ## Privacy and no cloud, in one breath
 
 The service listens on loopback only and refuses non-loopback host names. The data is one SQLite file under `data/local/`. Nothing contacts a model provider: a network guard in the code throws if anything tries. Message drafts are text for the user to review; nothing is sent to Teams, e-mail or Slack. Elisa's example files are read from an ignored folder and never copied into the repository. Access is enforced per piece of evidence: a person or agent only ever sees cases, timelines, people reasons and questions built from evidence their groups may see (tested, including over MCP).

@@ -20,7 +20,8 @@
     "experiments": "node experiments/run.ts",
     "benchmark": "node benchmarks/run.ts",
     "demo:play": "node scripts/demo-play.ts",
-    "demo:judge": "node scripts/demo-judge.mjs"
+    "demo:judge": "node scripts/demo-judge.mjs",
+    "demo:slack": "node scripts/slack-demo.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

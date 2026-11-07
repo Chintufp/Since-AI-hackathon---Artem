@@ -103,6 +103,26 @@ The membership `slack-channel:C001CO` on Antti came from the export's channel me
 
 **What the live Slack path would do, and what it needs.** The live connector (`src/libs/utils/connectors/slack-live.ts`) maps `conversations.history` payloads with the same code as the export (fixture-tested); it refuses any network call unless it is constructed with `{liveAuthorized: true, token}` (an environment variable alone is not authorization), and its connection card reads *awaiting authorization*. Demonstrating it needs a sandbox workspace that Artem names explicitly, a bot token with `channels:read`, `channels:history`, `groups:read`, `groups:history`, `users:read`, and the channels to read; nothing is connected before that (open question U25). No Slack credential on this machine was used for anything in this demo.
 
+### Slack (live, sandbox workspace, read-only)
+
+Artem may run the same path against a **sandbox** workspace he names, read-only. Nothing in the repository holds a token; the only source is an environment variable he sets in the demo terminal, and its value is never printed, logged or committed. With the service up:
+
+```bash
+export KT_SLACK_LIVE=1
+```
+
+```bash
+export KT_SLACK_TOKEN=<bot token of the sandbox app; placeholder, never a value here>
+```
+
+```bash
+pnpm demo:slack --live --workspace "<exact team name>" --channel "#<channel>"
+```
+
+What happens, in order: the command refuses and prints exactly what is missing (and the five setup steps: sandbox workspace, an app with only `channels:read`, `channels:history`, `groups:read`, `groups:history`, `users:read`, bot invited to the one channel, the two exports) unless both variables and both flags are present. Then one read-only `auth.test`; if the token's team name is not the `--workspace` you named, it stops and prints both names and nothing else is read (**the confirmation step**). Otherwise it reads that channel's info, its member list and its last 50 messages (`--limit`), plus `users.list` for display names, through an allowlist of read methods only (any other method name throws before any network call), maps them with the same code as the export (private channel = members only), imports them as `slack-live:<team id>` and appends a row to the activity stream (`route: slack-live`). Then the access gate: it names the directory people who hold `slack-channel:<id>`, lists the cases and sources the first member sees from that channel, and shows that an outsider with no groups sees none.
+
+Sentence for the judges: *"Read-only, one sandbox channel, nothing posted; production Slack would run the same connector under the organisation's data policy."* Which workspace and channel, and the token at demo time, are Artem's (open question U28).
+
 ## Your own Claude over MCP (optional, 2 minutes)
 
 Our code never calls a model; the agent is **your** Claude. Add this to a `.mcp.json` in the repository root (Claude Code) or to Claude Desktop's MCP configuration, with the service's database already seeded (`pnpm demo:reset` or `pnpm demo:judge`):

@@ -58,13 +58,20 @@ export function createMcpServer(engine: Engine, defaultPrincipal: Principal = DE
       principal: principalArg,
       observations: z.array(conditionSchema).optional().describe('Conditions you observed yourself (e.g. key interface.status eq down); they resolve gaps without asking a person'),
       allowQuestions: z.boolean().optional().describe('Also run the clarification loop now (default false for agents)'),
+      at: z.string().min(1).optional().describe('Answer as of this moment (ISO 8601 with a zone): later evidence, answers and claims not valid then are left out; nobody is asked'),
     },
-    async (a) => agentResult(await engine.investigate({ text: a.text, principal: asAgent(a.principal, defaultPrincipal), ...(a.observations ? { observations: a.observations } : {}), allowQuestions: a.allowQuestions ?? false })));
+    async (a) => agentResult(await engine.investigate({ text: a.text, principal: asAgent(a.principal, defaultPrincipal), ...(a.observations ? { observations: a.observations } : {}), allowQuestions: a.allowQuestions ?? false, ...(a.at ? { at: a.at } : {}) })));
 
   reg('kt_get_context',
-    `Current state of an investigation you started: recommendation, matches, people, open question, gaps (with what an answer would change) and routes. Ids are stable across calls and equal the ones the HTTP API returns. ${MEANING}`,
-    { investigationId: z.string().min(1), principal: principalArg },
-    (a) => agentResult(engine.getInvestigation(a.investigationId, asAgent(a.principal, defaultPrincipal).id)));
+    `Current state of an investigation you started: recommendation, matches, people, open question, gaps (with what an answer would change) and routes. Ids are stable across calls and equal the ones the HTTP API returns. With at: what was known at that moment (the stored problem re-run as of then). ${MEANING}`,
+    {
+      investigationId: z.string().min(1), principal: principalArg,
+      at: z.string().min(1).optional().describe('Re-run the stored problem as of this moment (ISO 8601 with a zone); returns that point-in-time view under its own investigation id'),
+    },
+    async (a) => {
+      const who = asAgent(a.principal, defaultPrincipal).id;
+      return agentResult(a.at ? await engine.contextAt(a.investigationId, a.at, who) : engine.getInvestigation(a.investigationId, who));
+    });
 
   reg('kt_request_clarification',
     'Run the clarification loop for an investigation you started: the engine picks at most one question for the person best placed to answer, subject to per-person daily limits, cooldown, open-question and per-investigation caps and access checks. Returns {status: "question-open", questionId} or {status: "deferred"|"exhausted"|"not-needed", reason}. A question is asked of a human, may stay unanswered, and an answer is one person\'s attributed report, not verification. Poll kt_clarification_status.',

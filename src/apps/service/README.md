@@ -14,15 +14,16 @@ pnpm demo:reset [-- --db path --seed elisa|synthetic|empty]   # scripts/demo-res
 ## Files
 `engine.ts` (composition and all behavior), `http.ts` (router, validation, errors), `mcp-tools.ts` (tool registration) + `mcp.ts` (stdio entry), `views.ts` (ResultView/QuestionView/PersonView builders), `schemas.ts` (zod), `directory.ts` (people.json -> person entities), `demo.ts` (demo reset), `errors.ts`, `paths.ts`. Participation lives in `src/libs/utils/participation`.
 
-## HTTP API (contracts/service.ts `ApiRoutes`, 32 routes)
+## HTTP API (contracts/service.ts `ApiRoutes`, 33 routes)
 | Route | Notes |
 |---|---|
 | `GET /health` | `{ok, version, store, routes}` (routes actually served) |
 | `POST /import` | formats teams-json, email-text, slack-export, scenario-dir (path on this machine or inline payload); a scenario dir's `people.json` is applied as the directory. R46: `points` lists who earned for authored evidence that became a claim (people who take part only) |
 | `GET /connections` | connector cards with last import batch |
 | `GET /cases`, `GET /cases/:id` | access-filtered; optional `?principalId=` (directory person), else the settings' current person, else anonymous (organization-wide cases only) |
-| `POST /investigate` | stable id from (principal, text, entities, observations, attachments): repeating a request is idempotent. `allowQuestions` default true over HTTP |
+| `POST /investigate` | stable id from (principal, text, entities, observations, attachments): repeating a request is idempotent. `allowQuestions` default true over HTTP. B1: `at` (ISO with a zone) answers as of that moment: its own investigation id, later evidence/answers/claims left out, nobody asked; invalid `at` is 400 |
 | `GET /investigations/:id` | optional `?principalId=` must be the starter (403 otherwise) |
+| `GET /context` | B1: `?entity=` (id, name or alias) `&at=` (default now) `&principalId=`: assertions bound to the entity with validity windows (`validFrom`/`validTo` as time positions, never a synthesised iso), `validAt`, status (`superseded` + `supersededBy`), validity condition, asserter, source (provider, time text, excerpt), plus bindings (firsthand people, hedged classes). Access as every read: an entity the principal may not see is 404 |
 | `GET /questions` | `personEntityId`, `status` (default open: queued, delivered, deferred; `all` for everything) |
 | `GET /questions/:id` | viewed as the recipient |
 | `POST /questions/:id/answer` | recipient only (403). Same answer again is idempotent; a different one needs undo first (409). Receipt carries `pointsAwarded` when the recipient takes part in points (yes/no 2, not sure 0) |
@@ -38,7 +39,7 @@ pnpm demo:reset [-- --db path --seed elisa|synthetic|empty]   # scripts/demo-res
 | `GET /participation/:personEntityId` | own balance and events (R46): `?principalId=` (else the settings' current person) must resolve to that person, 403 otherwise; `{participates: false, points: 0, events: []}` for a person who does not take part |
 | `GET` / `PUT /participation/:personEntityId/optin` | whether the person takes part in points (default no); PUT `{principal, participates}` only by that person (403). Opting out hides the rows, nothing is deleted |
 | `GET /participation/rating` | rating among the people who take part (balance, last 7 days, answers, outcomes, rank, totals); `?personEntityId=` (must be the caller) fills `me` with the last 10 events. People who do not take part appear nowhere |
-| `POST /demo/reset` | `{seed?, defaultPerson?}`: clear (settings kept), import Elisa example if present under `private/`, the `demo` split families (sources + people.json only) and `data/fixtures/dev-family-01`; `empty` only clears |
+| `POST /demo/reset` | `{seed?, defaultPerson?}`: clear (settings kept), import Elisa example if present under `private/`, the `demo` split families (sources + people.json only), `data/fixtures/dev-family-01` and (B1) the generated dated follow-ups in `data/demo/followups/`; `empty` only clears |
 | `GET /events` | trace events by `traceId` / `since` |
 
 Errors are `{error: message}` with 400 (validation), 403 (not allowed / not recipient / not starter), 404, 405, 409 (lifecycle), 413, 415 (bodies must be `application/json`). Requests whose Host is not loopback are refused (DNS rebinding guard). No CORS headers (the desktop shim handles its origin).
@@ -46,8 +47,8 @@ Errors are `{error: message}` with 400 (validation), 403 (not allowed / not reci
 ## MCP tools (`MCP_TOOLS`)
 | Tool | Calls | Meaning for the agent |
 |---|---|---|
-| `kt_investigate` (text, principal?, observations?, allowQuestions?) | `POST /investigate` | qualified recommendation, matches, people, ids; no human is asked unless `allowQuestions` (default false for agents) |
-| `kt_get_context` (investigationId) | `GET /investigations/:id` | current state, gaps with what an answer would change |
+| `kt_investigate` (text, principal?, observations?, allowQuestions?, at?) | `POST /investigate` | qualified recommendation, matches, people, ids; no human is asked unless `allowQuestions` (default false for agents); `at` = as of that moment |
+| `kt_get_context` (investigationId, at?) | `GET /investigations/:id` | current state, gaps with what an answer would change; with `at`, the stored problem re-run as of then (`Engine.contextAt`, starter only) |
 | `kt_request_clarification` (investigationId) | coordinator loop | `question-open` + questionId, or `deferred` / `exhausted` / `not-needed` with reason (limits, cooldown, access) |
 | `kt_clarification_status` (questionId) | `GET /questions/:id` | status; answer value when answered; unknown = no update, deferred/dismissed != no |
 | `kt_cancel_clarification` (questionId, reason?) | `POST /questions/:id/cancel` | cancel what you started |
@@ -85,3 +86,9 @@ Every tool takes `principal: {id, displayName, groups}` (always treated as type 
 - The panel's Settings has a "You" row (a `<select>` of `GET /directory`, `name · role`), stored with `PUT /settings {currentPersonEntityId}`. Every call's principal is built from that directory entry (id, displayName = name, groups from the directory, type human).
 - Nobody chosen: investigating still works as the labeled guest `{id:'person:desktop:guest', displayName:'Guest', groups:[]}`; the queue says "Choose who you are in Settings to see your questions." and no person is invented. A guest is never a question recipient, so the service answers 403 to any answer/defer/dismiss/undo by it (`tests/identity.test.ts`).
 - The question badge counts only the current person's questions. It refreshes when the panel opens and after answering, and polls `GET /questions` every 20 s only while the panel is open (no timer at all while collapsed).
+
+## B1 part B (access facts, quiet hours, standing gaps)
+
+- `POST /investigate` answers a site-access question ("I'm driving out to RBS-310 tomorrow. What's the barrier code?") from the access facts bound to the site (`reuse`/`none`, `recommendation.askWho` in the state when missing or lapsed; never the field group).
+- Quiet hours (`org-config.ts defaultQuietHours`, wired by `main.ts`/`mcp.ts` unless `--quiet-hours off` or `--org-policy none`, and by `scripts/demo-reset.ts`): a question created 22:00-07:00 Helsinki time stays `queued` with `deliverAfter`; `GET /questions` hides it until then; moving the demo clock (`POST /demo/clock`), listing questions, investigating, requesting clarification and reading a clarification status deliver what is due. `QuestionView` carries `deliverAfter` while held and `answerType: 'free-text'` for a standing missing-symptom question.
+- Standing gaps (`org-config.ts defaultStandingGaps`, same wiring, `--standing-gaps off`): recorded on every import and clock move, asked through the coordinator after imports, answers and `Engine.upkeep()`. A free-text answer is `POST /questions/:id/answer {value: 'yes', text}`.

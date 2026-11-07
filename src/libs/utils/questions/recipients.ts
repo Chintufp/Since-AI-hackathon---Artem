@@ -63,7 +63,17 @@ export function findRecipients(ctx: QuestionContext, state: InvestigationState, 
   };
   const recencyOf = (l: PersonWorkLink): string | undefined => (l.recency.known ? l.recency.iso : undefined);
 
-  if (parsed.kind === 'outcome') {
+  if (state.origin === 'standing' || parsed.kind === 'missing-symptom' || parsed.kind === 'pairing') {
+    // B1 standing gaps go to the person who performed the fix (firsthand 'performed-action' on the case), nobody else.
+    const c = cases.get(parsed.caseId);
+    const attemptId = parsed.kind === 'pairing' ? undefined : parsed.detail;
+    const performers = new Set(store.list('attempt', { where: { caseId: parsed.caseId } })
+      .filter((a) => (attemptId ? a.id === attemptId : a.performed === 'reported') && a.performedBy)
+      .map((a) => directory.resolve((a.performedBy as NonNullable<typeof a.performedBy>).id)).filter((x): x is string => !!x));
+    for (const l of links.filter((x) => x.caseId === parsed.caseId && x.contribution === 'performed-action' && performers.has(x.personEntityId))) {
+      add(l.personEntityId, `Firsthand: ${VERB[l.contribution]} in "${c?.title ?? parsed.caseId}"`, recencyOf(l), true, `${VERB[l.contribution]} in ${c ? shortCaseLabel(store, c) : 'that case'}`);
+    }
+  } else if (parsed.kind === 'outcome') {
     const c = cases.get(parsed.caseId);
     for (const l of links.filter((x) => x.caseId === parsed.caseId && PAST.includes(x.contribution))) {
       add(l.personEntityId, `Firsthand: ${VERB[l.contribution]} in "${c?.title ?? parsed.caseId}"`, recencyOf(l), true, `${VERB[l.contribution]} in ${c ? shortCaseLabel(store, c) : 'that case'}`);

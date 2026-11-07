@@ -1,0 +1,16 @@
+{
+  "channel": "teams-followups-synthetic",
+  "note": "Generated follow-up (synthetic, written by the day-2 B1 build). Imported by the demo reset only when Elisa's example is not on this machine, so the firmware story also works on a clean clone. See ../followups/README.md.",
+  "participants": [
+    { "name": "Helmi Virtanen", "role": "Network Expert" }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "2026-10-14T10:05:00+03:00",
+      "author": "Helmi Virtanen",
+      "role": "Network Expert",
+      "text": "TRN-117 follow-up: the 4.2 firmware fixes the forwarding-state bug. Units already on 4.2 should not see it; if they do, it is something else."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "channel": "teams-followups",
+  "note": "Generated follow-up (synthetic, written by the day-2 B1 build). Not part of Elisa's example. See README.md.",
+  "participants": [
+    { "name": "Erkki Expert", "role": "Network Expert" }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "2026-10-14T10:05:00+03:00",
+      "author": "Erkki Expert",
+      "role": "Network Expert",
+      "text": "TRN-042 follow-up: the 4.2 firmware fixes the forwarding-state bug. Units already on 4.2 should not see it; if they do, it is something else."
+    }
+  ]
+}

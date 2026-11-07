@@ -260,7 +260,8 @@ export function rebuildCase(store: KnowledgeStore, caseId: string, options: Rebu
     if (!l.claimId) continue;
     const cl = all.find((x) => x.id === l.claimId);
     if (!cl || linkSetByHuman(store, l.id)) continue; // a human-set link status is never moved by the system
-    const want = isLive(cl) ? (l.status === 'rejected' ? 'provisional' : l.status) : 'rejected';
+    // B1: a superseded claim was still said by that person; their link stays (only retracted/corrected/contradicted reject it).
+    const want = isLive(cl) || cl.status === 'superseded' ? (l.status === 'rejected' ? 'provisional' : l.status) : 'rejected';
     if (want !== l.status) store.put('personLink', { ...l, status: want });
   }
 

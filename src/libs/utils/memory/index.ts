@@ -10,12 +10,17 @@ import { canSee } from './access.ts';
 import { commitProposal, refreshClaimSupport } from './commit.ts';
 import { defaultExtractionConfig, type ExtractionConfig } from './extraction-config.ts';
 import { extractFromContext } from './extractor-rules.ts';
+import { recordStandingGaps, type StandingGapSettings } from './standing-gaps.ts';
 import { assignEpisodes } from './episodes.ts';
 import { applyMembershipGrants } from './membership.ts';
 
 export { openStore } from './sqlite-store.ts';
 export type { SqliteKnowledgeStore, StoreOptions } from './sqlite-store.ts';
 export { buildCaseView } from './case-view.ts';
+export { contextAssertions, resolveContextEntity } from './context-assertions.ts';
+export { recordStandingGaps, defaultStandingGapSettings, STANDING_PRINCIPAL_ID } from './standing-gaps.ts';
+export type { StandingGapSettings, StandingResult } from './standing-gaps.ts';
+export { instantOf, isNewer, parseAt, shortDate, timePosition, validAt } from './validity.ts';
 export { caseLabel } from './case-label.ts';
 export { defaultViewConfig, humanAction, pastAction } from './view-config.ts';
 export type { ViewConfig } from './view-config.ts';
@@ -45,6 +50,11 @@ export interface ImportFromPathRequest {
   /** Clock injection for tests. */
   now?: string;
   config?: Partial<ExtractionConfig>;
+  /**
+   * B1: record capture-time standing gaps after the commit (memory/standing-gaps.ts), at `now`. Omitted = no pass
+   * (experiments import without it, so their stores are unchanged).
+   */
+  standing?: Partial<StandingGapSettings>;
 }
 
 export interface ImportFromPathResult {
@@ -130,6 +140,7 @@ export function importFromPath(store: KnowledgeStore, req: ImportFromPathRequest
   }
   applyMembershipGrants(store, req.orgId, evidence);
   refreshClaimSupport(store, relinked, req.now);
+  if (req.standing) recordStandingGaps(store, { orgId: req.orgId, now: req.now ?? new Date().toISOString(), settings: req.standing });
   const sum = (k: keyof ImportBatch['counts']) => batches.reduce((n, b) => n + b.counts[k], 0);
   const batch: ImportBatch =
     batches.length === 1

@@ -14,8 +14,8 @@ import {
   defaultInvestigationSettings, investigate, investigationId, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
   type InvestigationSettings, type PersonDirectory,
 } from '../../libs/utils/investigation/index.ts';
-import { buildCaseView, importFromPath, listCases, openStore } from '../../libs/utils/memory/index.ts';
-import { TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
+import { buildCaseView, contextAssertions, defaultStandingGapSettings, importFromPath, listCases, openStore, parseAt, recordStandingGaps, resolveContextEntity, type StandingGapSettings } from '../../libs/utils/memory/index.ts';
+import { evaluateEligibility, TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
 import { createSelector, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
 import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
 import { buildPeople } from '../../libs/utils/investigation/index.ts';
@@ -73,6 +73,15 @@ export interface EngineOptions {
   /** Directory holding families.json + family folders. */
   scenariosDir?: string;
   fixturesDir?: string;
+  /** B1: generated dated follow-ups imported by the demo reset (default data/demo/followups). */
+  followupsDir?: string;
+  /** B1: follow-ups imported only when Elisa's thread is absent (default data/demo/followups-synthetic). */
+  followupsSyntheticDir?: string;
+  /**
+   * B1: capture-time standing gaps. They are always recorded on import (and on clock moves); `ask: true` (wired by the
+   * service, the MCP server and the demo scripts from org-config) also asks them through the coordinator.
+   */
+  standingGaps?: Partial<StandingGapSettings> & { ask?: boolean };
 }
 
 export interface ClarificationResult {
@@ -195,7 +204,64 @@ export class Engine {
     return person ? { id: person.id, displayName: person.name, groups: person.groups, type: 'human' } : { id: wanted, displayName: wanted, groups: [], type: 'human' };
   }
 
+  /**
+   * B1: deliver questions held by quiet hours whose window has come. Called on clock moves, question listings, requests,
+   * investigations and status reads (there is no timer: the demo clock and the panel's poll drive it).
+   */
+  private deliverDue(): void {
+    if (!this.store.list('question', { where: { status: 'queued' } }).some((q) => q.deliverAfter)) return;
+    this.wiring().coordinator.deliverDue();
+  }
+
+  private standingSettings(): StandingGapSettings {
+    const { ask: _ask, ...rest } = this.opts.standingGaps ?? {};
+    return { ...defaultStandingGapSettings, diagnosticActions: this.invSettings().diagnosticActions, ...rest };
+  }
+
+  /**
+   * B1: ask open standing gaps through the same coordinator (recipients, eligibility, budgets, quiet hours). A state is
+   * requested only when some recipient is eligible now, so a busy person leaves no decision records behind; a person with
+   * an open question (an investigation's, or another standing one) is not eligible. Most useful kind first.
+   */
+  async askStanding(): Promise<QuestionRecord[]> {
+    if (!this.opts.standingGaps?.ask) return [];
+    const w = this.wiring();
+    const ctx = { store: this.store, settings: w.settings, directory: w.directory, clock: this.clock };
+    const rank = (st: InvestigationState): number => {
+      const kinds = st.gaps.filter((g) => g.status === 'open').map((g) => parseGapId(g.id)?.kind);
+      return kinds.includes('outcome') ? 0 : kinds.includes('pairing') ? 1 : 2;
+    };
+    const states = this.store.list('investigation').filter((st) => st.origin === 'standing' && st.gaps.some((g) => g.status === 'open'))
+      .sort((a, b) => rank(a) - rank(b) || a.id.localeCompare(b.id));
+    const out: QuestionRecord[] = [];
+    for (const st of states) {
+      if (questionsForInvestigation(this.store, st.id).some((q) => ACTIVE_QUESTION.has(q.status))) continue;
+      const cands = await w.generator.generate(st, w.settings.questions.maxCandidates);
+      if (!cands.some((c) => c.recipientIds.some((pid) => evaluateEligibility(ctx, st, c, pid).eligible))) continue;
+      const r = await w.coordinator.request(st);
+      if (r.question) out.push(r.question);
+    }
+    return out;
+  }
+
+  /**
+   * B1: upkeep at the engine's now: deliver questions whose quiet-hours window has come, re-record standing gaps (a 24 h
+   * outcome gap becomes due as the clock moves) and ask them. Run on clock moves; callable by hosts and tests.
+   */
+  async upkeep(): Promise<QuestionRecord[]> {
+    this.deliverDue();
+    recordStandingGaps(this.store, { orgId: this.orgId, now: this.now().toISOString(), settings: this.standingSettings() });
+    return this.askStanding();
+  }
+
   // ---- trace --------------------------------------------------------------------------------
+
+  /** B1 review: background upkeep never fails silently; the failure is a trace event (the request itself succeeded). */
+  private standingFailed(after: 'import' | 'clock', e: unknown): void {
+    try {
+      this.trace('standing', 'standing.failed', { id: 'system', displayName: 'standing gaps' }, { after, error: e instanceof Error ? e.message : String(e) });
+    } catch { /* the store itself is gone (closed); nothing left to record into */ }
+  }
 
   private trace(traceId: string, type: string, actor: TraceEvent['actor'], data: Record<string, unknown> = {}): TraceEvent {
     const e: TraceEvent = { id: freshId('evt'), at: this.now().toISOString(), type, traceId, ...(actor ? { actor } : {}), data };
@@ -253,7 +319,7 @@ export class Engine {
       res = importFromPath(this.store, {
         format: req.format, ...(req.path ? { path: req.path } : {}), ...(req.payload !== undefined ? { payload: req.payload } : {}),
         ...(req.connectionId ? { connectionId: req.connectionId } : {}), ...(req.accessGroups ? { accessGroups: req.accessGroups } : {}),
-        orgId: this.orgId, now: this.now().toISOString(),
+        orgId: this.orgId, now: this.now().toISOString(), standing: this.standingSettings(),
       });
     } catch (e) {
       throw badRequest(`Import failed: ${e instanceof Error ? e.message : String(e)}`);
@@ -264,6 +330,7 @@ export class Engine {
     // A scenario directory imports several sources, each its own batch; the response's batch id is their combination.
     const points = this.awardEvidence(new Set(this.store.list('importBatch').map((b) => b.id).filter((id) => !batchesBefore.has(id))));
     this.trace(res.batch.id, 'import.completed', { id: 'system', displayName: 'import' }, { format: req.format, counts: res.batch.counts, cases: res.cases, claims: res.claims, people: res.people, ...(points.length ? { points } : {}) });
+    if (this.opts.standingGaps?.ask) void this.askStanding().catch((e) => this.standingFailed('import', e));
     return points.length ? { ...res, points } : res;
   }
 
@@ -339,16 +406,37 @@ export class Engine {
     return { ...v, caveat: polishCaveat(v.caveat), people };
   }
 
+  /**
+   * B1: GET /context. Assertions bound to an entity (id, name or alias among the entities the principal may see),
+   * with validity windows, source and status, evaluated at `at` (default now). Access as for every other read.
+   */
+  contextAssertions(entity: string, at?: string, principalId?: string): ApiRoutes['GET /context']['res'] {
+    const atMs = at === undefined ? this.now().getTime() : parseAt(at);
+    if (atMs === undefined) throw badRequest(`Invalid at: ${at} (ISO 8601 with a zone, e.g. 2026-10-20T12:00:00Z)`);
+    const principal = this.principalFor(principalId);
+    const ent = resolveContextEntity(this.store, entity, principal);
+    if (!ent) throw notFound(`Unknown entity ${entity}`);
+    return contextAssertions(this.store, ent, principal, atMs, at);
+  }
+
   async investigate(req: InvestigateRequest): Promise<InvestigationResult> {
+    this.deliverDue();
     const principal = this.effective(req.principal);
     const w = this.wiring();
     const observations = req.observations ?? [];
-    const problemId = stableId('prob', this.orgId, principal.id, req.text.trim(), (req.entityIds ?? []).join(','), JSON.stringify(observations.map((o) => [o.key, o.operator, o.value ?? null])), (req.attachmentNames ?? []).join('|'));
+    // B1: a point-in-time view is its own investigation (the moment is part of the id) and never asks anyone.
+    let at: string | undefined;
+    if (req.at !== undefined) {
+      const ms = parseAt(req.at);
+      if (ms === undefined) throw badRequest(`Invalid at: ${req.at} (ISO 8601 with a zone, e.g. 2026-10-20T12:00:00Z)`);
+      at = new Date(ms).toISOString();
+    }
+    const problemId = stableId('prob', this.orgId, principal.id, req.text.trim(), (req.entityIds ?? []).join(','), JSON.stringify(observations.map((o) => [o.key, o.operator, o.value ?? null])), (req.attachmentNames ?? []).join('|'), ...(at ? [`at:${at}`] : []));
     const problem: Problem = {
       id: problemId, orgId: this.orgId, text: req.text.trim(),
       requester: principal.type === 'agent' ? { id: 'agent', displayName: principal.displayName, agentId: principal.id } : actorOf(principal),
       ...(req.entityIds ? { entityIds: req.entityIds } : {}), ...(observations.length ? { observations } : {}),
-      ...(req.attachmentNames ? { attachmentNames: req.attachmentNames } : {}), createdAt: this.now().toISOString(),
+      ...(req.attachmentNames ? { attachmentNames: req.attachmentNames } : {}), createdAt: this.now().toISOString(), ...(at ? { at } : {}),
     };
     let state: InvestigationState;
     // The id is derived from the whole request, so a repeat carries no new observations or attachments: what the stored
@@ -356,7 +444,7 @@ export class Engine {
     const prior = this.store.get('investigation', investigationId(problemId));
     try {
       state = await investigate({ problem, store: this.store, principal, deps: { retriever: w.retriever, assessor: w.assessor, generator: w.generator, selector: w.selector, settings: w.settings, clock: this.clock, directory: w.directory } });
-      if (req.allowQuestions !== false) state = (await w.coordinator.request(state)).state;
+      if (req.allowQuestions !== false && !at) state = (await w.coordinator.request(state)).state;
       if (prior?.loop === 'answered' && state.loop === 'no-question-needed') {
         state = this.store.put('investigation', { ...state, loop: 'answered', loopReason: prior.loopReason ?? w.settings.loopReasons.answered });
       }
@@ -369,11 +457,27 @@ export class Engine {
   getInvestigation(id: string, principalId?: string): InvestigationResult {
     // Known gap (see worker report): an absent principalId is still accepted because the typed GET contract carries no
     // principal and tests/e2e.test.ts reads without one. A deployment must authenticate callers.
+    this.deliverDue();
     return this.view(this.owned(id, principalId));
+  }
+
+  /**
+   * B1: the stored problem of an investigation re-run as of `at` (its own investigation id; no question is asked).
+   * Only the principal that started the investigation may do this, as for every other read of it.
+   */
+  async contextAt(id: string, at: string, principalId?: string): Promise<InvestigationResult> {
+    const state = this.owned(id, principalId);
+    const starter = startedBy(state) ?? this.principalFor(principalId);
+    const p = state.problem;
+    return this.investigate({
+      text: p.text, principal: starter, ...(p.entityIds ? { entityIds: p.entityIds } : {}), ...(p.observations ? { observations: p.observations } : {}),
+      ...(p.attachmentNames ? { attachmentNames: p.attachmentNames } : {}), allowQuestions: false, at,
+    });
   }
 
   /** Run the clarification loop for an existing investigation. Limits and eligibility are the coordinator's, whoever asks. */
   async requestClarification(principalIn: Principal, investigationId: string): Promise<ClarificationResult> {
+    this.deliverDue();
     const principal = this.effective(principalIn);
     const state0 = this.owned(investigationId, principal.id);
     const w = this.wiring();
@@ -466,14 +570,19 @@ export class Engine {
   }
 
   questions(query: { personEntityId?: string; status?: string }): QuestionView[] {
+    this.deliverDue();
     const where = query.personEntityId ? { personEntityId: query.personEntityId } : undefined;
     const wanted = query.status === 'all' ? undefined : query.status ? [query.status] : ['queued', 'delivered', 'deferred'];
+    const now = this.now().getTime();
     return this.store.list('question', where ? { where } : {})
       .filter((q) => !wanted || wanted.includes(q.status))
+      // B1: a question held by quiet hours is not in anyone's inbox before its window (the panel treats queued as open).
+      .filter((q) => !(q.status === 'queued' && q.deliverAfter && Date.parse(q.deliverAfter) > now))
       .map((q) => this.questionFor(q));
   }
 
   question(id: string): QuestionView {
+    this.deliverDue();
     return this.questionFor(this.mustQuestion(id));
   }
 
@@ -493,6 +602,11 @@ export class Engine {
     const principal = this.effective(req.principal);
     let q = this.mustQuestion(questionId);
     this.recipientCheck(q, principal);
+    // B1 review: a free-text question (standing missing symptom) needs words; a bare Yes/No would use up the gap and
+    // record nothing. 'unknown' (Not sure) is still accepted and records nothing, as for any question.
+    if (q.candidate.answerType === 'free-text' && req.value !== 'unknown' && !req.text?.trim()) {
+      throw badRequest('This question asks for your own words: write what you saw, or answer Not sure');
+    }
     if (q.status === 'deferred') q = (await this.undo(questionId, { principal })).question;
     if (q.status === 'answered' && q.answerId) {
       const prev = this.store.get('answer', q.answerId);
@@ -509,7 +623,9 @@ export class Engine {
       this.sync(r.state);
       const kind: ParticipationKind = req.value === 'yes' ? 'answer-yes' : req.value === 'no' ? 'answer-no' : 'answer-unknown';
       const points = this.award({ personEntityId: q.personEntityId, contributionEventId: r.answer.id, kind, summary: `Answered a question (${req.value === 'unknown' ? 'not sure' : req.value})`, refId: q.id });
-      return { answer: r.answer, receipt: this.receipt(req.value, r.question, r.state, points, r.recommendationChanged), question: r.question };
+      const receipt = this.receipt(req.value, r.question, r.state, points, r.recommendationChanged);
+      await this.askStanding();
+      return { answer: r.answer, receipt, question: r.question };
     } catch (e) {
       throw toServiceError(e);
     }
@@ -521,6 +637,17 @@ export class Engine {
     const gapKind = parseGapId(q.candidate.gapId)?.kind;
     const asked = `"${q.candidate.text.replace(/\s+/g, ' ').trim()}"`;
     const lead = value === 'unknown' ? `You were not sure about ${asked}.` : `You answered ${value} to ${asked}.`;
+    if (state?.origin === 'standing') {
+      // B1: a standing gap changes the case record, never a recommendation.
+      const a = q.answerId ? this.store.get('answer', q.answerId) : undefined;
+      const detail = gapKind === 'missing-symptom'
+        ? (a?.text && value !== 'unknown' ? `You described the problem: "${clip(a.text, 120)}". It is kept as your report on the case.` : 'Nothing was recorded, and you will not be asked this again.')
+        : gapKind === 'pairing'
+        ? value === 'yes' ? `${lead} The two cases are now linked, with your answer as the evidence.`
+          : value === 'no' ? `${lead} The two cases stay separate and will not be suggested together again.` : `${lead} Nothing was linked.`
+        : value === 'unknown' ? `${lead} No outcome was recorded.` : `${lead} The outcome is recorded on the case as your report.`;
+      return { title: gapKind === 'missing-symptom' && value !== 'unknown' ? 'Recorded: your description' : label, detail, canUndo: true, ...(points ? { pointsAwarded: points } : {}) };
+    }
     const effect = value === 'unknown'
       ? 'No new fact was recorded, and you will not be asked this again.'
       : state && value === 'no' && state.recommendation.kind === 'retain-uncertainty' && gapKind === 'missing' ? 'The earlier case does not apply to this unit, so the recommendation stays uncertain.'
@@ -593,6 +720,7 @@ export class Engine {
 
   /** Status of one clarification question for the investigation's requester (never for anyone else). */
   clarificationStatus(principalIn: Principal, questionId: string): { questionId: string; investigationId: string; status: string; text: string; cancelReason?: string; answer?: { value: string; answeredBy: string; at: string } } {
+    this.deliverDue();
     const principal = this.effective(principalIn);
     const q = this.mustQuestion(questionId);
     this.owned(q.candidate.investigationId, principal.id);
@@ -631,7 +759,7 @@ export class Engine {
     const recorded = this.store.list('observation', { where: { investigationId: state.id } });
     const parsed = parseProblemText(state.problem.text, state.problem.id, {
       olderThroughYear: settings.ageFold.olderThroughYear, ...(settings.modelParser !== undefined ? { modelParser: settings.modelParser } : {}),
-    }).conditions;
+    }).conditions.filter((c) => !c.key.startsWith('intent.'));
     // A condition is shown with its value; one without a value ("Installed year" observed but not stated) says nothing and is skipped.
     const parsedSet = new Set<Condition>(parsed);
     const label = (c: Condition): string => {
@@ -762,6 +890,7 @@ export class Engine {
     try {
       const s = this.demoClock.set(input);
       this.trace('demo', 'demo.clock', { id: 'system', displayName: 'demo' }, { mode: s.mode, now: s.now, rate: s.rate });
+      void this.upkeep().catch((e) => this.standingFailed('clock', e));
       return s;
     } catch (e) {
       throw badRequest(e instanceof Error ? e.message : String(e));

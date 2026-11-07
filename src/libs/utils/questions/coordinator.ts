@@ -9,11 +9,12 @@ import {
   type InvestigationSettings, type PersonDirectory,
 } from '../investigation/index.ts';
 import { ANSWER_DIFFERS_FROM_CASE, ANSWER_MATCHES_CASE, foldYearToAge } from '../retrieval/conditions.ts';
-import { uniqueRoutes } from '../models/routes.ts';
+import { routeInfo, uniqueRoutes } from '../models/routes.ts';
 import { actionKey, SUPPORT_LEVEL } from '../policies/features.ts';
 import type { QuestionContext } from './context.ts';
 import { evaluateEligibility, PERMANENT_VIOLATIONS } from './eligibility.ts';
 import { findRecipients, type RecipientReason } from './recipients.ts';
+import { inQuiet, nextWindow } from './quiet-hours.ts';
 
 export interface CoordinatorDeps {
   store: KnowledgeStore;
@@ -177,14 +178,38 @@ export class QuestionCoordinator {
       };
       store.put('question', question);
       state.questionIds = [...state.questionIds, question.id];
+      // B1 review: an investigation question preempts the person's open standing question, which moves to Later, so the
+      // person still has one open question at a time (D-B1-40).
+      if (cand.origin !== 'standing') {
+        for (const sq of store.list('question', { where: { personEntityId: question.personEntityId } })) {
+          if (sq.candidate.origin !== 'standing' || (sq.status !== 'delivered' && sq.status !== 'queued')) continue;
+          store.put('question', { ...sq, status: 'deferred', previousStatus: sq.status, updatedAt: now.toISOString() });
+          const sst = store.get('investigation', sq.candidate.investigationId);
+          if (sst && sst.id !== state.id) {
+            this.trace(sst, 'question.preempted', { questionId: sq.id, personEntityId: sq.personEntityId, by: question.id });
+            store.put('investigation', sst);
+          }
+        }
+      }
       this.trace(state, 'question.queued', { questionId: question.id, personEntityId: question.personEntityId, decisionId: decision.id });
-      if (opts.deliver !== false) question = await this.deliver(question.id);
-      this.setLoop(state, 'question-open', this.waitingReason((chosen as EligibleAction).personEntityId, state, cand.gapId, recipientCache.get(cand.gapId)));
+      const qh = settings.coordinator.quietHours;
+      if (qh && inQuiet(now, qh)) {
+        // B1: nobody is interrupted inside quiet hours; the question waits, queued, for the next window.
+        const at = nextWindow(now, qh).toISOString();
+        question = store.put('question', { ...question, deliverAfter: at });
+        this.trace(state, 'question.held', { questionId: question.id, personEntityId: question.personEntityId, deliverAfter: at, quietHours: qh });
+        this.setLoop(state, 'question-open', `Queued until ${qh.end}: nobody is woken at night`);
+      } else {
+        if (opts.deliver !== false) question = this.deliverNow(question.id);
+        this.setLoop(state, 'question-open', this.waitingReason((chosen as EligibleAction).personEntityId, state, cand.gapId, recipientCache.get(cand.gapId)));
+      }
     } else {
       const reasons = this.d.settings.loopReasons;
       const used = questionsForInvestigation(store, state.id).filter((q) => q.status !== 'cancelled').length;
       const asked = (e: RecipientEligibility): boolean => e.violations.includes('already-asked') || e.violations.includes('duplicate');
-      if (candidates.length === 0) this.setLoop(state, 'no-question-needed', reasons.noQuestionNeeded);
+      // B1: an access lookup that names who to ask (no case gap to cite) keeps its own loop line.
+      if (candidates.length === 0 && state.recommendation.askWho && state.loop === 'deferred') this.setLoop(state, 'deferred', state.loopReason ?? reasons.noRecipient);
+      else if (candidates.length === 0) this.setLoop(state, 'no-question-needed', reasons.noQuestionNeeded);
       // 'exhausted' means only one thing: the per-investigation question budget is used.
       else if (used >= settings.coordinator.maxQuestionsPerInvestigation) this.setLoop(state, 'exhausted', reasons.budgetUsed);
       else if (eligibility.length === 0) this.setLoop(state, 'deferred', reasons.noRecipient);
@@ -201,16 +226,62 @@ export class QuestionCoordinator {
 
   /** Recheck eligibility (state may have changed since queueing); deliver or cancel as obsolete. */
   async deliver(questionId: string): Promise<QuestionRecord> {
+    return this.deliverNow(questionId);
+  }
+
+  /**
+   * Synchronous delivery. A question held by quiet hours is not delivered before its `deliverAfter`. A standing question
+   * of the 'later' pile goes straight to 'deferred' (listed under Later, never an interruption, so no deliveredAt).
+   */
+  deliverNow(questionId: string): QuestionRecord {
     const q = this.mustGet(questionId);
     if (q.status !== 'queued') return q;
+    const nowD = this.now();
+    if (q.deliverAfter && Date.parse(q.deliverAfter) > nowD.getTime()) return q;
+    // B1 review: a window that passed unpolled must not let the question out inside the NEXT quiet period
+    // (clock moved from 03:00 one night to 03:00 the next): hold it again until the next window.
+    const qh = this.d.settings.coordinator.quietHours;
+    if (qh && inQuiet(nowD, qh)) {
+      const at = nextWindow(nowD, qh).toISOString();
+      return q.deliverAfter === at ? q : this.store.put('question', { ...q, deliverAfter: at, updatedAt: nowD.toISOString() });
+    }
     const state = this.load(q.candidate.investigationId);
     const e = evaluateEligibility(this.ctx, state, q.candidate, q.personEntityId, { ignoreQuestionIds: [q.id] });
-    const now = this.now().toISOString();
+    const now = nowD.toISOString();
     if (!e.eligible) {
       const reason = e.violations.includes('gap-resolved') ? 'gap-resolved' : e.violations.includes('duplicate') ? 'duplicate' : 'obsolete';
       return this.store.put('question', { ...q, status: 'cancelled', cancelReason: reason, previousStatus: q.status, updatedAt: now });
     }
+    if (q.candidate.pile === 'later') return this.store.put('question', { ...q, status: 'deferred', previousStatus: q.status, updatedAt: now });
     return this.store.put('question', { ...q, status: 'delivered', deliveredAt: now, previousStatus: q.status, updatedAt: now });
+  }
+
+  /**
+   * B1: deliver every queued question whose quiet-hours window has come (deliverAfter <= now). deliver() re-checks
+   * eligibility, and deliveredAt is now, so the daily limit and cooldown count from the window, not from creation.
+   */
+  deliverDue(): QuestionRecord[] {
+    const now = this.now().getTime();
+    const due = this.store.list('question', { where: { status: 'queued' } })
+      .filter((q) => q.deliverAfter && Date.parse(q.deliverAfter) <= now)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    const out: QuestionRecord[] = [];
+    for (const q of due) {
+      const r = this.deliverNow(q.id);
+      if (r.status === 'queued') continue; // held again: inside the next quiet period
+      out.push(r);
+      const state = this.store.get('investigation', q.candidate.investigationId);
+      if (!state) continue;
+      if (r.status === 'delivered' || r.status === 'deferred') {
+        this.trace(state, 'question.delivered', { questionId: q.id, personEntityId: q.personEntityId, held: true, status: r.status });
+        this.setLoop(state, 'question-open', this.waitingReason(q.personEntityId, state, q.candidate.gapId));
+      } else {
+        this.trace(state, 'question.cancelled', { questionId: q.id, reason: r.cancelReason });
+        this.setLoop(state, 'deferred', this.d.settings.loopReasons.peopleBusy);
+      }
+      this.store.put('investigation', state);
+    }
+    return out;
   }
 
   private mustGet(id: string): QuestionRecord {
@@ -251,6 +322,7 @@ export class QuestionCoordinator {
     const who = this.ctx.directory.resolve(principal.id);
     if (who !== q.personEntityId) throw new Error(`Principal ${principal.id} is not the recipient of question ${questionId}`);
     let state = this.load(q.candidate.investigationId);
+    if (state.origin === 'standing') return this.answerStanding(q, state, value, principal, text);
     const parsed = parseGapId(q.candidate.gapId);
     const gap = state.gaps.find((g) => g.id === q.candidate.gapId);
     const now = this.now().toISOString();
@@ -304,6 +376,81 @@ export class QuestionCoordinator {
     this.store.put('investigation', state);
     const cancelled = await this.cancelObsolete(state.id);
     return { answer, question: updated, state: this.load(state.id), cancelled, recommendationChanged };
+  }
+
+  /**
+   * B1: an answer to a standing gap. Nothing is re-investigated (a standing state has no problem to rebuild):
+   * - outcome: an attributed outcome Observation on the case (every investigation citing the case sees it);
+   * - pairing: Yes records a confirmed Pattern linking the two cases with the answer as evidence (and the orphan's missing
+   *   symptom is resolved by it); No records a rejected Pattern, so the pair is never proposed again;
+   * - missing-symptom: the free text is stored as attributed evidence on the case (evidence + an Observation).
+   * Unknown records the answer and changes nothing.
+   */
+  private async answerStanding(q: QuestionRecord, state: InvestigationState, value: AnswerValue, principal: Principal, text?: string): Promise<AnswerResult> {
+    const parsed = parseGapId(q.candidate.gapId);
+    const now = this.now().toISOString();
+    const answerId = stableId('ans', q.id);
+    const words = text?.trim();
+    const evText = parsed?.kind === 'missing-symptom' && words
+      ? `Symptom before ${q.candidate.text.replace(/^You\s+/, '').replace(/\.\s.*$/, '')}: ${words} (reported by ${principal.displayName}, answering: ${q.candidate.text})`
+      : `Answer "${value}" to: ${q.candidate.text}${words ? ` Note: ${words}` : ''} (answered by ${principal.displayName})`;
+    const env = this.evidenceFor(state, principal, 'answer:desktop', answerId, evText, parsed?.caseId, { questionId: q.id, value, standing: parsed?.kind ?? 'unknown', ...(parsed?.caseId ? { caseId: parsed.caseId } : {}) });
+    const evRef = { evidenceId: env.id, excerpt: evText.slice(0, 120) };
+    const resolve = new Set<string>();
+    let condition: Condition | undefined;
+    if (parsed?.kind === 'outcome' && value !== 'unknown') {
+      condition = { key: OUTCOME_KEY, operator: 'eq', value: value === 'yes' ? 'recovered' : 'no-change', origin: 'reported', evidence: [evRef], label: `Outcome after ${parsed.detail}: ${value === 'yes' ? 'recovered' : 'no change'} (answered)` };
+      resolve.add(q.candidate.gapId);
+    } else if (parsed?.kind === 'pairing' && value !== 'unknown') {
+      const ids = [parsed.caseId, parsed.detail].sort();
+      const a = this.store.get('case', parsed.caseId), b = this.store.get('case', parsed.detail);
+      this.store.put('pattern', {
+        id: stableId('pattern', 'pairing', ...ids), orgId: state.orgId, title: `${a?.title ?? parsed.caseId} + ${b?.title ?? parsed.detail}`, caseIds: ids,
+        sharedConditions: [], distinguishingConditions: [], createdBy: routeInfo('standing-gaps'), status: value === 'yes' ? 'confirmed' : 'rejected',
+        evidence: [evRef], answerId, decidedAt: now,
+      });
+      resolve.add(q.candidate.gapId);
+      // A confirmed pairing gives the orphan fix its symptom (the other case's), so that gap is settled too.
+      if (value === 'yes') for (const g of state.gaps) if (parseGapId(g.id)?.kind === 'missing-symptom' && g.status === 'open') resolve.add(g.id);
+    } else if (parsed?.kind === 'missing-symptom' && words && value !== 'unknown') {
+      condition = { key: 'case.symptom', operator: 'eq', value: words, origin: 'reported', evidence: [evRef], label: `Symptom: ${words} (answered)` };
+      const c = this.store.get('case', parsed.caseId);
+      if (c && !c.evidenceIds.includes(env.id)) this.store.put('case', { ...c, evidenceIds: [...c.evidenceIds, env.id], updatedAt: now });
+      resolve.add(q.candidate.gapId);
+    }
+    const answer: Answer = { id: answerId, orgId: state.orgId, questionId: q.id, personEntityId: q.personEntityId, value, ...(words ? { text: words } : {}), at: now, claimUpdates: [], evidenceId: env.id };
+    this.store.put('answer', answer);
+    if (condition) this.store.put('observation', { id: stableId('obs', answerId), orgId: state.orgId, investigationId: state.id, ...(parsed ? { caseId: parsed.caseId } : {}), condition, reportedBy: actorOf(principal), at: now });
+    const updated = this.store.put('question', { ...q, status: 'answered', answerId, previousStatus: q.status, updatedAt: now });
+    state.gaps = state.gaps.map((g) => (resolve.has(g.id) ? { ...g, status: 'resolved' as const, resolvedBy: { answerId, evidenceId: env.id } } : g));
+    this.trace(state, 'question.answered', { questionId: q.id, answerId, value, standing: parsed?.kind });
+    const ev = this.store.get('evaluation', q.decisionId) as (EvaluationRecord & { id: string }) | undefined;
+    if (ev) this.store.put('evaluation', { ...ev, response: { value, latencyMs: Math.max(0, Date.parse(now) - Date.parse(q.deliveredAt ?? q.createdAt)) }, missingFeedback: false });
+    this.setLoop(state, 'answered', this.d.settings.loopReasons.answeredNoChange);
+    state.updatedAt = now;
+    this.store.put('investigation', state);
+    const cancelled = await this.cancelObsolete(state.id);
+    return { answer, question: updated, state: this.load(state.id), cancelled, recommendationChanged: false };
+  }
+
+  /** B1: withdraw an answer to a standing gap: the gap reopens, its Pattern, observation and evidence are removed. */
+  private undoStanding(q: QuestionRecord): QuestionRecord {
+    const state = this.load(q.candidate.investigationId);
+    const answerId = q.answerId as string;
+    const a = this.store.get('answer', answerId);
+    for (const p of this.store.list('pattern').filter((x) => x.answerId === answerId)) this.store.delete('pattern', p.id);
+    this.store.delete('answer', answerId);
+    this.store.delete('observation', stableId('obs', answerId));
+    if (a) {
+      this.store.delete('evidence', a.evidenceId);
+      for (const c of this.store.list('case').filter((x) => x.evidenceIds.includes(a.evidenceId))) this.store.put('case', { ...c, evidenceIds: c.evidenceIds.filter((id) => id !== a.evidenceId) });
+    }
+    state.gaps = state.gaps.map((g) => (g.resolvedBy?.answerId === answerId ? (({ resolvedBy: _r, ...rest }) => ({ ...rest, status: 'open' as const }))(g) : g));
+    this.setLoop(state, 'question-open', this.waitingReason(q.personEntityId, state, q.candidate.gapId));
+    this.store.put('investigation', state);
+    const { answerId: _drop, ...rest } = { ...q, status: q.previousStatus as QuestionRecord['status'], updatedAt: this.now().toISOString() };
+    this.store.put('question', rest);
+    return rest;
   }
 
   /** Re-run the assessment with every recorded observation/answer; carries questions, decisions and events over. */
@@ -390,6 +537,7 @@ export class QuestionCoordinator {
       const requester = startedBy(this.load(q.candidate.investigationId));
       if (who.type !== 'agent' && who.id !== requester?.id) throw new Error('Only the requester or an agent can undo a cancellation');
     } else if (this.ctx.directory.resolve(who.id) !== q.personEntityId) throw new Error('Only the recipient can undo');
+    if (q.status === 'answered' && q.answerId && this.store.get('investigation', q.candidate.investigationId)?.origin === 'standing') return this.undoStanding(q);
     if (q.status === 'answered' && q.answerId) {
       const a = this.store.get('answer', q.answerId);
       this.store.delete('answer', q.answerId);

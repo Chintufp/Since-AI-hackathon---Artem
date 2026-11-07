@@ -5,15 +5,20 @@ import { casePhrase, plainLabel } from './phrases.ts';
 import type { HypothesisDetail } from './types.ts';
 import type { InvestigationSettings } from './settings.ts';
 
-export type GapKind = 'missing' | 'outcome' | 'lasting';
+/** 'missing-symptom' and 'pairing' (B1) are standing gaps recorded at capture time on a case, never by an investigation. */
+export type GapKind = 'missing' | 'outcome' | 'lasting' | 'missing-symptom' | 'pairing';
+const KINDS = new Set<string>(['missing', 'outcome', 'lasting', 'missing-symptom', 'pairing']);
+
+/** B1: the per-case standing investigation that carries a case's capture-time gaps. */
+export const standingInvestigationId = (caseId: string): string => stableId('inv', 'standing', caseId);
 
 export const makeGapId = (investigationId: string, kind: GapKind, caseId: string, detail: string): string =>
   ['gap', investigationId, kind, caseId, detail].join('|');
 
 export function parseGapId(id: string): { investigationId: string; kind: GapKind; caseId: string; detail: string } | undefined {
   const [tag, investigationId, kind, caseId, ...rest] = id.split('|');
-  if (tag !== 'gap' || !investigationId || !caseId || (kind !== 'missing' && kind !== 'outcome' && kind !== 'lasting')) return undefined;
-  return { investigationId, kind, caseId, detail: rest.join('|') };
+  if (tag !== 'gap' || !investigationId || !caseId || !kind || !KINDS.has(kind)) return undefined;
+  return { investigationId, kind: kind as GapKind, caseId, detail: rest.join('|') };
 }
 
 export interface GapInput {

@@ -46,7 +46,12 @@ export const investigateSchema = z.object({
   observations: z.array(conditionSchema).optional(),
   attachmentNames: z.array(z.string()).optional(),
   allowQuestions: z.boolean().optional(),
+  /** B1: point in time (ISO 8601 with a zone). */
+  at: z.string().min(1).optional(),
 });
+
+/** B1: GET /context query. */
+export const contextQuerySchema = z.object({ entity: z.string().trim().min(1), at: z.string().min(1).optional(), principalId: z.string().min(1).optional() });
 
 export const answerSchema = z.object({
   principal: principalSchema,

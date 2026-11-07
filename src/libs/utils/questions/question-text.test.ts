@@ -70,3 +70,27 @@ test('question text: a filled slot keeps the specific wording', async () => {
   const [c] = await h.generator.generate(st, 4);
   assert.equal(c?.text, 'Is Asset-B2 an older unit?');
 });
+
+test('question text: standing gaps (pairing, missing symptom, outcome after 24 h) have no empty slots either', async () => {
+  const { Engine } = await import('../../../apps/service/engine.ts');
+  const { parseGapId } = await import('../investigation/index.ts');
+  const time = { iso: '2026-11-07T10:00:00.000Z' };
+  const e = new Engine({ dbPath: ':memory:', clock: () => new Date(time.iso) });
+  e.importData({ format: 'teams-json', payload: { channel: 'f1', messages: [{ seq: 1, time: '08:05', author: 'Veikko Field', text: 'Bounced the port on TRN-061.' }] } });
+  e.importData({ format: 'teams-json', payload: { channel: 'f2', messages: [{ seq: 1, time: '2026-11-07T08:05:00+02:00', author: 'Veikko Field', text: 'Bounced the port on TRN-063.' }] } });
+  e.importData({ format: 'teams-json', payload: { channel: 'p1', messages: [{ seq: 1, time: '2026-11-07T09:40:00+02:00', author: 'Outi Heino', text: 'No traffic on TRN-063 again this morning. Counters are zero.' }] } });
+  time.iso = '2026-11-08T12:00:00.000Z';
+  await e.upkeep();
+  const h = makeHarness(e.store as unknown as InMemoryStore);
+  const kinds = new Set<string>();
+  for (const st of e.store.list('investigation').filter((s) => s.origin === 'standing')) {
+    // every open standing gap, one at a time (the generator offers the most useful kind first)
+    for (const g of st.gaps.filter((x) => x.status === 'open')) {
+      for (const c of await h.generator.generate({ ...st, gaps: [g] }, 8)) {
+        scan(c, `standing ${parseGapId(c.gapId)?.kind}`);
+        kinds.add(parseGapId(c.gapId)?.kind as string);
+      }
+    }
+  }
+  assert.deepEqual([...kinds].sort(), ['missing-symptom', 'outcome', 'pairing']);
+});

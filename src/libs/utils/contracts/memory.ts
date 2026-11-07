@@ -1,4 +1,4 @@
-import type { ActorRef, Condition, EvidenceRef, Iso, SourceOrigin, TimeRef, AccessScope } from './common.ts';
+import type { ActorRef, Condition, EvidenceRef, Iso, RouteInfo, SourceOrigin, TimeRef, AccessScope } from './common.ts';
 
 export type EntityType = 'asset' | 'site' | 'person' | 'component' | 'software' | 'location' | 'organization' | 'other';
 
@@ -27,7 +27,31 @@ export type ClaimType =
   | 'identity' // who someone is / their role
   | 'other';
 
-export type ClaimStatus = 'provisional' | 'supported' | 'contradicted' | 'corrected' | 'retracted';
+/**
+ * 'superseded' (B1): a newer claim replaced this one (validity.to is set, supersededBy names the newer claim). The claim
+ * keeps all its evidence and stays readable; it is not live for the persisted (now) case, but a past `at` inside its
+ * validity window still sees it.
+ */
+export type ClaimStatus = 'provisional' | 'supported' | 'contradicted' | 'corrected' | 'retracted' | 'superseded';
+
+/**
+ * When a claim holds. `from` is the first evidence's event time (never defaulted to now); an unknown `from` means
+ * "valid from before any dated moment"; an unknown `to` means "still believed true".
+ */
+export interface ClaimValidity {
+  from?: TimeRef;
+  to?: TimeRef;
+  /** Human-readable condition under which the claim holds (e.g. 'software.version < 4.2', 'changes every October'). */
+  condition?: string;
+  /** B1: the claim (a superseding note) that set `condition`, when another claim bounded this one. */
+  conditionedBy?: string;
+  /** B1: how the newer/older order behind `to` was decided: by known event times, or by import order (undated). */
+  orderBasis?: 'known-time' | 'import-order';
+  /** B1: explicit validity cue found in the source (e.g. 'is now', 'every October', 'until 1 December'). */
+  cue?: string;
+  /** B1: the route that set `to` or `condition` from another claim (e.g. supersession-rules@1). */
+  route?: RouteInfo;
+}
 
 export interface Claim {
   id: string;
@@ -40,8 +64,15 @@ export interface Claim {
   origin: SourceOrigin;
   supporting: EvidenceRef[];
   contradicting: EvidenceRef[];
-  validity: { from?: TimeRef; to?: TimeRef; condition?: string };
+  validity: ClaimValidity;
   status: ClaimStatus;
+  /** B1: the newer claim that superseded this one (status 'superseded'). Not the same as evidence metadata.supersededBy (a newer revision of a message). */
+  supersededBy?: string;
+  /**
+   * B1: for a superseding note ("fixed in firmware 4.2"): the condition under which the note supersedes older advice
+   * (e.g. software.version gte 4.2). A supersession bound, never a case condition.
+   */
+  supersessionBound?: Condition;
   extraction: { route: string; version: string };
   revision: number;
   createdAt: Iso;
@@ -150,6 +181,10 @@ export interface Pattern {
   distinguishingConditions: Condition[];
   createdBy: { route: string; version: string };
   status: 'candidate' | 'confirmed' | 'rejected';
+  /** B1: the attributed answer that confirmed or rejected the relationship (a pairing is never linked without one). */
+  evidence?: EvidenceRef[];
+  answerId?: string;
+  decidedAt?: Iso;
 }
 
 export interface Procedure {

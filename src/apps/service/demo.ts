@@ -10,7 +10,9 @@ export const DEFAULT_ELISA_DIR = join(REPO_ROOT, 'private', 'Elisa_SinceAI2026',
  * Demo reset: clear the store (settings are kept), then import
  *  - the organizer's Elisa example when it is present on this machine ('elisa' or no seed),
  *  - every 'demo' split family (sources/ and people.json only; truth.json and incoming.json are never read),
- *  - the developer fixture data/fixtures/dev-family-01 when present.
+ *  - the developer fixture data/fixtures/dev-family-01 when present,
+ *  - the generated dated follow-ups in data/demo/followups (B1) when present, and data/demo/followups-synthetic when
+ *    Elisa's thread was not imported.
  * seed 'empty' only clears.
  */
 export type DemoResetResult = { ok: true; imported: ImportResponse[]; defaultPersonEntityId?: string };
@@ -35,11 +37,15 @@ export async function resetDemo(engine: Engine, seed: 'elisa' | 'synthetic' | 'e
     return { ok: true, imported, ...(person ? { defaultPersonEntityId: person.personEntityId } : {}) };
   };
   if (seed === 'empty') return finish();
+  let elisa = false;
   if (seed !== 'synthetic') {
     const dir = opts.elisaDir ?? DEFAULT_ELISA_DIR;
     const teams = join(dir, 'teams_chat.json');
     const email = join(dir, 'email.txt');
-    if (existsSync(teams)) imported.push(engine.importData({ format: 'teams-json', path: teams, connectionId: 'import:teams:file' }));
+    if (existsSync(teams)) {
+      imported.push(engine.importData({ format: 'teams-json', path: teams, connectionId: 'import:teams:file' }));
+      elisa = true;
+    }
     if (existsSync(email)) imported.push(engine.importData({ format: 'email-text', path: email, connectionId: 'import:email:file' }));
   }
   const scenarios = opts.scenariosDir ?? join(REPO_ROOT, 'data', 'scenarios');
@@ -53,5 +59,12 @@ export async function resetDemo(engine: Engine, seed: 'elisa' | 'synthetic' | 'e
   }
   const fixture = join(opts.fixturesDir ?? join(REPO_ROOT, 'data', 'fixtures'), 'dev-family-01');
   if (existsSync(fixture)) imported.push(engine.importData({ format: 'scenario-dir', path: fixture }));
+  // B1: generated, dated follow-ups (Erkki's 14 Oct firmware note, Eino's 6 Oct barrier code); see data/demo/followups/README.md.
+  const followups = opts.followupsDir ?? join(REPO_ROOT, 'data', 'demo', 'followups');
+  if (existsSync(followups)) imported.push(engine.importData({ format: 'scenario-dir', path: followups }));
+  // Without Elisa's thread (clean clone, seed 'synthetic') Erkki's TRN-042 note bounds nothing; the same firmware note
+  // on the synthetic TRN-117 family keeps the before/after-14-Oct story working (DECISIONS-engine.md D-B1-34).
+  const synthetic = opts.followupsSyntheticDir ?? join(REPO_ROOT, 'data', 'demo', 'followups-synthetic');
+  if (!elisa && existsSync(synthetic)) imported.push(engine.importData({ format: 'scenario-dir', path: synthetic }));
   return finish();
 }

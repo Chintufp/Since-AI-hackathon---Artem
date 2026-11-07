@@ -55,18 +55,25 @@ export function evaluateEligibility(
       const key = gap?.targetCondition?.key ?? parsedGap.detail;
       const targets = foldYearToAge(c.conditions, settings.ageFold).filter((x) => x.key === key);
       if (targets.some((x) => !gate.supported(x.evidence))) v.add('access');
-    } else if (parsedGap?.kind === 'outcome') {
+    } else if (parsedGap?.kind === 'outcome' || parsedGap?.kind === 'missing-symptom') {
       const attempt = store.get('attempt', parsedGap.detail);
       if (attempt && !gate.supported(attempt.evidence)) v.add('access');
+    } else if (parsedGap?.kind === 'pairing') {
+      // The pairing question names the other case's problem: the recipient must see that case too.
+      const other = store.get('case', parsedGap.detail);
+      if (!other || !canSee(other.accessScope, { id: personEntityId, groups: person.groups }) || !visibleCase(other, gate)) v.add('access');
     }
   }
 
-  const budget = computeBudget(store, personEntityId, settings, now, ignore);
+  // B1: an investigation question always outranks standing ones: standing questions never count against it (open,
+  // daily limit, cooldown, duplicates). Standing questions themselves see every question.
+  const standingIds = candidate.origin === 'standing' ? [] : store.list('question', { where: { personEntityId } }).filter((q) => q.candidate.origin === 'standing').map((q) => q.id);
+  const budget = computeBudget(store, personEntityId, settings, now, [...ignore, ...standingIds]);
   for (const x of budgetViolations(budget, settings.coordinator.maxOpenQuestionsPerPerson, now)) v.add(x);
   const forInv = questionsForInvestigation(store, state.id).filter((q) => !ignore.includes(q.id) && q.status !== 'cancelled');
   if (candidate.kind === 'quick' && forInv.length >= settings.coordinator.maxQuestionsPerInvestigation) v.add('budget');
 
-  const same = store.list('question').filter((q) => !ignore.includes(q.id) && q.candidate.dedupKey === candidate.dedupKey);
+  const same = store.list('question').filter((q) => !ignore.includes(q.id) && q.candidate.dedupKey === candidate.dedupKey && (candidate.origin === 'standing' || q.candidate.origin !== 'standing'));
   if (same.some((q) => q.personEntityId === personEntityId && q.candidate.investigationId === candidate.investigationId && q.status !== 'cancelled')) v.add('already-asked');
   else if (same.some((q) => isActiveOrDone(q) && q.candidate.investigationId === candidate.investigationId)) v.add('duplicate');
   else {

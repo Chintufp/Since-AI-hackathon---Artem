@@ -27,3 +27,11 @@ test('main.ts rejects a bad --seed', async () => {
   const child = spawn(process.execPath, [join(ROOT, 'src/apps/service/main.ts'), '--seed', 'bogus'], { stdio: 'ignore' });
   assert.equal(await new Promise((r) => child.once('exit', (c) => r(c))), 2);
 });
+
+test('the judge and agent demos start the service with quiet hours off (the walkthrough runs on real time)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const judge = readFileSync(join(ROOT, 'scripts/demo-judge.mjs'), 'utf8');
+  assert.match(judge, /'quiet-hours': \{ type: 'string', default: 'off' \}/);
+  assert.match(judge, /'--quiet-hours', values\['quiet-hours'\]/);
+  assert.match(readFileSync(join(ROOT, 'scripts/mcp-demo.ts'), 'utf8'), /'--quiet-hours', 'off'/);
+});

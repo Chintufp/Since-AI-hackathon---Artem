@@ -12,6 +12,11 @@ export interface Problem {
   observations?: Condition[];
   attachmentNames?: string[];
   createdAt: Iso;
+  /**
+   * B1: point in time. When set, the investigation answers "what was known at `at`": evidence dated after it, answers and
+   * observations recorded after it and claims not valid at it are left out; no question is ever asked.
+   */
+  at?: Iso;
 }
 
 export interface ExpectedTrait {
@@ -60,6 +65,11 @@ export interface Recommendation {
   nextStep?: string;
   /** Diagnostic checks need less evidence than disruptive corrective actions. */
   actionClass: 'diagnostic-check' | 'corrective-action' | 'none';
+  /**
+   * B1 part B: who to ask when an access fact is missing or may be out of date (directory people whose group/role is
+   * configured to observe the key). `available` false with `back` when the person's own message states a return date.
+   */
+  askWho?: Array<{ personEntityId: string; displayName: string; role?: string; reason: string; available: boolean; back?: string }>;
 }
 
 export interface PersonResult {
@@ -103,4 +113,9 @@ export interface InvestigationState {
   events: TraceEvent[];
   /** Explicit list of routes used, so simulated/replayed stages are visible. */
   routes: RouteInfo[];
+  /**
+   * B1: 'standing' for the per-case state that carries capture-time gaps (missing symptom, outcome after 24 h, pairing).
+   * It is asked through the same coordinator; its requester is a system principal whose groups admit the case.
+   */
+  origin?: 'standing';
 }

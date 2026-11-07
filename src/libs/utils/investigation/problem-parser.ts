@@ -37,7 +37,13 @@ export const DEFAULT_LEXICON: LexiconRule[] = [
   { id: 'reset', pattern: String.raw`\b(?:reset|bounced|flapped)\s+(?:the\s+)?(?:interface|port|link)\b`, key: 'action.performed', value: 'interface.reset', label: 'Interface reset' },
   { id: 'bgp-flapping', pattern: String.raw`\bbgp\b[^.;\n]{0,30}?\bflap(?:s|ping|ped)?\b`, key: 'bgp.session', value: 'flapping', label: 'BGP session flapping' },
   { id: 'bgp-session', pattern: String.raw`\bbgp\b[^.;\n]{0,30}?\b(down|established|up)\b`, key: 'bgp.session', valueGroup: 1, label: 'BGP session {value}' },
+  // B1: a stated software/firmware version ("firmware 4.2", "on 4.2", "running 4.2", "4.2 firmware").
+  { id: 'software-version', pattern: String.raw`\b(?:firmware|software|fw|version|release|running|on)\s+v?(\d+(?:\.\d+)+)(?![\d.]*\s*(?:%|db|dbm|mbps|gbps|ms|v\b|a\b|w\b|°))`, key: 'software.version', valueGroup: 1, label: 'Software version {value}' },
+  { id: 'software-version-after', pattern: String.raw`\b(\d+(?:\.\d+)+)\s+(?:firmware|software)\b`, key: 'software.version', valueGroup: 1, label: 'Software version {value}' },
   { id: 'config-changed', pattern: String.raw`\b(?:after|since|following)\s+(?:the\s+|a\s+)?(?:(?:firmware|software|config(?:uration)?)\s+)?(?:update|upgrade|change|release)\b`, key: 'config.changed', value: true, label: 'Recent change', negatable: false },
+  // B1 part B: dispatch / site-access intent. Never a case condition: investigate() takes intent.* keys out of the
+  // conditions and looks up access facts for the named site (investigation/access-facts.ts reads the kind asked about).
+  { id: 'access-intent', pattern: String.raw`\b(?:driv(?:e|ing)\s+(?:out\s+)?to|heading\s+(?:out\s+)?to|site\s+visit|barrier|gate|codes?|keys?|lockbox|lock\s*box|access)\b`, key: 'intent.access', value: 'site', label: 'Asks how to get in', negatable: false },
   { id: 'site-access', pattern: String.raw`\b(?:barrier|locked\s+gate|gate\s+(?:is\s+)?locked|gate\s+code|key\s*box)\b`, key: 'site.access', value: 'barrier', label: 'Site access restriction', negatable: false },
 ];
 

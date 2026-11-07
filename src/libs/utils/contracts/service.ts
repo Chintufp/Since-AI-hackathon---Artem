@@ -10,7 +10,7 @@ import type { InvestigationState } from './investigation.ts';
 import type { Answer, ContactDraft, PreferenceFeedback, QuestionRecord } from './questions.ts';
 import type { OutcomeReport, ParticipationBalance, ParticipationOptIn, ParticipationRating, UserSettings } from './outcomes.ts';
 import type { PeopleDirectory } from './scenarios.ts';
-import type { CaseView, PersonView, QuestionView, ReceiptView, ResultView } from './views.ts';
+import type { CaseView, ContextAssertionsView, PersonView, QuestionView, ReceiptView, ResultView } from './views.ts';
 
 export const DEFAULT_SERVICE_PORT = 47831;
 
@@ -60,6 +60,8 @@ export interface InvestigateRequest {
   attachmentNames?: string[];
   /** If false, retrieve/recommend only; do not start the question loop. */
   allowQuestions?: boolean;
+  /** B1: answer as of this moment (ISO with zone). A past view never asks anyone (allowQuestions is forced false). */
+  at?: string;
 }
 
 export interface AnswerRequest {
@@ -101,6 +103,8 @@ export interface ApiRoutes {
   'GET /cases/:id': { res: CaseView };
   'POST /investigate': { req: InvestigateRequest; res: ResultView & { state: InvestigationState } };
   'GET /investigations/:id': { res: ResultView & { state: InvestigationState } };
+  /** B1: assertions bound to an entity (name or alias) with validity windows, source, person and status, evaluated at `at` (default now); access-filtered for `principalId`. */
+  'GET /context': { query: { entity: string; at?: string; principalId?: string }; res: ContextAssertionsView };
   'GET /questions': { query: { personEntityId?: string; status?: string }; res: QuestionView[] };
   'GET /questions/:id': { res: QuestionView };
   'POST /questions/:id/answer': { req: AnswerRequest; res: { answer: Answer; receipt: ReceiptView; question: QuestionRecord } };
@@ -172,7 +176,7 @@ export interface ActivityView {
 /** MCP tool names (documented defaults). Each maps to one API route above. */
 export const MCP_TOOLS = {
   kt_investigate: 'POST /investigate',
-  kt_get_context: 'GET /investigations/:id',
+  kt_get_context: 'GET /investigations/:id (with at: the stored problem re-run at that moment)',
   kt_request_clarification: 'POST /investigate (allowQuestions=true) or re-run loop',
   kt_clarification_status: 'GET /questions/:id',
   kt_cancel_clarification: 'POST /questions/:id/cancel',

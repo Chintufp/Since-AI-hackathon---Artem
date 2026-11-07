@@ -53,12 +53,12 @@
     "name": "access-leakage:demo",
     "pass": true,
     "knownLimitation": true,
-    "detail": "shown sources of incidents the requester's groups exclude (truth-based): 0.022 (1/46) KNOWN LIMITATION (not system-detectable, own-scope check passes): email:f02-access-310@kalevanet.example: e-mail record carries no ACL metadata, so its stored scope is org; only the truth-based metric knows the incident is restricted"
+    "detail": "shown sources of incidents the requester's groups exclude (truth-based): 0.024 (1/42) KNOWN LIMITATION (not system-detectable, own-scope check passes): email:f02-access-310@kalevanet.example: e-mail record carries no ACL metadata, so its stored scope is org; only the truth-based metric knows the incident is restricted"
   },
   {
     "name": "access-own-scope:demo",
     "pass": true,
-    "detail": "shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/46)"
+    "detail": "shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/42)"
   },
   {
     "name": "access-leakage:train",

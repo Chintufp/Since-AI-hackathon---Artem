@@ -1,6 +1,6 @@
 // One command for the judges: reset the demo data, start the service, start the simulated activity stream, open the
 // activity page in the browser and launch the desktop companion. Ctrl-C (or quitting Lumi) stops everything.
-//   pnpm demo:judge [-- --seed 1 --hour-seconds 10 --hours 10 --stream-delay 240 --no-browser --no-stream --port 47831]
+//   pnpm demo:judge [-- --quiet-hours default --seed 1 --hour-seconds 10 --hours 10 --stream-delay 240 --no-browser --no-stream --port 47831]
 // Everything runs on this machine; no model API, no real chat, mail or Slack. The stream is simulated and labelled so.
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -22,6 +22,9 @@ const { values } = parseArgs({
     'no-stream': { type: 'boolean', default: false },
     'no-desktop': { type: 'boolean', default: false },
     'no-reset': { type: 'boolean', default: false },
+    /** Quiet hours (22:00-07:00 Helsinki) are off for the walkthrough, which runs on real time: a judge at 23:30 would
+     * otherwise see the TRN-301 question held until 07:00. `--quiet-hours default` keeps the org-config window. */
+    'quiet-hours': { type: 'string', default: 'off' },
   },
 });
 const port = Number(values.port);
@@ -75,7 +78,7 @@ if (await healthy()) {
     await new Promise((res) => r.on('exit', res));
   }
   log(`starting the service on ${url}`);
-  run('service', process.execPath, [join(root, 'src/apps/service/main.ts'), '--port', String(port)]);
+  run('service', process.execPath, [join(root, 'src/apps/service/main.ts'), '--port', String(port), '--quiet-hours', values['quiet-hours']]);
   const deadline = Date.now() + 30000;
   while (Date.now() < deadline && !(await healthy())) await new Promise((r) => setTimeout(r, 250));
   if (!(await healthy())) {

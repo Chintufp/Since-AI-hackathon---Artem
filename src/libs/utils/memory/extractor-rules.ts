@@ -1,6 +1,6 @@
 import type {
   ActionName, ClaimType, Condition, ConversationContext, EvidenceEnvelope, EvidenceRef, ExtractionProposal, Extractor,
-  OutcomeResult, ProposedClaim, ProposedEntity, ProposedLink, RouteInfo,
+  OutcomeResult, ProposedClaim, ProposedEntity, ProposedLink, RouteInfo, TimeRef,
 } from '../contracts/index.ts';
 import { extractionText } from '../context/index.ts';
 import { defaultExtractionConfig, type ExtractionConfig } from './extraction-config.ts';
@@ -183,6 +183,92 @@ export function inferActions(statement: string, cfg: ExtractionConfig = defaultE
   return lexiconActions(text, cfg).map((a) => ({ name: a.name, negated: !!adv?.negated, advised: !!adv }));
 }
 
+/** B1: "fixed in firmware 4.2" / "the 4.2 firmware fixes": the version and the cue text, or undefined. */
+export function fixedVersion(text: string, cfg: ExtractionConfig): { version: string; cue: string } | undefined {
+  for (const re of cfg.validityCues.fixedInVersion) {
+    const m = new RegExp(re.source, re.flags.replace('g', '')).exec(text);
+    if (m?.groups?.version) return { version: m.groups.version, cue: m[0].toLowerCase() };
+  }
+  return undefined;
+}
+
+const dateOnly = (raw: string): TimeRef => ({ known: false, partial: 'date-only', raw: raw.trim() });
+
+const MONTH_INDEX = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+/**
+ * B1 review (D-B1-37): an "until 1 December" date resolved against the message's own known time: the year is the
+ * message's (the next one when the date is already past), the zone is the message's offset, the moment is the start of
+ * that day. When the message time is unknown, or carries no offset, the date stays date-only (nothing is invented).
+ */
+export function resolveDateCue(raw: string, msgTime: TimeRef | undefined): TimeRef {
+  const text = raw.trim();
+  const msgIso = msgTime?.known ? msgTime.iso : undefined;
+  const off = /(Z|[+-]\d{2}:?\d{2})\s*$/i.exec(msgTime?.raw ?? '')?.[1];
+  if (!msgIso || !off) return dateOnly(text);
+  const offset = off.toUpperCase() === 'Z' ? 'Z' : off.includes(':') ? off : `${off.slice(0, 3)}:${off.slice(3)}`;
+  let y: number | undefined, mo: number | undefined, d: number | undefined;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+  if (m) { y = +m[1]!; mo = +m[2]! - 1; d = +m[3]!; }
+  const dm = /^(\d{1,2})\.?\s+([a-z]+)(?:\s+(\d{4}))?$/i.exec(text) ?? null;
+  const md = dm ? null : /^([a-z]+)\s+(\d{1,2})(?:,?\s+(\d{4}))?$/i.exec(text);
+  if (dm) { d = +dm[1]!; mo = MONTH_INDEX.indexOf(dm[2]!.slice(0, 3).toLowerCase()); y = dm[3] ? +dm[3] : undefined; }
+  if (md) { d = +md[2]!; mo = MONTH_INDEX.indexOf(md[1]!.slice(0, 3).toLowerCase()); y = md[3] ? +md[3] : undefined; }
+  if (mo === undefined || mo < 0 || !d || d > 31) return dateOnly(text);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const at = (year: number) => Date.parse(`${year}-${pad(mo! + 1)}-${pad(d!)}T00:00:00${offset}`);
+  const msgMs = Date.parse(msgIso);
+  const local = new Date(msgMs + (offset === 'Z' ? 0 : (offset.startsWith('-') ? -1 : 1) * (+offset.slice(1, 3) * 60 + +offset.slice(4, 6)) * 60000));
+  let year = y ?? local.getUTCFullYear();
+  if (y === undefined && at(year) <= msgMs - 86400000) year += 1;
+  const ms = at(year);
+  if (!Number.isFinite(ms)) return dateOnly(text);
+  return { known: true, iso: new Date(ms).toISOString(), raw: text };
+}
+
+/**
+ * B1 message-level validity cues, after classification:
+ * - "every October" in a message lands on the nearest preceding access fact of that message (the code it talks about,
+ *   preferring the site.access_code claim) as validity.condition "changes every October";
+ * - "until 1 December" / "from 3 November to 1 December" in a claim's own sentence set validity.to: resolved against the
+ *   message's known time and offset (resolveDateCue), else a date-only time (no year or zone is invented);
+ * - a replacement cue anywhere in a message marks that message's access facts (a newer code "is now" 7731).
+ */
+function applyValidityCues(claims: RulesClaim[], msgs: Msg[], cfg: ExtractionConfig): void {
+  const vc = cfg.validityCues;
+  const re = (r: RegExp) => new RegExp(r.source, r.flags.replace('g', ''));
+  for (const m of msgs) {
+    const mine = claims.filter((c) => c.evidence[0]?.evidenceId === m.e.id);
+    const facts = mine.filter((c) => c.type === 'access-fact');
+    if (!facts.length) continue;
+    const replaces = re(vc.replaces).exec(m.text)?.[0];
+    if (replaces) for (const f of facts) f.validity = { ...f.validity, cue: f.validity?.cue ?? replaces.toLowerCase() };
+    for (const s of m.sentences) {
+      const rec = re(vc.recurring).exec(s.text);
+      if (!rec?.groups?.when) continue;
+      const before = facts.filter((f) => (f.evidence[0]?.span?.start ?? 0) <= s.start);
+      const pool = before.length ? before : facts;
+      const lastStart = Math.max(...pool.map((f) => f.evidence[0]?.span?.start ?? 0));
+      const nearest = pool.filter((f) => (f.evidence[0]?.span?.start ?? 0) === lastStart);
+      const target = nearest.find((f) => f.condition?.key === 'site.access_code') ?? nearest[0];
+      if (!target) continue;
+      const when = rec.groups.when.charAt(0).toUpperCase() + rec.groups.when.slice(1).toLowerCase();
+      target.validity = { ...target.validity, condition: `changes every ${when}`, cue: rec[0].toLowerCase() };
+      if (target.evidence.every((r) => r.span?.start !== s.start)) target.evidence = [...target.evidence, { evidenceId: m.e.id, span: { start: s.start, end: s.end }, excerpt: excerpt(s.text) }];
+    }
+  }
+  for (const c of claims) {
+    const text = c.evidence[0]?.excerpt ?? '';
+    const range = re(vc.range).exec(text);
+    const until = range ? undefined : re(vc.until).exec(text);
+    const to = range?.groups?.to ?? until?.groups?.to;
+    const msgTime = msgs.find((m) => m.e.id === c.evidence[0]?.evidenceId)?.e.eventTime;
+    // A "from 1 December to 30 April" range is usually a season that recurs, so it stays date-only (inert); only a
+    // one-off "until <date>" is resolved.
+    if (to) c.validity = { ...c.validity, to: range ? dateOnly(to) : resolveDateCue(to, msgTime), cue: (range ?? until)![0].toLowerCase() };
+  }
+}
+
 interface Msg {
   e: EvidenceEnvelope;
   text: string;
@@ -309,6 +395,7 @@ export function extractFromContext(context: ConversationContext, cfg: Extraction
       const recIdx = sentenceCues.findIndex((x, i) => i !== durIdx && x.rec);
       const closIdx = sentenceCues.findIndex((x) => x.clos);
       const composite = durIdx >= 0 && recIdx >= 0 ? { durIdx, recIdx, closIdx } : undefined;
+      const noteMessage = m.sentences.some((x) => !!fixedVersion(x.text, config));
       m.sentences.forEach((s, si) => {
         const t = s.text;
         const lineStart = m.text.lastIndexOf('\n', s.start - 1) + 1;
@@ -361,12 +448,32 @@ export function extractFromContext(context: ConversationContext, cfg: Extraction
         const wc = (c.match(/[\p{L}\p{N}']+/gu) ?? []).length;
         if (!t.trim() || /^[\p{Extended_Pictographic}\s]+$/u.test(t) || wc === 0) return;
 
+        // 0. B1 validity cues come before access facts and outcomes: "the 4.2 firmware fixes the bug" is a superseding
+        // note (a bound on older advice), never a recovery of the old case. The rest of such a message belongs to the note.
+        const fixed = fixedVersion(t, config);
+        if (fixed) {
+          const vc = config.validityCues;
+          push({
+            type: 'other', statement: withAsset(cv), validity: { cue: fixed.cue },
+            supersessionBound: { key: vc.fixedBound.key, operator: vc.fixedBound.operator, value: fixed.version, origin: 'reported', evidence: [r], label: vc.fixedBound.label.replaceAll('{version}', fixed.version) },
+          });
+          return;
+        }
+        if (noteMessage) { push({ type: 'other', statement: t }); return; }
+
         // 1. access facts (non-incident operational knowledge)
         if (anyMatch(config.cues['access-fact'], t)) {
           const acc = /\b(barrier|gate|lockbox|key|code|contact|locked)\b/i.exec(t)?.[1]?.toLowerCase();
           const value = acc === 'lockbox' || acc === 'locked' ? 'barrier' : acc === 'gate' ? 'barrier' : acc ?? 'contact';
-          const cond: Condition = { key: 'site.access', operator: 'eq', value, origin: 'reported', evidence: [r], label: `Site access: ${value}` };
-          push({ type: 'access-fact', statement: t, condition: cond });
+          const replaces = config.validityCues.replaces.exec(t)?.[0];
+          // B1: a sentence that gives a code carries it as site.access_code (qualified by what it opens), so a newer code
+          // closes the older one through the newer-value rule; without a code the access kind stays site.access.
+          const code = new RegExp(config.validityCues.accessCode.source, config.validityCues.accessCode.flags.replace('g', '')).exec(t);
+          const kind = code?.groups?.code ? code.groups.kind!.toLowerCase().replace(/\s+/g, '').replace('keybox', 'lockbox') : undefined;
+          const cond: Condition = kind && code?.groups?.code
+            ? { key: 'site.access_code', operator: 'eq', value: code.groups.code, qualifier: kind, origin: 'reported', evidence: [r], label: `${kind.charAt(0).toUpperCase()}${kind.slice(1)} code ${code.groups.code}` }
+            : { key: 'site.access', operator: 'eq', value, origin: 'reported', evidence: [r], label: `Site access: ${value}` };
+          push({ type: 'access-fact', statement: t, condition: cond, ...(replaces ? { validity: { cue: replaces.toLowerCase() } } : {}) });
           addLink(m, 'observed-condition', [r]);
           return;
         }
@@ -559,6 +666,8 @@ export function extractFromContext(context: ConversationContext, cfg: Extraction
       });
     });
   }
+
+  applyValidityCues(claims, msgs, config);
 
   // ---- entities, identity, mentions -------------------------------------------------------
   const entities = new Map<string, ProposedEntity>();

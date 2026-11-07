@@ -91,3 +91,15 @@ Outcome state: `classifyOutcomeState` returns `recovered | no-change | worse | p
 ## Copies
 
 A verbatim copy of another record (`lineage.copiedFrom`) is never a new statement. Its claims are merged at commit into the original's claim (same type, same passage) as extra, dependent support: no new claim, asserter or performer, and `independentSources` does not count it. A claim from a copy whose original is not found is committed as before.
+
+## Validity and supersession (B1)
+
+- `validity.ts`: `instantOf`, `validAt(claim, atMs)` (unknown from = valid from before any dated moment; unknown to = still believed true; a superseded claim with no known end is closed), `isNewer` (known times, else import order, with the basis), `timePosition` (never synthesises an iso), `shortDate`, `parseAt`.
+- `supersession.ts` runs at the end of `commitProposal`, inside its transaction, before the touched cases are rebuilt (route `supersession-rules@1`): (a) a newer value of a listed key (`validityCues.newerValueKeys`: `site.access_code`, `software.version`; same type, overlapping subject, same key and qualifier) closes the older claim (`validity.to`, status `superseded`, `supersededBy`, revision + 1; evidence kept); undated order needs a replacement cue; (b) a superseding note (`supersessionBound`, from "fixed in firmware 4.2") puts `validity.condition` / `conditionedBy` on older hypothesis/advice of the same subject. Human-confirmed or corrected claims are never touched.
+- Extraction (`extraction-config.ts validityCues`, configuration): fixed-in-version notes are read before access facts and outcomes (never an outcome); an access fact with a code carries `site.access_code` (qualifier barrier/lockbox/...); "every October" lands on the message's nearest preceding access fact; "until <date>" sets a date-only `validity.to`.
+- `context-assertions.ts`: GET /context rows and bindings, access-filtered.
+- `superseded` is not live: the stored case is the now view; a past `at` re-derives from claims valid then (investigation). Decisions: `docs/runs/2026-11-07-overnight/day2/DECISIONS-engine.md`.
+
+## Standing gaps (B1)
+
+`standing-gaps.ts recordStandingGaps(store, {orgId, now, settings})` (route `standing-gaps@1`) runs after the commit when `importFromPath` gets `standing` (the Engine always passes it; experiments do not) and on `Engine.upkeep()`. It records capture-time gaps per case on an `InvestigationState` with `origin: 'standing'` (id `stableId('inv','standing',caseId)`): missing symptom, outcome 24 h after the fix (known time, else `ingestedAt`), pairing with the nearest open problem on the same asset within 14 days (trigram cosine as tie-break). It links nothing; a decided Pattern (confirmed or rejected) is never proposed again.

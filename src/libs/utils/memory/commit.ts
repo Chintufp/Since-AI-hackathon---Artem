@@ -6,6 +6,7 @@ import { stableId, unknownTime } from '../contracts/index.ts';
 import { covers, leastRestrictiveScope, restrictiveScope } from './access.ts';
 import { claimConfirmedByHuman } from './human.ts';
 import { isLive, rebuildCase, siblingCases } from './case-builder.ts';
+import { applySupersession } from './supersession.ts';
 
 export interface CommitOptions {
   orgId: string;
@@ -160,11 +161,15 @@ export function commitProposal(store: KnowledgeStore, proposal: ExtractionPropos
         validity: { from: timeOf(pc.evidence) }, status: 'provisional', extraction: { route: proposal.route.route, version: proposal.route.version },
         revision: 1, createdAt: now, updatedAt: now, ...(pc.condition ? { condition: pc.condition } : {}), accessScope: options.accessScope,
       };
+      // B1: explicit validity cues read from the source fill what the claim does not have yet (never overwrite).
+      const cueValidity = Object.fromEntries(Object.entries(pc.validity ?? {}).filter(([k, v]) => v !== undefined && (base.validity as Record<string, unknown>)[k] === undefined));
       // A human confirm (recorded Correction) is never recomputed away; only system-derived statuses follow the evidence.
       const status: Claim['status'] =
         (base.status === 'provisional' || base.status === 'supported') && !claimConfirmedByHuman(store, base) ? (independent >= 2 ? 'supported' : 'provisional') : base.status;
       const next: Claim = {
         ...base,
+        ...(Object.keys(cueValidity).length ? { validity: { ...base.validity, ...cueValidity } } : {}),
+        ...(pc.supersessionBound && !base.supersessionBound ? { supersessionBound: pc.supersessionBound } : {}),
         subjectEntityIds: [...new Set([...base.subjectEntityIds, ...entityIdsFor(pc.subjectEntityNames)])],
         supporting: refs,
         ...(base.condition ? { condition: { ...base.condition, evidence: refs } } : {}),
@@ -245,6 +250,9 @@ export function commitProposal(store: KnowledgeStore, proposal: ExtractionPropos
       if (!sameJson((e.metadata as { usefulness?: unknown } | undefined)?.usefulness, usefulness)) store.put('evidence', { ...e, metadata: { ...(e.metadata ?? {}), usefulness } });
     }
 
+    // B1: newer values close older ones; superseding notes bound older advice (memory/supersession.ts).
+    const closed = applySupersession(store, [...new Set(result.claimIds)], { orgId, now });
+    for (const caseId of closed) if (!result.caseIds.includes(caseId)) { if (store.get('case', caseId)) rebuildCase(store, caseId, { now }); }
     for (const caseId of result.caseIds) rebuildCase(store, caseId, { now });
     // Episodes of the same asset read each other (a later "down again" report marks the earlier recovery as recurred).
     const touched = new Set(result.caseIds);

@@ -71,3 +71,29 @@ export function visibleCase(c: Case, gate: EvidenceGate): Case | undefined {
   if (c.evidenceIds.length > 0 && !gate.supported(c.evidenceIds.map((evidenceId) => ({ evidenceId })))) return undefined;
   return { ...c, evidenceIds: c.evidenceIds.filter((evidenceId) => gate.ref({ evidenceId })), conditions: c.conditions.filter((x) => gate.supported(x.evidence)).map((x) => ({ ...x, evidence: gate.refs(x.evidence) })) };
 }
+
+/**
+ * B1: the same gate as seen at a moment: evidence whose event time is known and later than `atMs` is invisible;
+ * evidence with an unknown or partial time stays visible (an undated source is "valid from before any dated moment").
+ */
+export function gateAt(store: Pick<KnowledgeStore, 'get'>, base: EvidenceGate, atMs: number): EvidenceGate {
+  const cache = new Map<string, boolean>();
+  const ref = (r: EvidenceRef): boolean => {
+    const hit = cache.get(r.evidenceId);
+    if (hit !== undefined) return hit;
+    let ok = base.ref(r);
+    if (ok) {
+      const t = store.get('evidence', r.evidenceId)?.eventTime;
+      const ms = t?.known && t.iso ? Date.parse(t.iso) : NaN;
+      if (Number.isFinite(ms) && ms > atMs) ok = false;
+    }
+    cache.set(r.evidenceId, ok);
+    return ok;
+  };
+  return {
+    principal: base.principal, ref,
+    refs: (rs) => rs.filter(ref),
+    supported: (rs) => rs.length === 0 || rs.some(ref),
+    scope: base.scope,
+  };
+}

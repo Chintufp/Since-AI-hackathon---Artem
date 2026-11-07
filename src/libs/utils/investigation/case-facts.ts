@@ -1,6 +1,9 @@
 import type { Attempt, Case, Claim, EvidenceRef, KnowledgeStore, Observation, Outcome } from '../contracts/index.ts';
-import { evidenceGate, visibleCase, type EvidenceGate, type PrincipalLike } from '../retrieval/access.ts';
+import { evidenceGate, gateAt, visibleCase, type EvidenceGate, type PrincipalLike } from '../retrieval/access.ts';
+import { countsAt } from '../retrieval/corpus.ts';
+import { validAt } from '../memory/validity.ts';
 import { isDiagnosticAction, type InvestigationSettings } from './settings.ts';
+import { standingInvestigationId } from './gaps.ts';
 
 /** Internal key under which an answered/observed outcome is stored as an Observation about a case. */
 export const OUTCOME_KEY = 'outcome.result';
@@ -31,6 +34,11 @@ export interface CaseFacts {
   evidenceText?: string;
   /** True when an attributed answer/observation (not the original record) supplied an outcome. */
   overlayOutcome: boolean;
+  /**
+   * B1: superseding notes ("fixed in firmware 4.2") that bound this case's hypothesis/advice claims, visible to the viewer
+   * and valid at the moment asked about. The recommendation applies them only when the problem is inside the bound.
+   */
+  bounds: Claim[];
 }
 
 function outcomeRank(a: Attempt, outs: Outcome[]): number {
@@ -49,22 +57,26 @@ function outcomeRank(a: Attempt, outs: Outcome[]): number {
  */
 export function loadCaseFacts(
   store: KnowledgeStore, caseId: string, investigationId: string | undefined, settings: Pick<InvestigationSettings, 'diagnosticActions'>,
-  viewer?: PrincipalLike | EvidenceGate,
+  viewer?: PrincipalLike | EvidenceGate, atMs?: number,
 ): CaseFacts {
-  const gate = viewer ? ('ref' in viewer ? viewer : evidenceGate(store, viewer)) : undefined;
+  const gate0 = viewer ? ('ref' in viewer ? viewer : evidenceGate(store, viewer)) : undefined;
+  // B1: at a moment, evidence dated later is invisible and only claims valid then count.
+  const gate = gate0 && atMs !== undefined ? gateAt(store, gate0, atMs) : gate0;
   const rawCase = store.get('case', caseId);
   const c = !rawCase ? undefined : !gate ? rawCase : visibleCase(rawCase, gate);
   const keep = <T extends { evidence: EvidenceRef[] }>(xs: T[]): T[] =>
     !gate ? xs : xs.filter((x) => gate.supported(x.evidence)).map((x) => ({ ...x, evidence: gate.refs(x.evidence) }));
   const attempts = c || !gate ? keep(store.list('attempt', { where: { caseId } })) : [];
   const outcomes = c || !gate ? keep(store.list('outcome', { where: { caseId } })) : [];
-  const allClaims = !gate ? store.list('claim', { where: { caseId } }) : !c ? [] : store.list('claim', { where: { caseId } }).filter((x) => gate.scope(x.accessScope) && gate.supported(x.supporting)).map((x) => ({
+  const caseClaims = store.list('claim', { where: { caseId } }).filter((x) => countsAt(x, atMs));
+  const allClaims = !gate ? caseClaims : !c ? [] : caseClaims.filter((x) => gate.scope(x.accessScope) && gate.supported(x.supporting)).map((x) => ({
     ...x, supporting: gate.refs(x.supporting), contradicting: gate.refs(x.contradicting),
     ...(x.condition ? { condition: { ...x.condition, evidence: gate.refs(x.condition.evidence) } } : {}),
   }));
-  const overlay: Observation[] = investigationId
-    ? store.list('observation', { where: { investigationId } }).filter((o) => o.caseId === caseId && o.condition.key === OUTCOME_KEY)
-    : [];
+  // B1: an outcome answered to a standing gap is attributed evidence about the case itself, so every investigation sees it.
+  const overlayFrom = (inv: string): Observation[] => store.list('observation', { where: { investigationId: inv } })
+    .filter((o) => o.caseId === caseId && o.condition.key === OUTCOME_KEY && (atMs === undefined || Date.parse(o.at) <= atMs));
+  const overlay: Observation[] = [...(investigationId ? overlayFrom(investigationId) : []), ...overlayFrom(standingInvestigationId(caseId))];
 
   const nonDiag = attempts.filter((a) => !isDiagnosticAction(a.action, settings));
   const corrective = [...nonDiag].sort((a, b) => outcomeRank(b, outcomes) - outcomeRank(a, outcomes))[0];
@@ -95,7 +107,16 @@ export function loadCaseFacts(
     ...(diagnostic ? { diagnostic } : {}),
     primaryOutcomes,
     overlayOutcome: virtual.length > 0,
+    bounds: boundsOf(store, allClaims, gate, atMs),
   };
+}
+
+/** Superseding notes named by the claims' validity.conditionedBy, visible to the gate and valid at the moment (now: any not superseded). */
+function boundsOf(store: KnowledgeStore, claims: Claim[], gate: EvidenceGate | undefined, atMs?: number): Claim[] {
+  const ids = [...new Set(claims.filter((x) => x.type === 'hypothesis' || x.type === 'advice').map((x) => x.validity.conditionedBy).filter((x): x is string => !!x))];
+  return ids.map((id) => store.get('claim', id)).filter((n): n is Claim =>
+    !!n && !!n.supersessionBound && validAt(n, atMs ?? Number.MAX_SAFE_INTEGER) && (!gate || (gate.scope(n.accessScope) && n.supporting.length > 0 && gate.supported(n.supporting))))
+    .map((n) => (gate ? { ...n, supporting: gate.refs(n.supporting) } : n));
 }
 
 export type Support = 'supported' | 'weak' | 'contradicted' | 'unknown';

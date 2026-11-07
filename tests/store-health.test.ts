@@ -9,7 +9,7 @@ import { Engine } from '../src/apps/service/engine.ts';
 import { RulesSelector } from '../src/libs/utils/policies/index.ts';
 import { buildSyntheticStore, SYMPTOM_TEXT } from '../src/libs/utils/models/testing/fixtures.ts';
 import { makeHarness } from '../src/libs/utils/questions/testing/harness.ts';
-import { storeHealth } from '../src/libs/utils/memory/index.ts';
+import { expectedGain, storeHealth } from '../src/libs/utils/memory/index.ts';
 import { openStore } from '../src/libs/utils/memory/index.ts';
 import { DEV_FIXTURE } from './support.ts';
 
@@ -305,4 +305,35 @@ test('D-B2-66: on the demo store a useful answer measures a positive delta, and 
   }
   assert.ok(deltas.yes! > 0, `yes: ${deltas.yes}`);
   assert.ok(deltas.no! >= 0, `no: ${deltas.no}`);
+});
+
+// ---- D-B2-67: brief 5.3 value / cost through the coordinator ----
+
+test('D-B2-67: the coordinator measures each candidate\'s expected gain and retrieval weight; on RTR-203 the outcome question outranks the applicability one', async () => {
+  const e = engine();
+  try {
+    const text = 'BGP sessions flapping on RTR-203 after the firmware update';
+    const r = await e.investigate({ text, principal: REQ });
+    assert.ok(r.question);
+    const d = e.store.get('decision', r.state.decisionIds.at(-1)!)!;
+    assert.equal(d.eligible.length >= 2, true, 'two candidates (software version, outcome) are eligible');
+    const f = d.features!;
+    assert.match(e.store.get('question', r.question.questionId)!.candidate.gapId, /\|outcome\|/);
+    // the outcome report would make the unsupported advice claim supported: gain = c x 1/n on RTR-117
+    const h = storeHealth(e.store, undefined, { now: NOW, caseIds: [e.store.get('question', r.question.questionId)!.candidate.scope.caseId!] });
+    assert.ok(f.expectedGain! > 0);
+    const c = h.cases[0]!;
+    assert.equal(f.expectedGain, expectedGain({ kind: 'outcome', completeness: c.completeness, correctness: h.correctness, caseClaims: h.denominators.caseClaims, slots: c.slots, distinguishingKeys: 4, targetSupported: false }));
+    assert.equal(f.retrievalWeight, 1, 'the case is being retrieved right now (+1); no earlier retrieval');
+    assert.equal(f.quietHours, 0);
+    assert.match(d.reason, /value\/cost/);
+    // A second requester asks about RTR-117's lookalike: the case was retrieved once before, so its weight is 2.
+    const other: Principal = { id: 'person:test:req3', displayName: 'Oona Other', groups: ['noc'], type: 'human' };
+    const r2 = await e.investigate({ text: 'BGP flaps after firmware upgrade on edge router RTR-300 unit', principal: other });
+    const d2 = e.store.get('decision', r2.state.decisionIds.at(-1)!)!;
+    assert.ok(d2.features, 'a pair was chosen for the second problem');
+    assert.equal(d2.features.retrievalWeight, 2);
+  } finally {
+    e.close();
+  }
 });

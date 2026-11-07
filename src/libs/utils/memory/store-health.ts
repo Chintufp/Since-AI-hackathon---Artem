@@ -46,6 +46,8 @@ export interface CaseHealth {
   caseId: string;
   title: string;
   slots: Record<CompletenessSlot, number>;
+  /** Distinguishing keys of the slot that are still unknown for this case (aliases folded into their key). */
+  unknownKeys: string[];
   /** Sum of slot values / 6 (the distinguishing slot counts known keys proportionally). */
   completeness: number;
   /** <= 2 slots filled. */
@@ -63,6 +65,8 @@ export interface StoreHealth {
   completenessUnweighted: number;
   /** null when there is no case claim (unknown, never zero). */
   correctness: number | null;
+  /** The case claims counted as supported (>=2 independent sources or an observed outcome). */
+  supportedClaimIds: string[];
   singletons: number;
   thinPairs: number;
   denominators: {
@@ -84,10 +88,11 @@ const DAY = 86_400_000;
 const round = (x: number): number => Math.round(x * 10_000) / 10_000;
 
 /** Investigations in the window that cited each case among their candidates. */
-export function retrievalCounts(store: KnowledgeStore, now: Date, windowDays = 30): Map<string, number> {
+export function retrievalCounts(store: KnowledgeStore, now: Date, windowDays = 30, excludeInvestigationId?: string): Map<string, number> {
   const from = now.getTime() - windowDays * DAY;
   const out = new Map<string, number>();
   for (const inv of store.list('investigation')) {
+    if (inv.id === excludeInvestigationId) continue;
     const t = Date.parse(inv.updatedAt ?? inv.createdAt);
     if (!(t >= from && t <= now.getTime() + DAY)) continue;
     for (const id of new Set(inv.candidates.map((c) => c.caseId).filter((x): x is string => !!x))) out.set(id, (out.get(id) ?? 0) + 1);
@@ -115,8 +120,7 @@ function caseHealth(store: KnowledgeStore, c: Case, o: Required<Pick<StoreHealth
       || claims.some((x) => x.type === 'condition' && !!x.condition && keys.includes(x.condition.key) && (x.condition.value !== undefined || x.condition.operator === 'absent'))
       || answered.some((x) => keys.includes(x.condition.key));
   };
-  const aliased = new Set(Object.entries(o.keyAliases).filter(([k]) => o.distinguishingKeys.includes(k)).flatMap(([, a]) => a));
-  const keys = o.distinguishingKeys.filter((k) => !aliased.has(k));
+  const keys = slotKeys(o.distinguishingKeys, o.keyAliases);
   const distinguishing = keys.length ? keys.filter(known).length / keys.length : 1;
 
   const performed = attempts.filter((a) => a.performed === 'reported');
@@ -138,7 +142,7 @@ function caseHealth(store: KnowledgeStore, c: Case, o: Required<Pick<StoreHealth
   const total = SLOTS.reduce((n, s) => n + slots[s], 0);
   const filled = SLOTS.filter((s) => slots[s] >= 1).length;
   const thinPair = claims.length > 0 && claims.every((x) => new Set(x.supporting.map((r) => r.evidenceId)).size <= 1);
-  return { caseId: c.id, title: c.title, slots, completeness: round(total / SLOTS.length), singleton: filled <= 2, thinPair, retrievals };
+  return { caseId: c.id, title: c.title, slots, unknownKeys: keys.filter((k) => !known(k)), completeness: round(total / SLOTS.length), singleton: filled <= 2, thinPair, retrievals };
 }
 
 /**
@@ -214,17 +218,21 @@ export function storeHealth(store: KnowledgeStore, principal: { id: string; grou
     }
   }
   let supported = 0, contradictedCited = 0;
+  const supportedClaimIds: string[] = [];
   for (const x of claims) {
     const extra = ans.get(x.id);
     const refs = [...x.supporting, ...(extra?.support ?? []).map((evidenceId) => ({ evidenceId }))];
-    if (observedSupport.has(x.id) || independentSources(store, refs) >= 2) supported++;
+    if (observedSupport.has(x.id) || independentSources(store, refs) >= 2) {
+      supported++;
+      supportedClaimIds.push(x.id);
+    }
     const contradicted = x.status === 'contradicted' || (extra?.contradict ?? 0) > (extra?.support.length ?? 0);
     if (contradicted && cited.has(x.id)) contradictedCited++;
   }
   const links = opts.links?.(store) ?? { made: 0, withoutAnswer: 0 };
   const correctness = claims.length ? round((supported - contradictedCited - links.withoutAnswer) / claims.length) : null;
   return {
-    cases, completeness: round(weighted), completenessUnweighted: round(unweighted), correctness,
+    cases, completeness: round(weighted), completenessUnweighted: round(unweighted), correctness, supportedClaimIds,
     singletons: cases.filter((c) => c.singleton).length, thinPairs: cases.filter((c) => c.thinPair).length,
     denominators: { cases: cases.length, retrievals: weight, windowDays, caseClaims: claims.length, supportedClaims: supported, contradictedCited, linksWithoutAnswer: links.withoutAnswer },
   };
@@ -234,3 +242,59 @@ export function storeHealth(store: KnowledgeStore, principal: { id: string; grou
 export const healthProduct = (h: StoreHealth): number => round(h.completeness * (h.correctness ?? 0));
 /** completeness x correctness, or null when it cannot be measured (no case, or no case claim so correctness is null). */
 export const healthProductOrNull = (h: StoreHealth): number | null => (h.cases.length === 0 || h.correctness === null ? null : round(h.completeness * h.correctness));
+
+/** The keys the distinguishing slot counts: a distinguishing key that is an alias of another distinguishing key is left out. */
+export function slotKeys(distinguishingKeys: string[] = DEFAULT_KEYS, aliases: Record<string, string[]> = DEFAULT_ALIASES): string[] {
+  const aliased = new Set(Object.entries(aliases).filter(([k]) => distinguishingKeys.includes(k)).flatMap(([, a]) => a));
+  return distinguishingKeys.filter((k) => !aliased.has(k));
+}
+
+/** The distinguishing key a condition key counts toward (unit.installed_year and unit.batch count toward unit.age). */
+export function canonicalKey(key: string, aliases: Record<string, string[]> = DEFAULT_ALIASES): string {
+  return Object.entries(aliases).find(([, a]) => a.includes(key))?.[0] ?? key;
+}
+
+/** What one case looks like to a candidate question, for the expected gain (brief 5.3). */
+export interface GainInput {
+  /** Gap kind of the question (investigation/gaps.ts GapKind). */
+  kind: string;
+  /** The case's completeness (0..1) and correctness (null = unknown, counts as 0 as in healthProduct). */
+  completeness: number;
+  correctness: number | null;
+  /** Case claims (the correctness denominator). */
+  caseClaims: number;
+  slots: Pick<Record<CompletenessSlot, number>, 'symptom' | 'distinguishing' | 'outcome' | 'lasting'>;
+  /** Number of distinguishing keys the slot counts (an alias of another key is not counted). */
+  distinguishingKeys: number;
+  /** missing: whether the gap's key is still unknown for the case (CaseHealth.unknownKeys). */
+  keyUnknown?: boolean;
+  /** outcome: whether the claim the answer would confirm is already supported (then a confirmation adds nothing). */
+  targetSupported?: boolean;
+}
+
+/**
+ * Brief 5.3: the gain in completeness x correctness of the case a question touches if its gap is filled, under the
+ * metric's own reading (D-B2-66). Pure.
+ * - missing (applicability): either answer fills the key (a value or an explicit not-applicable): completeness +1/(6k)
+ *   when the key is unknown; correctness unchanged (an applicability answer is not a source for the claim).
+ * - outcome: the outcome slot (+1/6 when empty) and, when the confirmed claim is not supported yet, one more supported
+ *   claim (+1/n): an outcome report is an attributed source of its own.
+ * - lasting: the lasting slot (+1/6 when empty). missing-symptom: the symptom slot (+1/6 when empty).
+ * - pairing and anything else: 0 (a confirmed link with its answer neither adds nor costs correctness).
+ * gain = (c + dc)(r + dr) - c r. With a case whose correctness is 0 a completeness-only gap gains 0: the product hides it,
+ * as it does in the measured reward.
+ */
+export function expectedGain(i: GainInput): number {
+  const c = i.completeness;
+  const r = i.correctness ?? 0;
+  const slot = 1 / SLOTS.length;
+  let dc = 0;
+  let dr = 0;
+  if (i.kind === 'missing') dc = i.keyUnknown && i.distinguishingKeys > 0 ? slot / i.distinguishingKeys : 0;
+  else if (i.kind === 'outcome') {
+    dc = i.slots.outcome < 1 ? slot : 0;
+    dr = i.targetSupported === false && i.caseClaims > 0 ? 1 / i.caseClaims : 0;
+  } else if (i.kind === 'lasting') dc = i.slots.lasting < 1 ? slot : 0;
+  else if (i.kind === 'missing-symptom') dc = i.slots.symptom < 1 ? slot : 0;
+  return round(Math.max(0, (c + dc) * (r + dr) - c * r));
+}

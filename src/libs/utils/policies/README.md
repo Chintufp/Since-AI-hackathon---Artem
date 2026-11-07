@@ -20,3 +20,5 @@ Selectors that choose one eligible question-recipient pair, or defer. Hard eligi
 - Learning skips unanswered outcomes, so it cannot learn to avoid unresponsive people from missing feedback alone.
 - LinUCB ignores `defer` as an arm (optional `deferBelow` threshold only); one global model, no per-person parameters.
 - Next-choice versus whole-investigation optimisation (U01) is not addressed.
+
+`RulesSelector` order (D-B2-67, brief 5.3): the score above is the gate (defer when no pair reaches the threshold); among the pairs that pass it the highest value / cost (`value-cost.ts`: consequential x p(answer) x expected gain in completeness x correctness x retrieval weight, over 1 + burden / BURDEN.open) is asked, then the score, then the key. Without an `expectedGain` feature the order is the score alone.

@@ -62,8 +62,9 @@ test('GET /demo/activity reads nothing before the stream and the page is HTML', 
 
 test('a simulated day asks real questions, answers them as simulated people and leaves the judge alone', async () => {
   const directory: DirectoryEntry[] = await svc.call('GET', '/directory');
-  // The judge is Jukka Salo: a firsthand person on RTR-203 (dev fixture) who would otherwise be asked.
-  const helmi = directory.find((d) => d.name === 'Jukka Salo')!;
+  // The judge is Hanna Mäkelä: on RTR-203 (dev fixture) the coordinator asks first whether the earlier step on RTR-117
+  // cleared the problem (value / cost, D-B2-67), and she is the one placed to answer it.
+  const helmi = directory.find((d) => d.name === 'Hanna Mäkelä')!;
   await svc.call('PUT', '/settings', { currentPersonEntityId: helmi.personEntityId });
   // R47: award rows are shown only while the judge takes part; the judge chooses to here.
   await svc.call('PUT', `/participation/${encodeURIComponent(helmi.personEntityId)}/optin`, { principal: { id: helmi.personEntityId, displayName: helmi.name, groups: helmi.groups, type: 'human' }, participates: true });
@@ -81,7 +82,7 @@ test('a simulated day asks real questions, answers them as simulated people and 
   const summary = await runDay({
     client: httpClient(svc.http.url), plan, clock, seed: 4,
     sink: { write: (r) => { rows.push(r); jsonlSink(log).write(r); } },
-    judgePrompts: [{ text: 'RTR-203 BGP sessions flapping after the firmware update, hold timers look default. Roll back like RTR-117?', requester: 'Tapio Lehto', targets: ['Jukka Salo'] }],
+    judgePrompts: [{ text: 'RTR-203 BGP sessions flapping after the firmware update, hold timers look default. Roll back like RTR-117?', requester: 'Tapio Lehto', targets: ['Hanna Mäkelä'] }],
   });
   assert.equal(summary.errors, 0, JSON.stringify(rows.filter((r) => r.kind === 'note')));
   assert.equal(summary.investigations, 3 + summary.judgeAttempts);
@@ -92,7 +93,7 @@ test('a simulated day asks real questions, answers them as simulated people and 
   // The first judge row names the judge's person, not a raw entity id (review fix: the directory is read first).
   const youRow = rows.find((r) => r.kind === 'judge' && /^You are /.test(String(r.text)));
   assert.ok(youRow, 'a "You are …" row');
-  assert.match(String(youRow!.text), /^You are Jukka Salo in the companion/);
+  assert.match(String(youRow!.text), /^You are Hanna Mäkelä in the companion/);
   assert.doesNotMatch(String(youRow!.text), /ent_/);
   const questions = rows.filter((r) => r.kind === 'question');
   for (const q of questions) {
@@ -108,7 +109,7 @@ test('a simulated day asks real questions, answers them as simulated people and 
   // R46: simulated people take part in points and their awards are rows; the judge is never opted in by the stream.
   const optRows = rows.filter((r) => r.kind === 'points' && /take part in points/.test(String(r.text)));
   assert.ok(optRows.length >= 1, 'an opt-in row');
-  assert.ok(!String(optRows[0]!.text).includes('Jukka Salo'), 'the judge is not in the opted-in list');
+  assert.ok(!String(optRows[0]!.text).includes('Hanna Mäkelä'), 'the judge is not in the opted-in list');
   const judgeOpt = await svc.call('GET', `/participation/${encodeURIComponent(helmi.personEntityId)}/optin`);
   assert.equal(judgeOpt.participates, true, 'the judge chose to take part in this test (R47); the stream never changes that choice');
   const awards = rows.filter((r) => r.kind === 'points' && /^\+\d+ to /.test(String(r.text)));

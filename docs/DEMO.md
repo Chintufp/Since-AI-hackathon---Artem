@@ -245,6 +245,9 @@ What you should see, tool by tool (the recorded run is in [docs/runs/2026-11-07-
 
 While the stream runs, the agent's calls appear in the activity page as **agent** rows (`Agent Claude Code (agent:claude-code) investigated over MCP: …`, `reported an outcome …`).
 
+### Calling POST /investigate by hand (curl)
+`curl -s -XPOST localhost:47831/investigate -H 'content-type: application/json' -d '{"text":"TRN-233: what should I know before working on it?","principal":{"id":"ent_f07bace092572f3cc4cc","displayName":"Aarne Koskela","groups":["field"],"type":"human"}}'` returns the recommendation with `provenance` (*Erkki Expert · Teams ... · reported once · ...*). `principal` must be an object. A text that names no asset ("link down on a router") and no `entityIds` finds nothing, so there is no provenance; the Context Layer page adds `entityIds` (and `preview: true`) for that reason.
+
 ## Privacy and no cloud, in one breath
 
 The service listens on loopback only and refuses non-loopback host names. The data is one SQLite file under `data/local/`. Nothing contacts a model provider: a network guard in the code throws if anything tries. Message drafts are text for the user to review; nothing is sent to Teams, e-mail or Slack (the one exception is the opt-in sandbox poller above, which DMs questions in a workspace Artem names, behind KT_SLACK_LIVE=1). Elisa's example files are read from an ignored folder and never copied into the repository. Access is enforced per piece of evidence: a person or agent only ever sees cases, timelines, people reasons and questions built from evidence their groups may see (tested, including over MCP).

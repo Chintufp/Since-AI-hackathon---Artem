@@ -61,7 +61,7 @@ after(async () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-const codeRow = (view: any, code: string) => view.assertions.find((a: any) => a.statement === `RBS-310: barrier code ${code}`);
+const codeRow = (view: any, code: string) => view.assertions.find((a: any) => a.type === 'access-fact' && new RegExp(`\\b${code}\\b`).test(a.statement));
 
 test('GET /context: both barrier codes with their windows, source, person and status; evaluated at `at`', async () => {
   const eino = encodeURIComponent('person:directory:eino-salo');

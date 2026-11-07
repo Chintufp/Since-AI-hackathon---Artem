@@ -29,8 +29,6 @@ export interface SupersessionOptions {
 const humanTouched = (store: KnowledgeStore, c: Claim): boolean => correctionsFor(store, 'claim', c.id).length > 0 || claimConfirmedByHuman(store, c);
 const overlap = (a: string[], b: string[]): boolean => a.some((x) => b.includes(x));
 const slot = (c: Claim): string => `${c.type}|${c.condition?.key}|${c.condition?.qualifier ?? ''}`;
-const passage = (c: Claim): string => `${c.supporting[0]?.evidenceId}|${c.supporting[0]?.span?.start ?? ''}`;
-const samePassage = (a: Claim, b: Claim): boolean => !!a.supporting[0] && passage(a) === passage(b);
 
 /** Apply both rules for the claims just committed; returns the case ids whose claims changed (to rebuild). */
 export function applySupersession(store: KnowledgeStore, claimIds: string[], opts: SupersessionOptions): string[] {
@@ -70,14 +68,6 @@ export function applySupersession(store: KnowledgeStore, claimIds: string[], opt
           revision: c.revision + 1, updatedAt: opts.now,
         });
         close(older, newer.id);
-        // The sentence's companion claim of the same type (the "Road barrier code: 5802." access fact next to its code claim)
-        // states the same old value, so it closes with it, pointing at the newer sentence's companion when there is one.
-        const newerCompanion = [...byId.values()].find((c) => c.id !== newer.id && c.type === newer.type && samePassage(c, newer));
-        for (const c of [...byId.values()]) {
-          if (c.id === older.id || c.type !== older.type || !eligible(c) || !samePassage(c, older)) continue;
-          if (c.condition?.key === older.condition?.key) continue;
-          close(c, newerCompanion?.id ?? newer.id);
-        }
       }
     }
 

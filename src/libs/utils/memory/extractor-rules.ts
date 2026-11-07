@@ -430,20 +430,15 @@ export function extractFromContext(context: ConversationContext, cfg: Extraction
         if (anyMatch(config.cues['access-fact'], t)) {
           const acc = /\b(barrier|gate|lockbox|key|code|contact|locked)\b/i.exec(t)?.[1]?.toLowerCase();
           const value = acc === 'lockbox' || acc === 'locked' ? 'barrier' : acc === 'gate' ? 'barrier' : acc ?? 'contact';
-          const cond: Condition = { key: 'site.access', operator: 'eq', value, origin: 'reported', evidence: [r], label: `Site access: ${value}` };
           const replaces = config.validityCues.replaces.exec(t)?.[0];
-          push({ type: 'access-fact', statement: t, condition: cond, ...(replaces ? { validity: { cue: replaces.toLowerCase() } } : {}) });
-          // B1: the code itself is its own fact (site.access_code, qualified by what it opens), so a newer code closes the older one.
+          // B1: a sentence that gives a code carries it as site.access_code (qualified by what it opens), so a newer code
+          // closes the older one through the newer-value rule; without a code the access kind stays site.access.
           const code = new RegExp(config.validityCues.accessCode.source, config.validityCues.accessCode.flags.replace('g', '')).exec(t);
-          if (code?.groups?.code) {
-            const kind = code.groups.kind!.toLowerCase().replace(/\s+/g, '').replace('keybox', 'lockbox');
-            const where = subjects(t)[0];
-            push({
-              type: 'access-fact', statement: `${where ? `${where}: ` : ''}${kind} code ${code.groups.code}`,
-              condition: { key: 'site.access_code', operator: 'eq', value: code.groups.code, qualifier: kind, origin: 'reported', evidence: [r], label: `${kind.charAt(0).toUpperCase()}${kind.slice(1)} code ${code.groups.code}` },
-              ...(replaces ? { validity: { cue: replaces.toLowerCase() } } : {}),
-            });
-          }
+          const kind = code?.groups?.code ? code.groups.kind!.toLowerCase().replace(/\s+/g, '').replace('keybox', 'lockbox') : undefined;
+          const cond: Condition = kind && code?.groups?.code
+            ? { key: 'site.access_code', operator: 'eq', value: code.groups.code, qualifier: kind, origin: 'reported', evidence: [r], label: `${kind.charAt(0).toUpperCase()}${kind.slice(1)} code ${code.groups.code}` }
+            : { key: 'site.access', operator: 'eq', value, origin: 'reported', evidence: [r], label: `Site access: ${value}` };
+          push({ type: 'access-fact', statement: t, condition: cond, ...(replaces ? { validity: { cue: replaces.toLowerCase() } } : {}) });
           addLink(m, 'observed-condition', [r]);
           return;
         }

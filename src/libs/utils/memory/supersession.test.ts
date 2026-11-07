@@ -77,10 +77,9 @@ test('newer value closes the older one: barrier 5802 -> 7731 via site.access_cod
   assert.equal(validAt(old, Date.parse('2026-10-20T00:00:00Z')), false);
   assert.equal(validAt(fresh, Date.parse('2026-10-20T00:00:00Z')), true);
   assert.equal(code(s, '1946')?.status, 'provisional', 'a lockbox code is not closed by a barrier code');
-  const sentence = s.list('claim').find((c) => c.statement === 'Road barrier code: 5802.')!;
-  assert.equal(sentence.status, 'superseded', 'the sentence that states the old code closes with it');
-  assert.equal(s.get('claim', sentence.supersededBy!)?.statement, 'Barrier code at RBS-310 is now 7731, the landlord changed the lock.');
-  assert.ok(s.list('claim').filter((c) => c.condition?.key === 'site.access' && c.id !== sentence.id).every((c) => c.status !== 'superseded'), 'other access facts stay');
+  assert.equal(old.statement, 'Road barrier code: 5802.', 'the statement stays verbatim');
+  assert.equal(fresh.statement, 'Barrier code at RBS-310 is now 7731, the landlord changed the lock.');
+  assert.ok(s.list('claim').filter((c) => c.condition?.key === 'site.access').every((c) => c.status !== 'superseded'), 'access facts without a code stay');
 });
 
 test('import order does not matter when both are dated: the older email imported last is still the one closed', () => {

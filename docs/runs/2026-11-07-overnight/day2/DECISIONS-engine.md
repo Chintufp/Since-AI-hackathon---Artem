@@ -48,11 +48,11 @@ Rule (a) applies only to condition keys in `validityCues.newerValueKeys` (`site.
 Why: state readings (interface up/down) change every minute and are not replaced facts; an undated re-import must not silently close a claim that only looks older because it was imported first.
 Reverse: edit `newerValueKeys`, or drop the `import-order` cue check in `applySupersession`.
 
-## D-B1-09 · Access codes are their own access-fact claim
+## D-B1-09 · An access fact that gives a code carries it as site.access_code
 
-An access-fact sentence with a code (`validityCues.accessCode`: barrier|gate|lockbox|door|hatch|access code ... digits) also yields a second access-fact claim, statement "<site>: <kind> code <digits>", condition `site.access_code eq <digits>` with qualifier = the kind. The `site.access` claim of the sentence is unchanged (its tests and ids stay). `site.access_code` is added to `contracts/vocabulary.ts`.
-Why: both "Road barrier code: 5802" and "Barrier code at RBS-310 is now 7731" are `site.access eq barrier`, so the newer-value rule could never see the change.
-Reverse: remove the second push in the access-fact branch of `extractor-rules.ts`.
+An access-fact sentence with a code (`validityCues.accessCode`: barrier|gate|lockbox|door|hatch|access code ... digits) gets the condition `site.access_code eq <digits>` with qualifier = what it opens (barrier, lockbox ...) instead of `site.access eq <kind>`; the statement stays verbatim. Sentences without a code keep `site.access`. `site.access_code` is added to `contracts/vocabulary.ts`.
+Why: both "Road barrier code: 5802" and "Barrier code at RBS-310 is now 7731" were `site.access eq barrier`, so the newer-value rule could never see the change. A first version emitted a second claim per code; E00 then counted the extra claims (access-fact precision on the demo split 2/3 -> 2/4) and a person-link id moved, so it was replaced by this one-claim form, with which E00's result files change only in timestamps and latencies (17/17 checks pass).
+Reverse: in the access-fact branch of `extractor-rules.ts` always use `site.access`.
 
 ## D-B1-10 · Message-level cues: "every October", "until <date>"
 
@@ -87,11 +87,9 @@ Reverse: remove `applyBounds` from `recommend()`.
 `DEFAULT_LEXICON` gains `software-version` ("firmware 4.2", "on 4.2", "running 4.2", "fw 4.2", "version 4.2"; not followed by a unit such as dB or %) and `software-version-after` ("4.2 firmware").
 Reverse: delete the two rules.
 
-## D-B1-15 · A closed value takes its sentence's companion claim with it
+## D-B1-15 · E00 after this build
 
-When the newer-value rule closes a code claim, the other claim of the same type cut from the same passage (the `site.access` fact "Road barrier code: 5802." next to its `site.access_code` claim) closes too, with `supersededBy` pointing at the newer passage's companion when there is one.
-Why: otherwise GET /context shows "Road barrier code: 5802." as still believed true next to the closed code.
-Reverse: remove the companion loop in `applySupersession`.
+`node experiments/run.ts e00`: 17/17 checks pass; `checks.json` is unchanged and `results.json`/`problems.json` differ only in run timestamps and latencies (the rewritten files were not committed, so the hash-locked results stay as they were). Claim, entity, link and case counts per family are unchanged; the follow-ups are not part of any experiment split.
 
 ## D-B1-16 · Generated follow-ups are imported by every non-empty demo reset
 

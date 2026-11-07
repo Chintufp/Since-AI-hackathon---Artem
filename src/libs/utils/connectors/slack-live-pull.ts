@@ -9,6 +9,7 @@
  * members only through membership grants), imported with format `slack-live`.
  */
 import type { SlackExportData } from './slack-export.ts';
+import { slackNetworkFetch } from './slack-net.ts';
 import type { SlackChannel, SlackMessage, SlackUser } from './slack-map.ts';
 
 export const SLACK_READ_METHODS = ['auth.test', 'conversations.list', 'conversations.info', 'conversations.members', 'conversations.history', 'users.list'] as const;
@@ -43,7 +44,7 @@ export class WorkspaceMismatchError extends Error {
 type FetchLike = (url: string, init: { method: string; headers: Record<string, string> }) => Promise<{ json(): Promise<unknown> }>;
 
 /** Slack Web API client restricted to the read allowlist. Any other method name throws before any network call. */
-export function slackWebClient(token: string, fetchImpl: FetchLike = fetch as unknown as FetchLike): SlackReadClient {
+export function slackWebClient(token: string, fetchImpl: FetchLike = slackNetworkFetch<FetchLike>()): SlackReadClient {
   if (!token) throw new Error('A token is required');
   return {
     async call(method, params = {}) {

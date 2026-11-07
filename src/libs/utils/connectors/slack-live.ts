@@ -1,6 +1,7 @@
 import type { ConnectionCard, ConnectionStatus, ConnectorCapabilities, EvidenceEnvelope } from '../contracts/index.ts';
 import { mapSlackMessage, usersById, type SlackChannel, type SlackMessage, type SlackUser } from './slack-map.ts';
 import type { AdapterOptions } from './types.ts';
+import { slackNetworkFetch } from './slack-net.ts';
 
 export interface SlackConnectorConfig extends Partial<AdapterOptions> {
   /** Explicit opt-in. An environment variable alone never authorizes a live connection. */
@@ -77,7 +78,7 @@ export class SlackConnector {
   }
 
   /** Live fetch of channel history. Refuses unless explicitly authorized. */
-  async fetchHistory(channel: SlackChannel, users: SlackUser[] = [], fetchImpl: FetchLike = fetch as unknown as FetchLike): Promise<EvidenceEnvelope[]> {
+  async fetchHistory(channel: SlackChannel, users: SlackUser[] = [], fetchImpl: FetchLike = slackNetworkFetch<FetchLike>()): Promise<EvidenceEnvelope[]> {
     if (!this.authorized) throw new Error('Slack connector is awaiting authorization: pass {liveAuthorized: true, token} explicitly.');
     const res = await fetchImpl(`https://slack.com/api/conversations.history?channel=${encodeURIComponent(channel.id)}`, {
       headers: { Authorization: `Bearer ${this.config.token}` },

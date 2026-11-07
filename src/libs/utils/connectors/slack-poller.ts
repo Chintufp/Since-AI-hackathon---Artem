@@ -14,6 +14,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { PeopleDirectory } from '../contracts/index.ts';
+import { slackNetworkFetch } from './slack-net.ts';
 import { checkLiveGuard, pullChannelReadOnly, SlackApiError, SLACK_READ_SCOPES, WorkspaceMismatchError, type LiveGuardInput, type LiveGuardResult, type SlackReadClient } from './slack-live-pull.ts';
 
 /** The write side's whole allowlist: post the DM, read its reactions. */
@@ -49,7 +50,7 @@ export interface SlackDmClient {
 type FetchLike = (url: string, init: { method: string; headers: Record<string, string>; body?: string }) => Promise<{ json(): Promise<unknown> }>;
 
 /** Slack Web API client for DMs and reactions only. Any other method throws before any network call. */
-export function slackDmClient(token: string, fetchImpl: FetchLike = fetch as unknown as FetchLike): SlackDmClient {
+export function slackDmClient(token: string, fetchImpl: FetchLike = slackNetworkFetch<FetchLike>()): SlackDmClient {
   if (!token) throw new Error('A token is required');
   return {
     async call(method, params) {

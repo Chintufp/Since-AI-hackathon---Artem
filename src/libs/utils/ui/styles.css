@@ -344,3 +344,9 @@
 #kt-panel .rf-model-log { margin:0; max-height:96px; overflow:auto; font-size:10.5px; line-height:1.4; color:#4b5258; background:#f7f8f8; border-radius:7px; padding:6px 8px; white-space:pre-wrap; }
 #kt-panel .rf-model-cmd { display:flex; align-items:center; justify-content:space-between; gap:8px; border-top:1px solid #f0f1f2; }
 #kt-panel .rf-model-cmd code { font-size:11px; color:#343a40; }
+/* B4 "Remember this": the footer action and the offer chip shown when the text looks like a conversation. */
+#kt-panel .rf-remember { margin-right:6px; color:#4f565c; }
+#kt-panel .rf-remember:disabled { color:#bbbfc2; }
+#kt-panel .rf-offer { padding:0 24px 7px; display:flex; }
+#kt-panel .rf-offer-chip { border:0; cursor:pointer; color:#3d4348; }
+#kt-panel .rf-offer-chip:hover { background:#eceeef; }

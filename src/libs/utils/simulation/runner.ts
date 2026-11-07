@@ -436,7 +436,9 @@ export async function runDay(opts: RunnerOptions): Promise<RunSummary> {
   }
 
   // ---- main loop ----
-  await refreshJudge(); // before the directory, so the judge's person is known when simulated people are opted in (R46)
+  // Names first (no opt-ins yet), so the first 'You are …' row names the judge's person instead of an entity id.
+  try { directory = await client.get<DirectoryEntry[]>('/directory'); } catch (e) { fail('reading the directory', e); }
+  await refreshJudge(); // before the opt-ins, so the judge's person is known when simulated people are opted in (R46)
   await refreshDirectory();
   await syncClock();
   row({ kind: 'clock', text: `Simulated day starts (${plan.hours} h; 1 simulated hour = ${clock.hourSeconds || 0} real seconds; seed ${opts.seed}); every row below is simulated`, detail: { seed: opts.seed, hours: plan.hours, hourSeconds: clock.hourSeconds, judgeEveryMinutes: plan.judgeEveryMinutes } });

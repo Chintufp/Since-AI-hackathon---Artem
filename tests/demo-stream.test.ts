@@ -89,6 +89,11 @@ test('a simulated day asks real questions, answers them as simulated people and 
   assert.ok(summary.answered + summary.deferred + summary.dismissed + summary.unanswered >= 1);
   // Every row is labelled simulated and every question row names the recipient and the reason.
   for (const r of rows) assert.equal(r.simulated, true);
+  // The first judge row names the judge's person, not a raw entity id (review fix: the directory is read first).
+  const youRow = rows.find((r) => r.kind === 'judge' && /^You are /.test(String(r.text)));
+  assert.ok(youRow, 'a "You are …" row');
+  assert.match(String(youRow!.text), /^You are Jukka Salo in the companion/);
+  assert.doesNotMatch(String(youRow!.text), /ent_/);
   const questions = rows.filter((r) => r.kind === 'question');
   for (const q of questions) {
     assert.ok(typeof q.who === 'string' && (q.who as string).length > 0);

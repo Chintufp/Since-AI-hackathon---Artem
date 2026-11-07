@@ -13,6 +13,22 @@ The pitch addresses four problems:
 
 **Status (7 November 2026, overnight run):** a runnable local prototype exists on branch `run/2026-11-07-overnight`: local service (SQLite, HTTP API, MCP), Electron companion (Snowbally + the v008 panel), synthetic scenario families, evaluator and bounded experiments. See [the run report](docs/runs/2026-11-07-overnight/REPORT.md) and [decisions](docs/runs/2026-11-07-overnight/DECISIONS.md). Nothing is deployed; the Slack connector is fixture-tested only.
 
+## Quick start for judges (3 minutes)
+
+```bash
+pnpm install
+```
+
+```bash
+pnpm demo:judge
+```
+
+One command: resets the demo data, starts the local service (`127.0.0.1:47831`), starts a **simulated** activity stream, opens it in a browser tab and launches the pixel companion (Snowbally, bottom-right). Then follow [docs/DEMO.md](docs/DEMO.md): click Snowbally, be Veikko (Settings → You), paste the TRN-088 text and see Erkki's rule reused with its caveats and sources; paste the TRN-301 text and watch the one Yes/No question reach Erkki; be Erkki, answer it, be Veikko again and see the recommendation change; run `pnpm demo:agent` for the same answer over MCP. Ctrl-C stops everything.
+
+- Everything runs on this machine: no cloud, no model API, no real chat, mail or Slack. The stream is synthetic and labelled so.
+- Elisa's example files are read from the git-ignored `private/` folder when present; otherwise the synthetic TRN-117 case plays the same part.
+- Trouble? `pnpm demo:reset` restores the data; `pnpm service` starts the service alone; the troubleshooting box in DEMO.md has the rest.
+
 ## Run it locally
 
 ```bash

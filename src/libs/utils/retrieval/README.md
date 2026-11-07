@@ -15,7 +15,7 @@ Candidate retrieval for a new problem: which historical cases/procedures might a
 - A procedure that cites a visible candidate case is merged into that candidate (`procedureId` set); otherwise it is its own candidate.
 
 ## Dependencies
-`contracts`, `models/routes` (route labels). No other module.
+`contracts`, `models/routes` (route labels), `models/providers` (B2: the embed slot's fallback helper and embedding cache, contracts-only). No other module; the case-card text for the embedding index is injected by the caller.
 
 ## Configuration
 `RetrieverOptions`: `ageFold` (fold a stated year into an age class; `foldYearToAge`, `isSoftCondition` exported), `vector` (default true), `rrfK`, `weights`, `minRelative`, `ignoredKeys` (identity keys such as `site.id`), `historyKeys` (multi-valued keys such as `action.performed`, which can only match).
@@ -31,3 +31,7 @@ Candidate retrieval for a new problem: which historical cases/procedures might a
 
 ## Fix pass 3: per-evidence access
 `evidenceGate(store, principal)` and `visibleCase(case, gate)` (access.ts): a case or claim whose evidence is entirely invisible to the principal is not in the corpus, case conditions keep only visible evidence references, and a case with no visible evidence is skipped. `canSee` on the record scope still applies first.
+
+## B2: embed slot (`embedding-index.ts`)
+- `EmbeddingIndex(store, embedder, model, {cardText, cache})` is a cheap view over `store.embeddings` (r_embedding). `indexStore()` embeds evidence text, live claim statements and case cards, skips rows whose sha256 text hash is unchanged, removes rows of records that are gone. `search(queryText, visibleCaseKeys, gate)` embeds the query once (cached by model + text hash), takes a brute-force cosine over the model's rows (cosine >= 0.3), aggregates evidence and claim hits to `case:<id>` by max, and keeps only visible cases: claim hits pass the gate's scope and support checks, evidence hits the per-evidence gate, and a case card only when every piece of that case's evidence is visible (the card is built from all of it).
+- `RetrieverOptions.embedding = {index, weight?, minRelative? (0.75), timeoutMs?, onFailure?}`: in `HybridRetriever` the embedding list takes the place of the trigram list (the embed slot's rules fallback); the route version becomes `hybrid-rrf@1(bm25+exact-id)+embed[local:<model>]`, the reason "similar in meaning (local model <m>)". When the query cannot be embedded (no table, model missing, 5 s timeout) the trigram list is used for that call and the version ends `+embed[fallback:<code>]`. `EmbeddingRetriever` is the slot alone (E08 arm).

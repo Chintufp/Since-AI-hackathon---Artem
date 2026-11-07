@@ -8,5 +8,7 @@ export type { CorpusDoc } from './corpus.ts';
 export { resolveEntityIds, rankExact } from './exact.ts';
 export { compareConditions, agreement, foldYearToAge, isSoftCondition } from './conditions.ts';
 export type { AgeFold, CompareOptions, ConditionComparison } from './conditions.ts';
-export { reciprocalRankFusion, pruneRelative, Bm25Retriever, ExactIdRetriever, TrigramVectorRetriever, HybridRetriever } from './hybrid.ts';
+export { reciprocalRankFusion, pruneRelative, Bm25Retriever, ExactIdRetriever, TrigramVectorRetriever, HybridRetriever, EmbeddingRetriever } from './hybrid.ts';
+export { EmbeddingIndex, embedListName } from './embedding-index.ts';
+export type { Embedder, EmbeddingIndexOptions, IndexReport } from './embedding-index.ts';
 export type { RetrieverOptions, RankedList } from './hybrid.ts';

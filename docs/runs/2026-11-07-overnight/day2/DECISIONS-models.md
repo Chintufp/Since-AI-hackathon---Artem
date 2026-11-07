@@ -32,3 +32,12 @@ Row id is `${kind}:${model}:${refId}`, so one record can carry vectors of severa
 
 ## D-B2-09 · Case card wording rules
 `memory/case-card.ts` reads live condition claims (they carry who said it and the statement the hedge regex reads), then case conditions not already covered; conditions whose key starts with `unit.`, `software.`, `firmware.` or `hardware.` describe the asset (sentence 1), the rest are symptoms (sentence 2). A condition is hedged when it is inferred or its claim statement matches the extraction config's hedge words; the note names the people who said it ("per Erkki Expert, hedged"). The `unit.age` + `unit.installed_year` merge reuses the view config. A performed attempt with no advisor whose past phrase is already a symptom ("SFP replaced") is not repeated. Outcome per attempt: result, and lasting only for recovered/partial. Deviation from the brief's example: the card says "recovered", not "traffic returned", because the rows store the result class, not the phrase (the card must not invent text). Reverse: `CaseCardConfig`.
+
+## D-B2-10 · The embedding list replaces the trigram list in the fusion (not added to it)
+The brief names hashed trigrams as the embed slot's rules fallback, so with embed=local the fused lists are bm25 + exact-id + embed; on a failed query embedding they are bm25 + exact-id + trigram, and the route says `+embed[fallback:<code>]`. Embed weight 1 (trigrams had 0.7), relative floor 0.75 of the best cosine, absolute floor cosine 0.3. These are untuned guesses until E08 measures them. Reverse: keep the trigram list in `HybridRetriever.allLists` and lower the weight.
+
+## D-B2-11 · Access rules for embedding hits are stricter than for the lexical corpus
+A case-card hit counts only when the requester may see every piece of the case's evidence, because the card summarizes all of it (a merged case with one private message could otherwise rank on the private part). Claim hits need the claim's scope and a visible supporting reference; evidence hits need that evidence to be visible. Everything is then intersected with the access-filtered corpus keys. Reverse: `EmbeddingIndex.search`.
+
+## D-B2-12 · Retrieval may import `models/providers` (contracts-only); the case card is injected
+`retrieval/` now depends on `models/providers` for `withFallback` and `EmbeddingCache` (both depend on contracts only), and never on `memory/`: the engine passes `cardText: (id) => caseCard(store, id)`. Reverse: move the two helpers into retrieval.

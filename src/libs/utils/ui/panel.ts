@@ -15,11 +15,12 @@ import type { ParticipationOptIn, ParticipationRating, UserSettings } from '../c
 import type { DirectoryEntry, InstallJobView, ModelsView, Principal, PullJobView } from '../contracts/service.ts';
 import type { ModelSlotName, ModelSlots, SlotChoice } from '../contracts/models.ts';
 import type { ContactDraft } from '../contracts/questions.ts';
-import type { CaseView, PersonView, ProvenanceView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
+import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
 import { ApiError } from './api-client.ts';
 import type { ApiClient } from './api-client.ts';
 import { hydrateIcons, iconSvg } from './icons.ts';
 import { createPanelMotion } from './panel-motion.ts';
+import { costRow, setProvenance } from './b3-rows.ts';
 import type { PanelMotion, PanelMotionStatus } from './panel-motion.ts';
 import { attachCompanion, createCompanion } from './companion.ts';
 import type { Companion, CompanionCommand, CompanionFlags, CompanionPower, CompanionStatus } from './companion.ts';
@@ -537,12 +538,6 @@ export function createPanel(options: PanelOptions): Panel {
     target?.append(b);
     return b;
   }
-  /** B3: the provenance strip under a heading; one line, textContent only, hidden when the service sent none. */
-  function setProvenance(p: HTMLElement, v: ProvenanceView | undefined): void {
-    p.textContent = v?.text ?? '';
-    p.title = v?.text ?? '';
-    p.hidden = !v;
-  }
   function renderResult(): void {
     if (!result) return;
     const r = result.recommendation;
@@ -775,12 +770,11 @@ export function createPanel(options: PanelOptions): Panel {
     try {
       const c = await api.costs(settings?.currentPersonEntityId ? { principalId: settings.currentPersonEntityId } : {});
       if (n !== costsLoad) return;
-      $('.rf-cost-label').textContent = `${c.name.split(' ')[0]}'s cost`;
-      const secs = `${Math.round(c.seconds.total)} s${c.seconds.clock === 'simulated' ? ' simulated' : ''}`;
-      const line = `asked ${c.asked} · answered ${c.answered} · ${secs} · reused ${c.reuse.total} (${c.reuse.people} people, ${c.reuse.agents} agents)`;
-      $('.rf-cost-line').textContent = line;
-      $('.rf-cost-store').textContent = c.storeHealth?.line ?? '';
-      row.title = `${c.line}${c.storeHealth ? `\n${c.storeHealth.line}` : ''}`;
+      const r = costRow(c);
+      $('.rf-cost-label').textContent = r.label;
+      $('.rf-cost-line').textContent = r.line;
+      $('.rf-cost-store').textContent = r.store;
+      row.title = r.title;
       row.hidden = false;
     } catch {
       if (n === costsLoad) row.hidden = true;

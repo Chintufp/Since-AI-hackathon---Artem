@@ -6,7 +6,7 @@ Runner skeleton and result conventions for the experiment queue in the technical
 
 | ID | Comparison | Status |
 | --- | --- | --- |
-| E00 | Real-system rules baseline on demo+train+validation (`results/e00-baseline`) | **done**, 17/17 checks pass after the src/ fixes (one documented truth-only residual on demo, tolerated as a known limitation; first provisional run archived in `results/archive-provisional/`) |
+| E00 | Real-system rules baseline on demo+train+validation (`results/e00-baseline`) | **done**, 17/17 checks pass after the src/ fixes (one documented truth-only residual on demo, tolerated as a known limitation; first provisional run archived in `results/archive-provisional/`; later runs in `archive-rerun-1/` and `archive-rerun-2/`, the latter a complete copy of the queue before run 3) |
 | E01 | Extraction/linking: rules extractor vs a recorded Claude-agent arm (replay fixtures, scored directly and committed) | **done** (`results/e01-extraction`; re-run after extractor tuning) |
 | E02 | Retrieval: lexical / exact / local trigram / hybrid | **done**, one-shot test confirmation in `results/e02-test` |
 | E03 | Question selection: rules vs epsilon-greedy vs LinUCB (simulator arm and family arm) | **done**, rules stay; artifacts in `data/models/` |

@@ -10,7 +10,7 @@
     "maxWallSeconds": 600,
     "networkCalls": 0
   },
-  "startedAt": "2026-11-07T02:02:52.191Z",
+  "startedAt": "2026-11-07T02:33:19.165Z",
   "id": "e01-extraction",
   "hypothesis": "Structured rules extraction recovers claim types/links; a Claude-agent arm on the same visible threads may differ (recorded, labeled, not a small-GPT result).",
   "splits": [

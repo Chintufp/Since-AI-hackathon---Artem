@@ -13,194 +13,10 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.59
-  },
-  {
-    "variant": "family-rules",
-    "split": "validation",
-    "problem": "weak-mains-psu-p2",
-    "expected": "reuse",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "C",
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.37
-  },
-  {
-    "variant": "family-rules",
-    "split": "validation",
-    "problem": "weak-mains-psu-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 1.33
-  },
-  {
-    "variant": "family-rules",
-    "split": "validation",
-    "problem": "bgp-linecard-private-p1",
-    "expected": "none",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.22
-  },
-  {
-    "variant": "family-rules",
-    "split": "validation",
-    "problem": "bgp-linecard-private-p2",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 0.77
-  },
-  {
-    "variant": "family-rules",
-    "split": "validation",
-    "problem": "bgp-linecard-private-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.07
-  },
-  {
-    "variant": "family-linucb-seed1",
-    "split": "validation",
-    "problem": "weak-mains-psu-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "C",
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.52
-  },
-  {
-    "variant": "family-linucb-seed1",
-    "split": "validation",
-    "problem": "weak-mains-psu-p2",
-    "expected": "reuse",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "C",
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.36
-  },
-  {
-    "variant": "family-linucb-seed1",
-    "split": "validation",
-    "problem": "weak-mains-psu-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "B"
-    ],
-    "questions": [],
-    "latencyMs": 1.36
-  },
-  {
-    "variant": "family-linucb-seed1",
-    "split": "validation",
-    "problem": "bgp-linecard-private-p1",
-    "expected": "none",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.18
-  },
-  {
-    "variant": "family-linucb-seed1",
-    "split": "validation",
-    "problem": "bgp-linecard-private-p2",
-    "expected": "qualified",
-    "noQuestionNeeded": true,
-    "first": "none",
-    "final": "none",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.13
-  },
-  {
-    "variant": "family-linucb-seed1",
-    "split": "validation",
-    "problem": "bgp-linecard-private-p3",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "A"
-    ],
-    "questions": [],
-    "latencyMs": 1.02
-  },
-  {
-    "variant": "family-linucb-seed2",
-    "split": "validation",
-    "problem": "weak-mains-psu-p1",
-    "expected": "qualified",
-    "noQuestionNeeded": false,
-    "first": "qualified",
-    "final": "qualified",
-    "loopEnd": "no-question-needed",
-    "topCaseIncidents": [
-      "C",
-      "A"
-    ],
-    "questions": [],
     "latencyMs": 1.51
   },
   {
-    "variant": "family-linucb-seed2",
+    "variant": "family-rules",
     "split": "validation",
     "problem": "weak-mains-psu-p2",
     "expected": "reuse",
@@ -213,10 +29,10 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.4
+    "latencyMs": 1.3
   },
   {
-    "variant": "family-linucb-seed2",
+    "variant": "family-rules",
     "split": "validation",
     "problem": "weak-mains-psu-p3",
     "expected": "qualified",
@@ -228,10 +44,10 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.32
+    "latencyMs": 1.31
   },
   {
-    "variant": "family-linucb-seed2",
+    "variant": "family-rules",
     "split": "validation",
     "problem": "bgp-linecard-private-p1",
     "expected": "none",
@@ -243,10 +59,10 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.19
+    "latencyMs": 1.2
   },
   {
-    "variant": "family-linucb-seed2",
+    "variant": "family-rules",
     "split": "validation",
     "problem": "bgp-linecard-private-p2",
     "expected": "qualified",
@@ -259,6 +75,190 @@
     ],
     "questions": [],
     "latencyMs": 0.74
+  },
+  {
+    "variant": "family-rules",
+    "split": "validation",
+    "problem": "bgp-linecard-private-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.05
+  },
+  {
+    "variant": "family-linucb-seed1",
+    "split": "validation",
+    "problem": "weak-mains-psu-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.47
+  },
+  {
+    "variant": "family-linucb-seed1",
+    "split": "validation",
+    "problem": "weak-mains-psu-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.3
+  },
+  {
+    "variant": "family-linucb-seed1",
+    "split": "validation",
+    "problem": "weak-mains-psu-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.29
+  },
+  {
+    "variant": "family-linucb-seed1",
+    "split": "validation",
+    "problem": "bgp-linecard-private-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.23
+  },
+  {
+    "variant": "family-linucb-seed1",
+    "split": "validation",
+    "problem": "bgp-linecard-private-p2",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.81
+  },
+  {
+    "variant": "family-linucb-seed1",
+    "split": "validation",
+    "problem": "bgp-linecard-private-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.09
+  },
+  {
+    "variant": "family-linucb-seed2",
+    "split": "validation",
+    "problem": "weak-mains-psu-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.53
+  },
+  {
+    "variant": "family-linucb-seed2",
+    "split": "validation",
+    "problem": "weak-mains-psu-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.3
+  },
+  {
+    "variant": "family-linucb-seed2",
+    "split": "validation",
+    "problem": "weak-mains-psu-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.29
+  },
+  {
+    "variant": "family-linucb-seed2",
+    "split": "validation",
+    "problem": "bgp-linecard-private-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.65
+  },
+  {
+    "variant": "family-linucb-seed2",
+    "split": "validation",
+    "problem": "bgp-linecard-private-p2",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.81
   },
   {
     "variant": "family-linucb-seed2",
@@ -289,7 +289,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.5
+    "latencyMs": 1.48
   },
   {
     "variant": "family-linucb-seed3",
@@ -305,7 +305,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.35
+    "latencyMs": 1.33
   },
   {
     "variant": "family-linucb-seed3",
@@ -320,7 +320,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.8
+    "latencyMs": 1.29
   },
   {
     "variant": "family-linucb-seed3",
@@ -335,7 +335,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.14
+    "latencyMs": 1.18
   },
   {
     "variant": "family-linucb-seed3",

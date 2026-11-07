@@ -1,0 +1,2934 @@
+{
+  "manifestId": "e00-baseline",
+  "finishedAt": "2026-11-07T02:02:52.188Z",
+  "variants": [
+    {
+      "variantId": "baseline-rules",
+      "provenance": "measured",
+      "split": "demo",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.5,
+          "numerator": 2,
+          "denominator": 4
+        },
+        "claims.observation.recall": {
+          "value": 0.2857142857142857,
+          "numerator": 2,
+          "denominator": 7
+        },
+        "claims.hypothesis.precision": {
+          "value": 0.25,
+          "numerator": 1,
+          "denominator": 4
+        },
+        "claims.hypothesis.recall": {
+          "value": 0.5,
+          "numerator": 1,
+          "denominator": 2
+        },
+        "claims.advice.precision": {
+          "value": 0.25,
+          "numerator": 1,
+          "denominator": 4
+        },
+        "claims.advice.recall": {
+          "value": 0.25,
+          "numerator": 1,
+          "denominator": 4
+        },
+        "claims.action.precision": {
+          "value": 0.5,
+          "numerator": 2,
+          "denominator": 4
+        },
+        "claims.action.recall": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "claims.outcome.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "claims.outcome.recall": {
+          "value": 0.5,
+          "numerator": 2,
+          "denominator": 4
+        },
+        "claims.condition.precision": {
+          "value": 0.2857142857142857,
+          "numerator": 2,
+          "denominator": 7
+        },
+        "claims.condition.recall": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "claims.other.precision": null,
+        "claims.other.recall": null,
+        "claims.all.precision": {
+          "value": 0.41379310344827586,
+          "numerator": 12,
+          "denominator": 29
+        },
+        "claims.all.recall": {
+          "value": 0.48,
+          "numerator": 12,
+          "denominator": 25
+        },
+        "entities.recall": {
+          "value": 0.4,
+          "numerator": 2,
+          "denominator": 5
+        },
+        "cases.falseMergeRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 12
+        },
+        "attribution.attemptPerformerErrorRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "attribution.attemptPerformedStateErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "attribution.attemptsNotInTruthRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "attribution.outcomeReporterErrorRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0.13043478260869565,
+          "numerator": 3,
+          "denominator": 23
+        },
+        "copies.overcountRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "resolution.statusAccuracy": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "resolution.falseSolvedRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "resolution.falseConfirmedOutcomeRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "recommendation.kindAccuracy": {
+          "value": 0.16666666666666666,
+          "numerator": 1,
+          "denominator": 6
+        },
+        "recommendation.majorityBaselineKindAccuracy": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "recommendation.supportedApplicableRate": {
+          "value": 1,
+          "numerator": 1,
+          "denominator": 1
+        },
+        "recommendation.falseAdviceRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "recommendation.eligibleCoverage": {
+          "value": 0.2,
+          "numerator": 1,
+          "denominator": 5
+        },
+        "recommendation.missedOpportunityRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "question.gapFoundRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "question.unnecessaryQuestionRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "question.wrongRecipientRate": null,
+        "question.questionsPerInvestigation": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        },
+        "question.unansweredRate": null,
+        "@1.linking.recall": {
+          "value": 0.625,
+          "numerator": 5,
+          "denominator": 8
+        },
+        "@1.linking.precision": {
+          "value": 0.7142857142857143,
+          "numerator": 5,
+          "denominator": 7
+        },
+        "@1.accessible.linking.recall": {
+          "value": 0.625,
+          "numerator": 5,
+          "denominator": 8
+        },
+        "@1.accessible.linking.precision": {
+          "value": 0.7142857142857143,
+          "numerator": 5,
+          "denominator": 7
+        },
+        "@3.linking.recall": {
+          "value": 1,
+          "numerator": 8,
+          "denominator": 8
+        },
+        "@3.linking.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 8,
+          "denominator": 12
+        },
+        "@3.accessible.linking.recall": {
+          "value": 1,
+          "numerator": 8,
+          "denominator": 8
+        },
+        "@3.accessible.linking.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 8,
+          "denominator": 12
+        },
+        "access.leakageRate": {
+          "value": 0.021739130434782608,
+          "numerator": 1,
+          "denominator": 46
+        },
+        "access.shownRestrictedEvidenceRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 46
+        },
+        "retrieval.lookalikeTop1Rate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "question.answeredRate": null,
+        "claims.access-fact.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "claims.access-fact.recall": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "efficiency.meanLatencyMs": {
+          "value": 3.5260556666666645,
+          "numerator": 21.156333999999987,
+          "denominator": 6
+        },
+        "routing.answerableRoutingRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "benefit.meanPerInvestigation": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 3,
+        "claims.observation.unknown": 0,
+        "claims.hypothesis.ambiguous": 1,
+        "claims.hypothesis.unknown": 0,
+        "claims.advice.ambiguous": 2,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 0,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 0,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 0,
+        "claims.condition.unknown": 0,
+        "claims.other.ambiguous": 0,
+        "claims.other.unknown": 1,
+        "claims.all.ambiguous": 7,
+        "claims.all.unknown": 1,
+        "entities.systemNonPerson": 3,
+        "entities.extraNonTruth": 1,
+        "cases.missingIncidents": 0,
+        "attribution.claimPersonUnattributed": 0,
+        "attribution.attemptsNotInTruth": 0,
+        "recommendation.problemsWithoutOutput": 0,
+        "question.missedConsequentialGaps": 3,
+        "question.hardRuleViolations": 0,
+        "question.askedUnavailable": 0,
+        "question.gapsNobodyAvailableCanAnswer": 1,
+        "question.maxInterruptionsPerPerson": 0,
+        "question.investigationsEvaluated": 6,
+        "question.asked": 0,
+        "question.answered": 0,
+        "claims.access-fact.ambiguous": 1,
+        "claims.access-fact.unknown": 0,
+        "efficiency.p50LatencyMs": 2.049749999999989,
+        "efficiency.p95LatencyMs": 11.230459000000025,
+        "efficiency.maxLatencyMs": 11.230459000000025,
+        "efficiency.samples": 6,
+        "efficiency.calls": null,
+        "efficiency.tokens": null,
+        "burden.duplicateQuestions": 0,
+        "burden.cancelledDuplicate": 0,
+        "burden.cancelledObsoleteOrResolved": 0,
+        "burden.unansweredQuestions": 0,
+        "burden.maxQuestionsToOnePersonPerFamily": 0,
+        "burden.questionsTotal": 0,
+        "burden.investigationLoopsHittingRoundCap": 0
+      },
+      "failures": [
+        {
+          "id": "A#0",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"TRN-117 link is up and alarms are cleared after the SFP replacement\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "A#1",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"Traffic counters on TRN-117 are still zero after the SFP replacement\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"Optical receive level on the new module is normal\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "A#4",
+          "metric": "claims.recall",
+          "reason": "missed hypothesis claim: \"Older units keep the old forwarding state after a module swap and do not pass traffic\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "A#5",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Reset the interface on both ends to rebuild forwarding state on older revision A units\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "A#6",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Do not apply the interface reset on newer controller revisions\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "claim_fe6a5121849841ed7a0b",
+          "metric": "claims.precision",
+          "reason": "unsupported action claim: \"For the handover: Aarne replaced the SFP at TRN-117.\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "claim_eb1bbfdee15fa3a32a7a",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"For the handover: Aarne replaced the SFP at TRN-117.\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "claim_a3dd4fafa97b029b1c27",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"TRN-117: Link was up and alarms cleared, but counters stayed at zero.\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "claim_ae2c0f2076c77b9c9138",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"TRN-117: Link was up and alarms cleared, but counters stayed at zero.\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "claim_8c8e02a72dab412eef17",
+          "metric": "claims.precision",
+          "reason": "unsupported outcome claim: \"FYI from Helmi's handover: TRN-117 needed an interface reset after the SFP swap,\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "claim_b6c0f8fb592b022f2b4b",
+          "metric": "claims.precision",
+          "reason": "unsupported advice claim: \"Check the van stock list first\"",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "S-117",
+          "metric": "entities.recall",
+          "reason": "entity \"S-117\" not found",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "attempt_e2a154febadd35184863",
+          "metric": "attribution.attemptPerformer",
+          "reason": "attributed to person:directory:helmi-virtanen, truth person:directory:aarne-koskela",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "outcome_3e8655adf74c29fe42bd",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:tapio-lehto, truth person:directory:aarne-koskela",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "plink_819347242ab27e3a56e0",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:tapio-lehto has no firsthand knowledge of incident A",
+          "familyId": "optic-forwarding-a"
+        },
+        {
+          "id": "optic-forwarding-a-p2",
+          "familyId": "optic-forwarding-a",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind qualified, expected reuse"
+        },
+        {
+          "id": "optic-forwarding-a-p3",
+          "familyId": "optic-forwarding-a",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected qualified"
+        },
+        {
+          "id": "optic-forwarding-a-p1",
+          "familyId": "optic-forwarding-a",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (unit.revision)"
+        },
+        {
+          "id": "optic-forwarding-a-p2",
+          "familyId": "optic-forwarding-a",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (traffic.counters, traffic.state)"
+        },
+        {
+          "id": "RBS-310 rectifier module 2",
+          "metric": "entities.recall",
+          "reason": "entity \"RBS-310 rectifier module 2\" not found",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "RBS-310 DC distribution breaker",
+          "metric": "entities.recall",
+          "reason": "entity \"RBS-310 DC distribution breaker\" not found",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "case_ca9da5cdb7dbabafa031",
+          "metric": "cases.falseMergeRate",
+          "reason": "case merges incidents A, C",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "plink_6677f7cdc3dc81aca44e",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:eino-salo has no firsthand knowledge of incident A",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "plink_00d50a785620e51dbdbe",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:eino-salo has no firsthand knowledge of incident A",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "case_5a8bc02163a831ec0853",
+          "metric": "resolution.statusAccuracy",
+          "reason": "status open, truth reported-recovered",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p1",
+          "familyId": "remote-power-access",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind retain-uncertainty, expected qualified"
+        },
+        {
+          "id": "remote-power-access-p2",
+          "familyId": "remote-power-access",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind retain-uncertainty, expected check-first"
+        },
+        {
+          "id": "remote-power-access-p3",
+          "familyId": "remote-power-access",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind retain-uncertainty, expected qualified"
+        },
+        {
+          "id": "remote-power-access-p3",
+          "familyId": "remote-power-access",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (power.breaker_inspected_at_first_visit)"
+        },
+        {
+          "id": "remote-power-access-p1",
+          "metric": "@1.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p2",
+          "metric": "@1.linking.recall",
+          "reason": "related incident C not linked",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p2",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p3",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p3",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p1",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p2",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident C not linked",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p2",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p3",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p3",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p1",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p3",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p1",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p3",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "remote-power-access"
+        },
+        {
+          "id": "remote-power-access-p3",
+          "metric": "access.leakageRate",
+          "reason": "source email:f02-access-310@kalevanet.example (incident C, groups field/access) shown to person:directory:marja-niemi",
+          "familyId": "remote-power-access"
+        }
+      ],
+      "failureSlicesByTag": {
+        "missing-outcome": {
+          "count": 26,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "claim_fe6a5121849841ed7a0b",
+            "claim_eb1bbfdee15fa3a32a7a",
+            "claim_a3dd4fafa97b029b1c27",
+            "claim_ae2c0f2076c77b9c9138",
+            "claim_8c8e02a72dab412eef17",
+            "claim_b6c0f8fb592b022f2b4b",
+            "claim_c18db072fd018ffdd9f1",
+            "claim_11b28e22c780d0c6253d",
+            "claim_d36046e6c0903d89c098",
+            "claim_d356d8c47c78b6404bc4",
+            "claim_779e84c26ce2b8499cdf",
+            "claim_04e29a56e2ff6b03d8ef",
+            "S-117",
+            "attempt_e2a154febadd35184863",
+            "outcome_3e8655adf74c29fe42bd",
+            "plink_819347242ab27e3a56e0",
+            "optic-forwarding-a-p2",
+            "optic-forwarding-a-p3",
+            "optic-forwarding-a-p1"
+          ]
+        },
+        "copied-retelling": {
+          "count": 26,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "claim_fe6a5121849841ed7a0b",
+            "claim_eb1bbfdee15fa3a32a7a",
+            "claim_a3dd4fafa97b029b1c27",
+            "claim_ae2c0f2076c77b9c9138",
+            "claim_8c8e02a72dab412eef17",
+            "claim_b6c0f8fb592b022f2b4b",
+            "claim_c18db072fd018ffdd9f1",
+            "claim_11b28e22c780d0c6253d",
+            "claim_d36046e6c0903d89c098",
+            "claim_d356d8c47c78b6404bc4",
+            "claim_779e84c26ce2b8499cdf",
+            "claim_04e29a56e2ff6b03d8ef",
+            "S-117",
+            "attempt_e2a154febadd35184863",
+            "outcome_3e8655adf74c29fe42bd",
+            "plink_819347242ab27e3a56e0",
+            "optic-forwarding-a-p2",
+            "optic-forwarding-a-p3",
+            "optic-forwarding-a-p1"
+          ]
+        },
+        "lookalike-different-cause": {
+          "count": 26,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "claim_fe6a5121849841ed7a0b",
+            "claim_eb1bbfdee15fa3a32a7a",
+            "claim_a3dd4fafa97b029b1c27",
+            "claim_ae2c0f2076c77b9c9138",
+            "claim_8c8e02a72dab412eef17",
+            "claim_b6c0f8fb592b022f2b4b",
+            "claim_c18db072fd018ffdd9f1",
+            "claim_11b28e22c780d0c6253d",
+            "claim_d36046e6c0903d89c098",
+            "claim_d356d8c47c78b6404bc4",
+            "claim_779e84c26ce2b8499cdf",
+            "claim_04e29a56e2ff6b03d8ef",
+            "S-117",
+            "attempt_e2a154febadd35184863",
+            "outcome_3e8655adf74c29fe42bd",
+            "plink_819347242ab27e3a56e0",
+            "optic-forwarding-a-p2",
+            "optic-forwarding-a-p3",
+            "optic-forwarding-a-p1"
+          ]
+        },
+        "useful-no": {
+          "count": 26,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "claim_fe6a5121849841ed7a0b",
+            "claim_eb1bbfdee15fa3a32a7a",
+            "claim_a3dd4fafa97b029b1c27",
+            "claim_ae2c0f2076c77b9c9138",
+            "claim_8c8e02a72dab412eef17",
+            "claim_b6c0f8fb592b022f2b4b",
+            "claim_c18db072fd018ffdd9f1",
+            "claim_11b28e22c780d0c6253d",
+            "claim_d36046e6c0903d89c098",
+            "claim_d356d8c47c78b6404bc4",
+            "claim_779e84c26ce2b8499cdf",
+            "claim_04e29a56e2ff6b03d8ef",
+            "S-117",
+            "attempt_e2a154febadd35184863",
+            "outcome_3e8655adf74c29fe42bd",
+            "plink_819347242ab27e3a56e0",
+            "optic-forwarding-a-p2",
+            "optic-forwarding-a-p3",
+            "optic-forwarding-a-p1"
+          ]
+        },
+        "no-question-needed": {
+          "count": 67,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "claim_fe6a5121849841ed7a0b",
+            "claim_eb1bbfdee15fa3a32a7a",
+            "claim_a3dd4fafa97b029b1c27",
+            "claim_ae2c0f2076c77b9c9138",
+            "claim_8c8e02a72dab412eef17",
+            "claim_b6c0f8fb592b022f2b4b",
+            "claim_c18db072fd018ffdd9f1",
+            "claim_11b28e22c780d0c6253d",
+            "claim_d36046e6c0903d89c098",
+            "claim_d356d8c47c78b6404bc4",
+            "claim_779e84c26ce2b8499cdf",
+            "claim_04e29a56e2ff6b03d8ef",
+            "S-117",
+            "attempt_e2a154febadd35184863",
+            "outcome_3e8655adf74c29fe42bd",
+            "plink_819347242ab27e3a56e0",
+            "optic-forwarding-a-p2",
+            "optic-forwarding-a-p3",
+            "optic-forwarding-a-p1",
+            "A#7",
+            "B#3",
+            "B#4",
+            "C#0",
+            "claim_2012b21715a79df357ee",
+            "claim_5edeb30d18d0da4492aa",
+            "claim_7865ee7cb45e34d0bca9",
+            "claim_b1141ac84a491aeff44f",
+            "claim_68e0d9285f354e22ed32",
+            "RBS-310 rectifier module 2",
+            "RBS-310 DC distribution breaker",
+            "case_ca9da5cdb7dbabafa031",
+            "plink_6677f7cdc3dc81aca44e",
+            "plink_00d50a785620e51dbdbe",
+            "case_5a8bc02163a831ec0853",
+            "remote-power-access-p1",
+            "remote-power-access-p2",
+            "remote-power-access-p3"
+          ]
+        },
+        "same-incident-continuation": {
+          "count": 26,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "claim_fe6a5121849841ed7a0b",
+            "claim_eb1bbfdee15fa3a32a7a",
+            "claim_a3dd4fafa97b029b1c27",
+            "claim_ae2c0f2076c77b9c9138",
+            "claim_8c8e02a72dab412eef17",
+            "claim_b6c0f8fb592b022f2b4b",
+            "claim_c18db072fd018ffdd9f1",
+            "claim_11b28e22c780d0c6253d",
+            "claim_d36046e6c0903d89c098",
+            "claim_d356d8c47c78b6404bc4",
+            "claim_779e84c26ce2b8499cdf",
+            "claim_04e29a56e2ff6b03d8ef",
+            "S-117",
+            "attempt_e2a154febadd35184863",
+            "outcome_3e8655adf74c29fe42bd",
+            "plink_819347242ab27e3a56e0",
+            "optic-forwarding-a-p2",
+            "optic-forwarding-a-p3",
+            "optic-forwarding-a-p1"
+          ]
+        },
+        "access-fact": {
+          "count": 41,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#4",
+            "A#7",
+            "B#3",
+            "B#4",
+            "C#0",
+            "claim_2012b21715a79df357ee",
+            "claim_5edeb30d18d0da4492aa",
+            "claim_7865ee7cb45e34d0bca9",
+            "claim_b1141ac84a491aeff44f",
+            "claim_68e0d9285f354e22ed32",
+            "RBS-310 rectifier module 2",
+            "RBS-310 DC distribution breaker",
+            "case_ca9da5cdb7dbabafa031",
+            "plink_6677f7cdc3dc81aca44e",
+            "plink_00d50a785620e51dbdbe",
+            "case_5a8bc02163a831ec0853",
+            "remote-power-access-p1",
+            "remote-power-access-p2",
+            "remote-power-access-p3"
+          ]
+        },
+        "recurrence": {
+          "count": 41,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#4",
+            "A#7",
+            "B#3",
+            "B#4",
+            "C#0",
+            "claim_2012b21715a79df357ee",
+            "claim_5edeb30d18d0da4492aa",
+            "claim_7865ee7cb45e34d0bca9",
+            "claim_b1141ac84a491aeff44f",
+            "claim_68e0d9285f354e22ed32",
+            "RBS-310 rectifier module 2",
+            "RBS-310 DC distribution breaker",
+            "case_ca9da5cdb7dbabafa031",
+            "plink_6677f7cdc3dc81aca44e",
+            "plink_00d50a785620e51dbdbe",
+            "case_5a8bc02163a831ec0853",
+            "remote-power-access-p1",
+            "remote-power-access-p2",
+            "remote-power-access-p3"
+          ]
+        },
+        "temporary-recovery": {
+          "count": 41,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#4",
+            "A#7",
+            "B#3",
+            "B#4",
+            "C#0",
+            "claim_2012b21715a79df357ee",
+            "claim_5edeb30d18d0da4492aa",
+            "claim_7865ee7cb45e34d0bca9",
+            "claim_b1141ac84a491aeff44f",
+            "claim_68e0d9285f354e22ed32",
+            "RBS-310 rectifier module 2",
+            "RBS-310 DC distribution breaker",
+            "case_ca9da5cdb7dbabafa031",
+            "plink_6677f7cdc3dc81aca44e",
+            "plink_00d50a785620e51dbdbe",
+            "case_5a8bc02163a831ec0853",
+            "remote-power-access-p1",
+            "remote-power-access-p2",
+            "remote-power-access-p3"
+          ]
+        },
+        "no-answer": {
+          "count": 41,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#4",
+            "A#7",
+            "B#3",
+            "B#4",
+            "C#0",
+            "claim_2012b21715a79df357ee",
+            "claim_5edeb30d18d0da4492aa",
+            "claim_7865ee7cb45e34d0bca9",
+            "claim_b1141ac84a491aeff44f",
+            "claim_68e0d9285f354e22ed32",
+            "RBS-310 rectifier module 2",
+            "RBS-310 DC distribution breaker",
+            "case_ca9da5cdb7dbabafa031",
+            "plink_6677f7cdc3dc81aca44e",
+            "plink_00d50a785620e51dbdbe",
+            "case_5a8bc02163a831ec0853",
+            "remote-power-access-p1",
+            "remote-power-access-p2",
+            "remote-power-access-p3"
+          ]
+        },
+        "wrong-recipient-trap": {
+          "count": 41,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#4",
+            "A#7",
+            "B#3",
+            "B#4",
+            "C#0",
+            "claim_2012b21715a79df357ee",
+            "claim_5edeb30d18d0da4492aa",
+            "claim_7865ee7cb45e34d0bca9",
+            "claim_b1141ac84a491aeff44f",
+            "claim_68e0d9285f354e22ed32",
+            "RBS-310 rectifier module 2",
+            "RBS-310 DC distribution breaker",
+            "case_ca9da5cdb7dbabafa031",
+            "plink_6677f7cdc3dc81aca44e",
+            "plink_00d50a785620e51dbdbe",
+            "case_5a8bc02163a831ec0853",
+            "remote-power-access-p1",
+            "remote-power-access-p2",
+            "remote-power-access-p3"
+          ]
+        }
+      }
+    },
+    {
+      "variantId": "baseline-rules",
+      "provenance": "measured",
+      "split": "train",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.47368421052631576,
+          "numerator": 9,
+          "denominator": 19
+        },
+        "claims.observation.recall": {
+          "value": 0.8181818181818182,
+          "numerator": 9,
+          "denominator": 11
+        },
+        "claims.advice.precision": {
+          "value": 0.2857142857142857,
+          "numerator": 2,
+          "denominator": 7
+        },
+        "claims.advice.recall": {
+          "value": 0.2857142857142857,
+          "numerator": 2,
+          "denominator": 7
+        },
+        "claims.action.precision": {
+          "value": 0.8888888888888888,
+          "numerator": 8,
+          "denominator": 9
+        },
+        "claims.action.recall": {
+          "value": 0.7272727272727273,
+          "numerator": 8,
+          "denominator": 11
+        },
+        "claims.outcome.precision": {
+          "value": 0.6428571428571429,
+          "numerator": 9,
+          "denominator": 14
+        },
+        "claims.outcome.recall": {
+          "value": 1,
+          "numerator": 9,
+          "denominator": 9
+        },
+        "claims.condition.precision": {
+          "value": 0.42857142857142855,
+          "numerator": 3,
+          "denominator": 7
+        },
+        "claims.condition.recall": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "claims.other.precision": null,
+        "claims.other.recall": null,
+        "claims.all.precision": {
+          "value": 0.5517241379310345,
+          "numerator": 32,
+          "denominator": 58
+        },
+        "claims.all.recall": {
+          "value": 0.6808510638297872,
+          "numerator": 32,
+          "denominator": 47
+        },
+        "entities.recall": {
+          "value": 0.5384615384615384,
+          "numerator": 7,
+          "denominator": 13
+        },
+        "cases.falseMergeRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0.09375,
+          "numerator": 3,
+          "denominator": 32
+        },
+        "attribution.attemptPerformerErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "attribution.attemptPerformedStateErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "attribution.attemptsNotInTruthRate": {
+          "value": 0.2222222222222222,
+          "numerator": 2,
+          "denominator": 9
+        },
+        "attribution.outcomeReporterErrorRate": {
+          "value": 0.4375,
+          "numerator": 7,
+          "denominator": 16
+        },
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0.03125,
+          "numerator": 2,
+          "denominator": 64
+        },
+        "copies.overcountRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "resolution.statusAccuracy": {
+          "value": 1,
+          "numerator": 7,
+          "denominator": 7
+        },
+        "resolution.falseSolvedRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        },
+        "resolution.falseConfirmedOutcomeRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 13
+        },
+        "recommendation.kindAccuracy": {
+          "value": 0.25,
+          "numerator": 3,
+          "denominator": 12
+        },
+        "recommendation.majorityBaselineKindAccuracy": {
+          "value": 0.5,
+          "numerator": 6,
+          "denominator": 12
+        },
+        "recommendation.supportedApplicableRate": {
+          "value": 0.6666666666666666,
+          "numerator": 6,
+          "denominator": 9
+        },
+        "recommendation.falseAdviceRate": {
+          "value": 0.3333333333333333,
+          "numerator": 3,
+          "denominator": 9
+        },
+        "recommendation.eligibleCoverage": {
+          "value": 0.6666666666666666,
+          "numerator": 6,
+          "denominator": 9
+        },
+        "recommendation.missedOpportunityRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "question.gapFoundRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "question.unnecessaryQuestionRate": {
+          "value": 0.14285714285714285,
+          "numerator": 1,
+          "denominator": 7
+        },
+        "question.wrongRecipientRate": {
+          "value": 1,
+          "numerator": 1,
+          "denominator": 1
+        },
+        "question.questionsPerInvestigation": {
+          "value": 0.16666666666666666,
+          "numerator": 2,
+          "denominator": 12
+        },
+        "question.unansweredRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "@1.linking.recall": {
+          "value": 0.6666666666666666,
+          "numerator": 12,
+          "denominator": 18
+        },
+        "@1.linking.precision": {
+          "value": 1,
+          "numerator": 12,
+          "denominator": 12
+        },
+        "@1.accessible.linking.recall": {
+          "value": 0.7058823529411765,
+          "numerator": 12,
+          "denominator": 17
+        },
+        "@1.accessible.linking.precision": {
+          "value": 1,
+          "numerator": 12,
+          "denominator": 12
+        },
+        "@3.linking.recall": {
+          "value": 0.8888888888888888,
+          "numerator": 16,
+          "denominator": 18
+        },
+        "@3.linking.precision": {
+          "value": 0.8888888888888888,
+          "numerator": 16,
+          "denominator": 18
+        },
+        "@3.accessible.linking.recall": {
+          "value": 0.9411764705882353,
+          "numerator": 16,
+          "denominator": 17
+        },
+        "@3.accessible.linking.precision": {
+          "value": 0.8888888888888888,
+          "numerator": 16,
+          "denominator": 18
+        },
+        "access.leakageRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 87
+        },
+        "access.shownRestrictedEvidenceRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 89
+        },
+        "retrieval.lookalikeTop1Rate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "question.answeredRate": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "claims.hypothesis.precision": {
+          "value": 0.5,
+          "numerator": 1,
+          "denominator": 2
+        },
+        "claims.hypothesis.recall": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "efficiency.meanLatencyMs": {
+          "value": 2.1441976666666847,
+          "numerator": 25.730372000000216,
+          "denominator": 12
+        },
+        "routing.answerableRoutingRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "benefit.meanPerInvestigation": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 12
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 2,
+        "claims.observation.unknown": 0,
+        "claims.advice.ambiguous": 2,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 2,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 2,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 4,
+        "claims.condition.unknown": 0,
+        "claims.other.ambiguous": 0,
+        "claims.other.unknown": 5,
+        "claims.all.ambiguous": 12,
+        "claims.all.unknown": 5,
+        "entities.systemNonPerson": 8,
+        "entities.extraNonTruth": 1,
+        "cases.missingIncidents": 0,
+        "attribution.claimPersonUnattributed": 0,
+        "attribution.attemptsNotInTruth": 2,
+        "recommendation.problemsWithoutOutput": 0,
+        "question.missedConsequentialGaps": 4,
+        "question.hardRuleViolations": 0,
+        "question.askedUnavailable": 0,
+        "question.gapsNobodyAvailableCanAnswer": 1,
+        "question.maxInterruptionsPerPerson": 2,
+        "question.investigationsEvaluated": 12,
+        "question.asked": 2,
+        "question.answered": 2,
+        "claims.hypothesis.ambiguous": 0,
+        "claims.hypothesis.unknown": 0,
+        "efficiency.p50LatencyMs": 1.4917500000000246,
+        "efficiency.p95LatencyMs": 6.086084000000028,
+        "efficiency.maxLatencyMs": 6.086084000000028,
+        "efficiency.samples": 12,
+        "efficiency.calls": null,
+        "efficiency.tokens": null,
+        "burden.duplicateQuestions": 0,
+        "burden.cancelledDuplicate": 0,
+        "burden.cancelledObsoleteOrResolved": 0,
+        "burden.unansweredQuestions": 0,
+        "burden.maxQuestionsToOnePersonPerFamily": 2,
+        "burden.questionsTotal": 2,
+        "burden.investigationLoopsHittingRoundCap": 0
+      },
+      "failures": [
+        {
+          "id": "A#1",
+          "metric": "claims.recall",
+          "reason": "missed condition claim: \"AGG-014 upgraded from firmware 9.3.7 to 9.4.2\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_b45378dae082cfa3e552",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"AGG-031: CRC errors are climbing on the east link though.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_c0f43751257a6293e248",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"AGG-014: It started right after the firmware upgrade at 09:40.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_8b3237815261f903b3b9",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"AGG-014: It was 9.3.7 before.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_49a27f1b9afbe50dbca3",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"AGG-014: The peers behind the long-haul link need 90.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_0f84a0918d5f5569dde2",
+          "metric": "claims.precision",
+          "reason": "unsupported outcome claim: \"AGG-014: Still up after ten minutes, no flaps and the counters look clean.\"",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "AGG-044",
+          "metric": "entities.recall",
+          "reason": "entity \"AGG-044\" not found",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "claim_3955e285b5fc9aa20b1f",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:toivo-aaltonen, truth person:directory:hanna-kallio",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "outcome_eea409d4488bcc73d340",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:toivo-aaltonen, truth person:directory:hanna-kallio",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "plink_0f100073846ab6808bd2",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:aino-hirvonen has no firsthand knowledge of incident B",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "plink_9849ccb430dea50f9e0f",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:aino-hirvonen has no firsthand knowledge of incident B",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "bgp-firmware-flaps-p1",
+          "familyId": "bgp-firmware-flaps",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind reuse, expected qualified"
+        },
+        {
+          "id": "bgp-firmware-flaps-p1",
+          "familyId": "bgp-firmware-flaps",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (config.changed, interface.crc_errors)"
+        },
+        {
+          "id": "bgp-firmware-flaps-p3",
+          "familyId": "bgp-firmware-flaps",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (bgp.session)"
+        },
+        {
+          "id": "bgp-firmware-flaps-p1",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "bgp-firmware-flaps-p1",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "bgp-firmware-flaps-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "bgp-firmware-flaps-p3",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "bgp-firmware-flaps-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "bgp-firmware-flaps-p3",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "bgp-firmware-flaps"
+        },
+        {
+          "id": "A#1",
+          "metric": "claims.recall",
+          "reason": "missed condition claim: \"OLT-210 is an outdoor cabinet of 2015 build\"",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Check and replace the dust filter first because the cabinet type clogs with pollen in spring\"",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "B#5",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Replace the fan tray only on FT-2 cabinets from 2015 and 2016 builds and escalate newer FT-3 cabinets\"",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "claim_53ebf3cba13dfa6b9737",
+          "metric": "claims.precision",
+          "reason": "unsupported hypothesis claim: \"In spring, high inlet temperature on the 2015-build outdoor cabinets is usually \"",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "OLT-210 fan tray 2",
+          "metric": "entities.recall",
+          "reason": "entity \"OLT-210 fan tray 2\" not found",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "OLT-210 dust filter",
+          "metric": "entities.recall",
+          "reason": "entity \"OLT-210 dust filter\" not found",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "outcome_99942dfa15b53992f3fd",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:leena-kuusisto, truth person:directory:vesa-hakala",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "fan-temperature-p1",
+          "familyId": "fan-temperature",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected qualified"
+        },
+        {
+          "id": "fan-temperature-p2",
+          "familyId": "fan-temperature",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind qualified, expected none"
+        },
+        {
+          "id": "fan-temperature-p2",
+          "familyId": "fan-temperature",
+          "metric": "recommendation.falseAdviceRate",
+          "reason": "qualified issued but key says inapplicable"
+        },
+        {
+          "id": "fan-temperature-p3",
+          "familyId": "fan-temperature",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind qualified, expected retain-uncertainty"
+        },
+        {
+          "id": "fan-temperature-p3",
+          "familyId": "fan-temperature",
+          "metric": "recommendation.falseAdviceRate",
+          "reason": "qualified issued but key says none"
+        },
+        {
+          "id": "fan-temperature-p1",
+          "metric": "@1.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "fan-temperature-p2",
+          "metric": "@1.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "fan-temperature-p3",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "fan-temperature-p1",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "fan-temperature-p2",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "fan-temperature-p3",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "fan-temperature"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed hypothesis claim: \"Template v7 changed the voice VLAN range\"",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "A#3",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Roll ACC-12 back to the v6 template\"",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "ACC-33",
+          "metric": "entities.recall",
+          "reason": "entity \"ACC-33\" not found",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "config template v7",
+          "metric": "entities.recall",
+          "reason": "entity \"config template v7\" not found",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "claim_8b50d4c29b2a273be27a",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:jarmo-heikkinen, truth person:directory:antti-korhonen",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "outcome_ed3ba61331cb983e829c",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:jarmo-heikkinen, truth person:directory:antti-korhonen",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "outcome_8a784e9084eb2485c7d9",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:jarmo-heikkinen, truth person:directory:antti-korhonen",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "config-rollback-private-p1",
+          "familyId": "config-rollback-private",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind qualified, expected none"
+        },
+        {
+          "id": "config-rollback-private-p1",
+          "familyId": "config-rollback-private",
+          "metric": "recommendation.falseAdviceRate",
+          "reason": "qualified issued but key says inapplicable"
+        },
+        {
+          "id": "config-rollback-private-p2",
+          "familyId": "config-rollback-private",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected qualified"
+        },
+        {
+          "id": "config-rollback-private-p1",
+          "familyId": "config-rollback-private",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (config.rollback_supported)"
+        },
+        {
+          "id": "config-rollback-private-p1",
+          "familyId": "config-rollback-private",
+          "metric": "question.wrongRecipientRate",
+          "reason": "asked person:directory:antti-korhonen, answerers person:directory:sirkka-lindholm, person:directory:jarmo-heikkinen"
+        },
+        {
+          "id": "config-rollback-private-p3",
+          "familyId": "config-rollback-private",
+          "metric": "question.unnecessaryQuestionRate",
+          "reason": "asked 1 question(s) where none was needed"
+        },
+        {
+          "id": "config-rollback-private-p1",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "config-rollback-private-p2",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "config-rollback-private-p2",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "config-rollback-private-p1",
+          "metric": "@3.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "config-rollback-private-p2",
+          "metric": "@3.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "config-rollback-private-p2",
+          "metric": "@3.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "config-rollback-private"
+        },
+        {
+          "id": "HUB-07 uplink patch cord",
+          "metric": "entities.recall",
+          "reason": "entity \"HUB-07 uplink patch cord\" not found",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "claim_9f38066f88d3a292e81c",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:kimmo-rautio, truth person:directory:aila-nurmi",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "attempt_22d43ce3141f65fa2f1a",
+          "metric": "attribution.attemptsNotInTruth",
+          "reason": "attempt \"cord.replace\" matches no truth attempt of incident A",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "attempt_c5d1f1297c8f9e53cb1c",
+          "metric": "attribution.attemptsNotInTruth",
+          "reason": "attempt \"connector.clean\" matches no truth attempt of incident A",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "outcome_2d66778786d4d55663b6",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:kimmo-rautio, truth person:directory:aila-nurmi",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "outcome_9c397d001bda37a22c93",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:kimmo-rautio, truth person:directory:aila-nurmi",
+          "familyId": "cabling-pinch"
+        },
+        {
+          "id": "cabling-pinch-p1",
+          "familyId": "cabling-pinch",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (cable.condition, component.replaced)"
+        }
+      ],
+      "failureSlicesByTag": {
+        "lookalike-different-cause": {
+          "count": 20,
+          "ids": [
+            "A#1",
+            "claim_b45378dae082cfa3e552",
+            "claim_c0f43751257a6293e248",
+            "claim_8b3237815261f903b3b9",
+            "claim_49a27f1b9afbe50dbca3",
+            "claim_0f84a0918d5f5569dde2",
+            "AGG-044",
+            "claim_3955e285b5fc9aa20b1f",
+            "outcome_eea409d4488bcc73d340",
+            "plink_0f100073846ab6808bd2",
+            "plink_9849ccb430dea50f9e0f",
+            "bgp-firmware-flaps-p1",
+            "bgp-firmware-flaps-p3",
+            "bgp-firmware-flaps-p2"
+          ]
+        },
+        "multi-step": {
+          "count": 42,
+          "ids": [
+            "A#1",
+            "claim_b45378dae082cfa3e552",
+            "claim_c0f43751257a6293e248",
+            "claim_8b3237815261f903b3b9",
+            "claim_49a27f1b9afbe50dbca3",
+            "claim_0f84a0918d5f5569dde2",
+            "AGG-044",
+            "claim_3955e285b5fc9aa20b1f",
+            "outcome_eea409d4488bcc73d340",
+            "plink_0f100073846ab6808bd2",
+            "plink_9849ccb430dea50f9e0f",
+            "bgp-firmware-flaps-p1",
+            "bgp-firmware-flaps-p3",
+            "bgp-firmware-flaps-p2",
+            "A#0",
+            "A#2",
+            "A#6",
+            "A#7",
+            "A#10",
+            "claim_864eebd96038e0358e5d",
+            "claim_3f4d7adb49bc17b60d98",
+            "claim_881336d617a4a6245f2b",
+            "claim_93cf4c5372474868fe3b",
+            "claim_26af3d3fac1d8b7d0230",
+            "claim_5842cf462ed86bbecfee",
+            "HUB-07 uplink patch cord",
+            "claim_9f38066f88d3a292e81c",
+            "attempt_22d43ce3141f65fa2f1a",
+            "attempt_c5d1f1297c8f9e53cb1c",
+            "outcome_2d66778786d4d55663b6",
+            "outcome_9c397d001bda37a22c93",
+            "outcome_b2edc2b4d63347b13fd2",
+            "cabling-pinch-p1",
+            "cabling-pinch-p2",
+            "cabling-pinch-p3"
+          ]
+        },
+        "recurrence": {
+          "count": 20,
+          "ids": [
+            "A#1",
+            "claim_b45378dae082cfa3e552",
+            "claim_c0f43751257a6293e248",
+            "claim_8b3237815261f903b3b9",
+            "claim_49a27f1b9afbe50dbca3",
+            "claim_0f84a0918d5f5569dde2",
+            "AGG-044",
+            "claim_3955e285b5fc9aa20b1f",
+            "outcome_eea409d4488bcc73d340",
+            "plink_0f100073846ab6808bd2",
+            "plink_9849ccb430dea50f9e0f",
+            "bgp-firmware-flaps-p1",
+            "bgp-firmware-flaps-p3",
+            "bgp-firmware-flaps-p2"
+          ]
+        },
+        "conflicting-conditions": {
+          "count": 75,
+          "ids": [
+            "A#1",
+            "claim_b45378dae082cfa3e552",
+            "claim_c0f43751257a6293e248",
+            "claim_8b3237815261f903b3b9",
+            "claim_49a27f1b9afbe50dbca3",
+            "claim_0f84a0918d5f5569dde2",
+            "AGG-044",
+            "claim_3955e285b5fc9aa20b1f",
+            "outcome_eea409d4488bcc73d340",
+            "plink_0f100073846ab6808bd2",
+            "plink_9849ccb430dea50f9e0f",
+            "bgp-firmware-flaps-p1",
+            "bgp-firmware-flaps-p3",
+            "bgp-firmware-flaps-p2",
+            "A#2",
+            "B#5",
+            "claim_53ebf3cba13dfa6b9737",
+            "claim_df0d009e388b9acf7ecf",
+            "claim_2829b5b24975d65bb862",
+            "claim_2d854e1afa8c437bcaf8",
+            "claim_95155dd477fc6d8e3382",
+            "claim_8b39dc3f5e44acc66f6f",
+            "claim_af795bffa75221c6b948",
+            "claim_f5a108299cf3b46c7a9d",
+            "claim_c52b12752960ad4c2a13",
+            "claim_43a419c9af4c25d46098",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "outcome_99942dfa15b53992f3fd",
+            "fan-temperature-p1",
+            "fan-temperature-p2",
+            "fan-temperature-p3",
+            "A#3",
+            "B#0",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_fe402c505d8d8d37a7d9",
+            "claim_64a0ef2aae4a2166aaca",
+            "claim_5af14355ef7b2fb93578",
+            "claim_3db9d071d0b95415c972",
+            "claim_611eb93ed4a7dedd86f2",
+            "ACC-33",
+            "config template v7",
+            "claim_8b50d4c29b2a273be27a",
+            "outcome_ed3ba61331cb983e829c",
+            "outcome_8a784e9084eb2485c7d9",
+            "config-rollback-private-p1",
+            "config-rollback-private-p2",
+            "config-rollback-private-p3"
+          ]
+        },
+        "temporary-recovery": {
+          "count": 27,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#5",
+            "claim_53ebf3cba13dfa6b9737",
+            "claim_df0d009e388b9acf7ecf",
+            "claim_2829b5b24975d65bb862",
+            "claim_2d854e1afa8c437bcaf8",
+            "claim_95155dd477fc6d8e3382",
+            "claim_8b39dc3f5e44acc66f6f",
+            "claim_af795bffa75221c6b948",
+            "claim_f5a108299cf3b46c7a9d",
+            "claim_c52b12752960ad4c2a13",
+            "claim_43a419c9af4c25d46098",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "outcome_99942dfa15b53992f3fd",
+            "fan-temperature-p1",
+            "fan-temperature-p2",
+            "fan-temperature-p3"
+          ]
+        },
+        "duplicate-report": {
+          "count": 27,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#5",
+            "claim_53ebf3cba13dfa6b9737",
+            "claim_df0d009e388b9acf7ecf",
+            "claim_2829b5b24975d65bb862",
+            "claim_2d854e1afa8c437bcaf8",
+            "claim_95155dd477fc6d8e3382",
+            "claim_8b39dc3f5e44acc66f6f",
+            "claim_af795bffa75221c6b948",
+            "claim_f5a108299cf3b46c7a9d",
+            "claim_c52b12752960ad4c2a13",
+            "claim_43a419c9af4c25d46098",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "outcome_99942dfa15b53992f3fd",
+            "fan-temperature-p1",
+            "fan-temperature-p2",
+            "fan-temperature-p3"
+          ]
+        },
+        "no-question-needed": {
+          "count": 27,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#5",
+            "claim_53ebf3cba13dfa6b9737",
+            "claim_df0d009e388b9acf7ecf",
+            "claim_2829b5b24975d65bb862",
+            "claim_2d854e1afa8c437bcaf8",
+            "claim_95155dd477fc6d8e3382",
+            "claim_8b39dc3f5e44acc66f6f",
+            "claim_af795bffa75221c6b948",
+            "claim_f5a108299cf3b46c7a9d",
+            "claim_c52b12752960ad4c2a13",
+            "claim_43a419c9af4c25d46098",
+            "OLT-210 fan tray 2",
+            "OLT-210 dust filter",
+            "outcome_99942dfa15b53992f3fd",
+            "fan-temperature-p1",
+            "fan-temperature-p2",
+            "fan-temperature-p3"
+          ]
+        },
+        "changed-permissions": {
+          "count": 28,
+          "ids": [
+            "A#2",
+            "A#3",
+            "B#0",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_fe402c505d8d8d37a7d9",
+            "claim_64a0ef2aae4a2166aaca",
+            "claim_5af14355ef7b2fb93578",
+            "claim_3db9d071d0b95415c972",
+            "claim_611eb93ed4a7dedd86f2",
+            "ACC-33",
+            "config template v7",
+            "claim_8b50d4c29b2a273be27a",
+            "outcome_ed3ba61331cb983e829c",
+            "outcome_8a784e9084eb2485c7d9",
+            "config-rollback-private-p1",
+            "config-rollback-private-p2",
+            "config-rollback-private-p3"
+          ]
+        },
+        "wrong-recipient-trap": {
+          "count": 28,
+          "ids": [
+            "A#2",
+            "A#3",
+            "B#0",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_fe402c505d8d8d37a7d9",
+            "claim_64a0ef2aae4a2166aaca",
+            "claim_5af14355ef7b2fb93578",
+            "claim_3db9d071d0b95415c972",
+            "claim_611eb93ed4a7dedd86f2",
+            "ACC-33",
+            "config template v7",
+            "claim_8b50d4c29b2a273be27a",
+            "outcome_ed3ba61331cb983e829c",
+            "outcome_8a784e9084eb2485c7d9",
+            "config-rollback-private-p1",
+            "config-rollback-private-p2",
+            "config-rollback-private-p3"
+          ]
+        },
+        "copied-retelling": {
+          "count": 28,
+          "ids": [
+            "A#2",
+            "A#3",
+            "B#0",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_fe402c505d8d8d37a7d9",
+            "claim_64a0ef2aae4a2166aaca",
+            "claim_5af14355ef7b2fb93578",
+            "claim_3db9d071d0b95415c972",
+            "claim_611eb93ed4a7dedd86f2",
+            "ACC-33",
+            "config template v7",
+            "claim_8b50d4c29b2a273be27a",
+            "outcome_ed3ba61331cb983e829c",
+            "outcome_8a784e9084eb2485c7d9",
+            "config-rollback-private-p1",
+            "config-rollback-private-p2",
+            "config-rollback-private-p3"
+          ]
+        },
+        "useful-no": {
+          "count": 28,
+          "ids": [
+            "A#2",
+            "A#3",
+            "B#0",
+            "B#1",
+            "B#2",
+            "B#3",
+            "claim_fe402c505d8d8d37a7d9",
+            "claim_64a0ef2aae4a2166aaca",
+            "claim_5af14355ef7b2fb93578",
+            "claim_3db9d071d0b95415c972",
+            "claim_611eb93ed4a7dedd86f2",
+            "ACC-33",
+            "config template v7",
+            "claim_8b50d4c29b2a273be27a",
+            "outcome_ed3ba61331cb983e829c",
+            "outcome_8a784e9084eb2485c7d9",
+            "config-rollback-private-p1",
+            "config-rollback-private-p2",
+            "config-rollback-private-p3"
+          ]
+        },
+        "same-incident-continuation": {
+          "count": 22,
+          "ids": [
+            "A#0",
+            "A#2",
+            "A#6",
+            "A#7",
+            "A#10",
+            "claim_864eebd96038e0358e5d",
+            "claim_3f4d7adb49bc17b60d98",
+            "claim_881336d617a4a6245f2b",
+            "claim_93cf4c5372474868fe3b",
+            "claim_26af3d3fac1d8b7d0230",
+            "claim_5842cf462ed86bbecfee",
+            "HUB-07 uplink patch cord",
+            "claim_9f38066f88d3a292e81c",
+            "attempt_22d43ce3141f65fa2f1a",
+            "attempt_c5d1f1297c8f9e53cb1c",
+            "outcome_2d66778786d4d55663b6",
+            "outcome_9c397d001bda37a22c93",
+            "outcome_b2edc2b4d63347b13fd2",
+            "cabling-pinch-p1",
+            "cabling-pinch-p2",
+            "cabling-pinch-p3"
+          ]
+        },
+        "no-answer": {
+          "count": 22,
+          "ids": [
+            "A#0",
+            "A#2",
+            "A#6",
+            "A#7",
+            "A#10",
+            "claim_864eebd96038e0358e5d",
+            "claim_3f4d7adb49bc17b60d98",
+            "claim_881336d617a4a6245f2b",
+            "claim_93cf4c5372474868fe3b",
+            "claim_26af3d3fac1d8b7d0230",
+            "claim_5842cf462ed86bbecfee",
+            "HUB-07 uplink patch cord",
+            "claim_9f38066f88d3a292e81c",
+            "attempt_22d43ce3141f65fa2f1a",
+            "attempt_c5d1f1297c8f9e53cb1c",
+            "outcome_2d66778786d4d55663b6",
+            "outcome_9c397d001bda37a22c93",
+            "outcome_b2edc2b4d63347b13fd2",
+            "cabling-pinch-p1",
+            "cabling-pinch-p2",
+            "cabling-pinch-p3"
+          ]
+        }
+      }
+    },
+    {
+      "variantId": "baseline-rules",
+      "provenance": "measured",
+      "split": "validation",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.42857142857142855,
+          "numerator": 3,
+          "denominator": 7
+        },
+        "claims.observation.recall": {
+          "value": 0.6,
+          "numerator": 3,
+          "denominator": 5
+        },
+        "claims.hypothesis.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.hypothesis.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.advice.precision": {
+          "value": 0.14285714285714285,
+          "numerator": 1,
+          "denominator": 7
+        },
+        "claims.advice.recall": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "claims.action.precision": {
+          "value": 1,
+          "numerator": 5,
+          "denominator": 5
+        },
+        "claims.action.recall": {
+          "value": 1,
+          "numerator": 5,
+          "denominator": 5
+        },
+        "claims.outcome.precision": {
+          "value": 0.6,
+          "numerator": 3,
+          "denominator": 5
+        },
+        "claims.outcome.recall": {
+          "value": 0.75,
+          "numerator": 3,
+          "denominator": 4
+        },
+        "claims.condition.precision": {
+          "value": 0.2,
+          "numerator": 1,
+          "denominator": 5
+        },
+        "claims.condition.recall": {
+          "value": 1,
+          "numerator": 1,
+          "denominator": 1
+        },
+        "claims.access-fact.precision": {
+          "value": 0.25,
+          "numerator": 1,
+          "denominator": 4
+        },
+        "claims.access-fact.recall": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "claims.other.precision": null,
+        "claims.other.recall": null,
+        "claims.all.precision": {
+          "value": 0.4117647058823529,
+          "numerator": 14,
+          "denominator": 34
+        },
+        "claims.all.recall": {
+          "value": 0.6363636363636364,
+          "numerator": 14,
+          "denominator": 22
+        },
+        "entities.recall": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "cases.falseMergeRate": {
+          "value": 0.25,
+          "numerator": 1,
+          "denominator": 4
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0.07142857142857142,
+          "numerator": 1,
+          "denominator": 14
+        },
+        "attribution.attemptPerformerErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.attemptPerformedStateErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.attemptsNotInTruthRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.outcomeReporterErrorRate": {
+          "value": 0.2857142857142857,
+          "numerator": 2,
+          "denominator": 7
+        },
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0.0967741935483871,
+          "numerator": 3,
+          "denominator": 31
+        },
+        "copies.overcountRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "resolution.statusAccuracy": {
+          "value": 1,
+          "numerator": 4,
+          "denominator": 4
+        },
+        "resolution.falseSolvedRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "resolution.falseConfirmedOutcomeRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 7
+        },
+        "recommendation.kindAccuracy": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "recommendation.majorityBaselineKindAccuracy": {
+          "value": 0.6666666666666666,
+          "numerator": 4,
+          "denominator": 6
+        },
+        "recommendation.supportedApplicableRate": {
+          "value": 0.8,
+          "numerator": 4,
+          "denominator": 5
+        },
+        "recommendation.falseAdviceRate": {
+          "value": 0.2,
+          "numerator": 1,
+          "denominator": 5
+        },
+        "recommendation.eligibleCoverage": {
+          "value": 0.8,
+          "numerator": 4,
+          "denominator": 5
+        },
+        "recommendation.missedOpportunityRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "question.gapFoundRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "question.unnecessaryQuestionRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "question.wrongRecipientRate": null,
+        "question.questionsPerInvestigation": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        },
+        "question.unansweredRate": null,
+        "@1.linking.recall": {
+          "value": 0.5555555555555556,
+          "numerator": 5,
+          "denominator": 9
+        },
+        "@1.linking.precision": {
+          "value": 0.625,
+          "numerator": 5,
+          "denominator": 8
+        },
+        "@1.accessible.linking.recall": {
+          "value": 0.625,
+          "numerator": 5,
+          "denominator": 8
+        },
+        "@1.accessible.linking.precision": {
+          "value": 0.625,
+          "numerator": 5,
+          "denominator": 8
+        },
+        "@3.linking.recall": {
+          "value": 0.7777777777777778,
+          "numerator": 7,
+          "denominator": 9
+        },
+        "@3.linking.precision": {
+          "value": 0.5833333333333334,
+          "numerator": 7,
+          "denominator": 12
+        },
+        "@3.accessible.linking.recall": {
+          "value": 0.875,
+          "numerator": 7,
+          "denominator": 8
+        },
+        "@3.accessible.linking.precision": {
+          "value": 0.5833333333333334,
+          "numerator": 7,
+          "denominator": 12
+        },
+        "access.leakageRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 47
+        },
+        "access.shownRestrictedEvidenceRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 50
+        },
+        "retrieval.lookalikeTop1Rate": {
+          "value": 0.5,
+          "numerator": 1,
+          "denominator": 2
+        },
+        "question.answeredRate": null,
+        "efficiency.meanLatencyMs": {
+          "value": 1.4860625000000027,
+          "numerator": 8.916375000000016,
+          "denominator": 6
+        },
+        "routing.answerableRoutingRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "benefit.meanPerInvestigation": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 3,
+        "claims.observation.unknown": 0,
+        "claims.hypothesis.ambiguous": 0,
+        "claims.hypothesis.unknown": 0,
+        "claims.advice.ambiguous": 0,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 0,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 2,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 0,
+        "claims.condition.unknown": 0,
+        "claims.access-fact.ambiguous": 0,
+        "claims.access-fact.unknown": 0,
+        "claims.other.ambiguous": 0,
+        "claims.other.unknown": 1,
+        "claims.all.ambiguous": 5,
+        "claims.all.unknown": 1,
+        "entities.systemNonPerson": 3,
+        "entities.extraNonTruth": 0,
+        "cases.missingIncidents": 0,
+        "attribution.claimPersonUnattributed": 0,
+        "attribution.attemptsNotInTruth": 0,
+        "recommendation.problemsWithoutOutput": 0,
+        "question.missedConsequentialGaps": 3,
+        "question.hardRuleViolations": 0,
+        "question.askedUnavailable": 0,
+        "question.gapsNobodyAvailableCanAnswer": 0,
+        "question.maxInterruptionsPerPerson": 0,
+        "question.investigationsEvaluated": 6,
+        "question.asked": 0,
+        "question.answered": 0,
+        "efficiency.p50LatencyMs": 1.3869579999999928,
+        "efficiency.p95LatencyMs": 2.123792000000037,
+        "efficiency.maxLatencyMs": 2.123792000000037,
+        "efficiency.samples": 6,
+        "efficiency.calls": null,
+        "efficiency.tokens": null,
+        "burden.duplicateQuestions": 0,
+        "burden.cancelledDuplicate": 0,
+        "burden.cancelledObsoleteOrResolved": 0,
+        "burden.unansweredQuestions": 0,
+        "burden.maxQuestionsToOnePersonPerFamily": 0,
+        "burden.questionsTotal": 0,
+        "burden.investigationLoopsHittingRoundCap": 0
+      },
+      "failures": [
+        {
+          "id": "A#1",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"The 48 V PSU at MW-77 shows about 3 volts peak to peak ripple\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Swap the PSU and keep an eye on the weak mains at that site\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "B#1",
+          "metric": "claims.recall",
+          "reason": "missed hypothesis claim: \"Mains at MW-77 sags to 185 V in the evenings and the 2018 battery string cannot bridge it\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "C#0",
+          "metric": "claims.recall",
+          "reason": "missed access-fact claim: \"MW-77 forest road gate key is held by the forest owner who must be called 24 hours before a visit\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "C#2",
+          "metric": "claims.recall",
+          "reason": "missed access-fact claim: \"Outside winter the van can drive to the MW-77 site\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_5c29654f8f1b3af1cb1c",
+          "metric": "claims.precision",
+          "reason": "unsupported access-fact claim: \"The forest road gate is locked with a padlock.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_cc0b95942b0101bfbee2",
+          "metric": "claims.precision",
+          "reason": "unsupported access-fact claim: \"The key is held by the forest owner, Tuomas Heiskanen.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_28f81ab5eea0675cc999",
+          "metric": "claims.precision",
+          "reason": "unsupported advice claim: \"Call him at least 24 hours before the visit.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_5c6104ecc04381e358af",
+          "metric": "claims.precision",
+          "reason": "unsupported access-fact claim: \"The cabin key is in the lockbox by the door, code 3290.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_31394f6f4a6d679c46b4",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"MW-77: No weather alarms, but an 'input voltage low' power alarm at the same mom\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "claim_65fd50ebb728c9607f10",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"MW-77: Long-haul hop towards the Salmijärvi tower.\"",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "MW-77 48V PSU",
+          "metric": "entities.recall",
+          "reason": "entity \"MW-77 48V PSU\" not found",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "MW-77 battery string",
+          "metric": "entities.recall",
+          "reason": "entity \"MW-77 battery string\" not found",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "case_b4f087419d6baa69968f",
+          "metric": "cases.falseMergeRate",
+          "reason": "case merges incidents A, C",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "outcome_f40a6009ded4cecf4290",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:tauno-hiltunen, truth person:directory:anneli-koivisto",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "plink_be6c32b061e188e1974a",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:maija-sundstrom has no firsthand knowledge of incident A",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "plink_42f0479ace09d312c8e2",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:maija-sundstrom has no firsthand knowledge of incident A",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p2",
+          "familyId": "weak-mains-psu",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind qualified, expected reuse"
+        },
+        {
+          "id": "weak-mains-psu-p1",
+          "familyId": "weak-mains-psu",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (power.mains_sag)"
+        },
+        {
+          "id": "weak-mains-psu-p1",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p1",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p2",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p3",
+          "metric": "@1.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p1",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p1",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p2",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p3",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p1",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p3",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p1",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "weak-mains-psu-p3",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "weak-mains-psu"
+        },
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed advice claim: \"Install patch 11.2.1 which fixes port flaps on LC-2 under firmware 11.2 and needs no reload\"",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "PE-12",
+          "metric": "entities.recall",
+          "reason": "entity \"PE-12\" not found",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "claim_36799fdf9ff0a5098f9d",
+          "metric": "attribution.claimPerson",
+          "reason": "attributed to person:directory:ville-laakso, truth person:directory:anssi-heikura",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "outcome_410e34b3abadbb7d71b6",
+          "metric": "attribution.outcomeReporter",
+          "reason": "reported by person:directory:anssi-heikura, truth person:directory:pasi-tuomi",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "plink_218e2921452423d4b8a9",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:oskari-nieminen has no firsthand knowledge of incident B",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "bgp-linecard-private-p1",
+          "familyId": "bgp-linecard-private",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind qualified, expected none"
+        },
+        {
+          "id": "bgp-linecard-private-p1",
+          "familyId": "bgp-linecard-private",
+          "metric": "recommendation.falseAdviceRate",
+          "reason": "qualified issued but key says inapplicable"
+        },
+        {
+          "id": "bgp-linecard-private-p2",
+          "familyId": "bgp-linecard-private",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected qualified"
+        },
+        {
+          "id": "bgp-linecard-private-p1",
+          "familyId": "bgp-linecard-private",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (unit.revision)"
+        },
+        {
+          "id": "bgp-linecard-private-p3",
+          "familyId": "bgp-linecard-private",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (bgp.session)"
+        },
+        {
+          "id": "bgp-linecard-private-p1",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "bgp-linecard-private-p2",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "bgp-linecard-private-p2",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "bgp-linecard-private-p2",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "bgp-linecard-private-p2",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "bgp-linecard-private-p1",
+          "metric": "@3.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "bgp-linecard-private-p2",
+          "metric": "@3.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "bgp-linecard-private-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "bgp-linecard-private-p2",
+          "metric": "@3.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "bgp-linecard-private-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "bgp-linecard-private"
+        },
+        {
+          "id": "bgp-linecard-private-p2",
+          "familyId": "bgp-linecard-private",
+          "metric": "retrieval.lookalikeTop1Rate",
+          "reason": "top-1 case maps to incident A, related: B"
+        }
+      ],
+      "failureSlicesByTag": {
+        "temporary-recovery": {
+          "count": 39,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#1",
+            "C#0",
+            "C#2",
+            "claim_5c29654f8f1b3af1cb1c",
+            "claim_cc0b95942b0101bfbee2",
+            "claim_28f81ab5eea0675cc999",
+            "claim_5c6104ecc04381e358af",
+            "claim_31394f6f4a6d679c46b4",
+            "claim_65fd50ebb728c9607f10",
+            "claim_90579605f8814ac3a7fa",
+            "claim_09b7516c8c58e03e9232",
+            "claim_2b58c7cf8ac167fb0f68",
+            "claim_606bc1946e61c8fc669f",
+            "MW-77 48V PSU",
+            "MW-77 battery string",
+            "case_b4f087419d6baa69968f",
+            "outcome_f40a6009ded4cecf4290",
+            "plink_be6c32b061e188e1974a",
+            "plink_42f0479ace09d312c8e2",
+            "weak-mains-psu-p2",
+            "weak-mains-psu-p1",
+            "weak-mains-psu-p3"
+          ]
+        },
+        "recurrence": {
+          "count": 39,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#1",
+            "C#0",
+            "C#2",
+            "claim_5c29654f8f1b3af1cb1c",
+            "claim_cc0b95942b0101bfbee2",
+            "claim_28f81ab5eea0675cc999",
+            "claim_5c6104ecc04381e358af",
+            "claim_31394f6f4a6d679c46b4",
+            "claim_65fd50ebb728c9607f10",
+            "claim_90579605f8814ac3a7fa",
+            "claim_09b7516c8c58e03e9232",
+            "claim_2b58c7cf8ac167fb0f68",
+            "claim_606bc1946e61c8fc669f",
+            "MW-77 48V PSU",
+            "MW-77 battery string",
+            "case_b4f087419d6baa69968f",
+            "outcome_f40a6009ded4cecf4290",
+            "plink_be6c32b061e188e1974a",
+            "plink_42f0479ace09d312c8e2",
+            "weak-mains-psu-p2",
+            "weak-mains-psu-p1",
+            "weak-mains-psu-p3"
+          ]
+        },
+        "access-fact": {
+          "count": 39,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#1",
+            "C#0",
+            "C#2",
+            "claim_5c29654f8f1b3af1cb1c",
+            "claim_cc0b95942b0101bfbee2",
+            "claim_28f81ab5eea0675cc999",
+            "claim_5c6104ecc04381e358af",
+            "claim_31394f6f4a6d679c46b4",
+            "claim_65fd50ebb728c9607f10",
+            "claim_90579605f8814ac3a7fa",
+            "claim_09b7516c8c58e03e9232",
+            "claim_2b58c7cf8ac167fb0f68",
+            "claim_606bc1946e61c8fc669f",
+            "MW-77 48V PSU",
+            "MW-77 battery string",
+            "case_b4f087419d6baa69968f",
+            "outcome_f40a6009ded4cecf4290",
+            "plink_be6c32b061e188e1974a",
+            "plink_42f0479ace09d312c8e2",
+            "weak-mains-psu-p2",
+            "weak-mains-psu-p1",
+            "weak-mains-psu-p3"
+          ]
+        },
+        "no-question-needed": {
+          "count": 39,
+          "ids": [
+            "A#1",
+            "A#2",
+            "B#1",
+            "C#0",
+            "C#2",
+            "claim_5c29654f8f1b3af1cb1c",
+            "claim_cc0b95942b0101bfbee2",
+            "claim_28f81ab5eea0675cc999",
+            "claim_5c6104ecc04381e358af",
+            "claim_31394f6f4a6d679c46b4",
+            "claim_65fd50ebb728c9607f10",
+            "claim_90579605f8814ac3a7fa",
+            "claim_09b7516c8c58e03e9232",
+            "claim_2b58c7cf8ac167fb0f68",
+            "claim_606bc1946e61c8fc669f",
+            "MW-77 48V PSU",
+            "MW-77 battery string",
+            "case_b4f087419d6baa69968f",
+            "outcome_f40a6009ded4cecf4290",
+            "plink_be6c32b061e188e1974a",
+            "plink_42f0479ace09d312c8e2",
+            "weak-mains-psu-p2",
+            "weak-mains-psu-p1",
+            "weak-mains-psu-p3"
+          ]
+        },
+        "lookalike-different-cause": {
+          "count": 33,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#0",
+            "claim_15c55a085020563e737a",
+            "claim_dfb7a668a12a5d16894c",
+            "claim_9d37187c9b5b863df2e9",
+            "claim_39f514673b7a135f5caf",
+            "claim_cdaa46b32e2ea41e171e",
+            "claim_58c837a00ff0ef925adc",
+            "claim_b20fac21e6dafaca18f1",
+            "claim_fee342ecd863f4f7f59d",
+            "claim_4e502d6284220aa33875",
+            "claim_046102ffbc2b612c1fc9",
+            "PE-12",
+            "claim_36799fdf9ff0a5098f9d",
+            "outcome_410e34b3abadbb7d71b6",
+            "plink_218e2921452423d4b8a9",
+            "bgp-linecard-private-p1",
+            "bgp-linecard-private-p2",
+            "bgp-linecard-private-p3"
+          ]
+        },
+        "useful-no": {
+          "count": 33,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#0",
+            "claim_15c55a085020563e737a",
+            "claim_dfb7a668a12a5d16894c",
+            "claim_9d37187c9b5b863df2e9",
+            "claim_39f514673b7a135f5caf",
+            "claim_cdaa46b32e2ea41e171e",
+            "claim_58c837a00ff0ef925adc",
+            "claim_b20fac21e6dafaca18f1",
+            "claim_fee342ecd863f4f7f59d",
+            "claim_4e502d6284220aa33875",
+            "claim_046102ffbc2b612c1fc9",
+            "PE-12",
+            "claim_36799fdf9ff0a5098f9d",
+            "outcome_410e34b3abadbb7d71b6",
+            "plink_218e2921452423d4b8a9",
+            "bgp-linecard-private-p1",
+            "bgp-linecard-private-p2",
+            "bgp-linecard-private-p3"
+          ]
+        },
+        "changed-permissions": {
+          "count": 33,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#0",
+            "claim_15c55a085020563e737a",
+            "claim_dfb7a668a12a5d16894c",
+            "claim_9d37187c9b5b863df2e9",
+            "claim_39f514673b7a135f5caf",
+            "claim_cdaa46b32e2ea41e171e",
+            "claim_58c837a00ff0ef925adc",
+            "claim_b20fac21e6dafaca18f1",
+            "claim_fee342ecd863f4f7f59d",
+            "claim_4e502d6284220aa33875",
+            "claim_046102ffbc2b612c1fc9",
+            "PE-12",
+            "claim_36799fdf9ff0a5098f9d",
+            "outcome_410e34b3abadbb7d71b6",
+            "plink_218e2921452423d4b8a9",
+            "bgp-linecard-private-p1",
+            "bgp-linecard-private-p2",
+            "bgp-linecard-private-p3"
+          ]
+        },
+        "duplicate-report": {
+          "count": 33,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#0",
+            "claim_15c55a085020563e737a",
+            "claim_dfb7a668a12a5d16894c",
+            "claim_9d37187c9b5b863df2e9",
+            "claim_39f514673b7a135f5caf",
+            "claim_cdaa46b32e2ea41e171e",
+            "claim_58c837a00ff0ef925adc",
+            "claim_b20fac21e6dafaca18f1",
+            "claim_fee342ecd863f4f7f59d",
+            "claim_4e502d6284220aa33875",
+            "claim_046102ffbc2b612c1fc9",
+            "PE-12",
+            "claim_36799fdf9ff0a5098f9d",
+            "outcome_410e34b3abadbb7d71b6",
+            "plink_218e2921452423d4b8a9",
+            "bgp-linecard-private-p1",
+            "bgp-linecard-private-p2",
+            "bgp-linecard-private-p3"
+          ]
+        },
+        "copied-retelling": {
+          "count": 33,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#0",
+            "claim_15c55a085020563e737a",
+            "claim_dfb7a668a12a5d16894c",
+            "claim_9d37187c9b5b863df2e9",
+            "claim_39f514673b7a135f5caf",
+            "claim_cdaa46b32e2ea41e171e",
+            "claim_58c837a00ff0ef925adc",
+            "claim_b20fac21e6dafaca18f1",
+            "claim_fee342ecd863f4f7f59d",
+            "claim_4e502d6284220aa33875",
+            "claim_046102ffbc2b612c1fc9",
+            "PE-12",
+            "claim_36799fdf9ff0a5098f9d",
+            "outcome_410e34b3abadbb7d71b6",
+            "plink_218e2921452423d4b8a9",
+            "bgp-linecard-private-p1",
+            "bgp-linecard-private-p2",
+            "bgp-linecard-private-p3"
+          ]
+        }
+      }
+    }
+  ],
+  "notes": [
+    "CHECK PASS split-leakage: no family appears in two splits; counts {\"demo\":2,\"train\":4,\"validation\":2,\"test\":2}",
+    "CHECK PASS test-families-untouched: test family hashes match TEST_LOCK.json",
+    "CHECK PASS idempotent-import:optic-forwarding-a: evidence/claim/case/entity/link/attempt/outcome 16/20/1/7/13/2/2 -> 16/20/1/7/13/2/2",
+    "CHECK PASS idempotent-import:remote-power-access: evidence/claim/case/entity/link/attempt/outcome 16/17/2/8/12/1/1 -> 16/17/2/8/12/1/1",
+    "CHECK PASS idempotent-import:bgp-firmware-flaps: evidence/claim/case/entity/link/attempt/outcome 17/21/2/8/18/2/4 -> 17/21/2/8/18/2/4",
+    "CHECK PASS idempotent-import:fan-temperature: evidence/claim/case/entity/link/attempt/outcome 17/23/2/6/19/2/3 -> 17/23/2/6/19/2/3",
+    "CHECK PASS idempotent-import:config-rollback-private: evidence/claim/case/entity/link/attempt/outcome 17/14/2/7/13/2/4 -> 17/14/2/7/13/2/4",
+    "CHECK PASS idempotent-import:cabling-pinch: evidence/claim/case/entity/link/attempt/outcome 15/17/1/9/15/3/5 -> 15/17/1/9/15/3/5",
+    "CHECK PASS idempotent-import:weak-mains-psu: evidence/claim/case/entity/link/attempt/outcome 14/20/2/7/14/2/3 -> 14/20/2/7/14/2/3",
+    "CHECK PASS idempotent-import:bgp-linecard-private: evidence/claim/case/entity/link/attempt/outcome 18/20/3/8/18/3/4 -> 18/20/3/8/18/3/4",
+    "CHECK PASS (known limitation) access-leakage:demo: shown sources of incidents the requester's groups exclude (truth-based): 0.022 (1/46) KNOWN LIMITATION (not system-detectable, own-scope check passes): email:f02-access-310@kalevanet.example: e-mail record carries no ACL metadata, so its stored scope is org; only the truth-based metric knows the incident is restricted",
+    "CHECK PASS access-own-scope:demo: shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/46)",
+    "CHECK PASS access-leakage:train: shown sources of incidents the requester's groups exclude (truth-based): 0.000 (0/87)",
+    "CHECK PASS access-own-scope:train: shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/89)",
+    "CHECK PASS access-leakage:validation: shown sources of incidents the requester's groups exclude (truth-based): 0.000 (0/47)",
+    "CHECK PASS access-own-scope:validation: shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/50)",
+    "CHECK PASS trace-completeness: 24/24 investigations have a start event and a recorded decision for every question",
+    "Baseline uses the library defaults with no scenario-specific configuration; the rules extractor produces no usable hypothesis claims for most synthetic cases, so most recommendations are \"none\" (see per-problem table in problems.json).",
+    "Outcome questions are translated to recovery-state condition keys by the harness (traffic.state, bgp.session, alarms.state, temperature.state, interface.status) before the oracle answers; this is a harness translation, listed as a limitation.",
+    "Time-to-supported-decision, token and call counts were not measured (null).",
+    "Answer keys are unreviewed (data/scenarios/REVIEW.md); results are provisional."
+  ]
+}

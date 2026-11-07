@@ -22,7 +22,8 @@ const results = (id: string) => read<RunResults>(id, 'results.json');
 const manifest = (id: string) => read<RunManifest>(id, 'manifest.json');
 const decision = (id: string) => read<Decision>(id, 'decision.json');
 
-const f = (m: MaybeMetric | undefined): string => (m ? (m.denominator === 1 || m.denominator === 1000 || !Number.isInteger(m.numerator) ? m.value.toFixed(3) : `${m.value.toFixed(3)} (${m.numerator}/${m.denominator})`) : 'n/a');
+/** value (numerator/denominator) whenever the numerator is a count; a mean with no underlying count (non-integer numerator) is printed as `value (mean, no count)`; undefined stays n/a. */
+const f = (m: MaybeMetric | undefined): string => (m ? (Number.isInteger(m.numerator) ? `${m.value.toFixed(3)} (${m.numerator}/${m.denominator})` : `${m.value.toFixed(3)} (mean, no count)`) : 'n/a');
 const c = (v: VariantResult, k: string): string => (v.counts[k] === undefined || v.counts[k] === null ? 'n/a' : String(v.counts[k]));
 
 function table(variants: VariantResult[], rows: Array<{ label: string; metric?: string; count?: string }>, header = (v: VariantResult) => v.variantId): string {
@@ -56,7 +57,8 @@ function failureExamples(id: string, variant: string, metricPrefix: string, n = 
   const r = results(id);
   const v = r?.variants.find((x) => x.variantId === variant && (!split || x.split === split));
   const fs = (v?.failures ?? []).filter((x) => x.metric.includes(metricPrefix)).slice(0, n);
-  return fs.length ? fs.map((x) => `- \`${x.id}\` (${x.metric}): ${x.reason}`).join('\n') : '- none in the retained failure list';
+  const where = split ?? v?.split ?? 'first split';
+  return fs.length ? fs.map((x) => `- \`${x.id}\` (${where}; ${x.metric}): ${x.reason}`).join('\n') : `- none in the retained failure list (${where}; ${metricPrefix})`;
 }
 
 function section(title: string, id: string, intro: string, body: (r: RunResults, m: RunManifest, d: Decision | undefined) => string): string {
@@ -86,6 +88,7 @@ const BEFORE: Record<string, Record<string, [number, number] | null>> = {
   'wrong recipient rate': { demo: [3, 5], train: [3, 4], validation: null },
   'false advice rate': { demo: [0, 0], train: [1, 2], validation: null },
   'eligible coverage': { demo: [1, 5], train: [1, 9], validation: [0, 5] },
+  'false "solved" (reported recovery claimed verified)': { demo: [0, 2], train: [0, 4], validation: [0, 3] },
 };
 /** Numbers of re-run 1, copied from `results/archive-rerun-1/RESULTS.rerun-1.md` (its generated report; the result directories copied beside it were overwritten at 04:02 by a partial re-run during extractor tuning, so they are not re-run 1 proper). */
 const PREV: Record<string, Record<string, [number, number] | null>> = {
@@ -98,12 +101,35 @@ const PREV: Record<string, Record<string, [number, number] | null>> = {
   'wrong recipient rate': { demo: null, train: [1, 1], validation: null },
   'false advice rate': { demo: [1, 3], train: [3, 9], validation: [1, 5] },
   'eligible coverage': { demo: [2, 5], train: [6, 9], validation: [4, 5] },
+  'false "solved" (reported recovery claimed verified)': { demo: [0, 3], train: [0, 6], validation: [0, 4] },
 };
 const AFTER_METRIC: Record<string, string> = {
   'claim recall (all types)': 'claims.all.recall', 'claim precision (all types)': 'claims.all.precision', 'outcome claim recall': 'claims.outcome.recall',
   'cases false merge': 'cases.falseMergeRate', 'recommendation kind accuracy': 'recommendation.kindAccuracy', 'questions asked per investigation': 'question.questionsPerInvestigation',
   'wrong recipient rate': 'question.wrongRecipientRate', 'false advice rate': 'recommendation.falseAdviceRate', 'eligible coverage': 'recommendation.eligibleCoverage',
+  'false "solved" (reported recovery claimed verified)': 'resolution.falseSolvedRate',
 };
+
+/** `value (n/d)` of an E00 metric from an archived run directory (run 2 is read from `results/archive-rerun-2/`, copied before run 3 overwrote the live directories). */
+function archivedMetric(dir: string, split: string, key: string): [number, number] | null {
+  const m = read<RunResults>(`${dir}/e00-baseline`, 'results.json')?.variants.find((v) => v.split === split)?.metrics[key];
+  return m ? [m.numerator, m.denominator] : null;
+}
+/** Access checks from an archived `checks.json`: "leak k/n, own-scope k/n" (truth-based leakage, system-detectable own-scope). */
+const ACCESS_PROV: Record<string, string> = {
+  demo: 'leak FAIL 1/36; own-scope pass 0/36', train: 'leak pass 0/59; own-scope pass 0/64', validation: 'leak pass 0/35; own-scope pass 0/37',
+};
+const ACCESS_RERUN1: Record<string, string> = {
+  demo: 'leak pass (known limitation) 1/42; own-scope pass 0/42', train: 'leak pass 0/88; own-scope pass 0/90', validation: 'leak pass 0/47; own-scope pass 0/50',
+};
+function accessCell(checks: Array<{ name: string; pass: boolean; detail: string; knownLimitation?: boolean }> | undefined, split: string): string {
+  const one = (prefix: string): string => {
+    const k = checks?.find((x) => x.name === `${prefix}:${split}`);
+    const m = k ? /\((\d+)\/(\d+)\)/.exec(k.detail) : null;
+    return k && m ? `${k.pass ? 'pass' : 'FAIL'}${k.knownLimitation ? ' (known limitation)' : ''} ${m[1]}/${m[2]}` : 'n/a';
+  };
+  return `leak ${one('access-leakage')}; own-scope ${one('access-own-scope')}`;
+}
 
 function beforeAfterSection(): string[] {
   const r = results('e00-baseline');
@@ -111,30 +137,40 @@ function beforeAfterSection(): string[] {
   if (!r) return [...out, 'E00 results missing.', ''];
   const fmtB = (x: [number, number] | null | undefined): string => (!x || x[1] === 0 ? 'n/a' : `${(x[0] / x[1]).toFixed(3)} (${x[0]}/${x[1]})`);
   const splits = r.variants.map((v) => v.split);
-  out.push('Three runs, same harness, same E00 configuration, same oracle: (1) first provisional run (library defaults, access leak open, extractor untuned; archived in `results/archive-provisional/`), (2) re-run 1 (access fix and first extractor pass; its report is archived as `results/archive-rerun-1/RESULTS.rerun-1.md`), (3) this final run (fix pass: per-recipient access gates, copy merging, case-boundary and lasting-confirmation rules, validation-contamination cleanup). Format `provisional -> re-run 1 -> final`. Same 24 investigations; small denominators, so one problem moves a rate by 0.08 to 0.17.');
+  out.push('Four runs, same harness, same E00 configuration, same oracle: (1) first provisional run (library defaults, access leak open, extractor untuned; archived in `results/archive-provisional/`), (2) re-run 1 (access fix and first extractor pass; report archived as `results/archive-rerun-1/RESULTS.rerun-1.md`), (3) re-run 2 (fix pass: per-recipient access gates, copy merging, case-boundary and lasting-confirmation rules, validation-contamination cleanup; archived in full under `results/archive-rerun-2/`, read from there), (4) **run 3, this run** (after the further src/ fixes: private-channel membership grants, configurable traffic cues, model-conflict handling, loop and wording fixes). Format `provisional -> re-run 1 -> re-run 2 -> run 3`. Same 24 investigations; small denominators, so one problem moves a rate by 0.08 to 0.17. Every cell is `value (numerator/denominator)`.');
   out.push('');
   out.push(`| metric | ${splits.join(' | ')} |`);
   out.push(`| --- | ${splits.map(() => '---').join(' | ')} |`);
   for (const [label, key] of Object.entries(AFTER_METRIC)) {
     const cells = r.variants.map((v) => {
-      return `${fmtB(BEFORE[label]?.[v.split ?? ''])} -> ${fmtB(PREV[label]?.[v.split ?? ''])} -> ${f(v.metrics[key])}`;
+      const sp = v.split ?? '';
+      return `${fmtB(BEFORE[label]?.[sp])} -> ${fmtB(PREV[label]?.[sp])} -> ${fmtB(archivedMetric('archive-rerun-2', sp, key))} -> **${f(v.metrics[key])}**`;
     });
     out.push(`| ${label} | ${cells.join(' | ')} |`);
   }
+  {
+    const acc = (dir: string): Array<{ name: string; pass: boolean; detail: string; knownLimitation?: boolean }> | undefined => read(`${dir}/e00-baseline`, 'checks.json');
+    const cur = read<Array<{ name: string; pass: boolean; detail: string; knownLimitation?: boolean }>>('e00-baseline', 'checks.json');
+    const cells = splits.map((sp) => `${ACCESS_PROV[sp ?? ''] ?? 'n/a'} -> ${ACCESS_RERUN1[sp ?? ''] ?? 'n/a'} -> ${accessCell(acc('archive-rerun-2'), sp ?? '')} -> **${accessCell(cur, sp ?? '')}**`);
+    out.push(`| access checks (truth-based leakage / system-detectable own-scope; shown sources in the denominator) | ${cells.join(' | ')} |`);
+  }
+  out.push('');
+  out.push('Access-check cells: the provisional and re-run 1 cells are copied from their generated reports (`archive-provisional/RESULTS.provisional.md`, `archive-rerun-1/RESULTS.rerun-1.md`; their result directories were overwritten by partial re-runs, so their `checks.json` denominators no longer match); re-run 2 and run 3 are read from `checks.json`. Each cell is leaked-or-restricted shown sources over shown sources. The demo `leak` residual (1 shown source) is the documented known limitation (e-mail without ACL metadata); it is tolerated only for that listed source while own-scope passes.');
   out.push('');
   const kind = r.variants.map((v) => `${v.split} ${f(v.metrics['recommendation.kindAccuracy'])} vs majority-class ${f(v.metrics['recommendation.majorityBaselineKindAccuracy'])}`).join('; ');
   out.push(`**How to read it.** Extraction recall and the outcome claims improved a lot, false merges fell, and far more investigations now end in an actionable recommendation (eligible coverage up). Recommendation kind accuracy did **not** improve in step: ${kind}. It is at or below the majority-class baseline on every split, and the false advice rate on train rose with the extra advice (before 1/2, after ${f(r.variants.find((v) => v.split === 'train')?.metrics['recommendation.falseAdviceRate'])}). The number of questions asked fell (the causes were not isolated: both the leak fix and the extractor changed at once); the wrong-recipient rate rests on at most a single question per split and is not an estimate. This is a better extraction layer feeding an assessor whose recommendation kinds are not yet right; it is not evidence that the recommendations are good.`);
   out.push('');
-  out.push('### Decisions before and after (frozen rules applied mechanically; compared with the first provisional run and with re-run 1)');
+  out.push('### Decisions before and after (frozen rules applied mechanically; compared with the earlier runs)');
   out.push('');
-  out.push('| experiment | provisional | re-run 1 | final | changed |');
-  out.push('| --- | --- | --- | --- | --- |');
+  out.push('| experiment | provisional | re-run 1 | re-run 2 | run 3 | changed |');
+  out.push('| --- | --- | --- | --- | --- | --- |');
   for (const [id, name] of [['e02-retrieval', 'E02'], ['e04-assessor', 'E04'], ['e03-selectors', 'E03'], ['e05-pool-size', 'E05'], ['e06-eligibility', 'E06'], ['e07-budgets', 'E07']] as const) {
     const before = read<Decision>(`archive-provisional/${id}`, 'decision.json')?.shipped ?? 'n/a';
     const mid = read<Decision>(`archive-rerun-1/${id}`, 'decision.json')?.shipped ?? 'n/a';
+    const mid2 = read<Decision>(`archive-rerun-2/${id}`, 'decision.json')?.shipped ?? 'n/a';
     const now = decision(id)?.shipped ?? 'n/a';
     const c = (x: string): string => x.split(' (')[0];
-    out.push(`| ${name} | ${c(before)} | ${c(mid)} | ${c(now)} | ${c(before) === c(now) && c(mid) === c(now) ? 'no' : '**yes**'} |`);
+    out.push(`| ${name} | ${c(before)} | ${c(mid)} | ${c(mid2)} | ${c(now)} | ${[before, mid, mid2].every((x) => c(x) === c(now)) ? 'no' : '**yes**'} |`);
   }
   out.push('');
   const anyChanged = out.some((l) => l.endsWith('| **yes** |'));
@@ -152,7 +188,7 @@ export function writeReport(): void {
   const out: string[] = [];
   out.push('# Experiment results (overnight run, 7 November 2026)');
   out.push('');
-  out.push('Generated by `node experiments/run.ts report` from `experiments/results/`. Every number is `value (numerator/denominator)`; `n/a` means the denominator was zero (undefined stays undefined). Frozen hypotheses and rules: `docs/runs/2026-11-07-overnight/EXPERIMENT_PLAN.md`.');
+  out.push('Generated by `node experiments/run.ts report` from `experiments/results/`. Every rate is `value (numerator/denominator)`; `n/a` means the denominator was zero (undefined stays undefined). A mean with no underlying count is marked `(mean, no count)` (latency, per-step means), and the E07 frontier tables list means per setting. Frozen hypotheses and rules: `docs/runs/2026-11-07-overnight/EXPERIMENT_PLAN.md`.');
   out.push('');
   out.push(`- Dataset: scenario families v${fam.version}, ${fam.families.length} families (${Object.entries(bySplit).map(([k, v]) => `${k} ${v}`).join(', ')}), 3 problems each. Test families untouched since freeze: **${lock.untouched}**.`);
   out.push('- System under test: the real pipeline (SQLite store, import pipeline, investigation, question coordinator, a selector), routes `rules` or `local` only. No network model call was made (a network guard is installed by the runner). Provenance is `measured` for real-system runs and `simulated` for simulator runs.');
@@ -254,9 +290,16 @@ export function writeReport(): void {
       { label: 'downstream: kind accuracy', metric: 'recommendation.kindAccuracy' }, { label: 'downstream: false advice', metric: 'recommendation.falseAdviceRate' }, { label: 'downstream: eligible coverage', metric: 'recommendation.eligibleCoverage' },
     ];
     const other = r.variants.filter((v) => v.split !== 'validation').map((v) => `- ${v.variantId} on ${v.split}: recall@3 ${f(v.metrics['@3.linking.recall'])}, lookalike top-1 ${f(v.metrics['retrieval.lookalikeTop1Rate'])}`);
-    return [table(val, rows), '', '**Other splits**', '', ...other, '', '**Concrete failure examples (hybrid, validation then train)**', '', failureExamples('e02-retrieval', 'hybrid-rrf', 'retrieval.lookalike'), failureExamples('e02-retrieval', 'hybrid-rrf', 'linking.recall'),
+    return [table(val, rows), '', '**Other splits**', '', ...other, '', '**Concrete failure examples (hybrid; the split is named on each line)**', '', ...[failureExamples('e02-retrieval', 'hybrid-rrf', 'retrieval.lookalike', 2, 'validation'), failureExamples('e02-retrieval', 'hybrid-rrf', 'linking.recall', 2, 'validation'), failureExamples('e02-retrieval', 'hybrid-rrf', 'retrieval.lookalike', 1, 'train'), failureExamples('e02-retrieval', 'hybrid-rrf', 'linking.recall', 1, 'train')].filter((x) => !x.startsWith('- none')),
       '', 'The retrievers separate little here: each family has one to two cases, so most variants rank the same small candidate set and a single problem moves a rate by 0.1 or more.'].join('\n');
   }));
+
+  const e04Reading = (val: VariantResult[]): string => {
+    const cells = val.map((v) => `${v.variantId.split('@')[0]}: false advice ${f(v.metrics['recommendation.falseAdviceRate'])}, eligible coverage ${f(v.metrics['recommendation.eligibleCoverage'])}`).join('; ');
+    const cov = val.map((v) => v.metrics['recommendation.eligibleCoverage']?.value ?? 0);
+    const zero = val.filter((v) => (v.metrics['recommendation.eligibleCoverage']?.value ?? 0) === 0).map((v) => v.variantId.split('@')[0]);
+    return `Reading the table (validation): ${cells}. ${zero.length && zero.length < val.length ? `${zero.join(', ')} ${zero.length === 1 ? 'reaches' : 'reach'} zero coverage, so ${zero.length === 1 ? 'its' : 'their'} false-advice rate is undefined (n/a) rather than good: a mode that issues nothing cannot give wrong advice. The other mode issues advice and shows a nonzero false-advice rate.` : zero.length === val.length ? 'Both modes issue nothing on validation, so the tie rule decides.' : Math.max(...cov) === Math.min(...cov) ? 'Coverage is equal across modes; the difference is in false advice.' : 'Both modes issue advice; coverage differs, so lower false advice has to be read against it.'} The frozen rule is applied mechanically (see Outcome); validation has 5 to 6 problems, so none of this is an estimate.`;
+  };
 
   out.push(section('E04 - assessor: combined vs separate', 'e04-assessor', 'Same evidence, candidates and retriever (E02 choice); only the assessor mode changes. The decision split is validation.', (r) => {
     const val = r.variants.filter((v) => v.split === 'validation');
@@ -265,18 +308,18 @@ export function writeReport(): void {
       { label: 'eligible coverage', metric: 'recommendation.eligibleCoverage' }, { label: 'kind accuracy', metric: 'recommendation.kindAccuracy' }, { label: 'missed opportunity', metric: 'recommendation.missedOpportunityRate' },
     ];
     const other = r.variants.filter((v) => v.split !== 'validation').map((v) => `- ${v.variantId} on ${v.split}: false advice ${f(v.metrics['recommendation.falseAdviceRate'])}, coverage ${f(v.metrics['recommendation.eligibleCoverage'])}`);
-    return [table(val, rows), '', '**Other splits**', '', ...other, '', '**Concrete failure examples (separate mode)**', '', examples('e04-assessor', 'separate', recFail), '', 'False advice cannot differ when almost no advice is issued: both modes issue nothing on validation, so the tie rule decides.'].join('\n');
+    return [table(val, rows), '', '**Other splits**', '', ...other, '', '**Concrete failure examples (separate mode)**', '', examples('e04-assessor', 'separate', recFail), '', e04Reading(val)].join('\n');
   }));
 
   out.push(section('E03 - question selectors: rules vs epsilon-greedy vs LinUCB', 'e03-selectors', 'Two arms. (a) Simulator: 300 steps, seeds 1-3, hidden knowledge stays in the simulator, 0 ineligible selections asserted. (b) Family arm: LinUCB trained on the train families (3 seeds = 3 training orders; artifacts `data/models/linucb-e03-seed<N>.json`), frozen, then scored against the rules selector on the validation families. Benefit is labelled by the harness from the key: 1 if the answer moved the recommendation to the expected class, 0 if answered without that change, unknown (not 0) if unanswered.', (r, _m, d) => {
     const sim = r.variants.filter((v) => v.variantId.startsWith('sim-'));
     const fam = r.variants.filter((v) => v.variantId.startsWith('family-'));
-    const simRows = sim.map((v) => `| ${v.variantId.replace('sim-', '')} | ${f(v.metrics['sim.meanBenefitPerInvestigation'])} | ${v.repeatVariation?.['sim.meanBenefitPerInvestigation'] ? `${v.repeatVariation['sim.meanBenefitPerInvestigation'].min.toFixed(3)} to ${v.repeatVariation['sim.meanBenefitPerInvestigation'].max.toFixed(3)}` : 'n/a'} | ${c(v, 'sim.ineligibleSelections')} | ${c(v, 'sim.deferrals')} | ${c(v, 'sim.unanswered')} |`);
+    const simRows = sim.map((v) => `| ${v.variantId.replace('sim-', '')} | ${f(v.metrics['sim.meanBenefitPerInvestigation'])} | ${v.repeatVariation?.['sim.meanBenefitPerInvestigation'] ? `${v.repeatVariation['sim.meanBenefitPerInvestigation'].min.toFixed(3)} to ${v.repeatVariation['sim.meanBenefitPerInvestigation'].max.toFixed(3)}` : 'n/a'} | ${[1, 2, 3].map((n) => f(v.metrics[`sim.meanBenefitPerInvestigation.seed${n}`])).join(' / ')} | ${c(v, 'sim.ineligibleSelections')} | ${c(v, 'sim.deferrals')} | ${c(v, 'sim.unanswered')} |`);
     const famRows = [
       { label: 'mean benefit per investigation', metric: 'benefit.meanPerInvestigation' }, { label: 'wrong recipient rate', metric: 'question.wrongRecipientRate' }, { label: 'questions per investigation', metric: 'question.questionsPerInvestigation' },
       { label: 'hard-rule violations', count: 'question.hardRuleViolations' }, { label: 'missed consequential gaps', count: 'question.missedConsequentialGaps' },
     ];
-    return ['**Simulator arm** (provenance: simulated)', '', '| selector | mean benefit (steps x seeds) | range over 3 seeds | ineligible selections | deferrals | unanswered |', '| --- | --- | --- | --- | --- | --- |', ...simRows, '',
+    return ['**Simulator arm** (provenance: simulated)', '', '| selector | mean benefit (steps x seeds) | range over 3 seeds | per seed (1 / 2 / 3, each of 300 steps) | ineligible selections | deferrals (of 900 steps) | unanswered (of 900 steps) |', '| --- | --- | --- | --- | --- | --- | --- |', ...simRows, '',
       '**Family arm, validation families** (provenance: measured)', '', table(fam, famRows), '', '**Training**', '', `- ${d?.detail.training ?? 'n/a'}`, '', '**Concrete failure examples (family-rules, validation)**', '', examples('e03-selectors', 'family-rules', (x) => {
         const q = x.questions.find((y) => y.benefit === 0 || y.benefit === null);
         return q ? `asked "${short(q.text, 80)}" of ${q.to.split(':').pop()}: reply ${q.reply}, benefit ${q.benefit === null ? 'unknown' : q.benefit}` : undefined;
@@ -306,7 +349,7 @@ export function writeReport(): void {
     const fr = read<{ family: Array<{ limit: number; cooldown: number; benefit: number; questionsPerInvestigation: number; maxPerPerson: number; dominated: boolean }>; simulator: Array<{ limit: number; cooldown: number; benefit: number; questionsPerInvestigation: number; maxPerPerson: number; dominated: boolean }> }>('e07-budgets', 'frontier.json');
     const rowsOf = (pts: NonNullable<typeof fr>['family']) => pts.map((p) => `| ${p.limit} / ${p.cooldown} | ${p.benefit.toFixed(3)} | ${p.questionsPerInvestigation.toFixed(3)} | ${p.maxPerPerson} | ${p.dominated ? 'dominated' : 'frontier'}${p.limit === 3 && p.cooldown === 30 ? ' (default)' : ''} |`);
     const dup = r.variants.filter((v) => v.variantId.startsWith('family-')).map((v) => `| ${v.variantId.replace('family-', '')} | ${c(v, 'burden.duplicateQuestions')} | ${c(v, 'burden.cancelledDuplicate')} | ${c(v, 'burden.cancelledObsoleteOrResolved')} | ${c(v, 'burden.unansweredQuestions')} |`);
-    const hdr = ['| limit / cooldown | benefit per investigation | questions per investigation | max questions to one person | frontier |', '| --- | --- | --- | --- | --- |'];
+    const hdr = ['| limit / cooldown | mean benefit per investigation | mean questions per investigation | max questions to one person | frontier |', '| --- | --- | --- | --- | --- |'];
     return [
       '**Family arm (train families)**', '', ...hdr, ...(fr ? rowsOf(fr.family) : []), '', '**Burden counts, family arm**', '', '| setting | duplicate questions | cancelled as duplicate | cancelled as obsolete or resolved | unanswered |', '| --- | --- | --- | --- | --- |', ...dup, '',
       '**Simulator arm (simulated; max per person is per day)**', '', ...hdr, ...(fr ? rowsOf(fr.simulator) : []), '',

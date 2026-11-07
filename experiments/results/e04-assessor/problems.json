@@ -12,7 +12,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.6
+    "latencyMs": 1.62
   },
   {
     "variant": "separate",
@@ -27,7 +27,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.75
+    "latencyMs": 1.42
   },
   {
     "variant": "separate",
@@ -42,7 +42,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.45
+    "latencyMs": 1.43
   },
   {
     "variant": "separate",
@@ -57,7 +57,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.34
+    "latencyMs": 1.35
   },
   {
     "variant": "separate",
@@ -72,7 +72,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.19
+    "latencyMs": 1.18
   },
   {
     "variant": "separate",
@@ -88,7 +88,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.07
+    "latencyMs": 1.35
   },
   {
     "variant": "combined",
@@ -103,7 +103,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.67
+    "latencyMs": 1.66
   },
   {
     "variant": "combined",
@@ -126,7 +126,7 @@
         "text": "Did the problem clear right after the SFP replacement on TRN-117?"
       }
     ],
-    "latencyMs": 5.55
+    "latencyMs": 5.43
   },
   {
     "variant": "combined",
@@ -141,7 +141,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.52
+    "latencyMs": 1.89
   },
   {
     "variant": "combined",
@@ -156,7 +156,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.4
+    "latencyMs": 1.32
   },
   {
     "variant": "combined",
@@ -171,7 +171,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.44
+    "latencyMs": 1.16
   },
   {
     "variant": "combined",
@@ -187,7 +187,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.16
+    "latencyMs": 1.06
   },
   {
     "variant": "separate",
@@ -202,7 +202,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.5
+    "latencyMs": 1.83
   },
   {
     "variant": "separate",
@@ -232,7 +232,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.23
+    "latencyMs": 1.2
   },
   {
     "variant": "separate",
@@ -247,7 +247,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.08
+    "latencyMs": 1.09
   },
   {
     "variant": "separate",
@@ -257,12 +257,20 @@
     "noQuestionNeeded": true,
     "first": "qualified",
     "final": "qualified",
-    "loopEnd": "no-question-needed",
+    "loopEnd": "deferred",
     "topCaseIncidents": [
       "B"
     ],
-    "questions": [],
-    "latencyMs": 1.43
+    "questions": [
+      {
+        "cond": "unit.model",
+        "to": "person:directory:onni-jokinen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is OLT-210 an FT-3?"
+      }
+    ],
+    "latencyMs": 5.3
   },
   {
     "variant": "separate",
@@ -277,7 +285,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.48
+    "latencyMs": 1.58
   },
   {
     "variant": "separate",
@@ -298,9 +306,16 @@
         "reply": "unknown",
         "benefit": 0,
         "text": "Is this true for ACC-33: older unit, installed 2019?"
+      },
+      {
+        "cond": "unit.model",
+        "to": "person:directory:jarmo-heikkinen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is ACC-12 an N5?"
       }
     ],
-    "latencyMs": 4.21
+    "latencyMs": 7.82
   },
   {
     "variant": "separate",
@@ -315,7 +330,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.01
+    "latencyMs": 0.65
   },
   {
     "variant": "separate",
@@ -338,7 +353,7 @@
         "text": "Is this true for ACC-12: older unit, installed 2019?"
       }
     ],
-    "latencyMs": 3.88
+    "latencyMs": 4.17
   },
   {
     "variant": "separate",
@@ -353,7 +368,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 0.91
+    "latencyMs": 0.87
   },
   {
     "variant": "separate",
@@ -368,7 +383,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.26
+    "latencyMs": 1.24
   },
   {
     "variant": "separate",
@@ -383,7 +398,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.3
+    "latencyMs": 1.26
   },
   {
     "variant": "combined",
@@ -398,7 +413,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.48
+    "latencyMs": 1.55
   },
   {
     "variant": "combined",
@@ -436,7 +451,7 @@
         "text": "Did the problem clear right after the SFP replacement on AGG-031?"
       }
     ],
-    "latencyMs": 4.02
+    "latencyMs": 3.91
   },
   {
     "variant": "combined",
@@ -451,7 +466,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.05
+    "latencyMs": 1.07
   },
   {
     "variant": "combined",
@@ -466,7 +481,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.38
+    "latencyMs": 1.44
   },
   {
     "variant": "combined",
@@ -481,7 +496,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.43
+    "latencyMs": 1.49
   },
   {
     "variant": "combined",
@@ -511,7 +526,7 @@
         "text": "Did the problem clear right after the config rollback on ACC-12?"
       }
     ],
-    "latencyMs": 11.21
+    "latencyMs": 9.73
   },
   {
     "variant": "combined",
@@ -526,7 +541,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 0.79
+    "latencyMs": 0.65
   },
   {
     "variant": "combined",
@@ -556,7 +571,7 @@
         "text": "Did the problem clear right after the config rollback on ACC-12?"
       }
     ],
-    "latencyMs": 8.55
+    "latencyMs": 7.74
   },
   {
     "variant": "combined",
@@ -571,7 +586,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.4
+    "latencyMs": 0.88
   },
   {
     "variant": "combined",
@@ -594,7 +609,7 @@
         "text": "Did the problem clear right after the cord replace on HUB-07?"
       }
     ],
-    "latencyMs": 4.65
+    "latencyMs": 4.37
   },
   {
     "variant": "combined",
@@ -617,7 +632,7 @@
         "text": "Did the problem clear right after the cord replace on HUB-07?"
       }
     ],
-    "latencyMs": 5.27
+    "latencyMs": 4.63
   },
   {
     "variant": "separate",
@@ -633,7 +648,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.67
+    "latencyMs": 1.52
   },
   {
     "variant": "separate",
@@ -649,7 +664,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.41
+    "latencyMs": 1.37
   },
   {
     "variant": "separate",
@@ -664,7 +679,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.43
+    "latencyMs": 1.36
   },
   {
     "variant": "separate",
@@ -709,7 +724,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.42
+    "latencyMs": 1.48
   },
   {
     "variant": "combined",
@@ -725,7 +740,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.69
+    "latencyMs": 1.63
   },
   {
     "variant": "combined",
@@ -741,7 +756,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.43
+    "latencyMs": 1.42
   },
   {
     "variant": "combined",
@@ -756,7 +771,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.43
+    "latencyMs": 1.41
   },
   {
     "variant": "combined",
@@ -779,7 +794,7 @@
         "text": "Did the problem clear right after the patch install on PE-05?"
       }
     ],
-    "latencyMs": 4.58
+    "latencyMs": 4.7
   },
   {
     "variant": "combined",
@@ -794,7 +809,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 0.76
+    "latencyMs": 0.82
   },
   {
     "variant": "combined",
@@ -817,6 +832,6 @@
         "text": "Did the problem clear right after the patch install on PE-05?"
       }
     ],
-    "latencyMs": 4.49
+    "latencyMs": 4.66
   }
 ]

@@ -2,11 +2,11 @@
   "experiment": "E06",
   "hypothesis": "Question-dependent eligibility answers more gaps than direct-only without more wrong recipients.",
   "criterion": "Question-dependent ships if wrong-recipient rate does not rise by more than 0.02 over direct-only. Answerable-routing rate is reported next to it.",
-  "outcome": "wrong-recipient rate direct-only 1.000 (1/1) vs question-dependent 1.000 (1/1) (rise 0.000) -> ships; answerable-routing rate direct-only 0.000 (0/7) vs question-dependent 0.000 (0/7).",
+  "outcome": "wrong-recipient rate direct-only 0.500 (1/2) vs question-dependent 0.500 (1/2) (rise 0.000) -> ships; answerable-routing rate direct-only 0.143 (1/7) vs question-dependent 0.143 (1/7).",
   "shipped": "question-dependent (observability policy configured)",
   "detail": {
-    "baseline-default@train+validation": "routing 0.000 (0/7); wrongRecipient 1.000 (1/1); gapFound 0.000 (0/7); questions/investigation 0.111 (2/18); max questions to one person 2; unanswered 0",
-    "direct-only@train+validation": "routing 0.000 (0/7); wrongRecipient 1.000 (1/1); gapFound 0.000 (0/7); questions/investigation 0.111 (2/18); max questions to one person 2; unanswered 0",
-    "question-dependent@train+validation": "routing 0.000 (0/7); wrongRecipient 1.000 (1/1); gapFound 0.000 (0/7); questions/investigation 0.111 (2/18); max questions to one person 2; unanswered 0"
+    "baseline-default@train+validation": "routing 0.143 (1/7); wrongRecipient 0.500 (1/2); gapFound 0.000 (0/7); questions/investigation 0.222 (4/18); max questions to one person 2; unanswered 0",
+    "direct-only@train+validation": "routing 0.143 (1/7); wrongRecipient 0.500 (1/2); gapFound 0.000 (0/7); questions/investigation 0.222 (4/18); max questions to one person 2; unanswered 0",
+    "question-dependent@train+validation": "routing 0.143 (1/7); wrongRecipient 0.500 (1/2); gapFound 0.000 (0/7); questions/investigation 0.222 (4/18); max questions to one person 2; unanswered 0"
   }
 }

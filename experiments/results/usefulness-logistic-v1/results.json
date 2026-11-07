@@ -1,6 +1,6 @@
 {
   "manifestId": "usefulness-logistic-v1",
-  "finishedAt": "2026-11-07T02:02:54.477Z",
+  "finishedAt": "2026-11-07T02:33:21.565Z",
   "variants": [
     {
       "variantId": "logistic-hashed-v1",
@@ -18,14 +18,14 @@
           "denominator": 32
         },
         "usefulness.precision": {
-          "value": 0.8064516129032256,
-          "numerator": 806,
-          "denominator": 1000
+          "value": 0.8064516129032258,
+          "numerator": 75,
+          "denominator": 93
         },
         "usefulness.recall": {
           "value": 1,
-          "numerator": 1000,
-          "denominator": 1000
+          "numerator": 75,
+          "denominator": 75
         }
       },
       "counts": {
@@ -59,14 +59,14 @@
           "denominator": 32
         },
         "usefulness.precision": {
-          "value": 0.7741935483870966,
-          "numerator": 774,
-          "denominator": 1000
+          "value": 0.7741935483870968,
+          "numerator": 72,
+          "denominator": 93
         },
         "usefulness.recall": {
           "value": 1,
-          "numerator": 1000,
-          "denominator": 1000
+          "numerator": 72,
+          "denominator": 72
         }
       },
       "counts": {
@@ -101,13 +101,13 @@
         },
         "usefulness.precision": {
           "value": 1,
-          "numerator": 1000,
-          "denominator": 1000
+          "numerator": 153,
+          "denominator": 153
         },
         "usefulness.recall": {
           "value": 1,
-          "numerator": 1000,
-          "denominator": 1000
+          "numerator": 153,
+          "denominator": 153
         }
       },
       "counts": {

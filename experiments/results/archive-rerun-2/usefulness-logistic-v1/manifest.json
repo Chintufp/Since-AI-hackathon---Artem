@@ -1,0 +1,52 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ (through the scenario-dir importer)",
+    "people.json",
+    "incoming problem text",
+    "incoming observations"
+  ],
+  "route": "local",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T02:02:54.394Z",
+  "id": "usefulness-logistic-v1",
+  "hypothesis": "A hashed-feature logistic regression trained on the train families' evidence separates evidence belonging to an incident from irrelevant chatter better than the majority-class rate on validation families.",
+  "splits": [
+    "train",
+    "validation"
+  ],
+  "variants": [
+    {
+      "id": "logistic-hashed-v1",
+      "description": "LogisticHashed dim 4096, unigram+bigram hashed features, SGD epochs 30, lr 0.5, l2 1e-4; trained tonight on synthetic data on this Mac",
+      "route": "local"
+    }
+  ],
+  "config": {
+    "labels": "useful = the evidence source id belongs to any truth incident (labelled harness side from truth.json); irrelevant otherwise",
+    "dim": 4096,
+    "epochs": 30,
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "artifact": "data/models/usefulness-logistic-v1.json"
+  },
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "metrics": [
+    "usefulness.accuracy",
+    "usefulness.precision",
+    "usefulness.recall",
+    "usefulness.majorityBaselineAccuracy"
+  ],
+  "acceptanceCriteria": [],
+  "stopRule": "single training pass per seed"
+}

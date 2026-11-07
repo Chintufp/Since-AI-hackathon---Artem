@@ -68,6 +68,19 @@ test('simulator arm asserts zero ineligible selections for every selector and se
   assert.ok(sim.rows.every((r) => r.ineligible === 0));
 });
 
+test('simulator variants carry their metrics with real denominators (persisted into results.json)', () => {
+  const sim = simArm();
+  assert.equal(sim.variants.length, 4);
+  for (const v of sim.variants) {
+    const mb = v.metrics['sim.meanBenefitPerInvestigation'];
+    assert.ok(mb && mb.denominator === 900 && Number.isInteger(mb.numerator));
+    for (const n of [1, 2, 3]) assert.equal(v.metrics[`sim.meanBenefitPerInvestigation.seed${n}`]?.denominator, 300);
+    assert.equal(v.counts['sim.ineligibleSelections'], 0);
+    assert.ok(typeof v.counts['sim.deferrals'] === 'number' && typeof v.counts['sim.unanswered'] === 'number');
+    assert.ok(v.repeatVariation?.['sim.meanBenefitPerInvestigation']);
+  }
+});
+
 test('budget layer: the daily limit is never exceeded', () => {
   for (const seed of [1, 2]) {
     for (const limit of [1, 3]) assert.ok(budgetSim(limit, 30, seed).maxPerPersonPerDay <= limit);

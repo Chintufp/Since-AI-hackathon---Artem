@@ -2,7 +2,7 @@
   "id": "usefulness-logistic-v1",
   "kind": "logistic-hashed",
   "version": "1",
-  "trainedAt": "2026-11-07T02:02:54.477Z",
+  "trainedAt": "2026-11-07T02:33:21.564Z",
   "trainingDataset": {
     "id": "scenarios-1.0.0",
     "split": "train",

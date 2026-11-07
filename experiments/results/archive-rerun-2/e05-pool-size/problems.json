@@ -1,0 +1,866 @@
+[
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-firmware-flaps-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.48
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-firmware-flaps-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.19
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-firmware-flaps-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.2
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "fan-temperature-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.04
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "fan-temperature-p2",
+    "expected": "none",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.39
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "fan-temperature-p3",
+    "expected": "retain-uncertainty",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.44
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "config-rollback-private-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-33: older unit, installed 2019?"
+      }
+    ],
+    "latencyMs": 3.88
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "config-rollback-private-p2",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.69
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "config-rollback-private-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-12: older unit, installed 2019?"
+      }
+    ],
+    "latencyMs": 3.88
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "cabling-pinch-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.85
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "cabling-pinch-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.24
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "cabling-pinch-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.25
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "weak-mains-psu-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.46
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "weak-mains-psu-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.31
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "weak-mains-psu-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.31
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-linecard-private-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.66
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-linecard-private-p2",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.73
+  },
+  {
+    "variant": "pool-1@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-linecard-private-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.06
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-firmware-flaps-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.43
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-firmware-flaps-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.15
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-firmware-flaps-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.16
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "fan-temperature-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.16
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "fan-temperature-p2",
+    "expected": "none",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.47
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "fan-temperature-p3",
+    "expected": "retain-uncertainty",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.54
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "config-rollback-private-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-33: older unit, installed 2019?"
+      }
+    ],
+    "latencyMs": 4.14
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "config-rollback-private-p2",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.68
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "config-rollback-private-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-12: older unit, installed 2019?"
+      }
+    ],
+    "latencyMs": 3.78
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "cabling-pinch-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.88
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "cabling-pinch-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.27
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "cabling-pinch-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.32
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "weak-mains-psu-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.48
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "weak-mains-psu-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.31
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "weak-mains-psu-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.31
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-linecard-private-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.19
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-linecard-private-p2",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.75
+  },
+  {
+    "variant": "pool-2@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-linecard-private-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.5
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-firmware-flaps-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.43
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-firmware-flaps-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "reuse",
+    "final": "reuse",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.17
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-firmware-flaps-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.16
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "fan-temperature-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.03
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "fan-temperature-p2",
+    "expected": "none",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.39
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "fan-temperature-p3",
+    "expected": "retain-uncertainty",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.42
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "config-rollback-private-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-33: older unit, installed 2019?"
+      }
+    ],
+    "latencyMs": 4.29
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "config-rollback-private-p2",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.65
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "config-rollback-private-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "unit.age",
+        "to": "person:directory:antti-korhonen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is this true for ACC-12: older unit, installed 2019?"
+      }
+    ],
+    "latencyMs": 3.7
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "cabling-pinch-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.86
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "cabling-pinch-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.17
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "cabling-pinch-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.25
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "weak-mains-psu-p1",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.53
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "weak-mains-psu-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.34
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "weak-mains-psu-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [],
+    "latencyMs": 1.33
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-linecard-private-p1",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.21
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-linecard-private-p2",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.76
+  },
+  {
+    "variant": "pool-4@train+validation",
+    "split": "train+validation",
+    "problem": "bgp-linecard-private-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": false,
+    "first": "qualified",
+    "final": "qualified",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.07
+  }
+]

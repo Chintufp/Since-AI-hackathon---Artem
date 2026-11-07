@@ -12,7 +12,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 11.23
+    "latencyMs": 11.56
   },
   {
     "variant": "baseline-rules",
@@ -27,7 +27,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.5
+    "latencyMs": 2.61
   },
   {
     "variant": "baseline-rules",
@@ -42,7 +42,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.05
+    "latencyMs": 2.14
   },
   {
     "variant": "baseline-rules",
@@ -57,7 +57,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 2.44
+    "latencyMs": 2.46
   },
   {
     "variant": "baseline-rules",
@@ -72,7 +72,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.66
+    "latencyMs": 1.56
   },
   {
     "variant": "baseline-rules",
@@ -88,7 +88,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.27
+    "latencyMs": 1.23
   },
   {
     "variant": "baseline-rules",
@@ -103,7 +103,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.33
+    "latencyMs": 2.54
   },
   {
     "variant": "baseline-rules",
@@ -118,7 +118,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.29
+    "latencyMs": 1.31
   },
   {
     "variant": "baseline-rules",
@@ -133,7 +133,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.43
+    "latencyMs": 1.34
   },
   {
     "variant": "baseline-rules",
@@ -148,7 +148,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.49
+    "latencyMs": 1.57
   },
   {
     "variant": "baseline-rules",
@@ -158,12 +158,20 @@
     "noQuestionNeeded": true,
     "first": "qualified",
     "final": "qualified",
-    "loopEnd": "no-question-needed",
+    "loopEnd": "deferred",
     "topCaseIncidents": [
       "B"
     ],
-    "questions": [],
-    "latencyMs": 1.75
+    "questions": [
+      {
+        "cond": "unit.model",
+        "to": "person:directory:onni-jokinen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is OLT-210 an FT-3?"
+      }
+    ],
+    "latencyMs": 6.71
   },
   {
     "variant": "baseline-rules",
@@ -178,7 +186,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.67
+    "latencyMs": 1.6
   },
   {
     "variant": "baseline-rules",
@@ -199,9 +207,16 @@
         "reply": "unknown",
         "benefit": 0,
         "text": "Is this true for ACC-33: older unit, installed 2019?"
+      },
+      {
+        "cond": "unit.model",
+        "to": "person:directory:jarmo-heikkinen",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Is ACC-12 an N5?"
       }
     ],
-    "latencyMs": 6.09
+    "latencyMs": 9.47
   },
   {
     "variant": "baseline-rules",
@@ -216,7 +231,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1
+    "latencyMs": 0.69
   },
   {
     "variant": "baseline-rules",
@@ -239,7 +254,7 @@
         "text": "Is this true for ACC-12: older unit, installed 2019?"
       }
     ],
-    "latencyMs": 4.19
+    "latencyMs": 4.2
   },
   {
     "variant": "baseline-rules",
@@ -254,7 +269,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.86
+    "latencyMs": 1.83
   },
   {
     "variant": "baseline-rules",
@@ -284,7 +299,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.34
+    "latencyMs": 1.3
   },
   {
     "variant": "baseline-rules",
@@ -300,7 +315,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 2.12
+    "latencyMs": 1.95
   },
   {
     "variant": "baseline-rules",
@@ -316,7 +331,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.39
+    "latencyMs": 1.42
   },
   {
     "variant": "baseline-rules",
@@ -331,7 +346,7 @@
       "B"
     ],
     "questions": [],
-    "latencyMs": 1.4
+    "latencyMs": 1.44
   },
   {
     "variant": "baseline-rules",
@@ -346,7 +361,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 1.99
+    "latencyMs": 1.98
   },
   {
     "variant": "baseline-rules",
@@ -361,7 +376,7 @@
       "A"
     ],
     "questions": [],
-    "latencyMs": 0.82
+    "latencyMs": 0.79
   },
   {
     "variant": "baseline-rules",

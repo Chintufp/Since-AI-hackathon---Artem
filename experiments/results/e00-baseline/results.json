@@ -1,6 +1,6 @@
 {
   "manifestId": "e00-baseline",
-  "finishedAt": "2026-11-07T02:02:52.188Z",
+  "finishedAt": "2026-11-07T02:33:19.162Z",
   "variants": [
     {
       "variantId": "baseline-rules",
@@ -258,8 +258,8 @@
           "denominator": 3
         },
         "efficiency.meanLatencyMs": {
-          "value": 3.5260556666666645,
-          "numerator": 21.156333999999987,
+          "value": 3.594729166666672,
+          "numerator": 21.56837500000003,
           "denominator": 6
         },
         "routing.answerableRoutingRate": {
@@ -306,9 +306,9 @@
         "question.answered": 0,
         "claims.access-fact.ambiguous": 1,
         "claims.access-fact.unknown": 0,
-        "efficiency.p50LatencyMs": 2.049749999999989,
-        "efficiency.p95LatencyMs": 11.230459000000025,
-        "efficiency.maxLatencyMs": 11.230459000000025,
+        "efficiency.p50LatencyMs": 2.141416000000021,
+        "efficiency.p95LatencyMs": 11.557417000000044,
+        "efficiency.maxLatencyMs": 11.557417000000044,
         "efficiency.samples": 6,
         "efficiency.calls": null,
         "efficiency.tokens": null,
@@ -1115,24 +1115,24 @@
           "denominator": 4
         },
         "question.unnecessaryQuestionRate": {
-          "value": 0.14285714285714285,
-          "numerator": 1,
+          "value": 0.2857142857142857,
+          "numerator": 2,
           "denominator": 7
         },
         "question.wrongRecipientRate": {
-          "value": 1,
+          "value": 0.5,
           "numerator": 1,
-          "denominator": 1
+          "denominator": 2
         },
         "question.questionsPerInvestigation": {
-          "value": 0.16666666666666666,
-          "numerator": 2,
+          "value": 0.3333333333333333,
+          "numerator": 4,
           "denominator": 12
         },
         "question.unansweredRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 2
+          "denominator": 4
         },
         "@1.linking.recall": {
           "value": 0.6666666666666666,
@@ -1191,8 +1191,8 @@
         },
         "question.answeredRate": {
           "value": 1,
-          "numerator": 2,
-          "denominator": 2
+          "numerator": 4,
+          "denominator": 4
         },
         "claims.hypothesis.precision": {
           "value": 0.5,
@@ -1205,13 +1205,13 @@
           "denominator": 3
         },
         "efficiency.meanLatencyMs": {
-          "value": 2.1441976666666847,
-          "numerator": 25.730372000000216,
+          "value": 2.8209030833333344,
+          "numerator": 33.85083700000001,
           "denominator": 12
         },
         "routing.answerableRoutingRate": {
-          "value": 0,
-          "numerator": 0,
+          "value": 0.25,
+          "numerator": 1,
           "denominator": 4
         },
         "benefit.meanPerInvestigation": {
@@ -1245,15 +1245,15 @@
         "question.hardRuleViolations": 0,
         "question.askedUnavailable": 0,
         "question.gapsNobodyAvailableCanAnswer": 1,
-        "question.maxInterruptionsPerPerson": 2,
+        "question.maxInterruptionsPerPerson": 3,
         "question.investigationsEvaluated": 12,
-        "question.asked": 2,
-        "question.answered": 2,
+        "question.asked": 4,
+        "question.answered": 4,
         "claims.hypothesis.ambiguous": 0,
         "claims.hypothesis.unknown": 0,
-        "efficiency.p50LatencyMs": 1.4917500000000246,
-        "efficiency.p95LatencyMs": 6.086084000000028,
-        "efficiency.maxLatencyMs": 6.086084000000028,
+        "efficiency.p50LatencyMs": 1.5734170000000063,
+        "efficiency.p95LatencyMs": 9.471043000000066,
+        "efficiency.maxLatencyMs": 9.471043000000066,
         "efficiency.samples": 12,
         "efficiency.calls": null,
         "efficiency.tokens": null,
@@ -1262,7 +1262,7 @@
         "burden.cancelledObsoleteOrResolved": 0,
         "burden.unansweredQuestions": 0,
         "burden.maxQuestionsToOnePersonPerFamily": 2,
-        "burden.questionsTotal": 2,
+        "burden.questionsTotal": 4,
         "burden.investigationLoopsHittingRoundCap": 0
       },
       "failures": [
@@ -1457,6 +1457,12 @@
           "familyId": "fan-temperature",
           "metric": "recommendation.falseAdviceRate",
           "reason": "qualified issued but key says none"
+        },
+        {
+          "id": "fan-temperature-p2",
+          "familyId": "fan-temperature",
+          "metric": "question.unnecessaryQuestionRate",
+          "reason": "asked 1 question(s) where none was needed"
         },
         {
           "id": "fan-temperature-p1",
@@ -1731,7 +1737,7 @@
           ]
         },
         "conflicting-conditions": {
-          "count": 75,
+          "count": 76,
           "ids": [
             "A#1",
             "claim_b45378dae082cfa3e552",
@@ -1786,7 +1792,7 @@
           ]
         },
         "temporary-recovery": {
-          "count": 27,
+          "count": 28,
           "ids": [
             "A#1",
             "A#2",
@@ -1810,7 +1816,7 @@
           ]
         },
         "duplicate-report": {
-          "count": 27,
+          "count": 28,
           "ids": [
             "A#1",
             "A#2",
@@ -1834,7 +1840,7 @@
           ]
         },
         "no-question-needed": {
-          "count": 27,
+          "count": 28,
           "ids": [
             "A#1",
             "A#2",
@@ -2263,8 +2269,8 @@
         },
         "question.answeredRate": null,
         "efficiency.meanLatencyMs": {
-          "value": 1.4860625000000027,
-          "numerator": 8.916375000000016,
+          "value": 1.4614236666666518,
+          "numerator": 8.768541999999911,
           "denominator": 6
         },
         "routing.answerableRoutingRate": {
@@ -2311,9 +2317,9 @@
         "question.investigationsEvaluated": 6,
         "question.asked": 0,
         "question.answered": 0,
-        "efficiency.p50LatencyMs": 1.3869579999999928,
-        "efficiency.p95LatencyMs": 2.123792000000037,
-        "efficiency.maxLatencyMs": 2.123792000000037,
+        "efficiency.p50LatencyMs": 1.4154589999999985,
+        "efficiency.p95LatencyMs": 1.9776669999999967,
+        "efficiency.maxLatencyMs": 1.9776669999999967,
         "efficiency.samples": 6,
         "efficiency.calls": null,
         "efficiency.tokens": null,

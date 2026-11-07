@@ -54,9 +54,16 @@ export function simArm(): { rows: SimRow[]; variants: VariantResult[]; summary: 
     const mb = mine.map((r) => r.meanBenefit);
     summary[name] = { mean: mean(mb), ...range(mb), ineligible: mine.reduce((n, r) => n + r.ineligible, 0) };
     const v = emptyVariant(`sim-${name}`, 'train', 'simulated');
-    v.metrics['sim.meanBenefitPerInvestigation'] = ratio(Math.round(mean(mb) * 300 * 3 * 1000) / 1000, 900);
-    v.metrics['sim.meanBenefitAnswered'] = ratio(mean(mine.map((r) => r.answeredMean)), 1);
-    v.counts = { 'sim.steps': 300, 'sim.seeds': 3, 'sim.ineligibleSelections': summary[name]!.ineligible, 'sim.unanswered': mine.reduce((n, r) => n + r.unanswered, 0), 'sim.deferrals': mine.reduce((n, r) => n + r.deferrals, 0) };
+    v.metrics['sim.meanBenefitPerInvestigation'] = ratio(Math.round(mean(mb) * 300 * 3), 900);
+    const unanswered = mine.reduce((n, r) => n + r.unanswered, 0);
+    const deferrals = mine.reduce((n, r) => n + r.deferrals, 0);
+    const benefitSum = Math.round(mean(mb) * 300 * 3);
+    // pooled over seeds: benefit per answered question (a step is answered unless the person did not answer or the question was deferred)
+    v.metrics['sim.meanBenefitAnswered'] = ratio(benefitSum, 300 * 3 - unanswered - deferrals);
+    v.metrics['sim.unansweredPerStep'] = ratio(unanswered, 300 * 3);
+    v.metrics['sim.deferralsPerStep'] = ratio(deferrals, 300 * 3);
+    for (const r of mine) v.metrics[`sim.meanBenefitPerInvestigation.seed${r.seed}`] = ratio(Math.round(r.meanBenefit * 300), 300);
+    v.counts = { 'sim.steps': 300, 'sim.seeds': 3, 'sim.ineligibleSelections': summary[name]!.ineligible, 'sim.unanswered': unanswered, 'sim.deferrals': deferrals, 'sim.benefitSum': benefitSum };
     v.repeatVariation = { 'sim.meanBenefitPerInvestigation': { ...range(mb), runs: 3 } };
     variants.push(v);
   }
@@ -316,8 +323,8 @@ export async function runE07(): Promise<Decision> {
       famPoints.push({ arm: 'family', limit: l, cooldown: c, benefit: num(vr.extras['benefit.meanPerInvestigation']), questionsPerInvestigation: num(vr.scored.metrics['question.questionsPerInvestigation']), maxPerPerson: vr.result.counts['burden.maxQuestionsToOnePersonPerFamily'] ?? 0, dominated: false });
       const rows = SEEDS.map((seed) => budgetSim(l, c, seed));
       const sv = emptyVariant(`sim-d${l}-c${c}`, 'train', 'simulated');
-      sv.metrics['sim.meanBenefitPerInvestigation'] = ratio(mean(rows.map((r) => r.meanBenefit)) * 300 * 3, 900);
-      sv.metrics['sim.questionsPerInvestigation'] = ratio(mean(rows.map((r) => r.questionsPerInvestigation)) * 300 * 3, 900);
+      sv.metrics['sim.meanBenefitPerInvestigation'] = ratio(Math.round(mean(rows.map((r) => r.meanBenefit)) * 300 * 3 * 1000) / 1000, 900);
+      sv.metrics['sim.questionsPerInvestigation'] = ratio(Math.round(mean(rows.map((r) => r.questionsPerInvestigation)) * 300 * 3 * 1000) / 1000, 900);
       sv.counts = { 'sim.maxQuestionsToOnePersonPerDay': Math.max(...rows.map((r) => r.maxPerPersonPerDay)), 'sim.investigationsDeferredByBudget': rows.reduce((n, r) => n + r.budgetDeferrals, 0), 'sim.unansweredQuestions': rows.reduce((n, r) => n + r.unanswered, 0) };
       sv.repeatVariation = { 'sim.meanBenefitPerInvestigation': { ...range(rows.map((r) => r.meanBenefit)), runs: 3 } };
       variants.push(sv);
@@ -421,10 +428,10 @@ export async function runUsefulness(): Promise<void> {
     const v = emptyVariant('logistic-hashed-v1', split, 'measured');
     v.metrics['usefulness.accuracy'] = ratio(Math.round(mean(per.map((p) => p.accuracy)) * data.length), data.length);
     v.metrics['usefulness.majorityBaselineAccuracy'] = ratio(Math.round(per[0]!.majority * data.length), data.length);
-    const pr = per.map((p) => p.precision).filter((x): x is number => x !== null);
-    const rc = per.map((p) => p.recall).filter((x): x is number => x !== null);
-    v.metrics['usefulness.precision'] = pr.length ? { value: mean(pr), numerator: Math.round(mean(pr) * 1000), denominator: 1000 } : null;
-    v.metrics['usefulness.recall'] = rc.length ? { value: mean(rc), numerator: Math.round(mean(rc) * 1000), denominator: 1000 } : null;
+    // pooled over the seeds: true positives over predicted-useful, and over actual positives (real counts, no scaled denominators)
+    const tp = per.reduce((n, p) => n + p.tp, 0);
+    v.metrics['usefulness.precision'] = ratio(tp, tp + per.reduce((n, p) => n + p.fp, 0));
+    v.metrics['usefulness.recall'] = ratio(tp, tp + per.reduce((n, p) => n + p.fn, 0));
     v.counts = { 'usefulness.examples': data.length, 'usefulness.positives': per[0]!.positives, 'usefulness.seeds': SEEDS.length };
     v.repeatVariation = { 'usefulness.accuracy': { ...range(per.map((p) => p.accuracy)), runs: SEEDS.length } };
     variants.push(v);

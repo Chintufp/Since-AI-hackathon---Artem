@@ -1,0 +1,88 @@
+[
+  {
+    "name": "split-leakage",
+    "pass": true,
+    "detail": "no family appears in two splits; counts {\"demo\":2,\"train\":4,\"validation\":2,\"test\":2}"
+  },
+  {
+    "name": "test-families-untouched",
+    "pass": true,
+    "detail": "test family hashes match TEST_LOCK.json"
+  },
+  {
+    "name": "idempotent-import:optic-forwarding-a",
+    "pass": true,
+    "detail": "evidence/claim/case/entity/link/attempt/outcome 16/20/1/7/13/2/2 -> 16/20/1/7/13/2/2"
+  },
+  {
+    "name": "idempotent-import:remote-power-access",
+    "pass": true,
+    "detail": "evidence/claim/case/entity/link/attempt/outcome 16/17/2/8/12/1/1 -> 16/17/2/8/12/1/1"
+  },
+  {
+    "name": "idempotent-import:bgp-firmware-flaps",
+    "pass": true,
+    "detail": "evidence/claim/case/entity/link/attempt/outcome 17/21/2/8/18/2/4 -> 17/21/2/8/18/2/4"
+  },
+  {
+    "name": "idempotent-import:fan-temperature",
+    "pass": true,
+    "detail": "evidence/claim/case/entity/link/attempt/outcome 17/23/2/6/19/2/3 -> 17/23/2/6/19/2/3"
+  },
+  {
+    "name": "idempotent-import:config-rollback-private",
+    "pass": true,
+    "detail": "evidence/claim/case/entity/link/attempt/outcome 17/14/2/7/13/2/4 -> 17/14/2/7/13/2/4"
+  },
+  {
+    "name": "idempotent-import:cabling-pinch",
+    "pass": true,
+    "detail": "evidence/claim/case/entity/link/attempt/outcome 15/17/1/9/15/3/5 -> 15/17/1/9/15/3/5"
+  },
+  {
+    "name": "idempotent-import:weak-mains-psu",
+    "pass": true,
+    "detail": "evidence/claim/case/entity/link/attempt/outcome 14/20/2/7/14/2/3 -> 14/20/2/7/14/2/3"
+  },
+  {
+    "name": "idempotent-import:bgp-linecard-private",
+    "pass": true,
+    "detail": "evidence/claim/case/entity/link/attempt/outcome 18/20/3/8/18/3/4 -> 18/20/3/8/18/3/4"
+  },
+  {
+    "name": "access-leakage:demo",
+    "pass": true,
+    "knownLimitation": true,
+    "detail": "shown sources of incidents the requester's groups exclude (truth-based): 0.022 (1/46) KNOWN LIMITATION (not system-detectable, own-scope check passes): email:f02-access-310@kalevanet.example: e-mail record carries no ACL metadata, so its stored scope is org; only the truth-based metric knows the incident is restricted"
+  },
+  {
+    "name": "access-own-scope:demo",
+    "pass": true,
+    "detail": "shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/46)"
+  },
+  {
+    "name": "access-leakage:train",
+    "pass": true,
+    "detail": "shown sources of incidents the requester's groups exclude (truth-based): 0.000 (0/87)"
+  },
+  {
+    "name": "access-own-scope:train",
+    "pass": true,
+    "detail": "shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/89)"
+  },
+  {
+    "name": "access-leakage:validation",
+    "pass": true,
+    "detail": "shown sources of incidents the requester's groups exclude (truth-based): 0.000 (0/47)"
+  },
+  {
+    "name": "access-own-scope:validation",
+    "pass": true,
+    "detail": "shown evidence whose stored access scope excludes the requester (system-detectable): 0.000 (0/50)"
+  },
+  {
+    "name": "trace-completeness",
+    "pass": true,
+    "detail": "24/24 investigations have a start event and a recorded decision for every question"
+  }
+]

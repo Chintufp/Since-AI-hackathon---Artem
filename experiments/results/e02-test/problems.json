@@ -1,0 +1,433 @@
+[
+  {
+    "variant": "lexical-bm25",
+    "split": "test",
+    "problem": "transponder-laser-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 8.67
+  },
+  {
+    "variant": "lexical-bm25",
+    "split": "test",
+    "problem": "transponder-laser-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 3.27
+  },
+  {
+    "variant": "lexical-bm25",
+    "split": "test",
+    "problem": "transponder-laser-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.68
+  },
+  {
+    "variant": "lexical-bm25",
+    "split": "test",
+    "problem": "rooftop-threshold-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 1.18
+  },
+  {
+    "variant": "lexical-bm25",
+    "split": "test",
+    "problem": "rooftop-threshold-p2",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.58
+  },
+  {
+    "variant": "lexical-bm25",
+    "split": "test",
+    "problem": "rooftop-threshold-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.42
+  },
+  {
+    "variant": "exact-id",
+    "split": "test",
+    "problem": "transponder-laser-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 2.77
+  },
+  {
+    "variant": "exact-id",
+    "split": "test",
+    "problem": "transponder-laser-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 6.91
+  },
+  {
+    "variant": "exact-id",
+    "split": "test",
+    "problem": "transponder-laser-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [],
+    "questions": [],
+    "latencyMs": 0.49
+  },
+  {
+    "variant": "exact-id",
+    "split": "test",
+    "problem": "rooftop-threshold-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.69
+  },
+  {
+    "variant": "exact-id",
+    "split": "test",
+    "problem": "rooftop-threshold-p2",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.51
+  },
+  {
+    "variant": "exact-id",
+    "split": "test",
+    "problem": "rooftop-threshold-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [],
+    "questions": [],
+    "latencyMs": 0.24
+  },
+  {
+    "variant": "local-trigram",
+    "split": "test",
+    "problem": "transponder-laser-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 3.3
+  },
+  {
+    "variant": "local-trigram",
+    "split": "test",
+    "problem": "transponder-laser-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 2.81
+  },
+  {
+    "variant": "local-trigram",
+    "split": "test",
+    "problem": "transponder-laser-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.58
+  },
+  {
+    "variant": "local-trigram",
+    "split": "test",
+    "problem": "rooftop-threshold-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.66
+  },
+  {
+    "variant": "local-trigram",
+    "split": "test",
+    "problem": "rooftop-threshold-p2",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.52
+  },
+  {
+    "variant": "local-trigram",
+    "split": "test",
+    "problem": "rooftop-threshold-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.37
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "test",
+    "problem": "transponder-laser-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 2.91
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "test",
+    "problem": "transponder-laser-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 2.74
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "test",
+    "problem": "transponder-laser-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.62
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "test",
+    "problem": "rooftop-threshold-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.69
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "test",
+    "problem": "rooftop-threshold-p2",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.54
+  },
+  {
+    "variant": "hybrid-rrf",
+    "split": "test",
+    "problem": "rooftop-threshold-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.39
+  }
+]

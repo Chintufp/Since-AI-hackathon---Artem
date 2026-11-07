@@ -1,0 +1,220 @@
+[
+  {
+    "variant": "separate",
+    "split": "test",
+    "problem": "transponder-laser-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 2.97
+  },
+  {
+    "variant": "separate",
+    "split": "test",
+    "problem": "transponder-laser-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 2.67
+  },
+  {
+    "variant": "separate",
+    "split": "test",
+    "problem": "transponder-laser-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.59
+  },
+  {
+    "variant": "separate",
+    "split": "test",
+    "problem": "rooftop-threshold-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.69
+  },
+  {
+    "variant": "separate",
+    "split": "test",
+    "problem": "rooftop-threshold-p2",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.55
+  },
+  {
+    "variant": "separate",
+    "split": "test",
+    "problem": "rooftop-threshold-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.39
+  },
+  {
+    "variant": "combined",
+    "split": "test",
+    "problem": "transponder-laser-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 3.19
+  },
+  {
+    "variant": "combined",
+    "split": "test",
+    "problem": "transponder-laser-p2",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "deferred",
+    "topCaseIncidents": [
+      "B"
+    ],
+    "questions": [
+      {
+        "cond": "outcome.result",
+        "to": "person:directory:helena-ketola",
+        "reply": "unknown",
+        "benefit": 0,
+        "text": "Did the problem clear right after the power cycle on XC-318?"
+      }
+    ],
+    "latencyMs": 2.71
+  },
+  {
+    "variant": "combined",
+    "split": "test",
+    "problem": "transponder-laser-p3",
+    "expected": "qualified",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.57
+  },
+  {
+    "variant": "combined",
+    "split": "test",
+    "problem": "rooftop-threshold-p1",
+    "expected": "reuse",
+    "noQuestionNeeded": true,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.78
+  },
+  {
+    "variant": "combined",
+    "split": "test",
+    "problem": "rooftop-threshold-p2",
+    "expected": "none",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.63
+  },
+  {
+    "variant": "combined",
+    "split": "test",
+    "problem": "rooftop-threshold-p3",
+    "expected": "check-first",
+    "noQuestionNeeded": false,
+    "first": "none",
+    "final": "none",
+    "loopEnd": "no-question-needed",
+    "topCaseIncidents": [
+      "C",
+      "A"
+    ],
+    "questions": [],
+    "latencyMs": 0.4
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "validationChoice": "separate",
+  "testChoice": "separate",
+  "confirmed": true,
+  "testOutcome": "false advice rate separate n/a vs combined n/a; eligible coverage separate 0.000 (0/5) vs combined 0.000 (0/5): tie on false advice and coverage -> separate (keeps targets identifiable).",
+  "retrieverUsed": "hybrid"
+}

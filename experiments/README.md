@@ -6,19 +6,42 @@ Runner skeleton and result conventions for the experiment queue in the technical
 
 | ID | Comparison | Status |
 | --- | --- | --- |
-| E00 | Frozen scenarios, evaluator, transparent end-to-end baseline | **ready** (evaluator, oracle, splits, references run; baseline arm plugs in) |
-| E01 | Extraction/linking: structured baseline vs context-aware proposals | pending harness |
-| E02 | Retrieval: lexical vs embeddings/hybrid | pending harness |
-| E03 | Question selection: rules vs ranker vs contextual bandit | pending harness |
-| E04 | Assessment: combined vs separate support/applicability | pending harness |
-| E05 | Question generation: templates vs freer structured proposals | pending harness |
-| E06 | Recipient ranking: direct contributors vs observable-condition eligibility | pending harness |
-| E07 | Coordinator settings: budgets, cooldowns, stopping | pending harness |
-| E08 | Prompted LLM vs adapted small transformer outcome assessor | conditional |
-| E09 | Next-choice policy vs sequential RL | conditional |
-| E10 | Optional evaluative preferences and reward/feature designs | conditional |
+| E00 | Real-system rules baseline on demo+train+validation (`results/e00-baseline`) | **done** (3 access checks fail: see RESULTS.md, findings in `src/`) |
+| E01 | Extraction/linking: structured baseline vs context-aware proposals | not run (no replay fixtures recorded) |
+| E02 | Retrieval: lexical / exact / local trigram / hybrid | **done**, one-shot test confirmation in `results/e02-test` |
+| E03 | Question selection: rules vs epsilon-greedy vs LinUCB (simulator arm and family arm) | **done**, rules stay; artifacts in `data/models/` |
+| E04 | Assessment: combined vs separate | **done**, one-shot test confirmation in `results/e04-test` |
+| E05 | Question generation pool size {1,2,4} (template generator) | **done** (a freer structured generator was not built) |
+| E06 | Recipient eligibility: direct-only vs question-dependent | **done** |
+| E07 | Coordinator budgets {1,3,5} x cooldown {0,30} | **done** (family arm and simulator budget layer) |
+| E08 | Prompted LLM vs adapted small transformer outcome assessor | conditional, not run |
+| E09 | Next-choice policy vs sequential RL on multi-step scenarios | conditional, not run |
+| E10 | Optional evaluative preferences and alternate reward/feature designs | conditional, not run |
 
-`node experiments/run.ts` prints this list from `EXPERIMENTS` in `run.ts`. `node experiments/run.ts e00` validates the data (leakage, frozen test lock), writes `results/e00-reference/{manifest.json,results.json}` and scores two reference variants (a reference oracle built from truth, and a silent system) on the demo, train and validation splits. Those numbers validate the evaluator; they say nothing about any model and are tagged `provenance: reference-oracle`.
+Read `RESULTS.md` (generated from `results/`) for tables, outcomes against the frozen criteria, failure examples and what the results do not show.
+
+## Commands
+
+```
+node experiments/run.ts                 list experiments
+node experiments/run.ts all             E00, E02, E04, E03, E05, E06, E07, usefulness, then the report (about 3 s; test split closed)
+node experiments/run.ts e00|e02|e03|e04|e05|e06|e07|usefulness
+node experiments/run.ts e00-reference   evaluator sanity references (hand-built from truth; not a system)
+node experiments/run.ts test-final      one-shot test-split confirmation of the E02/E04 choices (refuses to run again)
+node experiments/run.ts report          regenerate RESULTS.md
+node --test 'experiments/**/*.test.ts'  harness, frozen decision rules, simulator and budget-layer tests
+```
+
+## Files
+
+| File | Purpose |
+| --- | --- |
+| `harness.ts` | Runs the real system (store, import, investigation, question coordinator, selector) over a family's visible inputs; the oracle answers one reply at a time; collects `SystemKnowledge`, recommendations, question runs, evaluation records and latencies. Hidden keys are used only for the oracle and for scoring. |
+| `scoring.ts` | Scores harness runs with `benchmarks/evaluator.ts` (plus linking@k, lookalike top-1, access checks). |
+| `common.ts` | Variant running, pooled variants, harness-side extra metrics, decision records. |
+| `config.ts` | Organization configuration (observability policy for E06), frozen before scoring. |
+| `runners-core.ts`, `runners-learning.ts` | E00/E02/E04/test-final and E03/E05/E06/E07/usefulness runners. |
+| `report.ts` | Generates `RESULTS.md`. |
 
 ## Results convention
 

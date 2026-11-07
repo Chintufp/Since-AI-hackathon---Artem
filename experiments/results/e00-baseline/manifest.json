@@ -1,0 +1,71 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ (through the scenario-dir importer)",
+    "people.json",
+    "incoming problem text",
+    "incoming observations"
+  ],
+  "route": "rules",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T01:12:06.827Z",
+  "id": "e00-baseline",
+  "hypothesis": "The real system with every stage on its deterministic rules route (rules extraction, hybrid retrieval with local trigram vectors, separate rules assessor, template questions, rules selector) produces complete traces, no access leakage and a reproducible reference baseline on demo, train and validation families.",
+  "splits": [
+    "demo",
+    "train",
+    "validation"
+  ],
+  "variants": [
+    {
+      "id": "baseline-rules",
+      "description": "rules extractor, hybrid retriever (bm25+exact+local trigram), rules assessor (separate), template questions, rules selector; default coordinator limits 3/day, 30 min cooldown, 3 per investigation",
+      "route": "rules"
+    }
+  ],
+  "config": {
+    "retriever": "hybrid",
+    "assessor": "separate",
+    "selector": "rules",
+    "coordinator": {
+      "dailyLimitPerPerson": 3,
+      "cooldownMinutes": 30,
+      "maxOpenQuestionsPerPerson": 1,
+      "maxQuestionsPerInvestigation": 3
+    },
+    "answerDelayMinutes": 5,
+    "oracle": "benchmarks/oracle.answerFor, one reply at a time, no-answer leaves the question unanswered",
+    "settings": "library defaults (no scenario-specific configuration)"
+  },
+  "seeds": [
+    0
+  ],
+  "metrics": [
+    "claims.all.precision",
+    "claims.all.recall",
+    "cases.falseMergeRate",
+    "cases.falseSplitRate",
+    "resolution.falseSolvedRate",
+    "recommendation.kindAccuracy",
+    "recommendation.falseAdviceRate",
+    "recommendation.eligibleCoverage",
+    "recommendation.missedOpportunityRate",
+    "question.gapFoundRate",
+    "question.unnecessaryQuestionRate",
+    "question.wrongRecipientRate",
+    "question.questionsPerInvestigation",
+    "@1.linking.recall",
+    "@3.linking.recall",
+    "access.leakageRate",
+    "efficiency.meanLatencyMs"
+  ],
+  "acceptanceCriteria": [
+    "all E00 checks pass (split leakage, test lock, idempotent import, trace completeness)",
+    "access.leakageRate has numerator 0",
+    "every investigation has a complete trace"
+  ],
+  "stopRule": "any leak or broken trace -> fix before continuing (EXPERIMENT_PLAN.md E00). `run.ts all` stops when an E00 check fails unless --continue-despite-e00 is passed; the override is recorded in results/run-times.json and every later result is then provisional."
+}

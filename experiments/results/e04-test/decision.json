@@ -1,0 +1,11 @@
+{
+  "experiment": "E04",
+  "hypothesis": "Separate support/applicability assessment reduces false advice vs a combined score.",
+  "criterion": "On test: choose the mode with lower false advice at equal or better coverage; tie -> separate. (A null false-advice rate, no advice issued, is read as 0.)",
+  "outcome": "false advice rate separate n/a vs combined n/a; eligible coverage separate 0.000 (0/5) vs combined 0.000 (0/5): tie on false advice and coverage -> separate (keeps targets identifiable).",
+  "shipped": "separate",
+  "detail": {
+    "separate": "falseAdvice n/a; supportedApplicable n/a; coverage 0.000 (0/5); kindAccuracy 0.167 (1/6); missedOpportunity 1.000 (3/3)",
+    "combined": "falseAdvice n/a; supportedApplicable n/a; coverage 0.000 (0/5); kindAccuracy 0.167 (1/6); missedOpportunity 1.000 (3/3)"
+  }
+}

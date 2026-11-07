@@ -1,0 +1,6 @@
+{
+  "validationChoice": "hybrid",
+  "testChoice": "hybrid",
+  "confirmed": true,
+  "testOutcome": "recall@3 hybrid 1.000 (7/7) vs lexical 1.000 (7/7) -> met; lookalike-top-1 hybrid 0.000 (0/3) vs lexical 0.000 (0/3) -> met."
+}

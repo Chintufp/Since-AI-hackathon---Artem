@@ -1,0 +1,53 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ (through the scenario-dir importer)",
+    "people.json",
+    "incoming problem text",
+    "incoming observations"
+  ],
+  "route": "rules",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T01:06:47.326Z",
+  "id": "e04-assessor",
+  "hypothesis": "Separate support/applicability assessment reduces false advice compared with a combined score, using the same evidence and candidates.",
+  "splits": [
+    "demo",
+    "train",
+    "validation"
+  ],
+  "variants": [
+    {
+      "id": "separate",
+      "description": "support and applicability kept identifiable (rules assessor, separate mode)",
+      "route": "rules"
+    },
+    {
+      "id": "combined",
+      "description": "one collapsed verdict (rules assessor, combined mode)",
+      "route": "rules"
+    }
+  ],
+  "config": {
+    "retriever": "hybrid",
+    "selector": "rules",
+    "decisionSplit": "validation"
+  },
+  "seeds": [
+    0
+  ],
+  "metrics": [
+    "recommendation.falseAdviceRate",
+    "recommendation.supportedApplicableRate",
+    "recommendation.eligibleCoverage",
+    "recommendation.kindAccuracy",
+    "recommendation.missedOpportunityRate"
+  ],
+  "acceptanceCriteria": [
+    "choose the mode with lower false advice at equal or better coverage; tie -> separate (EXPERIMENT_PLAN.md E04)"
+  ],
+  "stopRule": "deterministic; none"
+}

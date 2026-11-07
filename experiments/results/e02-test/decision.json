@@ -1,0 +1,13 @@
+{
+  "experiment": "E02",
+  "hypothesis": "Hybrid lexical+exact beats lexical alone on relevant-case recall@3 without raising lookalike selection.",
+  "criterion": "On test: hybrid recall@3 >= lexical recall@3 AND hybrid lookalike-top-1 rate <= lexical's -> ship hybrid; else lexical. (A null rate cannot confirm a condition.)",
+  "outcome": "recall@3 hybrid 1.000 (7/7) vs lexical 1.000 (7/7) -> met; lookalike-top-1 hybrid 0.000 (0/3) vs lexical 0.000 (0/3) -> met.",
+  "shipped": "hybrid",
+  "detail": {
+    "lexical-bm25": "recall@1 0.857 (6/7); recall@3 1.000 (7/7); accessible recall@3 1.000 (7/7); precision@3 0.583 (7/12); lookalike-top-1 0.000 (0/3); kindAccuracy 0.167 (1/6); falseAdvice n/a; eligibleCoverage 0.000 (0/5)",
+    "exact-id": "recall@1 0.571 (4/7); recall@3 0.571 (4/7); accessible recall@3 0.571 (4/7); precision@3 0.571 (4/7); lookalike-top-1 0.000 (0/2); kindAccuracy 0.167 (1/6); falseAdvice n/a; eligibleCoverage 0.000 (0/5)",
+    "local-trigram": "recall@1 0.857 (6/7); recall@3 1.000 (7/7); accessible recall@3 1.000 (7/7); precision@3 0.583 (7/12); lookalike-top-1 0.000 (0/3); kindAccuracy 0.167 (1/6); falseAdvice n/a; eligibleCoverage 0.000 (0/5)",
+    "hybrid-rrf": "recall@1 0.857 (6/7); recall@3 1.000 (7/7); accessible recall@3 1.000 (7/7); precision@3 0.583 (7/12); lookalike-top-1 0.000 (0/3); kindAccuracy 0.167 (1/6); falseAdvice n/a; eligibleCoverage 0.000 (0/5)"
+  }
+}

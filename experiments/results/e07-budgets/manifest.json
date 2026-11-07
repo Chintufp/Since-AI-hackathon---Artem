@@ -1,0 +1,95 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ (through the scenario-dir importer)",
+    "people.json",
+    "incoming problem text",
+    "incoming observations"
+  ],
+  "route": "rules",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T01:12:00.008Z",
+  "id": "e07-budgets",
+  "hypothesis": "Budgets and cooldowns reduce duplicate/obsolete questions and burden with bounded loss of benefit.",
+  "splits": [
+    "train"
+  ],
+  "variants": [
+    {
+      "id": "d1-c0",
+      "description": "daily limit 1 per person, cooldown 0 min",
+      "route": "rules"
+    },
+    {
+      "id": "d1-c30",
+      "description": "daily limit 1 per person, cooldown 30 min",
+      "route": "rules"
+    },
+    {
+      "id": "d3-c0",
+      "description": "daily limit 3 per person, cooldown 0 min",
+      "route": "rules"
+    },
+    {
+      "id": "d3-c30",
+      "description": "daily limit 3 per person, cooldown 30 min",
+      "route": "rules"
+    },
+    {
+      "id": "d5-c0",
+      "description": "daily limit 5 per person, cooldown 0 min",
+      "route": "rules"
+    },
+    {
+      "id": "d5-c30",
+      "description": "daily limit 5 per person, cooldown 30 min",
+      "route": "rules"
+    }
+  ],
+  "config": {
+    "familyArm": {
+      "split": "train",
+      "problemSpacingMinutes": 20,
+      "answerDelayMinutes": 5,
+      "note": "problems of a family arrive 20 minutes apart on one day so budgets bind across investigations",
+      "retriever": "hybrid",
+      "selector": "rules"
+    },
+    "simulatorArm": {
+      "steps": 300,
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "spacingMinutes": 10,
+      "source": "SelectionSimulator with an experiments-side budget layer applied before the selector; selector rules",
+      "provenance": "simulated"
+    },
+    "defaults": {
+      "dailyLimitPerPerson": 3,
+      "cooldownMinutes": 30
+    }
+  },
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "metrics": [
+    "benefit.meanPerInvestigation",
+    "question.questionsPerInvestigation",
+    "burden.maxQuestionsToOnePersonPerFamily",
+    "burden.duplicateQuestions",
+    "burden.cancelledDuplicate",
+    "burden.cancelledObsoleteOrResolved",
+    "sim.meanBenefitPerInvestigation"
+  ],
+  "acceptanceCriteria": [
+    "report the frontier; keep defaults (3 / 30) unless a setting dominates (>= benefit, <= questions per investigation, <= max questions to one person, strictly better on one). DEVIATION from the plan: the plan states the rule on the simulator only; this run required domination on BOTH the family arm and the simulator arm (stricter). The plan-literal simulator-only result is reported alongside."
+  ],
+  "stopRule": "deterministic family arm; simulator over 3 seeds; none"
+}

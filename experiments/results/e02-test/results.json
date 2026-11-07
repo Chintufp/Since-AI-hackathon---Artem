@@ -1,0 +1,3635 @@
+{
+  "manifestId": "e02-test",
+  "finishedAt": "2026-11-07T01:06:48.997Z",
+  "variants": [
+    {
+      "variantId": "lexical-bm25",
+      "provenance": "measured",
+      "split": "test",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "claims.observation.recall": {
+          "value": 0.25,
+          "numerator": 1,
+          "denominator": 4
+        },
+        "claims.hypothesis.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.hypothesis.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "claims.advice.precision": {
+          "value": 0.5,
+          "numerator": 2,
+          "denominator": 4
+        },
+        "claims.advice.recall": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "claims.action.precision": null,
+        "claims.action.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "claims.outcome.precision": null,
+        "claims.outcome.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "claims.condition.precision": {
+          "value": 0.4,
+          "numerator": 2,
+          "denominator": 5
+        },
+        "claims.condition.recall": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "claims.identity.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        },
+        "claims.identity.recall": null,
+        "claims.all.precision": {
+          "value": 0.2631578947368421,
+          "numerator": 5,
+          "denominator": 19
+        },
+        "claims.all.recall": {
+          "value": 0.25,
+          "numerator": 5,
+          "denominator": 20
+        },
+        "entities.recall": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "cases.falseMergeRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.attemptPerformerErrorRate": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "attribution.attemptPerformedStateErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "attribution.attemptsNotInTruthRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "attribution.outcomeReporterErrorRate": null,
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0.21428571428571427,
+          "numerator": 3,
+          "denominator": 14
+        },
+        "copies.overcountRate": null,
+        "resolution.statusAccuracy": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "resolution.falseSolvedRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "resolution.falseConfirmedOutcomeRate": null,
+        "recommendation.kindAccuracy": {
+          "value": 0.16666666666666666,
+          "numerator": 1,
+          "denominator": 6
+        },
+        "recommendation.majorityBaselineKindAccuracy": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "recommendation.supportedApplicableRate": null,
+        "recommendation.falseAdviceRate": null,
+        "recommendation.eligibleCoverage": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "recommendation.missedOpportunityRate": {
+          "value": 1,
+          "numerator": 3,
+          "denominator": 3
+        },
+        "question.gapFoundRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "question.unnecessaryQuestionRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "question.wrongRecipientRate": {
+          "value": 1,
+          "numerator": 1,
+          "denominator": 1
+        },
+        "question.questionsPerInvestigation": {
+          "value": 0.3333333333333333,
+          "numerator": 2,
+          "denominator": 6
+        },
+        "question.unansweredRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "@1.linking.recall": {
+          "value": 0.8571428571428571,
+          "numerator": 6,
+          "denominator": 7
+        },
+        "@1.linking.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 6,
+          "denominator": 9
+        },
+        "@1.accessible.linking.recall": {
+          "value": 0.8571428571428571,
+          "numerator": 6,
+          "denominator": 7
+        },
+        "@1.accessible.linking.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 6,
+          "denominator": 9
+        },
+        "@3.linking.recall": {
+          "value": 1,
+          "numerator": 7,
+          "denominator": 7
+        },
+        "@3.linking.precision": {
+          "value": 0.5833333333333334,
+          "numerator": 7,
+          "denominator": 12
+        },
+        "@3.accessible.linking.recall": {
+          "value": 1,
+          "numerator": 7,
+          "denominator": 7
+        },
+        "@3.accessible.linking.precision": {
+          "value": 0.5833333333333334,
+          "numerator": 7,
+          "denominator": 12
+        },
+        "access.leakageRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 26
+        },
+        "access.shownRestrictedEvidenceRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 29
+        },
+        "retrieval.lookalikeTop1Rate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "question.answeredRate": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "claims.access-fact.precision": null,
+        "claims.access-fact.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "efficiency.meanLatencyMs": {
+          "value": 2.467493166666671,
+          "numerator": 14.804959000000025,
+          "denominator": 6
+        },
+        "routing.answerableRoutingRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "benefit.meanPerInvestigation": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 1,
+        "claims.observation.unknown": 0,
+        "claims.hypothesis.ambiguous": 0,
+        "claims.hypothesis.unknown": 0,
+        "claims.advice.ambiguous": 0,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 1,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 0,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 1,
+        "claims.condition.unknown": 0,
+        "claims.identity.ambiguous": 0,
+        "claims.identity.unknown": 0,
+        "claims.all.ambiguous": 4,
+        "claims.all.unknown": 0,
+        "entities.systemNonPerson": 3,
+        "entities.extraNonTruth": 0,
+        "cases.missingIncidents": 0,
+        "attribution.claimPersonUnattributed": 0,
+        "attribution.attemptsNotInTruth": 0,
+        "recommendation.problemsWithoutOutput": 0,
+        "question.missedConsequentialGaps": 2,
+        "question.hardRuleViolations": 0,
+        "question.askedUnavailable": 0,
+        "question.gapsNobodyAvailableCanAnswer": 1,
+        "question.maxInterruptionsPerPerson": 2,
+        "question.investigationsEvaluated": 6,
+        "question.asked": 2,
+        "question.answered": 2,
+        "claims.access-fact.ambiguous": 1,
+        "claims.access-fact.unknown": 0,
+        "efficiency.p50LatencyMs": 0.6794579999999968,
+        "efficiency.p95LatencyMs": 8.668751,
+        "efficiency.maxLatencyMs": 8.668751,
+        "efficiency.samples": 6,
+        "efficiency.calls": null,
+        "efficiency.tokens": null,
+        "burden.duplicateQuestions": 0,
+        "burden.cancelledDuplicate": 0,
+        "burden.cancelledObsoleteOrResolved": 0,
+        "burden.unansweredQuestions": 0,
+        "burden.maxQuestionsToOnePersonPerFamily": 2,
+        "burden.questionsTotal": 2,
+        "burden.investigationLoopsHittingRoundCap": 0
+      },
+      "failures": [
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed hypothesis claim: \"On XC-4 revision C cards the transmit laser stays disabled after a hot swap until the card is power cycled\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "A#4",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"Joonas power cycled card 3 on XC-318\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#1",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"After the optic replacement XC-122 had no traffic\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#2",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"The line card on XC-122 was reseated\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#3",
+          "metric": "claims.recall",
+          "reason": "missed outcome claim: \"Traffic came back straight away and XC-122 has been stable for three months\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#4",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"XC-2 units never needed a power cycle\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_f0544111e48ef3303f84",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"After the optic was replaced there was no traffic.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_17d73c002d41432fbe70",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"We reseated the line card and traffic came back straight away.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_97759e9c638474db5f5e",
+          "metric": "claims.precision",
+          "reason": "unsupported hypothesis claim: \"Sometimes it takes a minute.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_6192b87998b42460ab4f",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"The local end says link up.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_a0064bae45a133afe62f",
+          "metric": "claims.precision",
+          "reason": "unsupported identity claim: \"Joonas Kemppainen is a Field Engineer\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_f268f5f1fd051a63a781",
+          "metric": "claims.precision",
+          "reason": "unsupported identity claim: \"Helena Ketola is a Transport Expert\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "XC-325",
+          "metric": "entities.recall",
+          "reason": "entity \"XC-325\" not found",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "attempt_654def470cc1de25f61f",
+          "metric": "attribution.attemptPerformer",
+          "reason": "attributed to person:directory:helena-ketola, truth person:directory:joonas-kemppainen",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "case_6d448379f97d5be1bfbc",
+          "metric": "resolution.statusAccuracy",
+          "reason": "status open, truth verified-resolved",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected qualified"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (traffic.state)"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "question.wrongRecipientRate",
+          "reason": "asked person:directory:helena-ketola, answerers person:directory:joonas-kemppainen"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "question.unnecessaryQuestionRate",
+          "reason": "asked 1 question(s) where none was needed"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "ROOF-21",
+          "metric": "entities.recall",
+          "reason": "entity \"ROOF-21\" not found",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "ROOF-31",
+          "metric": "entities.recall",
+          "reason": "entity \"ROOF-31\" not found",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "case_8ff9d879209fe96768b6",
+          "metric": "cases.falseMergeRate",
+          "reason": "case merges incidents A, C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "attempt_2fac2c8cbe4ee132e9ce",
+          "metric": "attribution.attemptPerformer",
+          "reason": "attributed to person:directory:antero-lahtinen, truth person:directory:kalevi-heino",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_22152b2e7e0f5dd1739b",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:sari-kivela has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_8bfb792ba519fb3c4e01",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:sari-kivela has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_6458491c271a7bc37772",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:heikki-moilanen has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "case_8ff9d879209fe96768b6",
+          "metric": "resolution.statusAccuracy",
+          "reason": "status open, truth verified-resolved",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected check-first"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "familyId": "rooftop-threshold",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (software.version)"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        }
+      ],
+      "failureSlicesByTag": {
+        "missing-outcome": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "wrong-recipient-trap": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "conflicting-conditions": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "duplicate-report": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "lookalike-different-cause": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "same-incident-continuation": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "no-answer": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "access-fact": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "no-question-needed": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "useful-no": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        }
+      }
+    },
+    {
+      "variantId": "exact-id",
+      "provenance": "measured",
+      "split": "test",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "claims.observation.recall": {
+          "value": 0.25,
+          "numerator": 1,
+          "denominator": 4
+        },
+        "claims.hypothesis.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.hypothesis.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "claims.advice.precision": {
+          "value": 0.5,
+          "numerator": 2,
+          "denominator": 4
+        },
+        "claims.advice.recall": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "claims.action.precision": null,
+        "claims.action.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "claims.outcome.precision": null,
+        "claims.outcome.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "claims.condition.precision": {
+          "value": 0.4,
+          "numerator": 2,
+          "denominator": 5
+        },
+        "claims.condition.recall": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "claims.identity.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        },
+        "claims.identity.recall": null,
+        "claims.all.precision": {
+          "value": 0.2631578947368421,
+          "numerator": 5,
+          "denominator": 19
+        },
+        "claims.all.recall": {
+          "value": 0.25,
+          "numerator": 5,
+          "denominator": 20
+        },
+        "entities.recall": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "cases.falseMergeRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.attemptPerformerErrorRate": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "attribution.attemptPerformedStateErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "attribution.attemptsNotInTruthRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "attribution.outcomeReporterErrorRate": null,
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0.21428571428571427,
+          "numerator": 3,
+          "denominator": 14
+        },
+        "copies.overcountRate": null,
+        "resolution.statusAccuracy": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "resolution.falseSolvedRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "resolution.falseConfirmedOutcomeRate": null,
+        "recommendation.kindAccuracy": {
+          "value": 0.16666666666666666,
+          "numerator": 1,
+          "denominator": 6
+        },
+        "recommendation.majorityBaselineKindAccuracy": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "recommendation.supportedApplicableRate": null,
+        "recommendation.falseAdviceRate": null,
+        "recommendation.eligibleCoverage": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "recommendation.missedOpportunityRate": {
+          "value": 1,
+          "numerator": 3,
+          "denominator": 3
+        },
+        "question.gapFoundRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "question.unnecessaryQuestionRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "question.wrongRecipientRate": {
+          "value": 1,
+          "numerator": 1,
+          "denominator": 1
+        },
+        "question.questionsPerInvestigation": {
+          "value": 0.3333333333333333,
+          "numerator": 2,
+          "denominator": 6
+        },
+        "question.unansweredRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "@1.linking.recall": {
+          "value": 0.5714285714285714,
+          "numerator": 4,
+          "denominator": 7
+        },
+        "@1.linking.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 4,
+          "denominator": 6
+        },
+        "@1.accessible.linking.recall": {
+          "value": 0.5714285714285714,
+          "numerator": 4,
+          "denominator": 7
+        },
+        "@1.accessible.linking.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 4,
+          "denominator": 6
+        },
+        "@3.linking.recall": {
+          "value": 0.5714285714285714,
+          "numerator": 4,
+          "denominator": 7
+        },
+        "@3.linking.precision": {
+          "value": 0.5714285714285714,
+          "numerator": 4,
+          "denominator": 7
+        },
+        "@3.accessible.linking.recall": {
+          "value": 0.5714285714285714,
+          "numerator": 4,
+          "denominator": 7
+        },
+        "@3.accessible.linking.precision": {
+          "value": 0.5714285714285714,
+          "numerator": 4,
+          "denominator": 7
+        },
+        "access.leakageRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 21
+        },
+        "access.shownRestrictedEvidenceRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 23
+        },
+        "retrieval.lookalikeTop1Rate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "question.answeredRate": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "claims.access-fact.precision": null,
+        "claims.access-fact.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "efficiency.meanLatencyMs": {
+          "value": 1.9358611666666665,
+          "numerator": 11.615167,
+          "denominator": 6
+        },
+        "routing.answerableRoutingRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "benefit.meanPerInvestigation": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 1,
+        "claims.observation.unknown": 0,
+        "claims.hypothesis.ambiguous": 0,
+        "claims.hypothesis.unknown": 0,
+        "claims.advice.ambiguous": 0,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 1,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 0,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 1,
+        "claims.condition.unknown": 0,
+        "claims.identity.ambiguous": 0,
+        "claims.identity.unknown": 0,
+        "claims.all.ambiguous": 4,
+        "claims.all.unknown": 0,
+        "entities.systemNonPerson": 3,
+        "entities.extraNonTruth": 0,
+        "cases.missingIncidents": 0,
+        "attribution.claimPersonUnattributed": 0,
+        "attribution.attemptsNotInTruth": 0,
+        "recommendation.problemsWithoutOutput": 0,
+        "question.missedConsequentialGaps": 2,
+        "question.hardRuleViolations": 0,
+        "question.askedUnavailable": 0,
+        "question.gapsNobodyAvailableCanAnswer": 1,
+        "question.maxInterruptionsPerPerson": 2,
+        "question.investigationsEvaluated": 6,
+        "question.asked": 2,
+        "question.answered": 2,
+        "claims.access-fact.ambiguous": 1,
+        "claims.access-fact.unknown": 0,
+        "efficiency.p50LatencyMs": 0.5114169999999945,
+        "efficiency.p95LatencyMs": 6.91404100000004,
+        "efficiency.maxLatencyMs": 6.91404100000004,
+        "efficiency.samples": 6,
+        "efficiency.calls": null,
+        "efficiency.tokens": null,
+        "burden.duplicateQuestions": 0,
+        "burden.cancelledDuplicate": 0,
+        "burden.cancelledObsoleteOrResolved": 0,
+        "burden.unansweredQuestions": 0,
+        "burden.maxQuestionsToOnePersonPerFamily": 2,
+        "burden.questionsTotal": 2,
+        "burden.investigationLoopsHittingRoundCap": 0
+      },
+      "failures": [
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed hypothesis claim: \"On XC-4 revision C cards the transmit laser stays disabled after a hot swap until the card is power cycled\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "A#4",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"Joonas power cycled card 3 on XC-318\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#1",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"After the optic replacement XC-122 had no traffic\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#2",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"The line card on XC-122 was reseated\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#3",
+          "metric": "claims.recall",
+          "reason": "missed outcome claim: \"Traffic came back straight away and XC-122 has been stable for three months\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#4",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"XC-2 units never needed a power cycle\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_f0544111e48ef3303f84",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"After the optic was replaced there was no traffic.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_17d73c002d41432fbe70",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"We reseated the line card and traffic came back straight away.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_97759e9c638474db5f5e",
+          "metric": "claims.precision",
+          "reason": "unsupported hypothesis claim: \"Sometimes it takes a minute.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_6192b87998b42460ab4f",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"The local end says link up.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_a0064bae45a133afe62f",
+          "metric": "claims.precision",
+          "reason": "unsupported identity claim: \"Joonas Kemppainen is a Field Engineer\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_f268f5f1fd051a63a781",
+          "metric": "claims.precision",
+          "reason": "unsupported identity claim: \"Helena Ketola is a Transport Expert\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "XC-325",
+          "metric": "entities.recall",
+          "reason": "entity \"XC-325\" not found",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "attempt_654def470cc1de25f61f",
+          "metric": "attribution.attemptPerformer",
+          "reason": "attributed to person:directory:helena-ketola, truth person:directory:joonas-kemppainen",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "case_6d448379f97d5be1bfbc",
+          "metric": "resolution.statusAccuracy",
+          "reason": "status open, truth verified-resolved",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected qualified"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (traffic.state)"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "question.wrongRecipientRate",
+          "reason": "asked person:directory:helena-ketola, answerers person:directory:joonas-kemppainen"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "question.unnecessaryQuestionRate",
+          "reason": "asked 1 question(s) where none was needed"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@1.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@3.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@3.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@3.accessible.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@3.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "ROOF-21",
+          "metric": "entities.recall",
+          "reason": "entity \"ROOF-21\" not found",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "ROOF-31",
+          "metric": "entities.recall",
+          "reason": "entity \"ROOF-31\" not found",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "case_8ff9d879209fe96768b6",
+          "metric": "cases.falseMergeRate",
+          "reason": "case merges incidents A, C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "attempt_2fac2c8cbe4ee132e9ce",
+          "metric": "attribution.attemptPerformer",
+          "reason": "attributed to person:directory:antero-lahtinen, truth person:directory:kalevi-heino",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_22152b2e7e0f5dd1739b",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:sari-kivela has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_8bfb792ba519fb3c4e01",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:sari-kivela has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_6458491c271a7bc37772",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:heikki-moilanen has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "case_8ff9d879209fe96768b6",
+          "metric": "resolution.statusAccuracy",
+          "reason": "status open, truth verified-resolved",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected check-first"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "familyId": "rooftop-threshold",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (software.version)"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@1.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@3.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@3.accessible.linking.recall",
+          "reason": "related incident A not linked",
+          "familyId": "rooftop-threshold"
+        }
+      ],
+      "failureSlicesByTag": {
+        "missing-outcome": {
+          "count": 34,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "wrong-recipient-trap": {
+          "count": 34,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "conflicting-conditions": {
+          "count": 34,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "duplicate-report": {
+          "count": 34,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "lookalike-different-cause": {
+          "count": 34,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "same-incident-continuation": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "no-answer": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "access-fact": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "no-question-needed": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "useful-no": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        }
+      }
+    },
+    {
+      "variantId": "local-trigram",
+      "provenance": "measured",
+      "split": "test",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "claims.observation.recall": {
+          "value": 0.25,
+          "numerator": 1,
+          "denominator": 4
+        },
+        "claims.hypothesis.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.hypothesis.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "claims.advice.precision": {
+          "value": 0.5,
+          "numerator": 2,
+          "denominator": 4
+        },
+        "claims.advice.recall": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "claims.action.precision": null,
+        "claims.action.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "claims.outcome.precision": null,
+        "claims.outcome.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "claims.condition.precision": {
+          "value": 0.4,
+          "numerator": 2,
+          "denominator": 5
+        },
+        "claims.condition.recall": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "claims.identity.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        },
+        "claims.identity.recall": null,
+        "claims.all.precision": {
+          "value": 0.2631578947368421,
+          "numerator": 5,
+          "denominator": 19
+        },
+        "claims.all.recall": {
+          "value": 0.25,
+          "numerator": 5,
+          "denominator": 20
+        },
+        "entities.recall": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "cases.falseMergeRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.attemptPerformerErrorRate": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "attribution.attemptPerformedStateErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "attribution.attemptsNotInTruthRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "attribution.outcomeReporterErrorRate": null,
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0.21428571428571427,
+          "numerator": 3,
+          "denominator": 14
+        },
+        "copies.overcountRate": null,
+        "resolution.statusAccuracy": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "resolution.falseSolvedRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "resolution.falseConfirmedOutcomeRate": null,
+        "recommendation.kindAccuracy": {
+          "value": 0.16666666666666666,
+          "numerator": 1,
+          "denominator": 6
+        },
+        "recommendation.majorityBaselineKindAccuracy": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "recommendation.supportedApplicableRate": null,
+        "recommendation.falseAdviceRate": null,
+        "recommendation.eligibleCoverage": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "recommendation.missedOpportunityRate": {
+          "value": 1,
+          "numerator": 3,
+          "denominator": 3
+        },
+        "question.gapFoundRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "question.unnecessaryQuestionRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "question.wrongRecipientRate": {
+          "value": 1,
+          "numerator": 1,
+          "denominator": 1
+        },
+        "question.questionsPerInvestigation": {
+          "value": 0.3333333333333333,
+          "numerator": 2,
+          "denominator": 6
+        },
+        "question.unansweredRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "@1.linking.recall": {
+          "value": 0.8571428571428571,
+          "numerator": 6,
+          "denominator": 7
+        },
+        "@1.linking.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 6,
+          "denominator": 9
+        },
+        "@1.accessible.linking.recall": {
+          "value": 0.8571428571428571,
+          "numerator": 6,
+          "denominator": 7
+        },
+        "@1.accessible.linking.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 6,
+          "denominator": 9
+        },
+        "@3.linking.recall": {
+          "value": 1,
+          "numerator": 7,
+          "denominator": 7
+        },
+        "@3.linking.precision": {
+          "value": 0.5833333333333334,
+          "numerator": 7,
+          "denominator": 12
+        },
+        "@3.accessible.linking.recall": {
+          "value": 1,
+          "numerator": 7,
+          "denominator": 7
+        },
+        "@3.accessible.linking.precision": {
+          "value": 0.5833333333333334,
+          "numerator": 7,
+          "denominator": 12
+        },
+        "access.leakageRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 26
+        },
+        "access.shownRestrictedEvidenceRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 29
+        },
+        "retrieval.lookalikeTop1Rate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "question.answeredRate": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "claims.access-fact.precision": null,
+        "claims.access-fact.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "efficiency.meanLatencyMs": {
+          "value": 1.3717913333333343,
+          "numerator": 8.230748000000006,
+          "denominator": 6
+        },
+        "routing.answerableRoutingRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "benefit.meanPerInvestigation": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 1,
+        "claims.observation.unknown": 0,
+        "claims.hypothesis.ambiguous": 0,
+        "claims.hypothesis.unknown": 0,
+        "claims.advice.ambiguous": 0,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 1,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 0,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 1,
+        "claims.condition.unknown": 0,
+        "claims.identity.ambiguous": 0,
+        "claims.identity.unknown": 0,
+        "claims.all.ambiguous": 4,
+        "claims.all.unknown": 0,
+        "entities.systemNonPerson": 3,
+        "entities.extraNonTruth": 0,
+        "cases.missingIncidents": 0,
+        "attribution.claimPersonUnattributed": 0,
+        "attribution.attemptsNotInTruth": 0,
+        "recommendation.problemsWithoutOutput": 0,
+        "question.missedConsequentialGaps": 2,
+        "question.hardRuleViolations": 0,
+        "question.askedUnavailable": 0,
+        "question.gapsNobodyAvailableCanAnswer": 1,
+        "question.maxInterruptionsPerPerson": 2,
+        "question.investigationsEvaluated": 6,
+        "question.asked": 2,
+        "question.answered": 2,
+        "claims.access-fact.ambiguous": 1,
+        "claims.access-fact.unknown": 0,
+        "efficiency.p50LatencyMs": 0.5799169999999947,
+        "efficiency.p95LatencyMs": 3.2971660000000043,
+        "efficiency.maxLatencyMs": 3.2971660000000043,
+        "efficiency.samples": 6,
+        "efficiency.calls": null,
+        "efficiency.tokens": null,
+        "burden.duplicateQuestions": 0,
+        "burden.cancelledDuplicate": 0,
+        "burden.cancelledObsoleteOrResolved": 0,
+        "burden.unansweredQuestions": 0,
+        "burden.maxQuestionsToOnePersonPerFamily": 2,
+        "burden.questionsTotal": 2,
+        "burden.investigationLoopsHittingRoundCap": 0
+      },
+      "failures": [
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed hypothesis claim: \"On XC-4 revision C cards the transmit laser stays disabled after a hot swap until the card is power cycled\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "A#4",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"Joonas power cycled card 3 on XC-318\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#1",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"After the optic replacement XC-122 had no traffic\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#2",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"The line card on XC-122 was reseated\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#3",
+          "metric": "claims.recall",
+          "reason": "missed outcome claim: \"Traffic came back straight away and XC-122 has been stable for three months\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#4",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"XC-2 units never needed a power cycle\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_f0544111e48ef3303f84",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"After the optic was replaced there was no traffic.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_17d73c002d41432fbe70",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"We reseated the line card and traffic came back straight away.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_97759e9c638474db5f5e",
+          "metric": "claims.precision",
+          "reason": "unsupported hypothesis claim: \"Sometimes it takes a minute.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_6192b87998b42460ab4f",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"The local end says link up.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_a0064bae45a133afe62f",
+          "metric": "claims.precision",
+          "reason": "unsupported identity claim: \"Joonas Kemppainen is a Field Engineer\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_f268f5f1fd051a63a781",
+          "metric": "claims.precision",
+          "reason": "unsupported identity claim: \"Helena Ketola is a Transport Expert\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "XC-325",
+          "metric": "entities.recall",
+          "reason": "entity \"XC-325\" not found",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "attempt_654def470cc1de25f61f",
+          "metric": "attribution.attemptPerformer",
+          "reason": "attributed to person:directory:helena-ketola, truth person:directory:joonas-kemppainen",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "case_6d448379f97d5be1bfbc",
+          "metric": "resolution.statusAccuracy",
+          "reason": "status open, truth verified-resolved",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected qualified"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (traffic.state)"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "question.wrongRecipientRate",
+          "reason": "asked person:directory:helena-ketola, answerers person:directory:joonas-kemppainen"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "question.unnecessaryQuestionRate",
+          "reason": "asked 1 question(s) where none was needed"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "ROOF-21",
+          "metric": "entities.recall",
+          "reason": "entity \"ROOF-21\" not found",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "ROOF-31",
+          "metric": "entities.recall",
+          "reason": "entity \"ROOF-31\" not found",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "case_8ff9d879209fe96768b6",
+          "metric": "cases.falseMergeRate",
+          "reason": "case merges incidents A, C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "attempt_2fac2c8cbe4ee132e9ce",
+          "metric": "attribution.attemptPerformer",
+          "reason": "attributed to person:directory:antero-lahtinen, truth person:directory:kalevi-heino",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_22152b2e7e0f5dd1739b",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:sari-kivela has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_8bfb792ba519fb3c4e01",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:sari-kivela has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_6458491c271a7bc37772",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:heikki-moilanen has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "case_8ff9d879209fe96768b6",
+          "metric": "resolution.statusAccuracy",
+          "reason": "status open, truth verified-resolved",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected check-first"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "familyId": "rooftop-threshold",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (software.version)"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        }
+      ],
+      "failureSlicesByTag": {
+        "missing-outcome": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "wrong-recipient-trap": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "conflicting-conditions": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "duplicate-report": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "lookalike-different-cause": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "same-incident-continuation": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "no-answer": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "access-fact": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "no-question-needed": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "useful-no": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        }
+      }
+    },
+    {
+      "variantId": "hybrid-rrf",
+      "provenance": "measured",
+      "split": "test",
+      "metrics": {
+        "claims.observation.precision": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "claims.observation.recall": {
+          "value": 0.25,
+          "numerator": 1,
+          "denominator": 4
+        },
+        "claims.hypothesis.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "claims.hypothesis.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "claims.advice.precision": {
+          "value": 0.5,
+          "numerator": 2,
+          "denominator": 4
+        },
+        "claims.advice.recall": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "claims.action.precision": null,
+        "claims.action.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "claims.outcome.precision": null,
+        "claims.outcome.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "claims.condition.precision": {
+          "value": 0.4,
+          "numerator": 2,
+          "denominator": 5
+        },
+        "claims.condition.recall": {
+          "value": 0.6666666666666666,
+          "numerator": 2,
+          "denominator": 3
+        },
+        "claims.identity.precision": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        },
+        "claims.identity.recall": null,
+        "claims.all.precision": {
+          "value": 0.2631578947368421,
+          "numerator": 5,
+          "denominator": 19
+        },
+        "claims.all.recall": {
+          "value": 0.25,
+          "numerator": 5,
+          "denominator": 20
+        },
+        "entities.recall": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "cases.falseMergeRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "cases.falseSplitRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 4
+        },
+        "attribution.claimPersonErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "attribution.attemptPerformerErrorRate": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "attribution.attemptPerformedStateErrorRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "attribution.attemptsNotInTruthRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "attribution.outcomeReporterErrorRate": null,
+        "attribution.firsthandLinkErrorRate": {
+          "value": 0.21428571428571427,
+          "numerator": 3,
+          "denominator": 14
+        },
+        "copies.overcountRate": null,
+        "resolution.statusAccuracy": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "resolution.falseSolvedRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1
+        },
+        "resolution.falseConfirmedOutcomeRate": null,
+        "recommendation.kindAccuracy": {
+          "value": 0.16666666666666666,
+          "numerator": 1,
+          "denominator": 6
+        },
+        "recommendation.majorityBaselineKindAccuracy": {
+          "value": 0.5,
+          "numerator": 3,
+          "denominator": 6
+        },
+        "recommendation.supportedApplicableRate": null,
+        "recommendation.falseAdviceRate": null,
+        "recommendation.eligibleCoverage": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 5
+        },
+        "recommendation.missedOpportunityRate": {
+          "value": 1,
+          "numerator": 3,
+          "denominator": 3
+        },
+        "question.gapFoundRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "question.unnecessaryQuestionRate": {
+          "value": 0.3333333333333333,
+          "numerator": 1,
+          "denominator": 3
+        },
+        "question.wrongRecipientRate": {
+          "value": 1,
+          "numerator": 1,
+          "denominator": 1
+        },
+        "question.questionsPerInvestigation": {
+          "value": 0.3333333333333333,
+          "numerator": 2,
+          "denominator": 6
+        },
+        "question.unansweredRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "@1.linking.recall": {
+          "value": 0.8571428571428571,
+          "numerator": 6,
+          "denominator": 7
+        },
+        "@1.linking.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 6,
+          "denominator": 9
+        },
+        "@1.accessible.linking.recall": {
+          "value": 0.8571428571428571,
+          "numerator": 6,
+          "denominator": 7
+        },
+        "@1.accessible.linking.precision": {
+          "value": 0.6666666666666666,
+          "numerator": 6,
+          "denominator": 9
+        },
+        "@3.linking.recall": {
+          "value": 1,
+          "numerator": 7,
+          "denominator": 7
+        },
+        "@3.linking.precision": {
+          "value": 0.5833333333333334,
+          "numerator": 7,
+          "denominator": 12
+        },
+        "@3.accessible.linking.recall": {
+          "value": 1,
+          "numerator": 7,
+          "denominator": 7
+        },
+        "@3.accessible.linking.precision": {
+          "value": 0.5833333333333334,
+          "numerator": 7,
+          "denominator": 12
+        },
+        "access.leakageRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 26
+        },
+        "access.shownRestrictedEvidenceRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 29
+        },
+        "retrieval.lookalikeTop1Rate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "question.answeredRate": {
+          "value": 1,
+          "numerator": 2,
+          "denominator": 2
+        },
+        "claims.access-fact.precision": null,
+        "claims.access-fact.recall": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 3
+        },
+        "efficiency.meanLatencyMs": {
+          "value": 1.313180833333334,
+          "numerator": 7.8790850000000034,
+          "denominator": 6
+        },
+        "routing.answerableRoutingRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 2
+        },
+        "benefit.meanPerInvestigation": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 6
+        }
+      },
+      "counts": {
+        "claims.observation.ambiguous": 1,
+        "claims.observation.unknown": 0,
+        "claims.hypothesis.ambiguous": 0,
+        "claims.hypothesis.unknown": 0,
+        "claims.advice.ambiguous": 0,
+        "claims.advice.unknown": 0,
+        "claims.action.ambiguous": 1,
+        "claims.action.unknown": 0,
+        "claims.outcome.ambiguous": 0,
+        "claims.outcome.unknown": 0,
+        "claims.condition.ambiguous": 1,
+        "claims.condition.unknown": 0,
+        "claims.identity.ambiguous": 0,
+        "claims.identity.unknown": 0,
+        "claims.all.ambiguous": 4,
+        "claims.all.unknown": 0,
+        "entities.systemNonPerson": 3,
+        "entities.extraNonTruth": 0,
+        "cases.missingIncidents": 0,
+        "attribution.claimPersonUnattributed": 0,
+        "attribution.attemptsNotInTruth": 0,
+        "recommendation.problemsWithoutOutput": 0,
+        "question.missedConsequentialGaps": 2,
+        "question.hardRuleViolations": 0,
+        "question.askedUnavailable": 0,
+        "question.gapsNobodyAvailableCanAnswer": 1,
+        "question.maxInterruptionsPerPerson": 2,
+        "question.investigationsEvaluated": 6,
+        "question.asked": 2,
+        "question.answered": 2,
+        "claims.access-fact.ambiguous": 1,
+        "claims.access-fact.unknown": 0,
+        "efficiency.p50LatencyMs": 0.615083999999996,
+        "efficiency.p95LatencyMs": 2.906374999999997,
+        "efficiency.maxLatencyMs": 2.906374999999997,
+        "efficiency.samples": 6,
+        "efficiency.calls": null,
+        "efficiency.tokens": null,
+        "burden.duplicateQuestions": 0,
+        "burden.cancelledDuplicate": 0,
+        "burden.cancelledObsoleteOrResolved": 0,
+        "burden.unansweredQuestions": 0,
+        "burden.maxQuestionsToOnePersonPerFamily": 2,
+        "burden.questionsTotal": 2,
+        "burden.investigationLoopsHittingRoundCap": 0
+      },
+      "failures": [
+        {
+          "id": "A#2",
+          "metric": "claims.recall",
+          "reason": "missed hypothesis claim: \"On XC-4 revision C cards the transmit laser stays disabled after a hot swap until the card is power cycled\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "A#4",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"Joonas power cycled card 3 on XC-318\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#1",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"After the optic replacement XC-122 had no traffic\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#2",
+          "metric": "claims.recall",
+          "reason": "missed action claim: \"The line card on XC-122 was reseated\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#3",
+          "metric": "claims.recall",
+          "reason": "missed outcome claim: \"Traffic came back straight away and XC-122 has been stable for three months\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "B#4",
+          "metric": "claims.recall",
+          "reason": "missed observation claim: \"XC-2 units never needed a power cycle\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_f0544111e48ef3303f84",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"After the optic was replaced there was no traffic.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_17d73c002d41432fbe70",
+          "metric": "claims.precision",
+          "reason": "unsupported observation claim: \"We reseated the line card and traffic came back straight away.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_97759e9c638474db5f5e",
+          "metric": "claims.precision",
+          "reason": "unsupported hypothesis claim: \"Sometimes it takes a minute.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_6192b87998b42460ab4f",
+          "metric": "claims.precision",
+          "reason": "unsupported condition claim: \"The local end says link up.\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_a0064bae45a133afe62f",
+          "metric": "claims.precision",
+          "reason": "unsupported identity claim: \"Joonas Kemppainen is a Field Engineer\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "claim_f268f5f1fd051a63a781",
+          "metric": "claims.precision",
+          "reason": "unsupported identity claim: \"Helena Ketola is a Transport Expert\"",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "XC-325",
+          "metric": "entities.recall",
+          "reason": "entity \"XC-325\" not found",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "attempt_654def470cc1de25f61f",
+          "metric": "attribution.attemptPerformer",
+          "reason": "attributed to person:directory:helena-ketola, truth person:directory:joonas-kemppainen",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "case_6d448379f97d5be1bfbc",
+          "metric": "resolution.statusAccuracy",
+          "reason": "status open, truth verified-resolved",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "familyId": "transponder-laser",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected qualified"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (traffic.state)"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "familyId": "transponder-laser",
+          "metric": "question.wrongRecipientRate",
+          "reason": "asked person:directory:helena-ketola, answerers person:directory:joonas-kemppainen"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "familyId": "transponder-laser",
+          "metric": "question.unnecessaryQuestionRate",
+          "reason": "asked 1 question(s) where none was needed"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@1.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p3",
+          "metric": "@1.accessible.linking.recall",
+          "reason": "related incident B not linked",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p1",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident B",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "transponder-laser-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "transponder-laser"
+        },
+        {
+          "id": "ROOF-21",
+          "metric": "entities.recall",
+          "reason": "entity \"ROOF-21\" not found",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "ROOF-31",
+          "metric": "entities.recall",
+          "reason": "entity \"ROOF-31\" not found",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "case_8ff9d879209fe96768b6",
+          "metric": "cases.falseMergeRate",
+          "reason": "case merges incidents A, C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "attempt_2fac2c8cbe4ee132e9ce",
+          "metric": "attribution.attemptPerformer",
+          "reason": "attributed to person:directory:antero-lahtinen, truth person:directory:kalevi-heino",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_22152b2e7e0f5dd1739b",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:sari-kivela has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_8bfb792ba519fb3c4e01",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:sari-kivela has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "plink_6458491c271a7bc37772",
+          "metric": "attribution.firsthandLink",
+          "reason": "person:directory:heikki-moilanen has no firsthand knowledge of incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "case_8ff9d879209fe96768b6",
+          "metric": "resolution.statusAccuracy",
+          "reason": "status open, truth verified-resolved",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected reuse"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.missedOpportunityRate",
+          "reason": "none but key expects reuse"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "familyId": "rooftop-threshold",
+          "metric": "recommendation.kindAccuracy",
+          "reason": "kind none, expected check-first"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "familyId": "rooftop-threshold",
+          "metric": "question.gapFoundRate",
+          "reason": "consequential gap not asked about (software.version)"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@1.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@1.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@3.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p1",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident A",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p2",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        },
+        {
+          "id": "rooftop-threshold-p3",
+          "metric": "@3.accessible.linking.precision",
+          "reason": "linked unrelated incident C",
+          "familyId": "rooftop-threshold"
+        }
+      ],
+      "failureSlicesByTag": {
+        "missing-outcome": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "wrong-recipient-trap": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "conflicting-conditions": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "duplicate-report": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "lookalike-different-cause": {
+          "count": 30,
+          "ids": [
+            "A#2",
+            "A#4",
+            "B#1",
+            "B#2",
+            "B#3",
+            "B#4",
+            "claim_f0544111e48ef3303f84",
+            "claim_17d73c002d41432fbe70",
+            "claim_97759e9c638474db5f5e",
+            "claim_6192b87998b42460ab4f",
+            "claim_a0064bae45a133afe62f",
+            "claim_f268f5f1fd051a63a781",
+            "claim_ff73d6129b2857a26fce",
+            "XC-325",
+            "attempt_654def470cc1de25f61f",
+            "case_6d448379f97d5be1bfbc",
+            "transponder-laser-p1",
+            "transponder-laser-p2",
+            "transponder-laser-p3"
+          ]
+        },
+        "same-incident-continuation": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "no-answer": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "access-fact": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "no-question-needed": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        },
+        "useful-no": {
+          "count": 40,
+          "ids": [
+            "A#0",
+            "A#1",
+            "A#2",
+            "A#4",
+            "A#5",
+            "A#6",
+            "C#0",
+            "C#1",
+            "C#2",
+            "claim_05ef80b9879da2844fae",
+            "claim_65e4df1f4d7c48938f06",
+            "claim_3c8ff426467ba05de9eb",
+            "claim_3ec0b6ad322cb8a7ec8c",
+            "claim_f9c1af688c3a26f845c7",
+            "claim_33cc79659cdf27b384cb",
+            "claim_4cdcb64870e4cc1b4511",
+            "ROOF-21",
+            "ROOF-31",
+            "case_8ff9d879209fe96768b6",
+            "attempt_2fac2c8cbe4ee132e9ce",
+            "plink_22152b2e7e0f5dd1739b",
+            "plink_8bfb792ba519fb3c4e01",
+            "plink_6458491c271a7bc37772",
+            "rooftop-threshold-p1",
+            "rooftop-threshold-p3",
+            "rooftop-threshold-p2"
+          ]
+        }
+      }
+    }
+  ],
+  "notes": [
+    "Decision split: test. recall@3 hybrid 1.000 (7/7) vs lexical 1.000 (7/7) -> met; lookalike-top-1 hybrid 0.000 (0/3) vs lexical 0.000 (0/3) -> met. Shipped: hybrid.",
+    "The decision splits contain few families, so single problems move the rates; denominators are in every metric.",
+    "Same-recall ties favour neither side: the frozen rule needs hybrid >= lexical on recall and <= on lookalike rate."
+  ]
+}

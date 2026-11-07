@@ -1,0 +1,75 @@
+{
+  "datasetVersion": "1.0.0",
+  "visibleInputs": [
+    "sources/ (through the scenario-dir importer)",
+    "people.json",
+    "incoming problem text",
+    "incoming observations"
+  ],
+  "route": "mixed",
+  "resourceCap": {
+    "maxWallSeconds": 600,
+    "networkCalls": 0
+  },
+  "startedAt": "2026-11-07T01:06:46.863Z",
+  "id": "e02-retrieval",
+  "hypothesis": "Hybrid lexical+exact retrieval beats lexical alone on relevant-case recall@3 without raising lookalike selection (same cases, same access filters, same assessor and question settings).",
+  "splits": [
+    "demo",
+    "train",
+    "validation"
+  ],
+  "variants": [
+    {
+      "id": "lexical-bm25",
+      "description": "BM25 only",
+      "route": "rules"
+    },
+    {
+      "id": "exact-id",
+      "description": "exact identifier / alias match only",
+      "route": "rules"
+    },
+    {
+      "id": "local-trigram",
+      "description": "hashed character-trigram vectors (local, not learned)",
+      "route": "local"
+    },
+    {
+      "id": "hybrid-rrf",
+      "description": "BM25 + exact id + local trigram, reciprocal rank fusion",
+      "route": "local"
+    }
+  ],
+  "config": {
+    "k": 8,
+    "filters": "requester access filter inside buildCorpus",
+    "decisionSplit": "validation",
+    "primaryMetrics": [
+      "@3.linking.recall",
+      "retrieval.lookalikeTop1Rate"
+    ],
+    "lookalikeDefinition": "top-1 candidate case maps to an incident outside key.relatedIncidentKeys, over problems tagged lookalike-different-cause (per-problem table in scoring.ts)",
+    "recallNote": "@N.linking.recall counts related incidents the requester may not see as misses for every variant; @N.accessible.* excludes them"
+  },
+  "seeds": [
+    0
+  ],
+  "metrics": [
+    "@1.linking.recall",
+    "@3.linking.recall",
+    "@1.accessible.linking.recall",
+    "@3.accessible.linking.recall",
+    "@3.linking.precision",
+    "retrieval.lookalikeTop1Rate",
+    "recommendation.kindAccuracy",
+    "recommendation.falseAdviceRate",
+    "recommendation.eligibleCoverage",
+    "recommendation.missedOpportunityRate",
+    "question.gapFoundRate"
+  ],
+  "acceptanceCriteria": [
+    "hybrid recall@3 >= lexical recall@3 AND hybrid lookalike-top-1 rate <= lexical -> ship hybrid; else lexical (EXPERIMENT_PLAN.md E02, applied to validation)"
+  ],
+  "stopRule": "deterministic; none"
+}

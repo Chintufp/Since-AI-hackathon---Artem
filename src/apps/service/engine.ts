@@ -22,6 +22,7 @@ import { awardPoints, balanceOf, revokeContribution, type ParticipationKind } fr
 import { applyDirectory } from './directory.ts';
 import { resetDemo } from './demo.ts';
 import { DEFAULT_ACTIVITY_LOG, readActivity, type ActivityResponse } from './activity.ts';
+import { activityPage } from './activity-page.ts';
 import { createDemoClock, type DemoClock, type DemoClockStatus } from './demo-clock.ts';
 import { DEFAULT_DB_PATH } from './paths.ts';
 import { badRequest, conflict, forbidden, notFound, toServiceError } from './errors.ts';
@@ -693,6 +694,10 @@ export class Engine {
 
   activity(query: { since?: number; limit?: number }): ActivityResponse {
     return readActivity(this.activityLogPath(), query);
+  }
+
+  activityPage(): string {
+    return activityPage();
   }
 }
 

@@ -1,0 +1,78 @@
+/**
+ * Standalone page for a browser tab next to the companion. Same type scale and palette as the panel (Inter, #252729
+ * text, white 16 px cards); plain HTML, no framework, polls the JSON route every two seconds.
+ */
+export function activityPage(): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knowledge Twin · simulated activity</title>
+<style>
+  :root { color-scheme: light; }
+  html, body { margin: 0; background: #ebecee; color: #252729; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 0 0 14px; }
+  h1 { font-size: 19px; font-weight: 500; letter-spacing: -.035em; margin: 0; }
+  .meta { font-size: 11px; color: #838990; letter-spacing: .025em; }
+  .badge { display: inline-block; font-size: 11px; color: #74777b; background: #f4f5f5; border-radius: 5px; padding: 4px 7px; margin-left: 6px; }
+  .card { background: #fff; border: 1px solid #e3e4e5; border-radius: 16px; box-shadow: 0 7px 20px #22242b08, 0 1px 3px #22242b05; padding: 6px 24px; margin: 0 0 12px; }
+  .intro { font-size: 12px; color: #676e74; line-height: 1.45; padding: 14px 0; }
+  .row { display: grid; grid-template-columns: 52px 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid #f0f1f2; }
+  .row:first-child { border-top: 0; }
+  .time { font-size: 11px; color: #838990; letter-spacing: .025em; padding-top: 3px; font-variant-numeric: tabular-nums; }
+  .text { font-size: 14px; line-height: 1.45; letter-spacing: -.01em; }
+  .why { font-size: 12px; color: #676e74; line-height: 1.45; margin-top: 3px; }
+  .kind { font-size: 11px; color: #838990; letter-spacing: .025em; margin-top: 4px; }
+  .row[data-kind="question"] .text::before { content: "?"; display: inline-block; width: 16px; color: #8b939a; }
+  .row[data-kind="answer"] .text::before { content: "·"; display: inline-block; width: 16px; color: #8b939a; }
+  .row[data-foryou="true"] { background: #f7f8f8; margin: 0 -24px; padding-left: 24px; padding-right: 24px; }
+  .row[data-foryou="true"] .kind { color: #303438; }
+  .empty { font-size: 13px; color: #7f8489; padding: 18px 0; }
+  @media (max-width: 480px) { main { padding: 16px 16px 40px; } .row { grid-template-columns: 44px 1fr; gap: 8px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Simulated activity<span class="badge">simulated · local · no model calls</span></h1>
+    <div class="meta" id="meta">waiting for the stream…</div>
+  </header>
+  <section class="card">
+    <p class="intro">A scripted day, sped up: chats and e-mails arrive, simulated engineers ask the service, the real question coordinator picks who to ask (within daily limits, cooldowns and access rules) and simulated colleagues answer after a while. Nothing here is a real person; rows marked <b>for you</b> involve the person chosen under Settings → You in the companion.</p>
+  </section>
+  <section class="card" id="rows"><p class="empty">No activity yet. Start <code>pnpm demo:play</code> (or <code>pnpm demo:judge</code>).</p></section>
+</main>
+<script>
+(function () {
+  var rowsEl = document.getElementById('rows'), metaEl = document.getElementById('meta');
+  var seen = 0, started = false;
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+  function hhmm(iso) { var d = new Date(iso); if (isNaN(d)) return ''; return d.toTimeString().slice(0, 5); }
+  function render(rows) {
+    if (!started) { rowsEl.innerHTML = ''; started = true; }
+    rows.forEach(function (r) {
+      var div = document.createElement('div');
+      div.className = 'row'; div.dataset.kind = r.kind; div.dataset.foryou = r.forYou ? 'true' : 'false';
+      var who = r.who ? '<span class="kind">' + esc(r.who) + (r.forYou ? ' · for you' : '') + '</span>' : (r.forYou ? '<span class="kind">for you</span>' : '');
+      div.innerHTML = '<div class="time">' + esc(hhmm(r.at)) + '</div><div><div class="text">' + esc(r.text) + '</div>' + (r.why ? '<div class="why">' + esc(r.why) + '</div>' : '') + who + '</div>';
+      rowsEl.appendChild(div);
+    });
+    if (rows.length) window.scrollTo(0, document.body.scrollHeight);
+  }
+  function tick() {
+    fetch('/demo/activity?since=' + seen, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (a) {
+      if (a.rows.length) { render(a.rows); seen = a.rows[a.rows.length - 1].seq; }
+      fetch('/demo/clock', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (c) {
+        metaEl.textContent = (c.mode === 'simulated' ? 'simulated clock ' : 'real clock ') + hhmm(c.now) + ' · ' + a.total + ' rows' + (a.present ? '' : ' · log not found');
+      }).catch(function () {});
+    }).catch(function () { metaEl.textContent = 'service not reachable'; });
+  }
+  tick(); setInterval(tick, 2000);
+})();
+</script>
+</body>
+</html>
+`;
+}

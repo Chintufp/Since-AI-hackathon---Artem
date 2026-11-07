@@ -124,6 +124,8 @@ export interface ApiRoutes {
   'POST /demo/clock': { req: { now?: string | null; rate?: number }; res: DemoClockView };
   /** Tail of the simulated activity log (JSONL under data/local/, written by scripts/demo-play.ts). Read-only; always labelled simulated. */
   'GET /demo/activity': { query: { since?: number; limit?: number }; res: ActivityView };
+  /** Standalone local page (text/html) that polls GET /demo/activity, for a browser tab next to the companion. */
+  'GET /demo/activity.html': { res: string };
 }
 
 export interface DemoClockView {

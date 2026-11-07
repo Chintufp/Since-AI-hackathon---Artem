@@ -46,15 +46,51 @@ export interface ParticipationEvent {
   contributionEventId: string;
   kind: 'answer-yes' | 'answer-no' | 'answer-unknown' | 'correction' | 'evidence' | 'outcome-report' | 'defer' | 'dismiss';
   points: number;
+  /** Neutral wording only ("Answered a question (yes)"); never question, evidence or report text. */
   summary: string;
+  /** The question, investigation or evidence id the contribution belongs to (an id, never text). */
+  refId?: string;
   at: Iso;
+}
+
+/** One record per person: whether they take part in points. Absent means no (R46). */
+export interface ParticipationOptIn {
+  id: string;
+  orgId: string;
+  personEntityId: string;
+  participates: boolean;
+  /** When the current choice was made. */
+  since: Iso;
 }
 
 export interface ParticipationBalance {
   personEntityId: string;
+  /** False: the person does not take part; points and events are then empty (rows are kept, not served). */
+  participates: boolean;
   points: number;
   events: ParticipationEvent[];
-  enabled: boolean;
+}
+
+export interface ParticipationRow {
+  personEntityId: string;
+  displayName: string;
+  /** All-time points. */
+  balance: number;
+  /** Points in the last 7 days. */
+  recent: number;
+  answered: number;
+  outcomes: number;
+  /** 1-based, by balance (ties share a rank). */
+  rank: number;
+}
+
+/** Rating among the people who take part. Nobody else appears, in any field. */
+export interface ParticipationRating {
+  period: { recentDays: number; recentFrom: Iso };
+  /** The requesting person, when they take part; null otherwise (or when no person was given). */
+  me: { personEntityId: string; balance: number; recent: number; rank: number; events: ParticipationEvent[] } | null;
+  participants: ParticipationRow[];
+  totals: { participants: number; points: number; recent: number };
 }
 
 export interface UserSettings {

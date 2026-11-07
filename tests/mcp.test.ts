@@ -36,10 +36,10 @@ after(async () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('lists the 8 contract tools, each with a meaning-bearing description', async () => {
+test('lists the 9 contract tools, each with a meaning-bearing description', async () => {
   const { tools } = await client.listTools();
   assert.deepEqual(tools.map((t) => t.name).sort(), Object.keys(MCP_TOOLS).sort());
-  assert.equal(tools.length, 8);
+  assert.equal(tools.length, 9);
   const inv = tools.find((t) => t.name === 'kt_investigate')!;
   assert.match(inv.description ?? '', /not (a )?verified|not adoption/i);
 });

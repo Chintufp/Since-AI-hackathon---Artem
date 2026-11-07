@@ -23,7 +23,7 @@ test('health lists every contract route', async () => {
   const h = await svc.call('GET', '/health');
   assert.equal(h.ok, true);
   assert.ok(h.routes.includes('POST /investigate') && h.routes.includes('GET /events'));
-  assert.equal(h.routes.length, 29);
+  assert.equal(h.routes.length, 32);
 });
 
 test('import dev-family-01, then GET /cases has the cases', async () => {
@@ -127,31 +127,23 @@ test('GET /investigations/:id and /people use consistent ids; contact draft is r
   for (const t of ['investigation.started', 'question.answered', 'observation.recorded', 'outcome.reported', 'contact-draft.created']) assert.ok(types.includes(t), `missing trace ${t}`);
 });
 
-test('settings: points off by default; once on, an answer awards once and a retry does not double', async () => {
+test('settings: the points display switch is off by default and is not the opt-in (R46: tests/points.test.ts covers awards)', async () => {
   const s0 = await svc.call('GET', '/settings');
   assert.equal(s0.points, false);
+  const on = await svc.call('PUT', '/settings', { points: true });
+  assert.equal(on.points, true);
+  await svc.call('PUT', '/settings', { nonsense: 1 }, 400);
   const r = await svc.call('POST', '/investigate', { text: 'BGP flaps after firmware upgrade on edge router RTR-300 unit', principal: human('person:test:req2', 'Rune Requester', ['noc']) });
   const q = r.question as QuestionView | undefined;
   assert.ok(q, 'second investigation opens a question');
   const stored = svc.engine.store.get('question', q.questionId)!;
   const person = svc.engine.store.get('entity', stored.personEntityId)!;
   const p = human(person.id, person.name);
-  // off: nothing awarded
-  const bal0 = await svc.call('GET', `/participation/${encodeURIComponent(person.id)}`);
-  assert.equal(bal0.points, 0);
-  assert.equal(bal0.enabled, false);
-  const on = await svc.call('PUT', '/settings', { points: true });
-  assert.equal(on.points, true);
-  await svc.call('PUT', '/settings', { nonsense: 1 }, 400);
   const a1 = await svc.call('POST', `/questions/${encodeURIComponent(q.questionId)}/answer`, { principal: p, value: 'no' });
-  assert.ok(a1.receipt.pointsAwarded > 0);
-  const a2 = await svc.call('POST', `/questions/${encodeURIComponent(q.questionId)}/answer`, { principal: p, value: 'no' });
-  assert.equal(a2.receipt.pointsAwarded, undefined);
-  assert.equal(a2.answer.id, a1.answer.id);
-  const bal = await svc.call('GET', `/participation/${encodeURIComponent(person.id)}`);
-  assert.equal(bal.points, a1.receipt.pointsAwarded);
-  assert.equal(bal.events.length, 1);
-  assert.equal(bal.enabled, true);
+  assert.equal(a1.receipt.pointsAwarded, undefined, 'the display switch alone awards nothing');
+  const bal = await svc.call('GET', `/participation/${encodeURIComponent(person.id)}?principalId=${encodeURIComponent(person.id)}`);
+  assert.deepEqual(bal, { personEntityId: person.id, participates: false, points: 0, events: [] });
+  await svc.call('GET', `/participation/${encodeURIComponent(person.id)}?principalId=person:test:req2`, undefined, 403);
   await svc.call('POST', `/questions/${encodeURIComponent(q.questionId)}/answer`, { principal: p, value: 'yes' }, 409);
 });
 

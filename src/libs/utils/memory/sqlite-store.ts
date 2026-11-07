@@ -14,7 +14,7 @@ export interface SqliteKnowledgeStore extends KnowledgeStore {
 const RECORD_TYPES: RecordType[] = [
   'evidence', 'importBatch', 'connection', 'entity', 'claim', 'case', 'attempt', 'outcome', 'personLink',
   'pattern', 'procedure', 'observation', 'correction', 'investigation', 'question', 'decision', 'eligibility',
-  'answer', 'preference', 'outcomeReport', 'evaluation', 'participation', 'trace', 'settings',
+  'answer', 'preference', 'outcomeReport', 'evaluation', 'participation', 'participationOptin', 'trace', 'settings',
 ];
 
 /** JSON paths worth an expression index (applied to every table; cheap when the path is absent). */

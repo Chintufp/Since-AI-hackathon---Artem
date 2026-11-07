@@ -111,5 +111,10 @@ export function createMcpServer(engine: Engine, defaultPrincipal: Principal = DE
     { investigationId: z.string().min(1), principal: principalArg },
     (a) => engine.people(a.investigationId, asAgent(a.principal, defaultPrincipal).id));
 
+  reg('kt_participation',
+    'Read-only points rating (optional, per person): the people who chose to take part, each with all-time balance, last-7-day points, answers and outcome reports, and a rank; plus totals. Points count contributions and never judge whether an answer was correct. People who do not take part appear nowhere; pass personEntityId to learn whether one person takes part and their balance. Nobody\'s event history is returned.',
+    { personEntityId: z.string().min(1).optional().describe('A person entity id from kt_find_people, for their balance and rank') },
+    (a) => engine.participationForAgents(a.personEntityId));
+
   return server;
 }

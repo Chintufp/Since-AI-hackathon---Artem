@@ -16,7 +16,7 @@ export { parseTimeRef, timeFromEpochSeconds, compareTime, describeTime } from '.
 export { splitEmailBody, normalizeSubject, isReplySubject } from './quoted.ts';
 export type { QuotedSegment } from './quoted.ts';
 export { makeEnvelope, normName, resolveAccess } from './types.ts';
-export type { AdapterOptions, EnvelopeInput } from './types.ts';
+export type { AdapterOptions, EnvelopeInput, MembershipGrant } from './types.ts';
 
 const importOnly: ConnectorCapabilities = {
   historicalImport: true, incrementalChanges: false, sourceLookup: false, threadContext: true,

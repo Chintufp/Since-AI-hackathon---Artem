@@ -56,7 +56,7 @@ Errors are `{error: message}` with 400 (validation), 403 (not allowed / not reci
 Every tool takes `principal: {id, displayName, groups}` (always treated as type `agent`); omitted means a group-less default agent. Investigations belong to the principal that started them.
 
 ## Behavior worth knowing
-- Access: investigations run with the starter's principal; retrieval, case views, people and question timelines are filtered by it. A caller known to the directory (with groups) can never exceed the directory's groups; for unknown principals the claimed groups are trusted (the prototype does not authenticate).
+- Access: investigations run with the starter's principal; retrieval, case views, people and question timelines are filtered by it. A caller known to the directory (with groups) can never exceed the person's groups = directory groups plus source-derived channel memberships (a private Slack channel's members, recorded on the person as `member-of:<group>`, additive; the directory stays the authority for organization groups); for unknown principals the claimed groups are trusted (the prototype does not authenticate).
 - Question limits (daily, cooldown, max open, per-investigation) are the coordinator's hard eligibility; they apply to agents the same as to people. Configure through `EngineOptions.coordinator` / `investigation`.
 - Selector from settings `selectorId` (`rules` default; `linucb`, `epsilon-greedy`, `random`, `ranker-replay`; aliases bandit/ranker). Routes used appear on every result; nothing here calls a model provider.
 - Mutating calls append trace events (store `trace` table, mirrored into `InvestigationState.events`).
@@ -75,7 +75,7 @@ Every tool takes `principal: {id, displayName, groups}` (always treated as type 
 
 ## Fix pass notes
 - POST/PUT require `Content-Type: application/json` even with no body (blocks cross-origin simple requests such as a bodyless `/demo/reset`); send `{}`.
-- Directory persons are capped at their directory groups exactly, including an empty list.
+- Directory persons are capped at their directory groups plus source-derived memberships exactly, including an empty list. `applyDirectory` merges the two; it never drops a channel membership.
 - Undoing a cancellation is owner-only. Answering or dismissing a deferred question undoes the deferral first.
 - Malformed percent-encoded path parameters return 400.
 

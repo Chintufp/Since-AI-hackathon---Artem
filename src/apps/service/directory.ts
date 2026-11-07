@@ -1,12 +1,15 @@
 import type { AccessScope, Entity, KnowledgeStore } from '../../libs/utils/contracts/index.ts';
 import { stableId } from '../../libs/utils/contracts/index.ts';
+import { derivedGroupsOf } from '../../libs/utils/memory/membership.ts';
 import type { PeopleDirectory } from '../../libs/utils/contracts/index.ts';
 
 const norm = (s: string): string => s.toLowerCase().replace(/\s+/g, ' ').trim();
 
 /**
- * Merge the organization's visible directory (people.json) into person entities: groups become the entity's access
- * scope, role and availability become attributes, provider identities (and the directory id) become actor ids.
+ * Merge the organization's visible directory (people.json) into person entities. The directory is the authority for
+ * organization groups; memberships derived from sources (a private channel's member list, recorded on the person as
+ * `member-of:<group>`) are additive and always kept, so the entity's groups = directory groups + derived memberships.
+ * A directory person therefore never holds more than those two sources. Role and availability become attributes, provider identities (and the directory id) become actor ids.
  * People already created by an import are matched by actor id or name and keep their entity id.
  */
 export function applyDirectory(store: KnowledgeStore, orgId: string, directory: PeopleDirectory): number {
@@ -15,7 +18,10 @@ export function applyDirectory(store: KnowledgeStore, orgId: string, directory: 
     const persons = store.list('entity', { where: { type: 'person' } });
     const keys = new Set([p.id, ...p.actorIds]);
     const existing = persons.find((e) => e.id === p.id || (e.actorIds ?? []).some((a) => keys.has(a)) || norm(e.name) === norm(p.name));
-    const scope: AccessScope = p.groups.length > 0 ? { visibility: 'group', groups: [...p.groups] } : { visibility: 'org' };
+    const derived = existing ? derivedGroupsOf(existing) : [];
+    const groups = [...new Set([...p.groups, ...derived])];
+    const scope: AccessScope =
+      p.groups.length > 0 ? { visibility: 'group', groups } : groups.length > 0 ? { visibility: 'org', groups } : { visibility: 'org' };
     const base: Entity = existing ?? { id: p.id, orgId, type: 'person', name: p.name, aliases: [], attributes: {}, evidence: [], accessScope: scope };
     const entity: Entity = {
       ...base,

@@ -11,6 +11,8 @@ export interface SlackExportData {
   days: Array<{ channel: string; date: string; messages: SlackMessage[] }>;
 }
 
+const SKIP = new Set(['channel_join', 'channel_leave', 'group_join', 'group_leave']);
+
 export const SLACK_EXPORT_CONNECTION_ID = 'import:slack:export';
 
 /** Read the standard Slack export layout from a directory (users.json, channels.json, <channel>/<date>.json). */
@@ -35,10 +37,18 @@ export function readSlackExportDir(dir: string): SlackExportData {
 export function parseSlackExport(data: SlackExportData, opts: AdapterOptions): EvidenceEnvelope[] {
   const users = usersById(data.users);
   const byName = new Map(data.channels.map((c) => [c.name, c]));
+  // Members come from channels.json; when a channel lists none, the people who posted in it stand in as members.
+  const posters = new Map<string, Set<string>>();
+  for (const day of data.days) {
+    const set = posters.get(day.channel) ?? new Set<string>();
+    for (const m of day.messages) if (m.user && (!m.subtype || !SKIP.has(m.subtype))) set.add(m.user);
+    posters.set(day.channel, set);
+  }
   const out: EvidenceEnvelope[] = [];
   const connectionId = opts.connectionId ?? SLACK_EXPORT_CONNECTION_ID;
   for (const day of data.days) {
-    const channel = byName.get(day.channel) ?? { id: day.channel, name: day.channel };
+    const known = byName.get(day.channel) ?? { id: day.channel, name: day.channel };
+    const channel = known.members?.length ? known : { ...known, members: [...(posters.get(day.channel) ?? [])] };
     for (const m of day.messages) {
       const e = mapSlackMessage(m, { ...opts, connectionId, channel, users, reference: `${opts.reference ?? 'slack-export'}/${day.channel}/${day.date}.json#${m.ts}` });
       if (e) out.push(e);

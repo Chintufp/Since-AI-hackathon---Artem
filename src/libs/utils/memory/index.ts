@@ -11,6 +11,7 @@ import { commitProposal, refreshClaimSupport } from './commit.ts';
 import { defaultExtractionConfig, type ExtractionConfig } from './extraction-config.ts';
 import { extractFromContext } from './extractor-rules.ts';
 import { assignEpisodes } from './episodes.ts';
+import { applyMembershipGrants } from './membership.ts';
 
 export { openStore } from './sqlite-store.ts';
 export type { SqliteKnowledgeStore, StoreOptions } from './sqlite-store.ts';
@@ -23,6 +24,7 @@ export type { CorrectionResult } from './corrections.ts';
 export { canSee, restrictiveScope } from './access.ts';
 export { commitProposal, independentSources } from './commit.ts';
 export type { CommitOptions, CommitResult } from './commit.ts';
+export { applyMembershipGrants, derivedGroupsOf, MEMBER_ATTR_PREFIX } from './membership.ts';
 export { rebuildCase } from './case-builder.ts';
 export { createRulesExtractor, extractFromContext, RULES_ROUTE } from './extractor-rules.ts';
 export { defaultExtractionConfig } from './extraction-config.ts';
@@ -125,6 +127,7 @@ export function importFromPath(store: KnowledgeStore, req: ImportFromPathRequest
     r.entityIds.forEach((x) => entities.add(x));
     r.personEntityIds.forEach((x) => people.add(x));
   }
+  applyMembershipGrants(store, req.orgId, evidence);
   refreshClaimSupport(store, relinked, req.now);
   const sum = (k: keyof ImportBatch['counts']) => batches.reduce((n, b) => n + b.counts[k], 0);
   const batch: ImportBatch =

@@ -1,10 +1,10 @@
 import type { AttachmentRef, EvidenceEnvelope } from '../contracts/index.ts';
 import { timeFromEpochSeconds } from './time.ts';
-import { makeEnvelope, resolveAccess, type AdapterOptions } from './types.ts';
+import { makeEnvelope, resolveAccess, type AdapterOptions, type MembershipGrant } from './types.ts';
 
 /** Minimal shapes of Slack payloads (export files and Web API responses share them). */
 export interface SlackUser { id: string; name?: string; real_name?: string; profile?: { real_name?: string; display_name?: string }; is_bot?: boolean }
-export interface SlackChannel { id: string; name: string; is_private?: boolean; is_group?: boolean; is_im?: boolean; is_mpim?: boolean }
+export interface SlackChannel { id: string; name: string; is_private?: boolean; is_group?: boolean; is_im?: boolean; is_mpim?: boolean; members?: string[] }
 export interface SlackFile { id: string; name?: string; title?: string; mimetype?: string; size?: number; url_private?: string }
 export interface SlackMessage {
   ts: string; user?: string; bot_id?: string; username?: string; text?: string; thread_ts?: string; reply_count?: number;
@@ -50,6 +50,14 @@ export function mapSlackMessage(m: SlackMessage, ctx: SlackMapContext): Evidence
   const u = m.user ? ctx.users[m.user] : undefined;
   const display = m.user ? userName(u, m.user) : m.username ?? m.bot_id ?? 'unknown';
   const priv = isPrivateChannel(ctx.channel);
+  const channelGroup = `slack-channel:${ctx.channel.id}`;
+  // Members of a private channel get the channel group (additive); skipped when the operator overrides the access groups.
+  const grants: MembershipGrant[] =
+    priv && !ctx.accessGroups?.length
+      ? [...new Set(ctx.channel.members ?? [])]
+          .filter((id) => !ctx.users[id]?.is_bot)
+          .map((id) => ({ actorId: `person:slack:${id}`, ...(ctx.users[id] ? { displayName: userName(ctx.users[id], id) } : {}), group: channelGroup }))
+      : [];
   const attachments: AttachmentRef[] = files.map((f) => ({
     id: f.id, name: f.name ?? f.title ?? f.id, mimeType: f.mimetype, reference: f.url_private, sizeBytes: f.size,
   }));
@@ -73,11 +81,12 @@ export function mapSlackMessage(m: SlackMessage, ctx: SlackMapContext): Evidence
       channel: ctx.channel.name,
     },
     accessScope: priv
-      ? resolveAccess(ctx.accessGroups?.length ? ctx.accessGroups : [`slack-channel:${ctx.channel.id}`], { visibility: 'group' })
+      ? resolveAccess(ctx.accessGroups?.length ? ctx.accessGroups : [channelGroup], { visibility: 'group' })
       : resolveAccess(ctx.accessGroups),
     attachments,
     metadata: {
       slackTs: m.ts,
+      ...(grants.length ? { membershipGrants: grants } : {}),
       ...(m.reply_count !== undefined ? { replyCount: m.reply_count } : {}),
       ...(m.subtype ? { subtype: m.subtype } : {}),
       ...(m.edited ? { edited: true, editedAt: m.edited.ts } : {}),

@@ -14,6 +14,12 @@ export interface AdapterOptions {
   reference?: string;
 }
 
+/**
+ * A membership grant: the person behind `actorId` belongs to access group `group` because the source says so (e.g. a
+ * private channel's member list). Carried in envelope metadata `membershipGrants`; additive, never replaces groups.
+ */
+export interface MembershipGrant { actorId: string; displayName?: string; group: string }
+
 export const resolveAccess = (groups?: string[], fallback: AccessScope = { visibility: 'org' }): AccessScope =>
   groups && groups.length ? { visibility: 'group', groups: [...groups] } : fallback;
 

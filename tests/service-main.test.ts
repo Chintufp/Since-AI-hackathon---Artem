@@ -1,0 +1,29 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { join } from 'node:path';
+import { ROOT } from './support.ts';
+
+test('main.ts prints its URL, serves /health and shuts down cleanly on SIGTERM', async () => {
+  const child = spawn(process.execPath, [join(ROOT, 'src/apps/service/main.ts'), '--port', '0', '--db', ':memory:', '--seed', 'empty'], { stdio: ['ignore', 'pipe', 'pipe'] });
+  let out = '';
+  child.stdout.on('data', (d: Buffer) => { out += d.toString(); });
+  const url = await new Promise<string>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('no URL printed')), 10000);
+    child.stdout.on('data', () => {
+      const m = /listening on (http:\/\/127\.0\.0\.1:\d+)/.exec(out);
+      if (m) { clearTimeout(t); resolve(m[1]!); }
+    });
+    child.once('exit', (c) => reject(new Error(`exited early with ${c}`)));
+  });
+  const health = await (await fetch(`${url}/health`)).json();
+  assert.equal(health.ok, true);
+  const exited = new Promise<number | null>((r) => child.once('exit', (c) => r(c)));
+  child.kill('SIGTERM');
+  assert.equal(await exited, 0);
+});
+
+test('main.ts rejects a bad --seed', async () => {
+  const child = spawn(process.execPath, [join(ROOT, 'src/apps/service/main.ts'), '--seed', 'bogus'], { stdio: 'ignore' });
+  assert.equal(await new Promise((r) => child.once('exit', (c) => r(c))), 2);
+});

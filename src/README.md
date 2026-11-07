@@ -13,7 +13,7 @@ src/
       README.md         Reusable module catalogue and conventions
 ```
 
-This is the initial directory/documentation scaffold, not an application implementation. Add concrete modules as they are built. Earlier plans showing `apps/` and `libs/` at the repository root retain their logical boundaries but now live under `src/`.
+Implemented in the overnight run of 7 November 2026; see each module README and `docs/runs/2026-11-07-overnight/REPORT.md`. Earlier plans showing `apps/` and `libs/` at the repository root retain their logical boundaries but now live under `src/`.
 
 - [Application entry points](apps/README.md)
 - [Library boundaries](libs/README.md)

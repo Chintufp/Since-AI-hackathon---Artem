@@ -42,3 +42,5 @@ Read the relevant brief and its linked technical decisions before editing. Prese
 Use the starter prompts in the technical guide for discussion sessions. For design, also read the experience brief; for the film, read the film brief before choosing tools or generating assets. No production or implementation agent is launched by these documents themselves.
 
 Original private challenge materials remain outside tracked documentation in the ignored `private/Elisa_SinceAI2026/` directory. A fresh clone may not contain them. Historical research and initial proposals can contain superseded assumptions; the current brief and explicit latest decisions take precedence.
+
+- [Overnight run 2026-11-07](runs/2026-11-07-overnight/README.md): report, decisions, experiments, screenshots.

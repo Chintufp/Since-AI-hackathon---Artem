@@ -6,6 +6,8 @@
  *   - the compact breakpoint is 419px so the 420px default window uses the wide layout,
  *   - new views (result, people, case, contact) and settings extras use the same type scale.
  */
+/* desktop (R28): the window spans the work area; every viewport-relative panel height keeps using the 680 px panel area (WINDOW.height in window.ts) */
+#kt-panel { --kt-vh:min(100vh, 680px); }
 #kt-panel { position:fixed; inset:0; color-scheme:light; -webkit-font-smoothing:antialiased; user-select:none; -webkit-user-select:none; cursor:default; }
 #kt-panel button { cursor:pointer; }
 #kt-panel textarea, #kt-panel .rf-selectable { user-select:text; -webkit-user-select:text; cursor:text; }
@@ -159,7 +161,7 @@
 #kt-panel .rf-send[data-busy="true"] { background:#eeeff0; color:#bbbfc2; }
 #kt-panel .rf-reveal { overflow:hidden; }
 /* desktop: a long context scrolls inside the reveal instead of growing past the window */
-#kt-panel .rf-reveal .rf-history { max-height:calc(100vh - 380px); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; }
+#kt-panel .rf-reveal .rf-history { max-height:calc(var(--kt-vh) - 380px); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; }
 
 /* shared row button (context button look, used for "People..." / "A question..." rows) */
 #kt-panel .rf-row-button { width:100%; height:40px; padding:0 24px; display:flex; align-items:center; justify-content:space-between; border:0; border-top:1px solid #edf0f1; background:transparent; font-size:12px; color:#5e676e; text-align:left; }
@@ -171,7 +173,7 @@
 #kt-panel .rf-result-head { padding:21px 24px 12px; position:relative; }
 #kt-panel .rf-result-title { font-size:15px; font-weight:400; margin:0; letter-spacing:-.02em; line-height:1.4; }
 #kt-panel .rf-result-note { font-size:12px; line-height:1.5; color:#747b82; margin:8px 0 0; }
-#kt-panel .rf-case-path { padding:14px 24px 8px; border-top:1px solid #edf0f1; max-height:min(320px, calc(100vh - 370px)); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; }
+#kt-panel .rf-case-path { padding:14px 24px 8px; border-top:1px solid #edf0f1; max-height:min(320px, calc(var(--kt-vh) - 370px)); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; }
 #kt-panel .rf-case-path .rf-case { text-align:center; margin:0 0 4px; }
 #kt-panel .rf-node-inner { margin:0; padding:12px 0 10px; font:inherit; }
 #kt-panel .rf-node-inner p { margin:0; }
@@ -193,12 +195,12 @@
 #kt-panel .rf-person-actions .rf-later { padding:6px 0; color:#59636b; }
 #kt-panel .rf-person-actions .rf-later:first-child { color:#8d959c; }
 #kt-panel .rf-person-actions .rf-later:hover { color:#181b1e; }
-#kt-panel .rf-list-scroll { max-height:min(380px, calc(100vh - 290px)); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; margin-right:-6px; padding-right:6px; }
+#kt-panel .rf-list-scroll { max-height:min(380px, calc(var(--kt-vh) - 290px)); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; margin-right:-6px; padding-right:6px; }
 #kt-panel .rf-panel-content > .rf-case { margin:0 0 6px; }
 
 /* contact draft + receipt extras */
 #kt-panel .rf-receipt .rf-draft-subject { font-size:12px; line-height:1.4; letter-spacing:0; font-weight:500; color:#4b5258; margin:12px 0 6px; }
-#kt-panel .rf-draft-body { font-family:inherit; white-space:pre-wrap; font-size:12px; line-height:1.55; color:#5e6870; background:#f7f8f8; border-radius:8px; padding:10px 12px; max-height:min(280px, calc(100vh - 400px)); overflow-y:auto; scrollbar-width:thin; margin:0; }
+#kt-panel .rf-draft-body { font-family:inherit; white-space:pre-wrap; font-size:12px; line-height:1.55; color:#5e6870; background:#f7f8f8; border-radius:8px; padding:10px 12px; max-height:min(280px, calc(var(--kt-vh) - 400px)); overflow-y:auto; scrollbar-width:thin; margin:0; }
 #kt-panel .rf-draft-actions { display:flex; align-items:center; gap:10px; margin-top:12px; }
 #kt-panel .rf-reward { display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12px; color:#8a7330; }
 #kt-panel .rf-reward canvas { width:48px; height:24px; image-rendering:pixelated; }
@@ -213,10 +215,10 @@
 
 @media (max-width:419px) {
  #kt-panel .rf-result-head, #kt-panel .rf-row-button { padding-left:19px; padding-right:19px; }
- #kt-panel .rf-case-path { padding-left:19px; padding-right:19px; max-height:calc(100vh - 480px); }
- #kt-panel .rf-reveal .rf-history { max-height:calc(100vh - 420px); }
- #kt-panel .rf-draft-body { max-height:calc(100vh - 470px); }
- #kt-panel .rf-list-scroll { max-height:calc(100vh - 330px); }
+ #kt-panel .rf-case-path { padding-left:19px; padding-right:19px; max-height:calc(var(--kt-vh) - 480px); }
+ #kt-panel .rf-reveal .rf-history { max-height:calc(var(--kt-vh) - 420px); }
+ #kt-panel .rf-draft-body { max-height:calc(var(--kt-vh) - 470px); }
+ #kt-panel .rf-list-scroll { max-height:calc(var(--kt-vh) - 330px); }
  #kt-panel .rf-empty { padding-left:19px; padding-right:19px; }
 }
 @media (pointer:coarse) { #kt-panel .rf-row-button { min-height:44px; } }
@@ -236,8 +238,11 @@
 #kt-panel .rf-setting select.rf-you { text-overflow:ellipsis; cursor:pointer; }
 
 /* Long engine text must never push the panel out of the window: the head and the matched case scroll. */
-#kt-panel .rf-result-head { max-height:min(190px, calc(100vh - 470px)); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; }
-#kt-panel .rf-case-path { max-height:min(260px, calc(100vh - 470px)); }
+#kt-panel .rf-result-head { max-height:min(190px, calc(var(--kt-vh) - 470px)); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; }
+#kt-panel .rf-case-path { max-height:min(260px, calc(var(--kt-vh) - 470px)); }
 #kt-panel .rf-result-note + .rf-result-note { margin-top:5px; }
 #kt-panel .rf-node-inner p { padding:0; }
 #kt-panel .rf-draft-body { scrollbar-color:#cdd1d4 transparent; }
+/* desktop (R28): launch drop surface, the 44x86 scene column floor-aligned with the avatar canvas; never takes the mouse */
+#kt-panel .rf-avatar canvas.rf-drop { position:absolute; width:88px; height:172px; left:-12px; top:-102px; pointer-events:none; image-rendering:pixelated; display:block; }
+#kt-panel .rf-avatar canvas.rf-drop[hidden] { display:none; }

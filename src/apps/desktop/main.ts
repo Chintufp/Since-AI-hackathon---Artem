@@ -1,6 +1,6 @@
 /**
  * Electron main process. Launch behaviour (R05): a small transparent always-on-top window with
- * only Snowbally visible at the bottom-right; he plays the entrance once and idles; the panel
+ * only Snowbally visible at the bottom-right; he falls in from the top of the screen once (R28) and idles; the panel
  * opens when he is clicked. Flip OPEN_ON_LAUNCH to start with the panel open instead.
  */
 import { app, BrowserWindow, Menu, session, Tray } from 'electron';

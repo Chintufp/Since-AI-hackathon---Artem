@@ -5,7 +5,8 @@ import { createCompactCoreActs } from './core-acts.ts';
 import { createCompactStateActs } from './state-acts.ts';
 import { createCompactPropActs } from './prop-acts.ts';
 import { renderBurst, BURST } from './burst.ts';
-import { AvatarController, scaleFor, CROP } from './avatar.ts';
+import { AvatarController, scaleFor, CROP, DROP, ENTRANCE_FALL_MS, ENTRANCE_IMPACT_FRAME } from './avatar.ts';
+import { renderFalling, renderFloorShadow } from './entrance-fall.ts';
 import type { Act, DrawTarget } from './types.ts';
 
 interface Rect { x: number; y: number; w: number; h: number; color: string }
@@ -141,6 +142,7 @@ test('scaleFor gives integer device scales so the 88px CSS box stays crisp', () 
 class FakeCanvas {
   width = 44;
   height = 44;
+  hidden = false;
   style: Record<string, string> = {};
   attrs: Record<string, string> = {};
   ctx = new FakeCanvas2D();
@@ -153,7 +155,7 @@ class FakeCanvas2D extends FakeContext {
   drawImage(...a: unknown[]): void { this.draws.push(a); }
 }
 
-function setup(opts: { reduced?: boolean; question?: boolean; dpr?: number } = {}) {
+function setup(opts: { reduced?: boolean; question?: boolean; dpr?: number; drop?: boolean } = {}) {
   const g = globalThis as Record<string, unknown>;
   const raf: Array<(t: number) => void> = [];
   const saved = { raf: g.requestAnimationFrame, caf: g.cancelAnimationFrame, dpr: g.devicePixelRatio, doc: g.document };
@@ -163,13 +165,16 @@ function setup(opts: { reduced?: boolean; question?: boolean; dpr?: number } = {
   g.document = { hidden: false, addEventListener() {}, removeEventListener() {} };
   const host = { reduced: () => !!opts.reduced, hasQuestion: () => !!opts.question };
   const canvas = new FakeCanvas();
+  const drop = opts.drop ? new FakeCanvas() : null;
+  if (drop) drop.hidden = true;
   const raws: FakeCanvas[] = [];
   const avatar = new AvatarController(canvas as unknown as HTMLCanvasElement, host, {
     createCanvas: (w, h) => { const c = new FakeCanvas(); c.width = w; c.height = h; raws.push(c); return c as unknown as HTMLCanvasElement; },
+    drop: drop as unknown as HTMLCanvasElement | null,
   });
   const restore = () => { avatar.destroy(); g.requestAnimationFrame = saved.raf; g.cancelAnimationFrame = saved.caf; g.devicePixelRatio = saved.dpr; g.document = saved.doc; };
   const pump = (t: number) => { const cbs = raf.splice(0); cbs.forEach((cb) => cb(t)); return cbs.length; };
-  return { avatar, canvas, raws, raf, pump, restore };
+  return { avatar, canvas, drop, raws, raf, pump, restore };
 }
 
 test('avatar allocates 44*scale pixels, keeps CSS 88x88 and draws nearest-neighbour from the (26,42,44,44) crop', () => {
@@ -251,5 +256,98 @@ test('raw scene never paints the 96x96 white background fill', () => {
     const rects = s.raws[0]!.ctx.rects;
     assert.ok(rects.length > 0);
     assert.ok(!rects.some((r) => r.x === 0 && r.y === 0 && r.w === 96 && r.h === 96));
+  } finally { s.restore(); mock.timers.reset(); }
+});
+
+test('falling pose and floor shadow draw palette-only integer rects; the body is floor-aligned and the shadow alone sits at the floor', () => {
+  const palette = new Set(Object.values(kit.palette));
+  for (const streak of [0, 1]) {
+    const c = new FakeContext();
+    renderFalling(kit, c, streak);
+    assert.ok(c.rects.every((r) => [r.x, r.y, r.w, r.h].every(Number.isInteger) && palette.has(r.color)));
+    const b = bounds(c.raster());
+    assert.equal(b.bottom, 79, 'body bottom row as the authored floor (bottom 80)');
+    assert.ok(!c.rects.some((r) => r.color === kit.palette.shadow), 'no shadow while in the air');
+    assert.ok(c.rects.some((r) => r.color === kit.palette.accent), 'air streaks');
+  }
+  const sh = new FakeContext();
+  renderFloorShadow(kit, sh);
+  const marks = sh.rects.filter((r) => !(r.x === 0 && r.y === 0 && r.w === 96 && r.h === 96));
+  assert.ok(marks.length > 0 && marks.every((r) => r.color === kit.palette.shadow));
+  assert.ok(bounds(sh.raster()).top >= 80);
+});
+
+test('launch with a drop surface: accelerating fall from above the window, then the authored impact frames uncropped, then idle', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  const s = setup({ drop: true });
+  try {
+    const drop = s.drop!;
+    assert.equal(drop.hidden, true, 'drop hidden while idle');
+    assert.equal(drop.width, DROP.w * 4);
+    assert.equal(drop.height, DROP.h * 4);
+    assert.equal(drop.style.height, '172px');
+    s.avatar.playEntranceThenRest();
+    let st = s.avatar.status();
+    assert.equal(st.mode, 'entrance');
+    assert.equal(st.falling, true);
+    assert.equal(drop.hidden, false);
+    assert.ok(st.dropY < 0, 'starts above');
+    const start = st.dropY;
+    // the display canvas shows only the floor shadow during the fall
+    const rawRects = s.raws[0]!.ctx.rects;
+    assert.ok(rawRects.length > 0 && rawRects.every((r) => r.color === kit.palette.shadow), 'display: shadow only');
+    const ys: number[] = [];
+    let t = 0;
+    s.pump(t);
+    for (let i = 0; i < 100 && s.avatar.status().falling; i++) {
+      t += 1000 / 60;
+      s.pump(t);
+      ys.push(s.avatar.status().dropY);
+    }
+    assert.ok(ys.length >= 50, `fall took ${ys.length} frames`);
+    assert.ok(ys.every((y, i) => i === 0 || y >= ys[i - 1]!), 'monotonic descent');
+    const steps = ys.map((y, i) => (i === 0 ? y - start : y - ys[i - 1]!));
+    assert.ok(steps.slice(1, 10).reduce((a, b) => a + b, 0) < steps.slice(-10).reduce((a, b) => a + b, 0), 'accelerates');
+    assert.ok(t >= ENTRANCE_FALL_MS - 20);
+    // touchdown: authored frames from 'Impact' on the drop surface, display cleared
+    st = s.avatar.status();
+    assert.equal(st.falling, false);
+    assert.equal(st.dropActive, true);
+    assert.equal(st.lastFrame, ENTRANCE_IMPACT_FRAME);
+    assert.equal(drop.style.transform, '');
+    const blits = drop.ctx.draws.filter((d) => d[1] === DROP.x && d[2] === DROP.y && d[3] === DROP.w && d[4] === DROP.h);
+    assert.ok(blits.length > 0, 'drop blits use the 44x86 column');
+    const seen = new Set<number>();
+    for (let i = 0; i < 200 && s.avatar.status().dropActive; i++) {
+      t += 1000 / 60;
+      s.pump(t);
+      seen.add(s.avatar.status().lastFrame);
+    }
+    assert.ok(seen.has(23) && !seen.has(4), `landing frames ${[...seen].join(',')}`);
+    st = s.avatar.status();
+    assert.equal(st.mode, 'idle3');
+    assert.equal(st.idleLoop, true);
+    assert.equal(drop.hidden, true, 'drop hidden again');
+    assert.equal(drop.ctx.clears > 0, true);
+  } finally { s.restore(); mock.timers.reset(); }
+});
+
+test('launch with a drop surface under reduced motion: still, drop never shown; a reaction during the fall takes over', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  const r = setup({ drop: true, reduced: true });
+  try {
+    r.avatar.playEntranceThenRest();
+    assert.equal(r.drop!.hidden, true);
+    assert.equal(r.avatar.status().falling, false);
+  } finally { r.restore(); }
+  const s = setup({ drop: true });
+  try {
+    s.avatar.playEntranceThenRest();
+    s.pump(0); s.pump(100);
+    assert.equal(s.avatar.status().falling, true);
+    s.avatar.play('hello');
+    assert.equal(s.drop!.hidden, true);
+    assert.equal(s.avatar.status().falling, false);
+    assert.equal(s.avatar.status().mode, 'hello');
   } finally { s.restore(); mock.timers.reset(); }
 });

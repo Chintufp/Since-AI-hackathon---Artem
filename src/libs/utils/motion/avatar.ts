@@ -8,22 +8,35 @@
  *
  * Idle is three fixed poses held for 500 ms by setTimeout: no requestAnimationFrame runs
  * while idle. A reaction (one-shot act) runs on rAF only for its own duration.
+ *
+ * Launch (R28): with an optional "drop" canvas (a 44x86 column of the scene, floor-aligned
+ * with the display canvas and pointer-events:none) the entrance is a real fall from the top of
+ * the window, accelerating like gravity, into the authored impact / spring-back / hello frames,
+ * which are shown uncropped on the drop canvas. The display canvas and the hitbox never move.
  */
 import { createCompactCoreActs } from './core-acts.ts';
 import type { CoreActKey } from './core-acts.ts';
+import { renderFalling, renderFloorShadow } from './entrance-fall.ts';
 import { createMinimalKit } from './minimal-kit.ts';
 import { createCompactPropActs } from './prop-acts.ts';
 import type { PropActKey } from './prop-acts.ts';
 import { createCompactStateActs, QUESTION_GLYPH } from './state-acts.ts';
 import type { StateActKey } from './state-acts.ts';
-import type { Act, DrawTarget } from './types.ts';
+import type { Act, DrawTarget, Kit } from './types.ts';
 
 export type ActKey = CoreActKey | StateActKey | PropActKey;
 
 export const SCENE_SIZE = 96;
 export const CROP = { x: 26, y: 42, size: 44 } as const;
+/** The drop surface: the same 44 px column from the top of the scene down to the floor (86 rows). */
+export const DROP = { x: CROP.x, y: 0, w: CROP.size, h: CROP.y + CROP.size } as const;
 export const DISPLAY_CSS_SIZE = 88;
 export const IDLE_POSE_MS = 500;
+/** Launch fall from the top of the window to the floor; eased as y = start * (1 - p^2), i.e. constant acceleration. */
+export const ENTRANCE_FALL_MS = 900;
+/** First authored entrance frame on the floor ('Impact'); frames before it are replaced by the long fall. */
+export const ENTRANCE_IMPACT_FRAME = 5;
+const STREAK_MS = 62.5;
 
 /** Integer pixel scale so each authored pixel is a whole number of device pixels. */
 export const scaleFor = (devicePixelRatio: number): number =>
@@ -39,6 +52,12 @@ export interface AvatarOptions {
   cssSize?: number;
   /** Canvas factory (tests, offscreen); default document.createElement('canvas'). */
   createCanvas?: (w: number, h: number) => HTMLCanvasElement;
+  /**
+   * Optional launch surface (R28): a canvas whose bottom edge coincides with the display canvas's
+   * bottom edge and whose CSS height is cssSize * 86/44. Without it the entrance plays cropped on
+   * the display canvas as before.
+   */
+  drop?: HTMLCanvasElement | null;
 }
 
 export interface PlayOptions {
@@ -57,6 +76,12 @@ export interface AvatarStatus {
   reduced: boolean;
   questionCue: boolean;
   scale: number;
+  /** Launch fall in progress (drop surface moving). */
+  falling: boolean;
+  /** Current translateY of the drop surface in CSS px (0 when on the floor or unused). */
+  dropY: number;
+  /** The drop surface is showing (fall or landing frames). */
+  dropActive: boolean;
 }
 
 export interface Avatar {
@@ -84,8 +109,11 @@ export class AvatarController implements Avatar {
   private readonly target: DrawTarget;
   private readonly host: AvatarHost;
   private readonly options: Required<Pick<AvatarOptions, 'cssSize'>> & AvatarOptions;
+  private readonly kit: Kit;
   private readonly acts: Record<ActKey, Act>;
   private readonly glyph: HTMLCanvasElement;
+  private readonly drop: HTMLCanvasElement | null;
+  private readonly dropCtx: CanvasRenderingContext2D | null;
   private scale = 2;
   private animation = 0;
   private idleTimer: ReturnType<typeof setTimeout> | 0 = 0;
@@ -94,6 +122,9 @@ export class AvatarController implements Avatar {
   private mode = 'idle3';
   private lastFrame = -1;
   private looping = false;
+  private dropActive = false;
+  private falling = false;
+  private dropY = 0;
   private observer: IntersectionObserver | null = null;
   private readonly onVisibility = (): void => {
     if (this.hidden()) this.rest();
@@ -114,6 +145,8 @@ export class AvatarController implements Avatar {
     this.raw = make(SCENE_SIZE, SCENE_SIZE);
     this.rawCtx = this.raw.getContext('2d')!;
     this.rawCtx.imageSmoothingEnabled = false;
+    this.drop = options.drop ?? null;
+    this.dropCtx = this.drop ? this.drop.getContext('2d')! : null;
     const rawCtx = this.rawCtx;
     // The only change to the authored art: its white scene background is not painted.
     this.target = {
@@ -130,6 +163,7 @@ export class AvatarController implements Avatar {
       },
     };
     const kit = createMinimalKit();
+    this.kit = kit;
     this.acts = { ...createCompactCoreActs({ kit }), ...createCompactStateActs({ kit }), ...createCompactPropActs({ kit }) };
     // Extract the question glyph from the accepted artwork instead of authoring a new sprite.
     this.glyph = make(QUESTION_GLYPH.w, QUESTION_GLYPH.h);
@@ -160,7 +194,20 @@ export class AvatarController implements Avatar {
     this.canvas.style.width = this.options.cssSize + 'px';
     this.canvas.style.height = this.options.cssSize + 'px';
     this.ctx.imageSmoothingEnabled = false;
-    if (this.lastFrame >= 0) this.blit();
+    if (this.drop) {
+      const w = DROP.w * this.scale, h = DROP.h * this.scale;
+      if (this.drop.width !== w) this.drop.width = w;
+      if (this.drop.height !== h) this.drop.height = h;
+      this.drop.style.width = this.options.cssSize + 'px';
+      this.drop.style.height = this.dropCssHeight() + 'px';
+      this.dropCtx!.imageSmoothingEnabled = false;
+    }
+    if (this.lastFrame >= 0) this.present();
+  }
+
+  /** CSS height of the drop surface: the scene column from its top row to the floor. */
+  dropCssHeight(): number {
+    return (this.options.cssSize * DROP.h) / CROP.size;
   }
 
   private watchDpr(): void {
@@ -184,10 +231,41 @@ export class AvatarController implements Avatar {
     this.ctx.drawImage(this.raw, CROP.x, CROP.y, CROP.size, CROP.size, 0, 0, CROP.size * this.scale, CROP.size * this.scale);
   }
 
+  private blitDrop(): void {
+    if (!this.drop || !this.dropCtx) return;
+    this.dropCtx.clearRect(0, 0, this.drop.width, this.drop.height);
+    this.dropCtx.imageSmoothingEnabled = false;
+    this.dropCtx.drawImage(this.raw, DROP.x, DROP.y, DROP.w, DROP.h, 0, 0, DROP.w * this.scale, DROP.h * this.scale);
+  }
+
+  /** Copy the raw scene to whichever surface is current. */
+  private present(): void {
+    if (this.dropActive) this.blitDrop();
+    else this.blit();
+  }
+
+  private showDrop(): void {
+    if (!this.drop) return;
+    this.drop.hidden = false;
+    this.dropActive = true;
+  }
+
+  private hideDrop(): void {
+    this.falling = false;
+    this.dropY = 0;
+    if (!this.dropActive) return;
+    this.dropActive = false;
+    if (!this.drop || !this.dropCtx) return;
+    this.dropCtx.clearRect(0, 0, this.drop.width, this.drop.height);
+    this.drop.style.transform = '';
+    this.drop.style.willChange = '';
+    this.drop.hidden = true;
+  }
+
   private draw(act: Act, frame: number): void {
     act.render(this.target, frame);
     if (this.host.hasQuestion() && act !== this.acts.question) this.rawCtx.drawImage(this.glyph, QUESTION_GLYPH.x, QUESTION_GLYPH.y);
-    this.blit();
+    this.present();
     this.lastFrame = frame;
   }
 
@@ -197,6 +275,7 @@ export class AvatarController implements Avatar {
     this.animation = 0;
     this.idleTimer = 0;
     this.looping = false;
+    this.hideDrop();
   }
 
   rest(): void {
@@ -228,8 +307,13 @@ export class AvatarController implements Avatar {
       this.rest();
       return;
     }
-    this.looping = !!options.loop;
-    this.draw(act, 0);
+    this.run(act, 0, !!options.loop);
+  }
+
+  /** Play `act` from frame `from` on rAF; loop or return to idle when it ends. The current surface is kept. */
+  private run(act: Act, from: number, loop: boolean): void {
+    this.looping = loop;
+    this.draw(act, from);
     let started: number | undefined;
     const frame = (t: number): void => {
       if (!this.canAnimate()) {
@@ -237,11 +321,11 @@ export class AvatarController implements Avatar {
         return;
       }
       started ??= t;
-      const n = Math.max(0, Math.floor(((t - started) * act.fps) / 1000));
+      const n = from + Math.max(0, Math.floor(((t - started) * act.fps) / 1000));
       if (n >= act.frames) {
         if (this.looping) {
           started = t;
-          this.draw(act, 0);
+          this.draw(act, from);
           this.animation = requestAnimationFrame(frame);
           return;
         }
@@ -254,13 +338,72 @@ export class AvatarController implements Avatar {
     this.animation = requestAnimationFrame(frame);
   }
 
-  /** Launch behaviour (R05): the entrance once, clipped above the scene as authored, then idle. Reduced motion: still. */
+  /** Where the fall starts: the drop surface fully above the top of the window (CSS px, negative). */
+  private fallStart(): number {
+    const rect = (this.drop as { getBoundingClientRect?: () => { top: number; height: number } } | null)?.getBoundingClientRect?.();
+    if (rect && rect.height > 0) return -(rect.top + rect.height);
+    return -2 * this.dropCssHeight();
+  }
+
+  /**
+   * Launch behaviour (R05/R28). With a drop surface: fall from the top of the window with constant
+   * acceleration (the floor shadow waits on the display canvas), then the authored impact, spring
+   * back, stars and hello uncropped, then idle. Without one: the authored entrance cropped, as v008.
+   * Reduced motion / hidden: still.
+   */
   playEntranceThenRest(): void {
     if (!this.canAnimate()) {
       this.rest();
       return;
     }
-    this.play('entrance');
+    if (!this.drop || !this.dropCtx) {
+      this.play('entrance');
+      return;
+    }
+    this.stop();
+    this.mode = 'entrance';
+    const act = this.acts.entrance;
+    // Floor shadow on the display canvas; the falling body on the drop surface.
+    renderFloorShadow(this.kit, this.target);
+    this.blit();
+    this.showDrop();
+    const start = this.fallStart();
+    this.falling = true;
+    this.dropY = start;
+    this.drop.style.willChange = 'transform';
+    this.drop.style.transform = `translateY(${start}px)`;
+    let streak = -1;
+    let t0: number | undefined;
+    const fall = (t: number): void => {
+      if (!this.canAnimate()) {
+        this.rest();
+        return;
+      }
+      t0 ??= t;
+      const elapsed = t - t0;
+      const p = Math.min(1, elapsed / ENTRANCE_FALL_MS);
+      this.dropY = start * (1 - p * p);
+      this.drop!.style.transform = `translateY(${this.dropY.toFixed(2)}px)`;
+      const s = Math.floor(elapsed / STREAK_MS) % 2;
+      if (s !== streak) {
+        streak = s;
+        renderFalling(this.kit, this.target, s);
+        this.blitDrop();
+        this.lastFrame = -1;
+      }
+      if (p < 1) {
+        this.animation = requestAnimationFrame(fall);
+        return;
+      }
+      // Touchdown: the authored frames from 'Impact' on, uncropped, with the shadow in the frames.
+      this.falling = false;
+      this.dropY = 0;
+      this.drop!.style.transform = '';
+      this.drop!.style.willChange = '';
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.run(act, ENTRANCE_IMPACT_FRAME, false);
+    };
+    this.animation = requestAnimationFrame(fall);
   }
 
   refresh(): void {
@@ -280,6 +423,9 @@ export class AvatarController implements Avatar {
       reduced: this.host.reduced(),
       questionCue: this.host.hasQuestion(),
       scale: this.scale,
+      falling: this.falling,
+      dropY: this.dropY,
+      dropActive: this.dropActive,
     };
   }
 

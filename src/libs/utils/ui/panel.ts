@@ -28,7 +28,7 @@ export interface PanelOptions {
   root: HTMLElement;
   api: ApiClient;
   /** Build Snowbally on the panel's canvas. The host callbacks let him react to panel state. */
-  avatar: (canvas: HTMLCanvasElement, host: AvatarHost) => Avatar;
+  avatar: (canvas: HTMLCanvasElement, host: AvatarHost, surfaces: { drop: HTMLCanvasElement }) => Avatar;
   /** Groups for the principal; default comes from the shared contract's demo principal. */
   groups?: string[];
   /** Persist small per-viewer conveniences (draft, last view). Defaults to localStorage when available. */
@@ -142,7 +142,7 @@ const TEMPLATE = `
    <button class="rf-send" type="button" data-action="send" aria-label="Send message" disabled><i data-icon="arrow-up"></i></button>
   </footer>
   </div>
-  <button class="rf-avatar" type="button" data-action="avatar" aria-label="Close panel" aria-expanded="true"><canvas width="44" height="44" role="img" aria-label="White pixel companion at rest"></canvas></button>
+  <button class="rf-avatar" type="button" data-action="avatar" aria-label="Close panel" aria-expanded="true"><canvas width="44" height="44" role="img" aria-label="White pixel companion at rest"></canvas><canvas class="rf-drop" width="44" height="86" hidden aria-hidden="true"></canvas></button>
  </div>
 </div>`;
 
@@ -214,7 +214,7 @@ export function createPanel(options: PanelOptions): Panel {
     return { id, displayName: me?.name ?? 'You', groups: me ? [...me.groups] : [...(options.groups ?? [])], type: 'human' };
   };
 
-  const avatar = options.avatar(canvas, { reduced: isReduced, hasQuestion });
+  const avatar = options.avatar(canvas, { reduced: isReduced, hasQuestion }, { drop: $<HTMLCanvasElement>('.rf-drop') });
   const natural = (): number => {
     const v = views.find((n) => !n.hidden);
     return (v?.getBoundingClientRect().height || 0) + footer.getBoundingClientRect().height + 2;

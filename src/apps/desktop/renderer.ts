@@ -34,7 +34,7 @@ const api = mock
 const panel = createPanel({
   root: document.getElementById('kt-panel')!,
   api,
-  avatar: (canvas, host) => new AvatarController(canvas, host),
+  avatar: (canvas, host, surfaces) => new AvatarController(canvas, host, { drop: surfaces.drop }),
   groups: params.get('groups')?.split(',').filter(Boolean),
   storage: shots ? null : undefined,
   entrance: params.get('entrance') !== '0',

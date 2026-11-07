@@ -27,6 +27,7 @@ window.__s = {
   click(sel) { const el = document.querySelector(sel); if (!el) throw new Error('missing ' + sel); el.click(); },
   type(text) { const f = document.querySelector('.rf-writing'); f.focus(); f.value = text; f.dispatchEvent(new Event('input', { bubbles: true })); },
   hit() { const r = document.querySelector('.rf-avatar').getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; },
+  drop() { const d = document.querySelector('.rf-drop'); const r = d.getBoundingClientRect(); return { hidden: d.hidden, rect: [r.x, r.y, r.width, r.height].map(Math.round), transform: d.style.transform }; },
   async frames(fn) {
     const d = []; let last = 0, on = true;
     const loop = (t) => { if (!on) return; if (last) d.push(t - last); last = t; requestAnimationFrame(loop); };
@@ -85,9 +86,14 @@ async function main(): Promise<void> {
     await js('__s.settle()');
     return Date.now() - t;
   };
+  /** The window spans the work area (R28); regular shots keep the 420x680 panel-area framing. */
+  const panelArea = () => {
+    const [w, h] = win.getContentSize();
+    return { x: 0, y: Math.max(0, h - WINDOW.height), width: w, height: Math.min(h, WINDOW.height) };
+  };
   const shot = async (name: string, width: number, settleMs: number): Promise<void> => {
     await sleep(80);
-    const image = await win.webContents.capturePage();
+    const image = await win.webContents.capturePage(panelArea());
     const file = `${String(++seq).padStart(2, '0')}-${name}-${width}.png`;
     writeFileSync(join(outDir, file), image.toPNG());
     const st = await js<{ view: string; reduced: boolean }>('__kt.panel.status()');
@@ -100,27 +106,30 @@ async function main(): Promise<void> {
     return { frames: d.length, maxMs: +Math.max(...d).toFixed(1), meanMs: +(d.reduce((a, b) => a + b, 0) / d.length).toFixed(2), p95Ms: +(s[Math.floor(s.length * 0.95)] ?? 0).toFixed(1), over20ms: d.filter((x) => x > 20).length };
   };
 
-  /** KT_SHOTS_ENTRANCE=1: capture frames while the launch entrance (drop & settle) plays, right after load. */
+  /**
+   * KT_SHOTS_ENTRANCE=1: capture the launch entrance right after load: the fall from the top of the window
+   * (full-height frames) and the authored landing. Records the drop position and the avatar hitbox per frame.
+   */
   const captureEntrance = async (width: number): Promise<void> => {
     if (process.env.KT_SHOTS_ENTRANCE !== '1') return;
     const t0 = Date.now();
-    const frames: Array<{ file: string; atMs: number; mode: string; frame: number }> = [];
-    for (let i = 0; i < 10; i++) {
+    const frames: Array<{ file: string; atMs: number; mode: string; frame: number; falling: boolean; dropY: number; hitbox: number[]; drop: { hidden: boolean; rect: number[]; transform: string } }> = [];
+    for (let i = 0; i < 20; i++) {
       const image = await win.webContents.capturePage();
-      const st = await js<{ avatar: { mode: string; lastFrame: number } }>('__kt.panel.status()');
+      const st = await js<{ avatar: { mode: string; lastFrame: number; falling: boolean; dropY: number } }>('__kt.panel.status()');
       const file = `entrance-${String(i).padStart(2, '0')}-${width}.png`;
       writeFileSync(join(outDir, file), image.toPNG());
-      frames.push({ file, atMs: Date.now() - t0, mode: st.avatar.mode, frame: st.avatar.lastFrame });
+      frames.push({ file, atMs: Date.now() - t0, mode: st.avatar.mode, frame: st.avatar.lastFrame, falling: st.avatar.falling, dropY: Math.round(st.avatar.dropY), hitbox: await js<number[]>('__s.hit()'), drop: await js<{ hidden: boolean; rect: number[]; transform: string }>('__s.drop()') });
       await sleep(110);
     }
-    checks[`entrance_${width}`] = frames;
+    checks[`entrance_${width}`] = { windowHeight: win.getContentSize()[1], frames };
   };
 
   const walk = async (width: number): Promise<void> => {
     await load(width);
     await captureEntrance(width);
     await js('__s.settle(4000)');
-    await sleep(2000); // entrance (24 frames at 16 fps = 1.5 s) plus margin
+    await sleep(2600); // entrance: 0.9 s fall + 19 authored frames at 16 fps (1.2 s) plus margin
     await shot('collapsed', width, 0);
     const base = await js<number[]>('__s.hit()');
     if (width === 420) {

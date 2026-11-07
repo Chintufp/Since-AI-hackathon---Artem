@@ -3,7 +3,12 @@ import { BrowserWindow, ipcMain, screen } from 'electron';
 import type { Session } from 'electron';
 import { join } from 'node:path';
 
-/** Sized to hold the open panel (question view with its context expanded) with the avatar below it. */
+/**
+ * `height` is the panel area (the open question view with its context expanded, avatar below it) and the
+ * minimum window height. The window itself spans the whole work area height (R28) so the launch fall can
+ * start at the top of the screen; the extra area is transparent and click-through, and the panel stays
+ * anchored at the bottom.
+ */
 export const WINDOW = { width: 420, height: 680, margin: 12 } as const;
 
 export interface CompanionWindowOptions {
@@ -14,13 +19,19 @@ export interface CompanionWindowOptions {
   width?: number;
 }
 
+export function windowHeight(): number {
+  const area = screen.getPrimaryDisplay().workArea;
+  return Math.max(WINDOW.height, area.height - WINDOW.margin);
+}
+
 export function placeBottomRight(win: BrowserWindow, width: number = WINDOW.width): void {
   const area = screen.getPrimaryDisplay().workArea;
+  const height = windowHeight();
   win.setBounds({
     x: area.x + area.width - width - WINDOW.margin,
-    y: area.y + area.height - WINDOW.height - WINDOW.margin,
+    y: area.y + area.height - height - WINDOW.margin,
     width,
-    height: WINDOW.height,
+    height,
   });
 }
 

@@ -225,6 +225,13 @@ export class QuestionCoordinator {
     if (q.status !== 'queued') return q;
     const nowD = this.now();
     if (q.deliverAfter && Date.parse(q.deliverAfter) > nowD.getTime()) return q;
+    // B1 review: a window that passed unpolled must not let the question out inside the NEXT quiet period
+    // (clock moved from 03:00 one night to 03:00 the next): hold it again until the next window.
+    const qh = this.d.settings.coordinator.quietHours;
+    if (qh && inQuiet(nowD, qh)) {
+      const at = nextWindow(nowD, qh).toISOString();
+      return q.deliverAfter === at ? q : this.store.put('question', { ...q, deliverAfter: at, updatedAt: nowD.toISOString() });
+    }
     const state = this.load(q.candidate.investigationId);
     const e = evaluateEligibility(this.ctx, state, q.candidate, q.personEntityId, { ignoreQuestionIds: [q.id] });
     const now = nowD.toISOString();
@@ -248,6 +255,7 @@ export class QuestionCoordinator {
     const out: QuestionRecord[] = [];
     for (const q of due) {
       const r = this.deliverNow(q.id);
+      if (r.status === 'queued') continue; // held again: inside the next quiet period
       out.push(r);
       const state = this.store.get('investigation', q.candidate.investigationId);
       if (!state) continue;

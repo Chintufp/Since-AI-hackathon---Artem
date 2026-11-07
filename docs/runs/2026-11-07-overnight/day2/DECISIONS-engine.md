@@ -179,3 +179,10 @@ Reverse: drop `standingGaps` in the hosts.
 
 `node experiments/run.ts e00`: 17/17 checks pass. One problem changes: `remote-power-access-p2` ("I'm driving out to RBS-310 tomorrow. What's the barrier code?") now takes the access path. The harness's simulated clock is January 2026, before the 20 Aug e-mail, so at that moment no code is on file: kind `none` (was `retain-uncertainty` from the rectifier case; the key expects `check-first`, which the engine gives at any moment after 1 Oct 2026, see access-facts.test.ts). The rectifier case's sources are no longer shown for p2, so the truth-based leak denominator drops from 46 to 42 (still the one known org-scoped access e-mail, 1/42, tolerated as before; the access e-mail's scope was neither widened nor narrowed). The other differences are timestamps and latencies (this machine was busier). Because the change is real behaviour, the rewritten result files are committed rather than reverted.
 Reverse: revert the result files together with D-B1-18.
+
+## Review (two reviewers, after 503a129)
+
+## D-B1-32 · A held question is re-held when its window passed unpolled
+
+`deliverNow` re-checks `inQuiet(now)` when quiet hours are configured: inside quiet hours the question stays `queued` and its `deliverAfter` moves to the next window; `deliverDue` skips it. Fixes the reviewers' 03:00-to-03:00 case (delivered at 03:00 EET the next night). Test: quiet-hours.test.ts, "03:00 to 03:00 holds it again".
+Reverse: the `inQuiet` branch in `deliverNow`.

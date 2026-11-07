@@ -82,3 +82,18 @@ test('a held question whose gap is resolved before the window is cancelled at de
   assert.equal(x?.status, 'cancelled');
   assert.equal(x?.cancelReason, 'gap-resolved');
 });
+
+test('a held question whose window passed unpolled is not delivered inside the next night: 03:00 to 03:00 holds it again', async () => {
+  const h = makeHarness(buildSyntheticStore(), { settings: { coordinator: { ...defaultCoordinatorSettings, quietHours: QH } } });
+  h.time.iso = '2026-11-08T01:00:00.000Z'; // 03:00 EET
+  const q = (await h.coordinator.request(await h.start('pnn', B2))).question!;
+  assert.equal(q.deliverAfter, '2026-11-08T05:00:00.000Z');
+  h.time.iso = '2026-11-09T01:00:00.000Z'; // 03:00 EET the next night, nobody polled in between
+  assert.deepEqual(h.coordinator.deliverDue(), []);
+  const held = h.coordinator.deliverNow(q.id);
+  assert.equal(held.status, 'queued');
+  assert.equal(held.deliverAfter, '2026-11-09T05:00:00.000Z');
+  assert.equal(held.deliveredAt, undefined);
+  h.time.iso = '2026-11-09T05:10:00.000Z';
+  assert.deepEqual(h.coordinator.deliverDue().map((x) => [x.id, x.status]), [[q.id, 'delivered']]);
+});

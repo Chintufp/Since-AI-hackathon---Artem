@@ -640,7 +640,15 @@ export function createPanel(options: PanelOptions): Panel {
       : view === 'queue' ? root.querySelector<HTMLElement>('.rf-question-item') ?? $('.rf-view[data-view="queue"] [data-action="input"]')
       : view === 'settings' ? $('.rf-view[data-view="settings"] [data-action="input"]')
       : viewEl(view).querySelector<HTMLElement>('button:not([disabled])');
-    target?.focus(focusOptions(via));
+    if (!target) return;
+    // desktop (ux fix): on the first frame of an open the surface is still visibility:hidden (panel-motion sets it
+    // from the spring value), so an immediate focus() fails silently. Retry on the next frames until it takes.
+    const opts = focusOptions(via);
+    const attempt = (left: number): void => {
+      target.focus(opts);
+      if (document.activeElement !== target && left > 0 && !destroyed) requestAnimationFrame(() => attempt(left - 1));
+    };
+    attempt(12);
   }
   /** `user`: a direct click / key on Snowbally. Programmatic opens never move focus (desktop R33). */
   function openPanel(user = false, via: InputModality = modality.current()): void {

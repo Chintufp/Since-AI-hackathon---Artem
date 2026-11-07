@@ -214,3 +214,12 @@ The desktop window denies every window open, so the Settings -> Models links did
 
 ## D-B2-64 · Handoff ids
 `docs/OVERNIGHT_TECHNICAL_HANDOFF.md` gave E08/E09/E10 their old conditional meanings. Those rows are now E11-E13 (marked "was E08" ...), and U01/U05/U15/U16 point at the new ids, as D-B2-47 said. Reverse: rename back.
+
+## D-B2-65 · embed=local is shown through the service, not only at retriever level
+`experiments/models.test.ts` now runs the Engine on the synthetic demo store (as demo:reset makes it, Elisa files absent) with embed=local served by the recorded bge-m3 vectors (replay, network guard on), indexes the store through `refreshEmbeddings`, and investigates "green light, nothing flowing": the route is `...+embed[local:bge-m3]` and the top candidate is the TRN-117 case (the TRN-042 stand-in), with no missing recording. TRN-042 itself needs the private Elisa files and stays unverified here. Reverse: delete the test.
+
+## Review (B2 fix pass)
+Every finding of the two reviews was checked against the code and reproduced before the fix:
+- Major, fixed: one-character excerpts (D-B2-54); misattribution to anyone in the thread (D-B2-55); phrase validator gaps: negation, lowercase names, number words, unlisted actions (D-B2-56); 45 s investigate with a stuck model vs a 20 s client (D-B2-57); api provider not kept out of demo:judge (D-B2-58).
+- Minor, fixed: null correctness / no case giving -burden and E10 meanReward 0 (D-B2-60); replay outputs not hash-locked (D-B2-61); LinUCB observing a decision twice (D-B2-60); InMemoryStore without embeddings and the eager OllamaProvider (D-B2-59); several `ollama serve` children (D-B2-59); embedding unload via /api/generate (D-B2-59); embed=api 'ready' with no label (D-B2-59); dead links in Electron (D-B2-63); key file under data/local/electron (D-B2-58); mock vs service differences (D-B2-62); wall-clock job times (D-B2-59); old E08/E09 meanings in the handoff (D-B2-64).
+- Not changed (by design, disclosed): the product completeness x correctness hides a completeness gain on a case whose correctness is 0 (brief 5.2 defines the product); D-B2-51 (a "no" counts as a contradiction) stays an open reading for Artem; the stricter extraction validator is a heuristic and drops a model's contextual restatement that adds an id the excerpt lacks (D-B2-54); the 60 s extract budget is the brief's, so live qwen3:4b imports of the E09 families still fall back to rules.

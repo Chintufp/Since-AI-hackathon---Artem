@@ -158,3 +158,39 @@ test('E09 fixtures: the brief\'s qwen3:4b is the default and a recording exists 
     for (const e of entries) assert.match(e.recordedBy, /qwen3:4b@/, `${f.id}: recorded by ${e.recordedBy}`);
   }
 });
+
+test('embed=local through the service: the judge paraphrase "green light, nothing flowing" finds the TRN-117 stand-in first with the recorded bge-m3 vectors', async () => {
+  const { Engine } = await import('../src/apps/service/engine.ts');
+  const { createDemoClock } = await import('../src/apps/service/demo-clock.ts');
+  const { defaultObservabilityPolicy } = await import('../src/apps/service/org-config.ts');
+  const { DEFAULT_SCENARIOS_DIR } = await import('../benchmarks/splits.ts');
+  const guard = installNetworkGuard();
+  const recorded = new RecordedEmbedder(join(fixtureDir('e08', 'bge-m3'), 'embeddings.json'), { mode: 'replay' });
+  const local = {
+    kind: 'local' as const,
+    embed: (m: string, t: string[]) => recorded.embed(m, t),
+    async generateJson(): Promise<unknown> { throw new Error('not used'); },
+    async generateText(): Promise<string> { throw new Error('not used'); },
+    async warm() {}, async unload() {}, async pull() {},
+    async detect() { return { installed: true, running: true, models: [] }; },
+  };
+  const engine = new Engine({
+    dbPath: ':memory:', linucbStatePath: false, demoClock: createDemoClock(() => new Date('2026-11-09T07:00:00.000Z')),
+    investigation: { observability: defaultObservabilityPolicy }, elisaDir: join(DEFAULT_SCENARIOS_DIR, '__no-elisa__'), modelManager: { local },
+  });
+  try {
+    const reset = await engine.resetDemo('synthetic');
+    const d = engine.directory().find((x) => x.personEntityId === reset.defaultPersonEntityId) ?? engine.directory()[0]!;
+    engine.putSettings({ models: { embed: { provider: 'local', model: 'bge-m3' } } });
+    await engine.refreshEmbeddings();
+    const r = await engine.investigate({ text: 'green light, nothing flowing', principal: { id: d.personEntityId, displayName: d.name, groups: d.groups, type: 'human' } });
+    assert.ok(r.routes.some((x) => x.version.endsWith('+embed[local:bge-m3]')), r.routes.map((x) => x.version).join(' '));
+    const top = r.state.candidates[0]!;
+    const assets = (engine.store.get('case', top.caseId!)?.entityIds ?? []).map((id) => engine.store.get('entity', id)?.name);
+    assert.ok(assets.includes('TRN-117'), `top case ${top.caseId} names ${assets.join(', ')}`);
+    assert.equal(recorded.stats.missing, 0);
+  } finally {
+    engine.close();
+    guard();
+  }
+});

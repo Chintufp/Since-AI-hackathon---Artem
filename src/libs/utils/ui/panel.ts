@@ -8,6 +8,7 @@
  * Dismiss + Undo, Escape closes, Cmd/Ctrl+Enter sends, paste/drop attachments as chips,
  * reduced motion settles instantly, stationary avatar hitbox.
  */
+import { modelNotes } from './model-notes.ts';
 import { renderBurst, BURST } from '../motion/burst.ts';
 import type { ActKey, AvatarHost, AvatarStatus, CompanionAvatar } from '../motion/avatar.ts';
 import type { ParticipationOptIn, ParticipationRating, UserSettings } from '../contracts/outcomes.ts';
@@ -376,6 +377,12 @@ export function createPanel(options: PanelOptions): Panel {
     }
     // Internal evidence ids are for traces, not for the person answering.
     h.append(el('p', 'rf-why', q.why.replace(/\s*Evidence:\s*(?:ev_\w+[,\s]*)+\.?\s*$/, '')));
+    if (q.wordedBy) {
+      // Honesty on screen (B2): the wording came from the phrase model; the template's wording is one hover away.
+      const w = el('p', 'rf-worded', q.wordedBy[0]!.toUpperCase() + q.wordedBy.slice(1));
+      if (q.templateText) w.title = `Template wording: ${q.templateText}`;
+      h.append(w);
+    }
     if (q.compare) {
       const ul = el('ul', 'rf-compare');
       q.compare.forEach((c, i) => ul.append(el('li', undefined, `${i === 0 ? 'A' : 'B'} · ${c.text}`)));
@@ -480,6 +487,7 @@ export function createPanel(options: PanelOptions): Panel {
     const prose = /\s/.test(r.applicability) ? [r.applicability] : [];
     [...prose, ...r.caveats.slice(0, 3)].filter(Boolean).forEach((t) => notes.append(el('p', 'rf-result-note', t)));
     if (r.nextStep) notes.append(el('p', 'rf-result-note', 'Next: ' + r.nextStep));
+    modelNotes(result.routes ?? []).forEach((t) => notes.append(el('p', 'rf-model-note', t)));
     const path = $('.rf-case-path');
     path.replaceChildren();
     const cv = result.caseView;

@@ -66,3 +66,41 @@ test('extract=local with the model down: the import is the rules import and says
     await svc.close();
   }
 });
+
+test('phrase=local: the question card reads the accepted wording and says "worded by local model"; a planted hallucination keeps the template', async () => {
+  const req = { id: 'person:test:req2', displayName: 'Rune Requester', groups: ['noc'], type: 'human' as const };
+  const TEXT = 'BGP flaps after firmware upgrade on edge router RTR-300 unit';
+  // Template run first, to know the template wording the model is asked to reword.
+  const plain = await startService();
+  await plain.call('POST', '/import', { format: 'scenario-dir', path: DEV_FIXTURE });
+  const t = await plain.call('POST', '/investigate', { text: TEXT, principal: req });
+  await plain.close();
+  assert.ok(t.question, 'the template run opens a question');
+  assert.equal(t.question.wordedBy, undefined);
+  const templateText: string = t.question.text;
+
+  for (const [answer, worded] of [[`${templateText.replace(/\?$/, '')}, as far as you know?`, true], ['Did Mikko replace the PSU on TRN-301 in 2020?', false]] as const) {
+    const local = fakeGenerator(() => ({ question: answer }));
+    const svc = await startService({ modelManager: { local } });
+    try {
+      await svc.call('POST', '/import', { format: 'scenario-dir', path: DEV_FIXTURE });
+      await svc.call('PUT', '/settings', { models: { phrase: { provider: 'local', model: 'qwen3:8b' } } });
+      const r = await svc.call('POST', '/investigate', { text: TEXT, principal: req });
+      const q = r.question;
+      assert.ok(q);
+      if (worded) {
+        assert.equal(q.text, answer);
+        assert.equal(q.wordedBy, 'worded by local model qwen3:8b');
+        assert.equal(q.templateText, templateText);
+        assert.ok(r.routes.some((x: { version: string }) => x.version === 'ollama-phrase@1:qwen3:8b'));
+      } else {
+        assert.equal(q.text, templateText);
+        assert.equal(q.wordedBy, undefined);
+        const stored = svc.engine.store.get('question', q.questionId)!;
+        assert.match(stored.candidate.phrasing!.reason!, /rejected/);
+      }
+    } finally {
+      await svc.close();
+    }
+  }
+});

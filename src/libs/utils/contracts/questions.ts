@@ -20,6 +20,13 @@ export interface QuestionCandidate {
   dedupKey: string;
   /** Candidate recipients, each with a question-specific reason to know/observe. */
   recipientIds: string[];
+  /** B2 phrase slot: the template's own wording, kept when a model's wording replaced `text`. */
+  templateText?: string;
+  /**
+   * B2 phrase slot: who worded `text`. 'model' only when the model's sentence passed the validator; 'template' with a
+   * reason when the phrase slot was on but its wording was rejected or the call failed. Absent with the slot on rules.
+   */
+  phrasing?: { by: 'model' | 'template'; reason?: string };
 }
 
 export type EligibilityViolation =

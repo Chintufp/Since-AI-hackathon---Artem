@@ -15,8 +15,11 @@ Question candidates, question-specific recipients, hard eligibility and the requ
 - Budgets are derived from persisted question records (delivered today, last delivered, open ids); nothing else holds counters.
 - Loop status after `request` (each with a `loopReason` from `settings.loopReasons`): `question-open` (waiting for the named recipient), `no-question-needed` (no candidates), `exhausted` only when the per-investigation question budget is used, `deferred` otherwise (no eligible recipient, everyone already asked, people busy/cooling down, or the selector held the question); `answered` after an answer.
 
+## Phrase slot (B2)
+`generator-phrased.ts`: `PhrasedQuestionGenerator({inner: TemplateQuestionGenerator, ctx, provider, model})` asks the phrase model for one sentence per quick candidate (gap, the case facts the requester may see, the asset, the template sentence) and accepts it only through `validatePhrase` (exported for B7). Consequences, dedup key, recipients and gates stay the template's; on a rejection or failure the template text stays and `candidate.phrasing.reason` says why. `generatedBy` becomes `ollama-phrase@1:<model>` only for accepted wording; `templateText` keeps the template wording.
+
 ## Dependencies
-`contracts`, `investigation`, `retrieval/access`, `policies/features` (feature names, `actionKey`), `models/routes`.
+`contracts`, `investigation`, `retrieval/access`, `policies/features` (feature names, `actionKey`), `models/routes`, `models/providers` (contracts-only: `withFallback`).
 
 ## Configuration
 Everything comes from `InvestigationSettings` (`coordinator` limits from contracts `CoordinatorSettings`, `observability`, `questions.conditionTemplates`, `questions.outcomePhrases`, `questions.evaluativePairs`). The selector is injected.

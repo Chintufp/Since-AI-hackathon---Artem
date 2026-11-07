@@ -55,6 +55,8 @@
 #kt-panel .rf-reveal { height:0; overflow:hidden; transition:height 240ms steps(6,end); }
 #kt-panel .rf-history { padding:14px 24px 12px; border-top:1px solid #f0f1f2; }
 #kt-panel .rf-why { font-size:12px; color:#676e74; line-height:1.45; margin:0 0 13px; }
+#kt-panel .rf-worded, #kt-panel .rf-model-note { font-size:11px; color:#7b8187; line-height:1.4; margin:-6px 0 12px; font-style:italic; }
+#kt-panel .rf-model-note { margin:4px 0 0; }
 #kt-panel .rf-timeline { padding:0; margin:0; list-style:none; }
 #kt-panel .rf-timeline li { position:relative; padding:0 0 10px 15px; display:flex; gap:7px; line-height:1.35; font-size:11px; color:#5e666e; }
 #kt-panel .rf-timeline li::before { content:""; width:4px; height:4px; position:absolute; left:0; top:5px; background:#aeb6bd; }

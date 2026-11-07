@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path';
 import type {
   AccessScope, Answer, ApiRoutes, CaseView, Condition, ConnectionCard, ContactDraft, ContactDraftRequest, CoordinatorSettings, ImportRequest, ImportResponse,
   InvestigateRequest, InvestigationState, KnowledgeStore, ObservationRequest, OutcomeReport, OutcomeRequest, ParticipationBalance, ParticipationOptIn, ParticipationRating, PeopleDirectory,
-  PersonView, PreferenceFeedback, Principal, Problem, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
+  PersonView, PreferenceFeedback, Principal, Problem, QuestionGenerator, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
 import { DEFAULT_MODEL_SLOTS, defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
 import type { ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView } from '../../libs/utils/contracts/index.ts';
 import { fallbackRoute, vendorOf, type ApiVendor, type ModelProvider } from '../../libs/utils/models/providers/index.ts';
@@ -20,7 +20,7 @@ import {
   type InvestigationSettings, type PersonDirectory,
 } from '../../libs/utils/investigation/index.ts';
 import { buildCaseView, importFromPath, listCases, openStore } from '../../libs/utils/memory/index.ts';
-import { TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
+import { PhrasedQuestionGenerator, TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
 import { createSelector, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
 import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
 import { awardPoints, balanceOf, getOptIn, participates, rating, revokeContribution, setOptIn, type ParticipationKind } from '../../libs/utils/participation/index.ts';
@@ -235,7 +235,13 @@ export class Engine {
       ? { ...settings, embedding: { index, onFailure: (reason) => this.models.recordFailure('embed', reason) } }
       : settings);
     const assessor = new RulesAssessor({ store: this.store, settings });
-    const generator = new TemplateQuestionGenerator({ store: this.store, settings, directory, clock: this.clock });
+    const qctx = { store: this.store, settings, directory, clock: this.clock };
+    const templates = new TemplateQuestionGenerator(qctx);
+    const phrase = this.slotModel('phrase');
+    const generator: QuestionGenerator = !phrase ? templates
+      : 'unavailable' in phrase ? templates
+      : new PhrasedQuestionGenerator({ inner: templates, ctx: qctx, provider: phrase.provider, model: phrase.model, onFailure: (reason) => this.models.recordFailure('phrase', reason) });
+    if (phrase && 'unavailable' in phrase) this.models.recordFailure('phrase', phrase.unavailable);
     const selector = this.selector(settings.coordinator.selectorId);
     const coordinator = new QuestionCoordinator({ store: this.store, settings, selector, generator, retriever, assessor, directory, clock: this.clock });
     return { settings, directory, retriever, assessor, generator, selector, coordinator };

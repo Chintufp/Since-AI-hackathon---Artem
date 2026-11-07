@@ -18,3 +18,4 @@ export { createAttention, ATTENTION, ENGAGEMENT_KEY } from './attention.ts';
 export type { Attention, AttentionOptions, EngagementCounters, Outcome, QuestionMark } from './attention.ts';
 export { createQuestionWatch, COLLAPSED_POLL_MS } from './question-watch.ts';
 export type { QuestionWatch, QuestionWatchOptions, WakeReason, WatchClock } from './question-watch.ts';
+export { modelNotes } from './model-notes.ts';

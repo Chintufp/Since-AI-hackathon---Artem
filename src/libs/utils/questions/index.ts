@@ -1,4 +1,7 @@
-export { TemplateQuestionGenerator, evaluativePair } from './generator-templates.ts';
+export { TemplateQuestionGenerator, evaluativePair, withEvaluative } from './generator-templates.ts';
+export type { PhraseFacts } from './generator-templates.ts';
+export { PhrasedQuestionGenerator, validatePhrase, buildPhrasePrompt, phraseRoute, PHRASE_VERSION, API_PHRASE_VERSION, MAX_PHRASE_CHARS, YES_NO_OPENERS } from './generator-phrased.ts';
+export type { PhraseCheck, PhraseVerdict, PhrasedGeneratorOptions } from './generator-phrased.ts';
 export { findRecipients, problemEntityIds } from './recipients.ts';
 export type { RecipientReason } from './recipients.ts';
 export { evaluateEligibility, PERMANENT_VIOLATIONS } from './eligibility.ts';

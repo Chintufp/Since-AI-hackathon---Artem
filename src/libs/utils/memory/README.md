@@ -31,8 +31,13 @@ Problem (red) -> Reported conditions (yellow, one node) -> Possible cause (one n
 - Access: record scope = most restrictive of the import scope and cited evidence; the case view filters per item for the principal.
 - Revisions: claims that depended on a superseded revision and were not re-proposed become `corrected`.
 
+## Model extraction (extract slot, B2)
+- `extractor-llm.ts`: `createLlmExtractor({provider, model})` implements `Extractor`. Prompt = four few-shot examples (shaped like `data/replays/e01-claude-arm/`) + the thread as indexed messages with evidence ids and actor ids. Output is constrained by `extractionJsonSchema()` (zod `extractionOutputSchema` through `z.toJSONSchema`) and validated by `validateExtraction`: every claim, entity and link must cite a message of the thread with an excerpt found in its `extractionText` or it is dropped; spans come from the excerpt.
+- `enrich.ts`: `enrichWithModel(store, items, extractor, opts)` commits `unionProposal(rules, model)` per thread AFTER the rules commit (so claims the rules produced keep 'rules' and only model-only claims carry `ollama-extract@1:<model>`), all model calls within one 60 s deadline, all-or-nothing, with a labelled fallback route. `importFromPath(..., {onCommitted})` hands it the threads and their committed rules proposals.
+- `provenance.ts`: `modelProvenance(claim.extraction)` -> "proposed by local model qwen3:4b, committed by rules"; case-view nodes show it after each such statement and in `TimelineNode.provenance`.
+
 ## Dependencies
-`contracts/`, `connectors/`, `ingest/`, `context/`, `node:sqlite`. Acyclic: connectors <- ingest, context <- memory.
+`contracts/`, `connectors/`, `ingest/`, `context/`, `node:sqlite`, `models/providers` (contracts-only: `withFallback`, slot timeouts) and `zod` (the extraction schema). Acyclic: connectors <- ingest, context <- memory.
 
 ## Checks run
 `node --test 'src/libs/utils/memory/**/*.test.ts'` — `case-view.test.ts` (no case for an aside, compact Elisa/dev-family/demo-family timelines, labels, retelling adds no repeats), store (FTS5 and fallback, rollback, injection guard, 5k puts < 2 s), extractor rules and configuration generalization, and pipeline tests on the Elisa files (skipped when `private/` is absent) and `data/fixtures/dev-family-01` (one case, retelling, attempt/outcome/links, Slack continuation, lookalike separation, access-fact, access filtering, edited-message revision, corrections, idempotent reimport). The Elisa assertions were run and passed.

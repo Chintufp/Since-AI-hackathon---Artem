@@ -54,7 +54,7 @@ export interface PersonView {
 export interface ResultView {
   investigationId: string;
   recommendation: { kind: string; text: string; applicability: string; caveats: string[]; nextStep?: string; actionClass: string };
-  matches: Array<{ caseId?: string; procedureId?: string; title: string; score: number; matching: string[]; conflicting: string[]; missing: string[] }>;
+  matches: Array<{ caseId?: string; procedureId?: string; title: string; score: number; matching: string[]; conflicting: string[]; missing: string[]; /** When the case started (ISO), when known. */ startedAt?: string }>;
   people: PersonView[];
   question?: QuestionView;
   loop: string;

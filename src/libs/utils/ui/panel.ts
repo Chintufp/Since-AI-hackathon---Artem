@@ -492,35 +492,29 @@ export function createPanel(options: PanelOptions): Panel {
     } else path.hidden = true;
     const rows = $('.rf-result-rows');
     rows.replaceChildren();
-    // desktop (R48, Artem 7 Nov): when several cases are similar, show a few; when nothing is close enough, show the closest
-    // ones and ask the requester for the detail that would decide it (no colleague is asked, no model is called).
+    // desktop (R48, Artem 7 Nov): similar cases, one line each with their date; a near miss asks the requester, not a colleague.
     const basisId = cv?.caseId;
     const others = result.matches.filter((m) => m.caseId && m.caseId !== basisId);
     const none = r.kind === 'none' && !cv?.timeline.length;
     const top = result.matches[0]?.score ?? 0;
     const alts = (none ? others : others.filter((m) => m.score >= top - 0.1)).slice(0, 3);
+    if (none && alts.length) $('.rf-result-title').textContent = 'Nothing close enough yet.';
     if (alts.length) {
       const box = el('div', 'rf-alts');
-      box.append(el('p', 'rf-alts-title', none ? 'Closest cases, not close enough yet' : 'Also similar'));
+      box.append(el('p', 'rf-alts-title', none ? 'Closest' : 'Also similar'));
       alts.forEach((m) => {
         const b = el('button', 'rf-alt');
         b.type = 'button';
         b.dataset.action = 'view-case';
         b.dataset.caseId = m.caseId!;
-        const differs = m.conflicting.length ? `differs: ${m.conflicting.slice(0, 2).join(', ')}` : m.missing.length ? `if: ${m.missing.slice(0, 2).join(', ')}` : m.matching.length ? `matches: ${m.matching.slice(0, 2).join(', ')}` : '';
-        b.append(el('span', undefined, m.title));
-        if (differs) b.append(el('small', undefined, differs));
+        const hint = m.conflicting[0] ? `differs: ${m.conflicting[0]}` : m.missing[0] ? `if ${m.missing[0]}` : '';
+        b.append(el('span', 'rf-alt-title', m.title));
+        b.append(el('span', 'rf-alt-when', m.startedAt ? monthLabel(m.startedAt) : ''));
+        if (hint) b.append(el('small', undefined, hint));
         box.append(b);
       });
-      if (none) {
-        const ask = el('p', 'rf-alts-ask', 'Tell me which equipment and what changed last, and I\u2019ll look again.');
-        box.append(ask);
-        const more = el('button', 'rf-later', 'Add details');
-        more.type = 'button';
-        more.dataset.action = 'input';
-        box.append(more);
-      }
       rows.append(box);
+      if (none) renderRow('Add which equipment and what changed', '', 'input', rows);
     }
     renderRow('People with relevant experience', String(result.people.length), 'people', rows).disabled = !result.people.length;
     if (result.question) {
@@ -656,6 +650,11 @@ export function createPanel(options: PanelOptions): Panel {
       list.append(row);
     });
     if (state.view === 'points') motion.view(false);
+  }
+  /** 'Jun 2026' for a case date (years matter for stale fixes). */
+  function monthLabel(iso: string): string {
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
   }
   function whenLabel(iso: string): string {
     const d = new Date(iso);

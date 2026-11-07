@@ -285,12 +285,13 @@
 #kt-panel .rf-info-tip { position:absolute; left:0; bottom:22px; width:260px; background:#fff; border:1px solid #e3e4e5; border-radius:10px; box-shadow:0 7px 20px #22242b12,0 1px 3px #22242b08; padding:9px 11px; font-size:11px; line-height:1.45; color:#4b5258; opacity:0; visibility:hidden; transition:opacity 120ms ease; pointer-events:none; z-index:2; }
 #kt-panel .rf-info:hover .rf-info-tip, #kt-panel .rf-info:focus-visible .rf-info-tip { opacity:1; visibility:visible; }
 #kt-panel .rf-info[hidden] { display:none; }
-/* desktop (R48): similar cases under the recommendation; same type scale as the rows */
-#kt-panel .rf-alts { border-top:1px solid #edf0f1; padding:10px 24px 8px; }
-#kt-panel .rf-alts-title { font-size:11px; color:#838990; letter-spacing:.025em; margin:0 0 4px; }
-#kt-panel .rf-alt { display:flex; flex-direction:column; align-items:flex-start; width:100%; border:0; background:transparent; padding:6px 0; text-align:left; font-size:12px; color:#5e676e; line-height:1.35; }
-#kt-panel .rf-alt:hover span { color:#303438; }
-#kt-panel .rf-alt small { font-size:11px; color:#8d959c; }
-#kt-panel .rf-alts-ask { font-size:12px; line-height:1.45; color:#5e676e; margin:8px 0 2px; }
+/* desktop (R48): similar cases under the recommendation, one line each, the date on the right */
+#kt-panel .rf-alts { border-top:1px solid #edf0f1; padding:9px 24px 6px; }
+#kt-panel .rf-alts-title { font-size:11px; color:#838990; letter-spacing:.025em; margin:0 0 2px; }
+#kt-panel .rf-alt { display:grid; grid-template-columns:1fr auto; column-gap:12px; width:100%; border:0; background:transparent; padding:5px 0; text-align:left; font-size:12px; color:#5e676e; line-height:1.35; }
+#kt-panel .rf-alt .rf-alt-title { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#kt-panel .rf-alt .rf-alt-when { color:#8d959c; font-variant-numeric:tabular-nums; white-space:nowrap; }
+#kt-panel .rf-alt small { grid-column:1 / -1; font-size:11px; color:#8d959c; }
+#kt-panel .rf-alt:hover .rf-alt-title { color:#303438; }
 @media (max-width:419px) { #kt-panel .rf-alts { padding-left:19px; padding-right:19px; } }
 

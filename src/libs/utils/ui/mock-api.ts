@@ -170,9 +170,9 @@ function makeHandlers(s: MockState): Handlers {
           actionClass: 'diagnostic-check',
         },
         matches: [
-          { caseId: CASE.caseId, title: CASE.title, score: 0.72, matching: ['Blank output after ribbon change'], conflicting: [], missing: ['Printhead revision'] },
-          { caseId: 'case_mock_alt1', title: 'PKG-204 · faint print after ribbon swap', score: 0.66, matching: ['Ribbon changed'], conflicting: ['Output faint, not blank'], missing: [] },
-          { caseId: 'case_mock_alt2', title: 'PKG-118 · blank labels, old printhead', score: 0.64, matching: ['Blank output'], conflicting: [], missing: ['Printhead older than 2019'] },
+          { caseId: CASE.caseId, title: CASE.title, score: 0.72, matching: ['Blank output after ribbon change'], conflicting: [], missing: ['Printhead revision'], startedAt: '2026-09-18T08:10:00.000Z' },
+          { caseId: 'case_mock_alt1', title: 'PKG-204 · faint print after ribbon swap', score: 0.66, matching: ['Ribbon changed'], conflicting: ['Output faint, not blank'], missing: [], startedAt: '2025-11-02T09:00:00.000Z' },
+          { caseId: 'case_mock_alt2', title: 'PKG-118 · blank labels, old printhead', score: 0.64, matching: ['Blank output'], conflicting: [], missing: ['Printhead older than 2019'], startedAt: '2026-03-27T13:40:00.000Z' },
         ],
         people: PEOPLE,
         ...(quiet ? { loopReason: 'No one to ask right now: nobody with firsthand knowledge is available' } : { question }),

@@ -103,6 +103,7 @@ export function resultView(
     matching: c.matchingConditions.map(label),
     conflicting: c.conflictingConditions.map(label),
     missing: c.missingConditions.map((m) => m.label),
+    ...(c.caseId && store.get('case', c.caseId)?.startedAt.known && store.get('case', c.caseId)?.startedAt.iso ? { startedAt: store.get('case', c.caseId)!.startedAt.iso } : {}),
   }));
   // The timeline is the case the recommendation is based on (the best related candidate when there is no recommendation).
   const shownCaseId = basisCaseId(state) ?? caseOfBasis(state);

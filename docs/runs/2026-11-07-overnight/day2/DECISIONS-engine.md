@@ -191,3 +191,9 @@ Reverse: the `inQuiet` branch in `deliverNow`.
 
 Rule (a) gains a backfill step: when a fresh claim with a known time falls strictly inside the known window of an already superseded claim of the same slot and subject (different value), the older claim's `to` moves to the fresh claim's `from` and its `supersededBy` to the fresh claim. So 5802 (20 Aug), 7731 (6 Oct), then a late 6000 (1 Sep) gives exactly one valid code at every moment. Known times only; human-touched claims are never moved. Test: supersession.test.ts "a backfilled code ...".
 Reverse: the backfill loop in `applySupersession`.
+
+## D-B1-34 · The firmware story on a clean clone
+
+Erkki's 14 Oct note names TRN-042, whose thread exists only in Elisa's git-ignored files, so on a clean clone (seed `synthetic`) it bounded nothing. `data/demo/followups-synthetic/teams-followup-helmi.json` carries the same note by Helmi Virtanen about the synthetic TRN-117 family; `resetDemo` imports it only when Elisa's thread was not imported (`EngineOptions.followupsSyntheticDir`), so the Elisa demo is unchanged. On the synthetic seed the 4.2 problem gives the caveat "Superseded on 14 Oct by Helmi Virtanen: fixed in firmware 4.2" with "ask Helmi Virtanen", kind `none` (no other supported step on TRN-117; the brief allows "qualified/none"). problems.json lists both expectations and its stale "second half of B1" note is updated. Test: tests/followups-synthetic.test.ts (no `elisaDir` files, seeds default and `synthetic`, before and after 14 Oct).
+Why not a synthetic TRN-042 thread: it would be a lookalike of Elisa's private thread in the repo.
+Reverse: delete the directory and the `!elisa` import in demo.ts.

@@ -294,4 +294,6 @@
 #kt-panel .rf-alt small { grid-column:1 / -1; font-size:11px; color:#8d959c; }
 #kt-panel .rf-alt:hover .rf-alt-title { color:#303438; }
 @media (max-width:419px) { #kt-panel .rf-alts { padding-left:19px; padding-right:19px; } }
+/* desktop (Artem 7 Nov): the result view has the same top-right arrow as the other panels */
+#kt-panel .rf-result-head { padding-right:52px; }
 

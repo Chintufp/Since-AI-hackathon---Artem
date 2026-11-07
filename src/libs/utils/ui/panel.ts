@@ -30,7 +30,7 @@ import type { InputModality } from './focus.ts';
 
 export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'receipt' | 'result' | 'people' | 'case' | 'contact' | 'points';
 const RESTORABLE: ViewName[] = ['input', 'queue', 'settings'];
-const BACK: Partial<Record<ViewName, ViewName>> = { people: 'result', case: 'people', contact: 'people', points: 'settings' };
+const BACK: Partial<Record<ViewName, ViewName>> = { result: 'input', people: 'result', case: 'people', contact: 'people', points: 'settings' };
 
 export interface PanelOptions {
   root: HTMLElement;
@@ -169,7 +169,7 @@ const TEMPLATE = `
     </div>
    </section>
    <section class="rf-view rf-result" data-view="result" aria-label="Result" hidden>
-    <div class="rf-result-head"><p class="rf-result-title"></p><div class="rf-result-notes"></div></div>
+    <div class="rf-result-head"><p class="rf-result-title"></p><div class="rf-result-notes"></div><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to writing"><i data-icon="arrow-left"></i></button></div>
     <div class="rf-case-path"></div>
     <div class="rf-result-rows"></div>
    </section>
@@ -514,16 +514,14 @@ export function createPanel(options: PanelOptions): Panel {
         box.append(b);
       });
       rows.append(box);
-      if (none) renderRow('Add which equipment and what changed', '', 'input', rows);
     }
+    if (none && alts.length) { motion.registerDetails(state.openNodes.result, path); return; } // Artem: nothing else before a case is chosen
     renderRow('People with relevant experience', String(result.people.length), 'people', rows).disabled = !result.people.length;
     if (result.question) {
       // The engine routes the question to someone else, never the requester: show it read-only.
       const asked = el('p', 'rf-asked', 'Asked a colleague with relevant experience');
       asked.append(el('span', 'rf-row-meta', result.question.status));
       rows.append(asked);
-    } else if (result.loopReason) {
-      rows.append(el('p', 'rf-loop-reason', result.loopReason));
     }
     motion.registerDetails(state.openNodes.result, path);
   }

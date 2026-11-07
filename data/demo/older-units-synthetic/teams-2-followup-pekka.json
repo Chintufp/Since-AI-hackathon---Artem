@@ -1,0 +1,16 @@
+{
+  "channel": "teams-older-units-followup-synthetic",
+  "note": "Generated follow-up (synthetic, day-2 final build): the firmware 4.2 note on the stand-in TRN-233, as Helmi's note is on TRN-117. See README.md.",
+  "participants": [
+    { "name": "Pekka Laine", "role": "Network Expert" }
+  ],
+  "messages": [
+    {
+      "seq": 1,
+      "time": "2026-10-14T10:05:00+03:00",
+      "author": "Pekka Laine",
+      "role": "Network Expert",
+      "text": "TRN-233 follow-up: the 4.2 firmware fixes the forwarding-state bug. Units already on 4.2 should not see it; if they do, it is something else."
+    }
+  ]
+}

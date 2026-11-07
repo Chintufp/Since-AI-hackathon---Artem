@@ -165,7 +165,12 @@ try {
     say(`\nThe agent chooses the gap that decides ${gap.decides}: ${gap.description}`);
     const people = await call<Array<{ personEntityId: string; name: string; role?: string; askable: boolean; reasons: Array<{ text: string }> }>>('kt_find_people', { investigationId, principal });
     show('kt_find_people', people.map((p) => `${p.name}${p.role ? ` · ${p.role}` : ''} (${p.personEntityId})${p.askable ? '' : ' · not askable now'}: ${p.reasons.map((r) => r.text).join('; ')}`).join('\n'));
-    const wanted = people.find((p) => p.name.toLowerCase().includes(values.prefer.toLowerCase()));
+    // On a clean clone (no Elisa files, D-B6-27) Erkki has no case of his own, so he is not among the people with
+    // experience; he can still answer this gap through his role, and kt_list_gaps lists him under whoCouldAnswer.
+    const pref = values.prefer.toLowerCase();
+    const wanted: { personEntityId: string; name: string } | undefined = people.find((p) => p.name.toLowerCase().includes(pref))
+      ?? (gap.whoCouldAnswer as Array<{ personEntityId: string; name: string; askableNow: boolean }>).find((p) => p.askableNow && p.name.toLowerCase().includes(pref));
+    if (wanted && !people.some((p) => p.personEntityId === wanted.personEntityId)) say(`\n${wanted.name} has no case of their own here, but kt_list_gaps lists them as able to answer this gap; the agent prefers them.`);
     if (!wanted) say(`\n${values.prefer} is not among the people with experience; the engine chooses.`);
     let clar = await call('kt_request_clarification', { investigationId, gapId: gap.id, ...(wanted ? { preferPersonEntityId: wanted.personEntityId } : {}), principal });
     show('kt_request_clarification', clar);
@@ -181,7 +186,9 @@ try {
       show('kt_request_clarification', clar);
     }
     if (clar.questionId) {
-      const asked = (people.find((p) => p.personEntityId === clar.personEntityId)?.name ?? clar.personEntityId) as string;
+      const asked = (people.find((p) => p.personEntityId === clar.personEntityId)?.name
+        ?? (gap.whoCouldAnswer as Array<{ personEntityId: string; name: string }>).find((p) => p.personEntityId === clar.personEntityId)?.name
+        ?? clar.personEntityId) as string;
       const service = await sameDbService();
       if (clar.deliverAfter) {
         say(`\nQueued by quiet hours: deliverAfter ${clar.deliverAfter} (${hel(clar.deliverAfter)} Helsinki). Loop: ${clar.loopReason}.`);

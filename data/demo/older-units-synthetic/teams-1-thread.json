@@ -1,0 +1,15 @@
+{
+  "channel": "teams-older-units-synthetic",
+  "note": "Generated stand-in (synthetic, written by the day-2 final build). Imported by the demo reset only when Elisa's example is not on this machine, so the agent path (pnpm demo:agent) and the demo chips work on a clean clone. Names and node ids are invented. See README.md.",
+  "participants": [
+    { "name": "Ville Ranta", "role": "Field Engineer" },
+    { "name": "Pekka Laine", "role": "Network Expert" }
+  ],
+  "messages": [
+    { "seq": 1, "time": "10:02", "author": "Ville Ranta", "role": "Field Engineer", "text": "Hi Pekka, at the site. Changed the SFP on transmission node TRN-233.\nLink is up and alarms cleared, but traffic is still not coming back." },
+    { "seq": 2, "time": "10:04", "author": "Pekka Laine", "role": "Network Expert", "text": "Is this one of the older units?" },
+    { "seq": 3, "time": "10:05", "author": "Ville Ranta", "role": "Field Engineer", "text": "Yes, it is one of the older units." },
+    { "seq": 4, "time": "10:07", "author": "Pekka Laine", "role": "Network Expert", "text": "Sometimes after changing the SFP the forwarding state does not recover on those.\nDisable the interface, wait a little, then enable it again." },
+    { "seq": 5, "time": "10:15", "author": "Ville Ranta", "role": "Field Engineer", "text": "Did that. Traffic is back." }
+  ]
+}

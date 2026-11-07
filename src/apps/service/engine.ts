@@ -91,6 +91,8 @@ export interface EngineOptions {
   followupsDir?: string;
   /** B1: follow-ups imported only when Elisa's thread is absent (default data/demo/followups-synthetic). */
   followupsSyntheticDir?: string;
+  /** B6 final: the generated older-units stand-in imported on the default seed when Elisa's thread is absent (default data/demo/older-units-synthetic). */
+  olderUnitsSyntheticDir?: string;
   /** B5: the generated "experts disagree" thread imported by the demo reset (default data/demo/experts-disagree). */
   expertsDisagreeDir?: string;
   /**

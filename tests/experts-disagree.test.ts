@@ -191,14 +191,18 @@ test('clean clone (no Elisa files): the demo reset leaves the thread out, so the
           assert.equal(e.store.list('case').some((c) => c.title.startsWith('TRN-512')), seeded, `TRN-512 seeded=${seeded} seed=${seed}`);
           const liisa = e.directory().find((p) => p.name === 'Liisa Mäkelä')!;
           const principal: Principal = { id: liisa.personEntityId, displayName: liisa.name, groups: liisa.groups, type: 'human' };
+          // Default seed on a clean clone imports the older-units stand-in (D-B6-27): an older unit then reuses TRN-233's
+          // reset, as it reuses TRN-042's with Elisa's files; seed 'synthetic' keeps the pre-B5 text.
+          const standIn = seed === undefined;
           if (!seeded) {
             const r = await e.investigate({ text: TRN088, principal, allowQuestions: false });
-            assert.equal(r.recommendation.text, 'You already did the SFP replacement; TRN-117 has no other reported fix.');
+            assert.equal(r.recommendation.text, standIn ? 'Consider disabling and re-enabling the interface; it reportedly restored traffic in TRN-233.' : 'You already did the SFP replacement; TRN-117 has no other reported fix.');
           }
           const ilmari = e.directory().find((p) => p.name === 'Ilmari Karjalainen')!;
           const fw: any = await e.investigate({ text: TRN077, principal: { id: ilmari.personEntityId, displayName: ilmari.name, groups: ilmari.groups, type: 'human' } });
-          assert.ok(fw.state.recommendation.caveats.includes('Superseded on 14 Oct by Helmi Virtanen: fixed in firmware 4.2'), `4.2 caveat seeded=${seeded}`);
-          assert.match(fw.state.recommendation.nextStep ?? '', /ask Helmi Virtanen/);
+          const who = standIn ? 'Pekka Laine' : 'Helmi Virtanen';
+          assert.ok(fw.state.recommendation.caveats.includes(`Superseded on 14 Oct by ${who}: fixed in firmware 4.2`), `4.2 caveat seeded=${seeded} seed=${seed}: ${fw.state.recommendation.caveats.join(' / ')}`);
+          assert.match(fw.state.recommendation.nextStep ?? '', new RegExp(`ask ${who}`));
         }
       } finally {
         e.close();

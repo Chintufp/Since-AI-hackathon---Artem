@@ -13,7 +13,9 @@ export const DEFAULT_ELISA_DIR = join(REPO_ROOT, 'private', 'Elisa_SinceAI2026',
  *  - the developer fixture data/fixtures/dev-family-01 when present,
  *  - the generated dated follow-ups in data/demo/followups (B1) when present, and data/demo/followups-synthetic when
  *    Elisa's thread was not imported,
- *  - the generated experts-disagree thread in data/demo/experts-disagree (B5) when Elisa's thread was imported.
+ *  - the generated experts-disagree thread in data/demo/experts-disagree (B5) when Elisa's thread was imported,
+ *  - the generated older-units stand-in in data/demo/older-units-synthetic when Elisa's thread is absent on the default
+ *    seed (a clean clone): the agent path and the field chip need an "older unit" case (D-B6-27).
  * seed 'empty' only clears.
  */
 export type DemoResetResult = { ok: true; imported: ImportResponse[]; defaultPersonEntityId?: string };
@@ -71,6 +73,11 @@ export async function resetDemo(engine: Engine, seed: 'elisa' | 'synthetic' | 'e
   // disagree" story; see data/demo/experts-disagree/README.md and DECISIONS-disagree.md. Only next to Elisa's TRN-042
   // (Erkki, the first expert): on a clean clone the other branch would be Helmi's own TRN-117 and the walkthrough texts
   // would change (D-B5-13). An explicit `expertsDisagreeDir` seeds it on any seed (tests).
+  // B6 final (D-B6-27): on a clean clone the default seed has no "older unit" case (TRN-042 is Elisa's), so demo:agent
+  // found no gap that decides applicability. A generated thread with invented names (Ville Ranta, Pekka Laine, TRN-233)
+  // stands in; not on seed 'synthetic', whose store the experiments and their hash-locked numbers are built on.
+  const olderUnits = opts.olderUnitsSyntheticDir ?? join(REPO_ROOT, 'data', 'demo', 'older-units-synthetic');
+  if (!elisa && seed !== 'synthetic' && existsSync(olderUnits)) imported.push(engine.importData({ format: 'scenario-dir', path: olderUnits }));
   const disagree = opts.expertsDisagreeDir ?? join(REPO_ROOT, 'data', 'demo', 'experts-disagree');
   if ((elisa || opts.expertsDisagreeDir !== undefined) && existsSync(disagree)) imported.push(engine.importData({ format: 'scenario-dir', path: disagree }));
   return finish();

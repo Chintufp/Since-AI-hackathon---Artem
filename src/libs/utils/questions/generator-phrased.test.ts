@@ -43,6 +43,20 @@ test('phrase validator: the planted hallucination is rejected (person, part, num
   assert.deepEqual(validatePhrase('Was the older TRN-301 replaced?', check), { ok: false, reason: 'introduces the action "replaced"' });
   assert.deepEqual(validatePhrase('Is TRN-301 an older unit from 2019?', check), { ok: true });
   assert.deepEqual(validatePhrase('Is TRN-301 one of the older units?', check), { ok: true });
+  // review probes: negation, lowercase names and places, number words, actions outside the stem list
+  assert.deepEqual(validatePhrase('Is TRN-301 not an older unit?', check), { ok: false, reason: 'adds the negation "not"' });
+  assert.deepEqual(validatePhrase("Isn't TRN-301 an older unit?", check).ok, false);
+  assert.deepEqual(validatePhrase('Is TRN-301 never an older unit?', check), { ok: false, reason: 'adds the negation "never"' });
+  assert.deepEqual(validatePhrase('Is TRN-301 an older unit at the helsinki site?', check), { ok: false, reason: 'introduces "helsinki"' });
+  assert.deepEqual(validatePhrase('Is TRN-301 an older unit fixed by mikko?', check).ok, false);
+  assert.deepEqual(validatePhrase('Is TRN-301 an older unit with twenty ports?', check), { ok: false, reason: 'introduces the number "twenty"' });
+  assert.deepEqual(validatePhrase('Should TRN-301 an older unit be decommissioned?', check), { ok: false, reason: 'introduces "decommissioned"' });
+  assert.deepEqual(validatePhrase('Should the older TRN-301 unit be escalated to the vendor?', check), { ok: false, reason: 'introduces "escalated"' });
+  assert.deepEqual(validatePhrase('Is TRN-301 an older unit with a faulty power supply?', check).ok, false);
+  // a negation the template has may stay; plain rewording with input words passes
+  const negCheck = { ...check, inputText: `${check.inputText} Is TRN-301 not an older unit revision?`, templateText: 'Is TRN-301 not an older unit revision?' };
+  assert.deepEqual(validatePhrase('Is TRN-301 not one of the older unit revisions?', negCheck), { ok: true });
+  assert.deepEqual(validatePhrase('Is TRN-301 still one of the older revisions from 2019?', check), { ok: true });
   // shape rules
   assert.match((validatePhrase('TRN-301 is an older unit?', check) as { reason: string }).reason, /does not open a yes\/no question/);
   assert.match((validatePhrase('Is TRN-301 an older unit.', check) as { reason: string }).reason, /question mark/);

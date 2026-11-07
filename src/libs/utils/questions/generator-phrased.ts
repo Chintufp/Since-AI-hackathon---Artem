@@ -32,6 +32,36 @@ const numbersIn = (s: string): string[] => (s.replace(ID_RE, ' ').match(/\d+(?:[
 const significant = (s: string): string[] => words(lower(s)).filter((w) => w.length >= 3 && !STOP.has(w) && !/^\d/.test(w));
 const stemOf = (w: string): string | undefined => ACTION_STEMS.find((st) => lower(w).startsWith(st));
 
+/**
+ * Words a phrasing may use without finding them in the input (D-B2-56): grammar and a few verbs of plain question
+ * wording. Every other word of the phrasing must match a word of the input (same stem, see `sameWord`).
+ */
+const GLUE = new Set([
+  'a', 'an', 'the', 'and', 'or', 'but', 'so', 'if', 'as', 'at', 'by', 'for', 'from', 'in', 'into', 'of', 'on', 'onto', 'to', 'with', 'about', 'after',
+  'before', 'since', 'than', 'then', 'that', 'this', 'these', 'those', 'there', 'here', 'it', 'its', 'it\'s', 'they', 'them', 'their', 'you', 'your', 'we',
+  'our', 'he', 'she', 'his', 'her', 'who', 'what', 'which', 'when', 'where', 'how', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'do', 'does', 'did',
+  'has', 'have', 'had', 'can', 'could', 'should', 'would', 'will', 'may', 'might', 'any', 'some', 'all', 'also', 'still', 'already', 'same', 'such',
+  'other', 'another', 'just', 'really', 'actually', 'right', 'up', 'out', 'back', 'come', 'came', 'get', 'got', 'go', 'went', 'see', 'seen', 'saw',
+  'look', 'looks', 'seem', 'seems', 'know', 'known', 'far', 'remember', 'sure', 'kind', 'type', 'like', 'one', 'ones', 'case', 'unit', 'units', 'yes',
+]);
+/** Words that turn a question around; one may appear only when the template has it, or the template's yes/no would land on the wrong branch. */
+const NEGATION_RE = /\b(?:not|no|never|none|nothing|nobody|neither|nor|without|cannot)\b|n['\u2019]t\b/gi;
+/** Spelled-out numbers: as digits, a number must come from the input; spelled out, it must too. */
+const NUMBER_WORDS = new Set([
+  'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen',
+  'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety', 'hundred', 'thousand', 'million', 'dozen',
+  'first', 'second', 'third', 'fourth', 'fifth', 'once', 'twice', 'half', 'double', 'single',
+]);
+const stem = (w: string): string => lower(w).replace(/['\u2019]s$/, '').replace(/(?:ing|ed|es|s|ly)$/, '');
+/** Same word up to an English ending: equal stems, a shared five-letter start, or a stem of 3+ letters that starts the other. */
+function sameWord(a: string, b: string): boolean {
+  const x = stem(a), y = stem(b);
+  if (x === y) return true;
+  if (x.length >= 5 && y.length >= 5 && x.slice(0, 5) === y.slice(0, 5)) return true;
+  const [s, l] = x.length <= y.length ? [x, y] : [y, x];
+  return s.length >= 3 && l.startsWith(s);
+}
+
 export interface PhraseCheck {
   asset: string;
   /** missing questions: the condition label the question must name. */
@@ -69,6 +99,8 @@ function names(text: string, label: string, template?: string): boolean {
  * The phrase validator (also used by B7's kt_propose_question): one sentence ending '?', under 160 characters, a
  * yes/no opening, naming the asset and the condition label (outcome questions: the action noun and the case label),
  * and no entity, number or action absent from the input (numbers inside the asset id and input values are allowed).
+ * No negation the template lacks, no spelled-out number the input lacks, and every word that is not grammar
+ * (`GLUE`) must match a word of the input, lowercase names and verbs included (D-B2-56).
  */
 export function validatePhrase(text: string, check: PhraseCheck): PhraseVerdict {
   const t = text.trim();
@@ -101,6 +133,20 @@ export function validatePhrase(text: string, check: PhraseCheck): PhraseVerdict 
   for (const w of ws) {
     const st = stemOf(w);
     if (st && !inputStems.has(st)) return { ok: false, reason: `introduces the action "${w}"` };
+  }
+  // A negation turns the question around while the template's consequences stay: only as many as the template has.
+  const negs = (x: string): string[] => (x.match(NEGATION_RE) ?? []).map(lower);
+  const tplNegs = tpl !== undefined ? negs(tpl) : negs(check.inputText);
+  const neg = negs(t).find((n) => !tplNegs.includes(n));
+  if (neg || negs(t).length > tplNegs.length) return { ok: false, reason: `adds the negation "${neg ?? negs(t)[0]}"` };
+  // Every other word must come from the input: lowercase names, places, parts and actions too.
+  const pool = [...inputWords];
+  for (const w of ws.slice(1)) {
+    const lw = lower(w);
+    if (/\d/.test(lw) || /n['\u2019]t$/.test(lw)) continue;
+    if (NUMBER_WORDS.has(lw)) { if (!inputWords.has(lw)) return { ok: false, reason: `introduces the number "${w}"` }; continue; }
+    if (GLUE.has(lw) || negs(lw).length) continue;
+    if (!pool.some((p) => sameWord(lw, p))) return { ok: false, reason: stemOf(lw) ? `introduces the action "${w}"` : `introduces "${w}"` };
   }
   return { ok: true };
 }

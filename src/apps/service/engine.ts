@@ -1136,7 +1136,17 @@ export class Engine {
     const r = await resetDemo(this, seed, this.opts, defaultPerson);
     // B3: the store-health baseline for "completeness 0.71 -> 0.83 after 5 questions" (in memory; D-B3-08).
     this.healthBaselines.clear();
-    this.healthBaselines.set('', { at: this.now().toISOString(), health: this.storeHealth() });
+    const at = this.now().toISOString();
+    this.healthBaselines.set('', { at, health: this.storeHealth() });
+    // Review: the Settings row asks as the current person, so every directory person gets the reset's "before" too
+    // (otherwise it would be taken at the first Settings opening and miss the answers given before it).
+    for (const d of this.directory()) {
+      try {
+        this.healthBaselines.set(d.personEntityId, { at, health: this.storeHealth(d.personEntityId) });
+      } catch {
+        // a person the metric cannot be computed for gets the lazy baseline (D-B3-08)
+      }
+    }
     return r;
   }
 

@@ -84,3 +84,28 @@ test('the activity page shows the cost card from GET /costs in the same tick', a
   assert.match(html, /id="cost"/);
   assert.doesNotThrow(() => new Function(/<script>([\s\S]*)<\/script>/.exec(html)![1]!));
 });
+
+test('review: on the simulated demo clock the seconds say so; the Settings row (principalId) keeps the reset\'s "before"', async () => {
+  const demo = await startService({ clock: undefined });
+  try {
+    await demo.call('POST', '/demo/reset', { seed: 'synthetic' });
+    const current = (await demo.call('GET', '/settings')).currentPersonEntityId as string;
+    assert.ok(current);
+    await demo.call('POST', '/demo/clock', { now: '2026-11-09T09:00:00.000Z', rate: 1 });
+    const r = await demo.call('POST', '/investigate', { text: 'BGP flaps after firmware upgrade on edge router RTR-300 unit', principal: requester });
+    const q = r.question as QuestionView | undefined;
+    assert.ok(q, 'a question opens');
+    const p = demo.engine.store.get('entity', demo.engine.store.get('question', q.questionId)!.personEntityId)!;
+    await demo.call('POST', `/questions/${encodeURIComponent(q.questionId)}/answer`, { principal: human(p.id, p.name), value: 'yes' });
+    // First opening of Settings after the answer: the baseline is the reset's, so the answer counts.
+    const c: ExpertCostView = await demo.call('GET', `/costs?principalId=${encodeURIComponent(current)}`);
+    assert.equal(c.seconds.clock, 'simulated');
+    assert.match(c.line, /\(simulated\)/);
+    assert.equal(c.storeHealth?.answeredSince, 1);
+    assert.equal((await demo.call('GET', '/costs')).storeHealth?.answeredSince, 1, 'the activity page (no principalId) agrees');
+    const page = await (await fetch(demo.http.url + '/demo/activity.html')).text();
+    assert.match(page, /simulated seconds/);
+  } finally {
+    await demo.close();
+  }
+});

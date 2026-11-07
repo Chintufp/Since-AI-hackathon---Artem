@@ -246,3 +246,18 @@ the strip and the page's status column say "bounded 14 Oct by Erkki Expert · ho
 problem on 4.2 the advice is superseded for that unit, which is what it says). Test: context-page (strip shape on the
 synthetic TRN-117 bounded advice; the page source carries the phrase). Supersedes the words in D-B3-05 and D-B3-06.
 Reverse: the two strings in `provenance-strip.ts` and `context-page.ts statusOf`.
+
+### D-B3-17 · The Settings cost row keeps the reset's "before" (minor, fixed)
+
+Finding: the Settings row asks `GET /costs` with the current person as `principalId`, and the per-principal baseline
+was taken at that principal's first request, so answers given before the first Settings opening were folded into the
+"before" and no arrow appeared, while the activity page (no `principalId`) used the reset's baseline. Confirmed with a
+probe (answeredSince 0 vs 1). Fix: `Engine.resetDemo` takes the baseline for every directory person as well as the
+store-wide one, at the same moment; a principal outside the directory still gets the lazy baseline (D-B3-08).
+Test: costs.test.ts (after a reset and one answer, the first `GET /costs?principalId=` reports answeredSince 1, like
+the activity page). Reverse: the loop in `resetDemo`.
+
+### D-B3-18 · The simulated seconds label is tested (minor, fixed)
+
+The same test runs on the demo clock (`clock: undefined`, `POST /demo/clock`) and asserts `seconds.clock ===
+'simulated'`, "(simulated)" in the line and "simulated seconds" in the activity page's source.

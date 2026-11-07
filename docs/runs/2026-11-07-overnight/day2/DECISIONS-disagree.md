@@ -117,3 +117,6 @@ checked visually in the Electron companion (no DOM test harness for `renderResul
 "Is TRN-577 from the 2021 batch?" goes to Erkki Expert (checked). `docs/DEMO.md` gets an "Experts disagree" section with
 the paste text, and the TRN-088 step lists the extra caveat that the seeded thread adds ("TRN-512 does not apply ...").
 The heading, next step and people of the TRN-088 and TRN-301 steps are unchanged (checked with and without the thread).
+`docs/HOW_QUESTIONS_WORK.md` quoted 67 evidence / 108 claims / 6 cases (already stale after B1: 69 / 111 / 6); it now gives
+the counts of a fresh elisa reset with the thread (75 evidence, 121 claims, 7 cases, 11 attempts, 8 outcomes, 70 person
+links, 29 entities).

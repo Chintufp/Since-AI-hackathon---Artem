@@ -94,3 +94,26 @@ test('r_embedding: float32 round trip, skip on unchanged textHash, list by (kind
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('two stores on one file (service and MCP server) never collide on the search rowid (D-B7-10)', async () => {
+  const { mkdtempSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const dir = mkdtempSync(join(tmpdir(), 'kt-two-writers-'));
+  const file = join(dir, 'kt.sqlite');
+  const a = openStore(file);
+  const b = openStore(file);
+  try {
+    a.put('claim', claim(1, 'first from the service'));
+    b.put('claim', claim(2, 'then the MCP server, whose counter was read before'));
+    a.put('claim', claim(3, 'and the service again'));
+    b.put('claim', claim(4, 'and the MCP server again'));
+    assert.equal(a.count('claim'), 4);
+    assert.deepEqual(a.list('claim').map((c) => c.id), ['cl1', 'cl2', 'cl3', 'cl4'], 'insertion order holds across both writers');
+    assert.equal(b.searchText(['claim'], 'service').length, 2);
+  } finally {
+    a.close();
+    b.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

@@ -1,0 +1,204 @@
+# Decisions · Day 2 B7 (agent-driven inquiry: gain or lose confidence through the right people)
+
+Branch `day2/b7`, from `run/2026-11-07-overnight` at `67dcb3f` (B1 and B2 merged: 511 tests, 40 routes, 9 MCP tools).
+Each entry: what was decided, why, and how to reverse it.
+
+## D-B7-01 · Request options are filters over the same loop, with a pure plan()
+
+`QuestionCoordinator.request(state, opts)` takes `{gapId?, preferPersonEntityId?, dryRun?, skipActiveCheck?,
+excludePersonIds?}` (`RequestOptions`). The work before any store write moved into `plan()`: generate, hard
+eligibility for every listed pair (unchanged), then the filters (`gapId` keeps that gap's candidates, `excludePersonIds`
+drops people from the eligible set, a preference keeps only that person's eligible pairs) and the selector. With no
+option the call is the pre-B7 one (same records, same ids; all 511 earlier tests unchanged). With a `gapId` the
+candidate cap is lifted to the number of gaps so the filter cannot lose its gap to `maxCandidates`.
+Why: the brief requires every gate to stay; filters can only narrow what the gates allow. A pure plan lets a refusal say
+who would be asked instead without leaving decision rows behind.
+Reverse: inline `plan()` back into `request()`.
+
+## D-B7-02 · A refused preference records a trace event only
+
+When the preferred person has no eligible pair, `request()` writes no eligibility, decision, evaluation or question
+record and does not change the loop line; it traces `clarification.refused` on the investigation with the person, their
+violations (the candidate with the fewest violations speaks for them; `not-answerable` = not a recipient for this gap)
+and `wouldAsk` (the pair the selector picks over the unrestricted eligible set, with the gap, the question text and the
+recipient's `because`). The decision and evaluation rows stay what the selector actually did; a refusal is the agent's
+request turned down, not a selector decision. The decision row's `eligible` is the set the selector chose from (the
+preferred person's pairs when the preference was honoured), so propensities stay honest for the bandit logs.
+Reverse: persist the plan's records in the refused branch.
+
+## D-B7-03 · Batch mode skips the open-question answer only on its own path
+
+`requestMany(state, gapIds)` (max 3, duplicates dropped) runs `request()` per gap with `skipActiveCheck` and the people
+already chosen in this call in `excludePersonIds`; it stops at `maxQuestionsPerInvestigation` (counted before each gap;
+eligibility checks it again). A gap that already has an open question in the investigation is refused by the usual
+`already-asked`/`duplicate` gates, so nothing is asked twice. After the call the loop line is `question-open` when any
+question opened (a later gap that found nobody does not overwrite it), "Queued until 07:00" when the first one is held.
+Reverse: delete `requestMany`.
+
+## D-B7-04 · Agent wording is a trace event and a generator wrapper; 'agent' joins `phrasing.by`
+
+`kt_propose_question` checks the text with B2's `validatePhrase` and exactly the input the phrase model gets
+(`phraseCheckFor(facts, visibleCaseFacts(...))`, both now exported from `generator-phrased.ts`; the class calls the same
+functions, so the model path is unchanged). Every proposal is traced as `question.proposed` on the investigation
+(`{gapId, text, accepted, reason?, by, at}`); RecordTypes stays closed. `AgentWordedGenerator` wraps the engine's
+generator (templates or the phrase slot) in `wiring()`: for a gap with an accepted wording it re-checks the text against
+the facts of that moment and, if it still passes and differs from the template sentence, replaces `text`, keeps
+`templateText`, sets `generatedBy` to the new route label `agent-worded@1` and `phrasing.by: 'agent'`. The question card
+then says "worded by the agent" (`views.ts wording()`). The agent's wording outranks a model's wording for that gap (the
+agent asked for it). A later rejected proposal does not erase an accepted one. An accepted wording applies to the next
+question for the gap; an already open question keeps its words (the response says so).
+Contract change (named by the brief: the card must say "worded by the agent"): `QuestionCandidate.phrasing.by` widens
+from `'model' | 'template'` to add `'agent'`. The route is `rules` (`Route` stays closed): the words are the agent's, the
+acceptance is the rules validator, and no model of ours runs; the version string and `phrasing.by` say who worded it.
+Reverse: drop the wrapper in `wiring()`; the events then do nothing.
+
+## D-B7-05 · The three new tools are MCP only
+
+`kt_list_gaps`, `kt_propose_question`, `kt_store_health` call engine methods (`listGaps`, `proposeQuestion`,
+`storeHealthView`) and have no HTTP route; their MCP_TOOLS entries say "MCP only". The route count stays 40. Why: four
+items build in parallel and B3 adds routes; the brief asks for the tools, and explicitly for no store-health route. The
+HTTP investigation result already carries the gaps (without recipients). Reverse: add routes mapping to the same methods.
+
+## D-B7-06 · Who can answer a gap, and "askable now"
+
+`kt_list_gaps` lists only open gaps. Recipients come from `findRecipients` (already gated by the requester's evidence
+visibility) for gaps a question is built for (a template candidate exists); `askableNow` is `evaluateEligibility` for
+that person and that candidate (every gate), with the violations in plain words. Quiet hours do not block: a question
+asked at night is held, so the response also says `quietHours: {now, heldUntil}`. A gap the requester can check
+(requester-observable key) or a non-consequential one (lasting) lists nobody and says why (`notAskedBecause`).
+`decides`: missing -> applicability, outcome -> support, non-consequential -> nothing.
+
+## D-B7-07 · Confidence block: labels, reasons, visible evidence, the gaps that move them
+
+For the selected hypothesis (the recommendation's basis case, `basisCaseId`): `support` and `applicability` labels from
+the assessor, reasons split from `Hypothesis.notes` (the applicability reasons are the assessor's fixed phrases:
+"conflict on distinguishing ...", "distinguishing condition not yet known ...", "non-distinguishing conflict ...", "no
+condition of the case ...", "no conflicts; ..."; every other note is about support), evidence refs = the hypothesis basis
+through the requester's evidence gate, `movedByGapIds` = open gaps on that case deciding that label, `settledBy` =
+resolved ones with what resolved them. No number anywhere in the block; a test asserts the tool's JSON has no `score` or
+`cosine` key. `null` when there is no basis case. Reverse: `confidenceView` in `service/inquiry.ts`.
+
+## D-B7-08 · storeHealth for a principal applies the evidence gate
+
+`Engine.storeHealth(who)` takes a person id (as before) or a Principal (agents); for either, the cases are those the
+principal may see by scope and by evidence (`listCases` + `visibleCase`, as the case views do), passed as `caseIds`.
+Before, a person id filtered by case scope only. Without a principal nothing changes (the reward and the experiments call
+the library directly). Slot values of a visible case are still computed from the case's records (only counts leave the
+engine, never content). `storeHealthView` adds the open standing gaps on those cases by kind and the quiet-hours state;
+the agent cannot request standing questions itself (they belong to the system's standing states), the engine asks them.
+Reverse: back to `principalFor` + scope-only in `storeHealth`.
+
+## D-B7-09 · `kt_request_clarification` with a gapId or a preference
+
+A `gapId` must belong to the investigation (404 otherwise). A gap without a question (resolved, requester can check, not
+consequential) returns `not-needed` with the reason and does not touch the loop line (another gap may still need a
+person). The open-question rule stays for single requests: if the investigation already has an open question, that one
+is returned (as before), and the reason says so when it is for another gap or another person. A preference is resolved
+through the directory (an entity id, or an actor id of that person). Refusal reason: the person's gates in plain words
+plus who the engine would ask instead (`wouldAsk {personEntityId, name, because, gapId, text}`), or that nobody else can
+be asked now.
+
+## D-B7-10 · Two processes on one database file: the new-row counter also reads the disk (fix)
+
+The night sequence has two writers on one SQLite file: the service (Erkki's tap) and the MCP server (the agent's
+outcome report). `sqlite-store` kept its insertion counter (`created_seq`, also the `search_docs`/FTS rowid) in memory,
+read once at open, so the MCP server's next insert reused a rowid the service had just written: `kt_record_outcome`
+failed with "UNIQUE constraint failed: search_docs.rid" (also on the run branch: the old demo:agent `--outcome` after a
+tap in the panel). Now a new row first moves the counter past `MAX(created_seq)` of its table and `MAX(rid)` of
+`search_docs` on disk (two indexed MAX lookups, only for new ids). Test: sqlite-store.test.ts "two stores on one file"
+(fails without the fix). Order across tables stays monotonic per writer; nothing else changes.
+Reverse: the `if (!existing)` block in `put`.
+
+## D-B7-11 · demo:agent is the 03:00 sequence; quiet hours on for it (reverses D-B1-35 for demo:agent only)
+
+`pnpm demo:agent` starts the MCP server with `--clock 2026-11-08T01:00:00Z` (03:00 Helsinki) and `--quiet-hours on`;
+`pnpm demo:judge` keeps quiet hours off (D-B1-35 stands for it). Sequence: kt_investigate -> kt_list_gaps (gaps and the
+confidence block) -> the first askable gap that decides applicability -> kt_find_people -> kt_request_clarification with
+`gapId` and `preferPersonEntityId` = the person whose name contains `--prefer` (default "Erkki"; refused -> the script
+takes the engine's `wouldAsk`) -> queued, `deliverAfter` 07:00 printed -> the clock moves to 07:30 (`--morning`): when
+`GET /health` on KT_PORT (`--port`) reports the SAME database file, `POST /demo/clock` on that service, so the companion
+delivers Erkki's question; otherwise the MCP server is restarted with `--clock 07:30` (it delivers on its own clock) ->
+"Waiting for Erkki's tap" and `kt_clarification_status` polled up to `--wait` seconds (default 180) -> kt_get_context and
+kt_list_gaps after -> kt_record_outcome with `--outcome`. `--simulate-tap` answers as the asked person (`--answer`,
+default yes) through the service's answer route when it serves the database, else through an in-process Engine on the
+same file with the org configuration and the morning clock. A service on another database is never touched. The service
+clock goes back to real time at the end unless `--keep-clock`. `--day` runs on real time with quiet hours off.
+`tests/service-main.test.ts` now guards these flags instead of `--quiet-hours off`.
+Why the real date in `--night`: the brief names it; on a later date it still works (only the order of capture time and
+the simulated night changes). Reverse: `--day` behaviour as the default.
+
+## D-B7-12 · Smaller choices and assumptions
+
+- Quiet hours hold a question; they never refuse one. A refusal made at night adds that a question asked now waits
+  until 07:00; `kt_list_gaps` reports `quietHours {now, heldUntil}`.
+- `preferPersonEntityId` is an entity id (kt_find_people and kt_list_gaps supply them); an actor id of the same person
+  is resolved through the directory. A display name is not accepted (names are not unique).
+- Naming who would be asked instead exposes nothing new: recipients are already computed from what the requester may
+  see, as for kt_find_people.
+- `dryRun` exists on the coordinator (and is tested) but is not an MCP argument: the brief's tool shape does not ask for
+  it and `kt_list_gaps` already says who can be asked now.
+- `kt_propose_question` reports the validator's first failing rule as `reasons[0]` (the validator stops at the first
+  failure; the reason is specific enough to rewrite).
+- Batch mode takes the gaps in the order given; the per-person rule (one open question) is what spreads them across
+  people, the call's exclusion list only makes it explicit.
+- Tests: `tests/inquiry.test.ts` runs each case on its own service and MCP process (budgets and cooldowns never leak);
+  the three-gap batch seeds a third open gap (unit.age) on the basis case and three NOC engineers, because no fixture has
+  three open askable gaps for one problem (the brief allows seeding). 526 tests after B7 (511 before).
+
+## D-B7-13 · An agent's wording is checked more strictly than the phrase model's (review fix)
+Two reviewers showed that B2's validator is a vocabulary filter, which an agent can write against: "Is RTR-203 running
+software other than version 4.2.1?" passed, was delivered, and a Yes recorded "software version 4.2.1 holds"
+(applicable). And the agent writes the problem text itself (kt_investigate), which was part of the validator's
+allowed input, so "reboot core switch SW-999 and call Pekka at 0401234567" in the problem text let those words into
+a delivered question.
+Decision: `checkAgentWording` (used by kt_propose_question and again by AgentWordedGenerator at ask time) now
+(1) builds the PhraseCheck without the problem text (the asset still comes from `facts.asset`); (2) keeps the opener
+in the template's tense and mood (Is/Are/Does/Do/Has/Have interchange, Was/Were/Did/Had interchange; Should, Can,
+Could only when the template opens with them); (3) rejects any word of a fixed list that changes what a yes means
+(other, than, or, newer, older, before, after, since, still, should, can, more, less, only, if, ...) unless the
+template has it. B2's validator for the phrase model is unchanged.
+Reason: the template's consequences stay with the candidate, so the sentence must ask the same thing; a list of
+meaning words is crude but closed and testable offline. Reversal: drop the list and compare the agent's sentence to
+the template with a model judge, or only accept wordings whose words are a permutation of the template's plus glue.
+Tests: tests/inquiry.test.ts (five inverted wordings rejected; five smuggled wordings rejected, a plain rewrite still
+accepted).
+
+## D-B7-14 · kt_request_clarification: no silent drops, no invented gates (review fixes)
+- `gapIds` together with `gapId` or `preferPersonEntityId` is a 400 (MCP tool error) instead of silently running batch
+  mode without them. Reason: batch mode picks each gap's own best person, so a preference has no single meaning there.
+  Reversal: honour the preference for the first gap it is eligible for.
+- An unknown `preferPersonEntityId` (neither resolvable nor in the directory) is a 404 "Unknown person", like an
+  unknown gapId, instead of a refusal listing gates of a person who does not exist.
+- When the investigation already has an open question and a preference names someone else, the result stays
+  `question-open` (the one-at-a-time rule and its reply are unchanged), and the reason now adds whether the preferred
+  person could be asked: "X cannot be asked about this gap: not a recipient ..." (a pure `plan()`, nothing written)
+  or "X could be asked once this question is answered or cancelled". Reversal: return 'refused' instead.
+- Tests: the refusal test covers all three; a new batch test seeds the first askable person with three questions
+  delivered today and shows kt_list_gaps marks them blocked by 'budget' and the batch never picks them (the older
+  batch assertion was vacuous, as the reviewers said). kt_propose_question by a principal that did not start the
+  investigation is rejected (tested).
+
+## D-B7-15 · demo:agent after the walkthrough: the gate story, told plainly (review fix)
+A reviewer showed that DEMO.md's own order (Erkki answers "Is TRN-301 an older unit?" at 2:05, demo:agent at 2:50)
+makes the agent's preference for Erkki refused (24 h re-ask cooldown; 'duplicate' if he has not answered), so the
+question goes to Helmi Virtanen while the doc told the presenter to tap as Erkki. The gates are right; the doc was wrong.
+Decision: keep the gates and the order. The script prints a `>>> PRESENTER:` line naming who cannot be asked, why, and
+who to switch to in the companion; DEMO.md step 3 says the order matters, what the presenter then says, and how to
+get the Erkki version (fresh `pnpm demo:reset`, demo:agent before the walkthrough); steps 4 and 5 name "that person".
+Verified on a scratch database with the reviewer's steps: refused for Erkki (cooling down), Helmi asked, her simulated
+tap moves the recommendation from qualified to check-first. Reversal: give the agent sequence its own problem or gap
+so it never shares a dedupKey with the walkthrough (needs new fixture content).
+Also: `pretty()` prints a string as is (kt_find_people was one quoted JSON line in the transcript; the committed
+transcript's block is unescaped in place, same content), and `mcp.ts --clock` refuses a time without a zone (exit 2,
+tested), since it would be read in the machine's local zone.
+
+## Review (two reviewers, B7)
+All findings were verified against the code and confirmed; none rejected.
+- Major, agent wording reverses the meaning: fixed (D-B7-13).
+- Major, problem-text words widen the agent's allowed words: fixed (D-B7-13).
+- Major, DEMO.md order never reaches Erkki: fixed in the doc and the script output (D-B7-15), gates unchanged.
+- Minor, gapIds silently drops gapId / preferPersonEntityId: now a 400 (D-B7-14).
+- Minor, non-recipient preference with a question open is not refused: the reason now says so (D-B7-14).
+- Minor, unknown preferPersonEntityId refused with invented gates: now a 404 (D-B7-14).
+- Minor, vacuous batch daily-limit assertion and no outsider test for kt_propose_question: new tests (D-B7-14).
+- Minor, kt_find_people transcript as one quoted line, and --clock without a zone: fixed (D-B7-15).

@@ -327,6 +327,9 @@ export const MCP_TOOLS = {
   kt_record_outcome: 'POST /outcomes',
   kt_find_people: 'GET /people',
   kt_participation: 'GET /participation/rating',
+  kt_list_gaps: 'MCP only (B7): engine.listGaps; the HTTP result carries the same gaps without recipients',
+  kt_propose_question: 'MCP only (B7): engine.proposeQuestion; the question card says "worded by the agent"',
+  kt_store_health: 'MCP only (B7): engine.storeHealthView; no HTTP route (B3 shows the numbers on the activity page)',
 } as const;
 
 export type McpToolName = keyof typeof MCP_TOOLS;

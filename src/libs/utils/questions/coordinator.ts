@@ -1,5 +1,5 @@
 import type {
-  ActorRef, Answer, AnswerValue, Assessor, ClaimUpdate, Condition, EligibleAction, EvaluationRecord, EvidenceEnvelope, InvestigationState,
+  ActorRef, Answer, AnswerValue, Assessor, ClaimUpdate, Condition, EligibilityViolation, EligibleAction, EvaluationRecord, EvidenceEnvelope, InvestigationState,
   KnowledgeStore, Observation, PolicyDecision, Principal, QuestionCandidate, QuestionGenerator, QuestionRecord, RecipientEligibility, Retriever,
   Selector, TraceEvent,
 } from '../contracts/index.ts';
@@ -31,12 +31,76 @@ export interface CoordinatorDeps {
   onSelectorUpdated?: (selector: Selector) => void;
 }
 
+/**
+ * B7: options of one request. All are filters over the same loop; no option can widen an eligibility gate.
+ * - gapId: only that gap's candidates.
+ * - preferPersonEntityId: only that person's eligible pairs; when there are none the request is refused and names who
+ *   would be asked instead.
+ * - dryRun: plan only; nothing is written.
+ * - skipActiveCheck: do not return the investigation's open question instead of asking (batch mode only).
+ * - excludePersonIds: people already chosen in this call (batch mode).
+ */
+export interface RequestOptions {
+  deliver?: boolean;
+  gapId?: string;
+  preferPersonEntityId?: string;
+  dryRun?: boolean;
+  skipActiveCheck?: boolean;
+  excludePersonIds?: string[];
+}
+
+/** Who the selector would ask without the refused preference. */
+export interface WouldAsk extends EligibleAction {
+  gapId: string;
+  text: string;
+  because?: string;
+}
+
+export interface Refusal {
+  personEntityId: string;
+  /** The preferred person's own eligibility violations ('not-answerable' = not a recipient for this gap). */
+  violations: EligibilityViolation[];
+  /** Already chosen for another gap in the same call. */
+  excluded: boolean;
+  wouldAsk?: WouldAsk;
+}
+
+/** The pure result of plan(): what request() would do, before any store write. */
+export interface QuestionPlan {
+  candidates: QuestionCandidate[];
+  eligibility: RecipientEligibility[];
+  eligible: EligibleAction[];
+  /** The pairs the selector chose from (the preferred person's pairs when a preference was honoured). */
+  selectedFrom: EligibleAction[];
+  features: Record<string, Record<string, number>>;
+  recipients: Map<string, RecipientReason[]>;
+  decision: PolicyDecision;
+  chosen: EligibleAction | 'defer';
+  preferred?: { personEntityId: string; eligible: boolean; violations: EligibilityViolation[]; excluded: boolean };
+  refused?: Refusal;
+  wouldAsk?: WouldAsk;
+  /** Set inside quiet hours: a question asked now waits, queued, until this moment. */
+  quietUntil?: string;
+}
+
 export interface RequestResult {
   state: InvestigationState;
   decision?: PolicyDecision;
   question?: QuestionRecord;
   candidates: QuestionCandidate[];
   eligibility: RecipientEligibility[];
+  /** B7: the preference was refused (nothing asked). */
+  refused?: Refusal;
+  /** B7: the plan behind this result (dry runs and refusals). */
+  plan?: QuestionPlan;
+}
+
+/** B7 batch: one entry per requested gap, in order. */
+export interface BatchItem {
+  gapId: string;
+  result?: RequestResult;
+  /** Set when the gap was not requested at all (the investigation's question budget was already used). */
+  skipped?: 'exhausted';
 }
 
 export interface AnswerResult {
@@ -122,55 +186,124 @@ export class QuestionCoordinator {
     };
   }
 
-  /** Generate candidates, apply hard eligibility, let the selector pick one pair or defer, and record everything. */
-  async request(stateIn: InvestigationState, opts: { deliver?: boolean } = {}): Promise<RequestResult> {
-    const { store, settings, selector, generator } = this.d;
+  /**
+   * B7: the pure half of request(): generate candidates, apply hard eligibility, apply the call's filters and let the
+   * selector pick. Nothing is written to the store. Filters never widen anything: `gapId` keeps that gap's candidates,
+   * `excludePersonIds` drops people, `preferPersonEntityId` keeps only that person's eligible pairs. When the preferred
+   * person cannot be asked, the plan is refused and names the pair the selector picks without the preference.
+   */
+  async plan(stateIn: InvestigationState, opts: RequestOptions = {}): Promise<QuestionPlan> {
+    const { settings, selector, generator } = this.d;
     const state = this.load(stateIn);
     const now = this.now();
-
-    const active = questionsForInvestigation(store, state.id).find((q) => ACTIVE.has(q.status));
-    if (active) {
-      this.setLoop(state, 'question-open', this.waitingReason(active.personEntityId, state, active.candidate.gapId));
-      store.put('investigation', state);
-      return { state, question: active, candidates: [], eligibility: [] };
-    }
-
-    const candidates = (await generator.generate(state, settings.questions.maxCandidates)).filter((c) => c.kind === 'quick');
+    // A gap filter must not lose its gap to the candidate cap.
+    const max = opts.gapId ? Math.max(settings.questions.maxCandidates, state.gaps.length + 1) : settings.questions.maxCandidates;
+    const candidates = (await generator.generate(state, max)).filter((c) => c.kind === 'quick' && (!opts.gapId || c.gapId === opts.gapId));
+    const excluded = new Set(opts.excludePersonIds ?? []);
     const eligibility: RecipientEligibility[] = [];
     const eligible: EligibleAction[] = [];
     const features: Record<string, Record<string, number>> = {};
-    const recipientCache = new Map<string, RecipientReason[]>();
-    for (const c of candidates) {
+    const recipients = new Map<string, RecipientReason[]>();
+    const recsFor = (c: QuestionCandidate): RecipientReason[] => {
       const gap = state.gaps.find((g) => g.id === c.gapId);
-      const recs = recipientCache.get(c.gapId) ?? (gap ? findRecipients(this.ctx, state, gap) : []);
-      recipientCache.set(c.gapId, recs);
-      const people = c.recipientIds.length ? c.recipientIds : [];
-      for (const pid of people) {
+      const recs = recipients.get(c.gapId) ?? (gap ? findRecipients(this.ctx, state, gap) : []);
+      recipients.set(c.gapId, recs);
+      return recs;
+    };
+    for (const c of candidates) {
+      const recs = recsFor(c);
+      for (const pid of c.recipientIds) {
         const e = evaluateEligibility(this.ctx, state, c, pid, { recipients: recs });
         eligibility.push(e);
-        store.put('eligibility', { ...e, id: `${e.questionId}|${e.personEntityId}|${now.toISOString()}` } as RecipientEligibility & { id: string });
-        if (e.eligible) {
+        if (e.eligible && !excluded.has(pid)) {
           const a = { questionId: c.id, personEntityId: pid };
           eligible.push(a);
           features[actionKey(a)] = this.features(state, c, recs.find((r) => r.personEntityId === pid), candidates.length, pid);
         }
       }
     }
+    const qh = settings.coordinator.quietHours;
+    const quietUntil = qh && inQuiet(now, qh) ? nextWindow(now, qh).toISOString() : undefined;
+    const guard = (d: PolicyDecision, allowed: EligibleAction[]): PolicyDecision =>
+      d.chosen !== 'defer' && !allowed.some((a) => actionKey(a) === actionKey(d.chosen as EligibleAction))
+        ? { ...d, chosen: 'defer', reason: `blocked: selector returned an ineligible pair (${actionKey(d.chosen as EligibleAction)}); deferred. ${d.reason}` }
+        : d;
+    const base = { candidates, eligibility, eligible, features, recipients, ...(quietUntil ? { quietUntil } : {}) };
 
-    let decision = selector.select({ state, eligible, candidates, features });
-    let chosen = decision.chosen;
-    if (chosen !== 'defer' && !eligible.some((a) => actionKey(a) === actionKey(chosen as EligibleAction))) {
-      decision = { ...decision, chosen: 'defer', reason: `blocked: selector returned an ineligible pair (${actionKey(chosen as EligibleAction)}); deferred. ${decision.reason}` };
-      chosen = 'defer';
+    const pref = opts.preferPersonEntityId;
+    if (pref === undefined) {
+      const decision = guard(selector.select({ state, eligible, candidates, features }), eligible);
+      return { ...base, selectedFrom: eligible, decision, chosen: decision.chosen };
     }
-    decision = { ...decision, eligible, orgId: state.orgId, investigationId: state.id };
+    // The preferred person: their own eligibility for each candidate (whether or not the generator listed them), so a
+    // refusal can say exactly which gate stops them. The candidate with the fewest violations speaks for them.
+    const theirs = candidates.map((c) => eligibility.find((e) => e.questionId === c.id && e.personEntityId === pref) ?? evaluateEligibility(this.ctx, state, c, pref, { recipients: recsFor(c) }));
+    const mine = eligible.filter((a) => a.personEntityId === pref);
+    if (mine.length > 0) {
+      const decision = guard(selector.select({ state, eligible: mine, candidates, features }), mine);
+      return { ...base, selectedFrom: mine, decision, chosen: decision.chosen, preferred: { personEntityId: pref, eligible: true, violations: [], excluded: false } };
+    }
+    const best = [...theirs].sort((a, b) => a.violations.length - b.violations.length)[0];
+    const violations: EligibilityViolation[] = best ? best.violations : ['not-answerable'];
+    const open = guard(selector.select({ state, eligible, candidates, features }), eligible);
+    let wouldAsk: QuestionPlan['wouldAsk'];
+    if (open.chosen !== 'defer') {
+      const pick = open.chosen as EligibleAction;
+      const cand = candidates.find((c) => c.id === pick.questionId) as QuestionCandidate;
+      const because = recipients.get(cand.gapId)?.find((r) => r.personEntityId === pick.personEntityId)?.because;
+      wouldAsk = { ...pick, gapId: cand.gapId, text: cand.text, ...(because ? { because } : {}) };
+    }
+    const decision: PolicyDecision = { ...open, chosen: 'defer', reason: `refused: ${pref} cannot be asked (${violations.join(', ') || 'excluded'}). ${open.reason}` };
+    return {
+      ...base, selectedFrom: eligible, decision, chosen: 'defer',
+      preferred: { personEntityId: pref, eligible: false, violations, excluded: excluded.has(pref) },
+      refused: { personEntityId: pref, violations, excluded: excluded.has(pref), ...(wouldAsk ? { wouldAsk } : {}) },
+      ...(wouldAsk ? { wouldAsk } : {}),
+    };
+  }
+
+  /**
+   * Generate candidates, apply hard eligibility, let the selector pick one pair or defer, and record everything.
+   * B7 options are filters over the same loop (see plan()); with none the behaviour is exactly the pre-B7 one.
+   * `dryRun` writes nothing; a refused preference writes only a trace event (no decision, no question).
+   */
+  async request(stateIn: InvestigationState, opts: RequestOptions = {}): Promise<RequestResult> {
+    const { store, settings, generator } = this.d;
+    const state = this.load(stateIn);
+    const now = this.now();
+
+    if (!opts.skipActiveCheck) {
+      const active = questionsForInvestigation(store, state.id).find((q) => ACTIVE.has(q.status));
+      if (active) {
+        if (opts.dryRun) return { state, question: active, candidates: [], eligibility: [] };
+        this.setLoop(state, 'question-open', this.waitingReason(active.personEntityId, state, active.candidate.gapId));
+        store.put('investigation', state);
+        return { state, question: active, candidates: [], eligibility: [] };
+      }
+    }
+
+    const p = await this.plan(state, opts);
+    const { candidates, eligibility, eligible, features } = p;
+    if (opts.dryRun) return { state, decision: p.decision, candidates, eligibility, plan: p };
+    if (p.refused) {
+      // The agent's preference is refused: nothing is asked and no decision is recorded, only that it was refused.
+      this.trace(state, 'clarification.refused', { ...p.refused, ...(opts.gapId ? { gapId: opts.gapId } : {}) });
+      store.put('investigation', state);
+      return { state, candidates, eligibility, refused: p.refused, plan: p };
+    }
+    for (const e of eligibility) store.put('eligibility', { ...e, id: `${e.questionId}|${e.personEntityId}|${now.toISOString()}` } as RecipientEligibility & { id: string });
+    const recipientCache = p.recipients;
+
+    let decision = p.decision;
+    const chosen = p.chosen;
+    decision = { ...decision, eligible: p.selectedFrom, orgId: state.orgId, investigationId: state.id };
     store.put('decision', decision);
     state.decisionIds = [...state.decisionIds, decision.id];
 
     const evalRec: EvaluationRecord & { id: string } = {
       id: decision.id, decisionId: decision.id, investigationId: state.id, at: now.toISOString(),
       stateFeatures: chosen === 'defer' ? { candidateCount: candidates.length, eligibleCount: eligible.length } : (features[actionKey(chosen as EligibleAction)] ?? {}),
-      eligible, action: chosen, propensity: decision.propensity, assessedBenefit: null,
+      eligible: p.selectedFrom, action: chosen, propensity: decision.propensity, assessedBenefit: null,
       effort: { questionsAsked: chosen === 'defer' ? 0 : 1, interruptions: chosen === 'defer' ? 0 : 1 }, missingFeedback: chosen !== 'defer',
     };
     store.put('evaluation', evalRec);
@@ -229,6 +362,40 @@ export class QuestionCoordinator {
     state.updatedAt = now.toISOString();
     store.put('investigation', state);
     return { state, decision, ...(question ? { question } : {}), candidates, eligibility };
+  }
+
+  /**
+   * B7 batch mode: up to three gaps of one investigation in one call, each to its own best person. People chosen earlier
+   * in the call are excluded (one open question per person holds anyway), every per-person budget is the usual gate, and
+   * the call stops at the per-investigation cap. Only this path skips the "an open question already exists" answer.
+   */
+  async requestMany(stateIn: InvestigationState, gapIds: string[]): Promise<{ state: InvestigationState; items: BatchItem[] }> {
+    const { store, settings } = this.d;
+    const id = this.load(stateIn).id;
+    const max = settings.coordinator.maxQuestionsPerInvestigation;
+    const chosen: string[] = [];
+    const items: BatchItem[] = [];
+    for (const gapId of [...new Set(gapIds)].slice(0, max)) {
+      const used = questionsForInvestigation(store, id).filter((q) => q.status !== 'cancelled').length;
+      if (used >= max) {
+        items.push({ gapId, skipped: 'exhausted' });
+        continue;
+      }
+      const r = await this.request(this.load(id), { gapId, skipActiveCheck: true, excludePersonIds: chosen });
+      if (r.question) chosen.push(r.question.personEntityId);
+      items.push({ gapId, result: r });
+    }
+    // A later gap that found nobody must not hide the questions the earlier ones opened: the loop line stays open.
+    const state = this.load(id);
+    const opened = items.map((x) => x.result?.question).filter((q): q is QuestionRecord => !!q);
+    if (opened.length) {
+      const first = this.store.get('question', opened[0]!.id) ?? opened[0]!;
+      const held = first.status === 'queued' && first.deliverAfter;
+      const qh = settings.coordinator.quietHours;
+      this.setLoop(state, 'question-open', held && qh ? `Queued until ${qh.end}: nobody is woken at night` : this.waitingReason(first.personEntityId, state, first.candidate.gapId));
+      store.put('investigation', state);
+    }
+    return { state, items };
   }
 
   /** Recheck eligibility (state may have changed since queueing); deliver or cancel as obsolete. */

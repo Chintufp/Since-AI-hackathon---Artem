@@ -28,10 +28,13 @@ test('main.ts rejects a bad --seed', async () => {
   assert.equal(await new Promise((r) => child.once('exit', (c) => r(c))), 2);
 });
 
-test('the judge and agent demos start the service with quiet hours off (the walkthrough runs on real time)', async () => {
+test('the judge demo starts the service with quiet hours off; the agent demo runs the 03:00 sequence with them on (D-B7-11)', async () => {
   const { readFileSync } = await import('node:fs');
   const judge = readFileSync(join(ROOT, 'scripts/demo-judge.mjs'), 'utf8');
   assert.match(judge, /'quiet-hours': \{ type: 'string', default: 'off' \}/);
   assert.match(judge, /'--quiet-hours', values\['quiet-hours'\]/);
-  assert.match(readFileSync(join(ROOT, 'scripts/mcp-demo.ts'), 'utf8'), /'--quiet-hours', 'off'/);
+  const agent = readFileSync(join(ROOT, 'scripts/mcp-demo.ts'), 'utf8');
+  assert.match(agent, /'--quiet-hours', values\.day \? 'off' : 'on'/);
+  assert.match(agent, /night: \{ type: 'string', default: '2026-11-08T01:00:00Z' \}/);
+  assert.match(agent, /'--clock', clock/);
 });

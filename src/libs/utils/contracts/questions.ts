@@ -32,8 +32,9 @@ export interface QuestionCandidate {
   /**
    * B2 phrase slot: who worded `text`. 'model' only when the model's sentence passed the validator; 'template' with a
    * reason when the phrase slot was on but its wording was rejected or the call failed. Absent with the slot on rules.
+   * B7: 'agent' when the calling agent's wording (kt_propose_question) passed the same validator.
    */
-  phrasing?: { by: 'model' | 'template'; reason?: string };
+  phrasing?: { by: 'model' | 'template' | 'agent'; reason?: string };
 }
 
 export type EligibilityViolation =

@@ -23,6 +23,7 @@ export const ROUTE_REGISTRY: Record<string, RouteDescription> = {
   'ollama-extract': { route: 'local', version: 'ollama-extract@1', description: 'Schema-constrained extraction proposal from a local Ollama model (extract slot); committed by rules.', learned: false },
   'ollama-phrase': { route: 'local', version: 'ollama-phrase@1', description: 'Question wording from a local Ollama model (phrase slot); validated, template fallback.', learned: false },
   'api-extract': { route: 'api', version: 'api-extract@1', description: 'Extraction proposal from a hosted model (only when configured with a key); committed by rules.', learned: false },
+  'agent-worded': { route: 'rules', version: 'agent-worded@1', description: 'B7: question wording proposed by the calling agent (kt_propose_question), accepted only through the phrase validator; the gap, recipients, consequences and gates stay the templates\'. No model of ours runs.', learned: false },
   'api-phrase': { route: 'api', version: 'api-phrase@1', description: 'Question wording from a hosted model (only when configured with a key); validated, template fallback.', learned: false },
 };
 

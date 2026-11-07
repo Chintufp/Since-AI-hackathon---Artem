@@ -9,7 +9,7 @@ node src/apps/service/main.ts --port 0 --db :memory: --seed synthetic
 node src/apps/service/mcp.ts --db data/local/knowledge-twin.sqlite [--agent-id id --agent-name name --agent-groups a,b]
 pnpm demo:reset [-- --db path --seed elisa|synthetic|empty]   # scripts/demo-reset.ts
 ```
-`main.ts`: `--port`, `--host` (default 127.0.0.1), `--db` (path or `:memory:`), `--seed` (runs the demo reset first). Prints `Knowledge Twin service listening on <url>`, logs requests to stderr, shuts down on SIGINT/SIGTERM. `mcp.ts` writes only protocol to stdout. MCP client config: `{"command":"node","args":["src/apps/service/mcp.ts"]}`.
+`main.ts`: `--port`, `--host` (default 127.0.0.1), `--db` (path or `:memory:`), `--seed` (runs the demo reset first). Prints `Knowledge Twin service listening on <url>`, logs requests to stderr, shuts down on SIGINT/SIGTERM. `mcp.ts` writes only protocol to stdout; it also takes `--quiet-hours on|off` (default the org-config window, on), `--clock <iso>` (B7: start the engine clock at a simulated moment, e.g. `2026-11-08T01:00:00Z` = 03:00 Helsinki; it then runs at real speed), `--standing-gaps off`, `--org-policy none` and `--agent-id/--agent-name/--agent-groups`. MCP client config: `{"command":"node","args":["src/apps/service/mcp.ts"]}`.
 
 ## Files
 `engine.ts` (composition and all behavior), `http.ts` (router, validation, errors), `mcp-tools.ts` (tool registration) + `mcp.ts` (stdio entry), `views.ts` (ResultView/QuestionView/PersonView builders), `schemas.ts` (zod), `directory.ts` (people.json -> person entities), `demo.ts` (demo reset), `errors.ts`, `paths.ts`. Participation lives in `src/libs/utils/participation`.
@@ -52,7 +52,10 @@ Errors are `{error: message}` with 400 (validation), 403 (not allowed / not reci
 |---|---|---|
 | `kt_investigate` (text, principal?, observations?, allowQuestions?, at?) | `POST /investigate` | qualified recommendation, matches, people, ids; no human is asked unless `allowQuestions` (default false for agents); `at` = as of that moment |
 | `kt_get_context` (investigationId, at?) | `GET /investigations/:id` | current state, gaps with what an answer would change; with `at`, the stored problem re-run as of then (`Engine.contextAt`, starter only) |
-| `kt_request_clarification` (investigationId) | coordinator loop | `question-open` + questionId, or `deferred` / `exhausted` / `not-needed` with reason (limits, cooldown, access) |
+| `kt_request_clarification` (investigationId, gapId?, preferPersonEntityId?, gapIds?) | coordinator loop | `question-open` + questionId (`deliverAfter` when held by quiet hours), or `deferred` / `exhausted` / `not-needed` with reason (limits, cooldown, access). B7: `gapId` asks about that gap only; `preferPersonEntityId` asks that person only if every gate allows it, else `refused` with the person's gates in words and `wouldAsk` (who the engine would ask instead); `gapIds` (max 3) asks each gap of its own best person, every budget applying, and returns `questions[]` |
+| `kt_list_gaps` (investigationId) | `Engine.listGaps` (MCP only) | B7: every open gap: what an answer changes, `decides` applicability / support / nothing, `requesterCanCheck`, who could answer (entity id, name, role, firsthand, because, `askableNow` with the gates that stop them), the template question and an accepted agent wording; a `confidence` block for the basis case (support and applicability labels, reasons, visible evidence refs, `movedByGapIds`, `settledBy`) with no number in it; quiet-hours state |
+| `kt_propose_question` (investigationId, gapId, text) | `Engine.proposeQuestion` (MCP only) | B7: the agent's own wording, accepted only through the phrase validator (one yes/no sentence < 160 chars naming the asset and the condition, nothing absent from the gap and the visible case); used for that gap's next question (card: "worded by the agent"); else `{accepted: false, reasons, usedText}` = the template |
+| `kt_store_health` () | `Engine.storeHealthView` (MCP only) | B7: completeness and correctness with denominators, singletons, thin pairs and the open standing gaps, over the cases the principal may see (evidence gate); no HTTP route |
 | `kt_clarification_status` (questionId) | `GET /questions/:id` | status; answer value when answered; unknown = no update, deferred/dismissed != no |
 | `kt_cancel_clarification` (questionId, reason?) | `POST /questions/:id/cancel` | cancel what you started |
 | `kt_record_observation` (investigationId, condition, caseId?) | `POST /observations` | attributed observation; rebuilds the recommendation |
@@ -66,10 +69,11 @@ Every tool takes `principal: {id, displayName, groups}` (always treated as type 
 - Question limits (daily, cooldown, max open, per-investigation) are the coordinator's hard eligibility; they apply to agents the same as to people. Configure through `EngineOptions.coordinator` / `investigation`.
 - Selector from settings `selectorId` (`rules` default; `linucb`, `epsilon-greedy`, `random`, `ranker-replay`; aliases bandit/ranker). Routes used appear on every result; nothing here calls a model provider.
 - Mutating calls append trace events (store `trace` table, mirrored into `InvestigationState.events`).
-- Several processes may share one SQLite file (WAL); the HTTP service and an MCP process on the same file see each other's writes.
+- Several processes may share one SQLite file (WAL); the HTTP service and an MCP process on the same file see each other's writes. A new row's counter is moved past the one on disk, so two writers never collide on the search rowid (D-B7-10).
+- B7 inquiry (DECISIONS-inquiry): the coordinator's request options (`gapId`, `preferPersonEntityId`, `dryRun`, `skipActiveCheck`, `excludePersonIds`) are filters over a pure `plan()`; no option widens a gate. A refused preference writes only a `clarification.refused` trace event. Agent wordings are `question.proposed` trace events read by `AgentWordedGenerator` (route `agent-worded@1`, `phrasing.by: 'agent'`). Confidence is labels with reasons and evidence; retrieval scores are never shown under a confidence name.
 
 ## Checks run
-`pnpm test` includes `tests/e2e.test.ts` (10), `tests/mcp.test.ts` (5, real stdio child), `tests/permissions.test.ts` (5, HTTP and MCP), `tests/service-main.test.ts` (2). See the worker report for counts.
+`pnpm test` includes `tests/e2e.test.ts` (10), `tests/mcp.test.ts` (5, real stdio child), `tests/inquiry.test.ts` (8, B7 over a real stdio child each), `tests/permissions.test.ts` (5, HTTP and MCP), `tests/service-main.test.ts` (2). See the worker report for counts.
 
 ## Known limitations
 - No authentication: caller identity is asserted in the request. Do not expose beyond loopback.

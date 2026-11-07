@@ -95,6 +95,8 @@ export function questionView(store: KnowledgeStore, q: QuestionRecord, viewer: P
 
 /** "worded by local model qwen3:8b" when the phrase slot's accepted wording is shown (BUILD_BRIEF 2.3, honesty on screen). */
 function wording(c: QuestionRecord['candidate']): Pick<QuestionView, 'wordedBy' | 'templateText'> {
+  // B7: the requesting agent's own wording, accepted by the phrase validator (kt_propose_question).
+  if (c.phrasing?.by === 'agent') return { wordedBy: 'worded by the agent', ...(c.templateText ? { templateText: c.templateText } : {}) };
   if (c.phrasing?.by !== 'model') return {};
   const v = c.generatedBy.version;
   const model = v.includes(':') ? v.slice(v.indexOf(':') + 1) : v;

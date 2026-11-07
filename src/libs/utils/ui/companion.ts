@@ -696,6 +696,7 @@ export function createCompanion(deps: CompanionDeps): Companion {
   }
   function leave(to: Side = nearerSide(bodyX, W)): void {
     if (!awayOn || destroyed) return;
+    if (panel.isOpen()) panel.close(); // Artem 7 Nov: sending him to the side closes the panel (the card rides with him)
     clear('idle', 'gaze', 'fidget', 'dwell', 'retreat', 'perch');
     stopWatch('launch', 'panel');
     side = to;

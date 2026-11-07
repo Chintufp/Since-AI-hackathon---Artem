@@ -34,3 +34,6 @@ desktop.ini
 data/local/
 dist/
 docs/runs/*/screenshots/*.raw
+
+# Design studies stay local except the explicitly tracked selected sources (ui v008, pixel-motion v006 modules)
+design-lab/

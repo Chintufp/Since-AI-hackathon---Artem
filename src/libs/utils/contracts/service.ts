@@ -51,6 +51,12 @@ export interface ImportResponse {
   people: number;
   /** R46: points awarded by this import to people who take part (evidence they authored that became a claim). */
   points?: Array<{ personEntityId: string; points: number }>;
+  /**
+   * B2: present when the extract slot is on a model. `route` is the model's route, or the rules route marked as a
+   * fallback; `modelClaims` counts claims the model alone proposed (committed by rules); `dropped` counts items the
+   * evidence validator removed (an excerpt that is not in the cited message, an unknown message or person).
+   */
+  extraction?: { route: { route: string; version: string }; modelClaims: number; dropped: number; fallback?: string };
 }
 
 export interface InvestigateRequest {

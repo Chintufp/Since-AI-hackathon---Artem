@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import type { AccessScope, Case, EvidenceEnvelope, ImportBatch, KnowledgeStore, Principal } from '../contracts/index.ts';
+import type { AccessScope, Case, ConversationContext, EvidenceEnvelope, ExtractionProposal, ImportBatch, KnowledgeStore, Principal } from '../contracts/index.ts';
 import { stableId } from '../contracts/index.ts';
 import { parseEmailText, parsePaste, parseSlackExport, parseTeamsJson, readSlackExportDir } from '../connectors/index.ts';
 import type { PastePayload, SlackExportData } from '../connectors/index.ts';
@@ -31,6 +31,13 @@ export { rebuildCase } from './case-builder.ts';
 export { createRulesExtractor, extractFromContext, RULES_ROUTE } from './extractor-rules.ts';
 export { defaultExtractionConfig } from './extraction-config.ts';
 export { assignEpisodes } from './episodes.ts';
+export {
+  createLlmExtractor, buildExtractionPrompt, extractionJsonSchema, extractionOutputSchema, llmExtractRoute, locateExcerpt, renderThread, restatesRulesClaim,
+  unionProposal, validateExtraction, FEW_SHOT, LLM_EXTRACT_VERSION, API_EXTRACT_VERSION,
+} from './extractor-llm.ts';
+export type { DroppedItem, LlmExtractor, LlmExtractorOptions, ValidatedExtraction } from './extractor-llm.ts';
+export { enrichWithModel, modelProvenance } from './enrich.ts';
+export type { EnrichItem, EnrichOptions, EnrichReport } from './enrich.ts';
 export type { ExtractionConfig } from './extraction-config.ts';
 
 export type ImportFormat = 'teams-json' | 'email-text' | 'slack-export' | 'slack-live' | 'scenario-dir' | 'paste';
@@ -47,6 +54,11 @@ export interface ImportFromPathRequest {
   /** Clock injection for tests. */
   now?: string;
   config?: Partial<ExtractionConfig>;
+  /**
+   * Called after the rules commit with every thread and its committed rules proposal (incidents already re-keyed to
+   * episodes) and the import's baseline scope: the extract slot's model pass (enrich.ts) runs on exactly these.
+   */
+  onCommitted?: (items: Array<{ ctx: ConversationContext; proposal: ExtractionProposal }>, scope: AccessScope) => void;
 }
 
 export interface ImportFromPathResult {
@@ -132,6 +144,7 @@ export function importFromPath(store: KnowledgeStore, req: ImportFromPathRequest
   }
   applyMembershipGrants(store, req.orgId, evidence);
   refreshClaimSupport(store, relinked, req.now);
+  req.onCommitted?.(items, scope);
   const sum = (k: keyof ImportBatch['counts']) => batches.reduce((n, b) => n + b.counts[k], 0);
   const batch: ImportBatch =
     batches.length === 1

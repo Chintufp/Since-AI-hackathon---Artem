@@ -59,3 +59,23 @@ The HTTP layer has no SSE, so `POST /models/pull` returns `{jobId, state, percen
 
 ## D-B2-18 · Route count tests updated 32 -> 37
 `tests/e2e.test.ts` and `tests/points.test.ts` assert the number of contract routes; both now expect the five new model routes by name. This is the only change to an existing test's expectation.
+
+# Decisions · B2 part B (extraction, phrasing, reward, Settings UI)
+
+## D-B2-19 · The extract model runs inside POST /import, awaited, with one 60 s budget for the whole import
+`Engine.importAndEnrich` (POST /import; "Remember this" will post there too) runs the sync rules import first, then, when the extract slot is on local or api, the model over the same threads (`memory/enrich.ts`), all calls sharing the slot's 60 s deadline. It is all-or-nothing: if any call fails, times out or returns output that does not match the schema, nothing from the model is committed and the response's `extraction.route` is `rules-extractor@1[fallback:extract:<code>]` with the reason; the rules import is complete either way. Chosen over a background pass because the brief wants the import result to say what the model did, and the panel has no import-progress polling. `Engine.importData` stays synchronous and rules-only, so `demo:reset`, the experiments harness and every existing caller are byte-identical; a demo reset with extract=local therefore imports rules-only (re-import through POST /import to enrich). Reverse: call `importAndEnrich` from `resetDemo`, or move the pass into `afterChange` as background work.
+
+## D-B2-20 · The union is two commits: rules first, then the model's proposal re-keyed to the rules incidents
+`unionProposal(rules, model)` keeps the rules incidents (episode keys, so no second case), drops model claims that restate a rules claim (same type and same words, or same type on the same message with overlapping spans), drops the model's incidents and usefulness labels, does not repeat a link the rules already proposed, and re-sends the rules observation claims of non-asset incidents so those incidents still count as problems (they already exist, so they keep 'rules'). Because `commitProposal` never relabels an existing claim, claims the rules produced keep `extraction.route = 'rules'` and only model-only claims get `{local, 'ollama-extract@1:<model>'}` (or `api-extract@1:<model>`). No contract change (no per-claim route field). A model claim whose wording is outside the rules lexicon is stored but creates no attempt or outcome row (case-builder re-derives those from wording). Reverse: add `ProposedClaim.route` and merge into one proposal.
+
+## D-B2-21 · Validator rules
+Schema mismatch throws (fallback). Per item, every EvidenceRef must name a message of this thread and its excerpt must be found in that message's `extractionText` (exact, else with any whitespace run matching any whitespace run); one bad ref drops the whole claim, entity or link, and the drop is reported. Spans are set from where the excerpt sits and the excerpt is replaced by the verbatim slice. A link to a person not in the thread is dropped; an asserter not in the thread is replaced by the first cited message's author (never invented). Entity attributes are not in the model schema (the rules and the claim-to-attribute path fill them). `confidence` is kept and never read. Reverse: `validateExtraction`.
+
+## D-B2-22 · memory/ now depends on models/providers (contracts-only) and zod
+For `withFallback`, `SLOT_TIMEOUT_MS` and the zod schema that is both the validator and (through `z.toJSONSchema`) Ollama's `format` / the api tool schema. Same reasoning as D-B2-12. Reverse: move `enrich.ts` into the service.
+
+## D-B2-23 · How provenance shows on a node
+A statement a model proposed gets "(proposed by local model qwen3:4b, committed by rules)" after it in the node detail (problem, possible cause, suggested checks); the conditions node gets a trailing "Some of these were proposed by ...". `TimelineNode.provenance?: string[]` (additive) carries the same text for the panel. An api route says "hosted model". Nodes built only from rules claims are unchanged. Reverse: `memory/provenance.ts` and the `tag` helper in case-view.
+
+## D-B2-24 · Defaults for an api slot without a model name
+extract: `claude-haiku-5-5`, phrase: `claude-sonnet-5-5` (the brief's names). An api slot without a key for that vendor falls back with code `disabled` and the chip shows the reason. Reverse: `Engine.slotModel`.

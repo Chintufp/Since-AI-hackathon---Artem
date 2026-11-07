@@ -10,9 +10,9 @@ import type {
   PersonView, PreferenceFeedback, Principal, Problem, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
 import { DEFAULT_MODEL_SLOTS, defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
 import type { ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView } from '../../libs/utils/contracts/index.ts';
-import type { ApiVendor } from '../../libs/utils/models/providers/index.ts';
+import { fallbackRoute, vendorOf, type ApiVendor, type ModelProvider } from '../../libs/utils/models/providers/index.ts';
 import { EmbeddingIndex, type IndexReport } from '../../libs/utils/retrieval/index.ts';
-import { caseCard } from '../../libs/utils/memory/index.ts';
+import { caseCard, createLlmExtractor, enrichWithModel, RULES_ROUTE, type EnrichItem, type EnrichReport } from '../../libs/utils/memory/index.ts';
 import { DEFAULT_LOCAL_MODELS, ModelManager, type ModelManagerOptions } from './models.ts';
 import { connectionCards } from '../../libs/utils/connectors/index.ts';
 import {
@@ -313,7 +313,55 @@ export class Engine {
     return { ok: true, version: SERVICE_VERSION, store: this.dbPath, routes };
   }
 
-  importData(req: ImportRequest): ImportResponse {
+  /**
+   * The provider and model serving a slot, `{unavailable}` when the slot names a provider that cannot run now (api
+   * without a key), or undefined for rules.
+   */
+  slotModel(slot: ModelSlotName): { provider: ModelProvider; model: string } | { unavailable: string; code: string } | undefined {
+    const choice = this.modelSlots()[slot];
+    if (choice.provider === 'rules') return undefined;
+    if (choice.provider === 'local') return { provider: this.models.local, model: choice.model ?? DEFAULT_LOCAL_MODELS[slot] };
+    const api = this.models.api();
+    const model = choice.model ?? (slot === 'extract' ? 'claude-haiku-5-5' : 'claude-sonnet-5-5');
+    if (!api || !this.models.hasKey(vendorOf(model))) return { unavailable: `no ${vendorOf(model)} key`, code: 'disabled' };
+    return { provider: api, model };
+  }
+
+  /**
+   * POST /import and "Remember this": the rules import, then (extract slot on a model) the model's proposal for the
+   * same threads, validated and committed as a union within the slot's 60 s. On a failure or timeout the import stays
+   * rules-only and the response says so with the fallback route. With extract on rules this is importData exactly.
+   */
+  async importAndEnrich(req: ImportRequest): Promise<ImportResponse> {
+    const sm = this.slotModel('extract');
+    if (!sm) return this.importData(req);
+    let items: EnrichItem[] = [];
+    let scope: AccessScope = { visibility: 'org' };
+    const res = this.importData(req, (it, sc) => { items = it; scope = sc; });
+    let report: EnrichReport;
+    if ('unavailable' in sm) {
+      this.models.recordFailure('extract', sm.unavailable);
+      report = { route: fallbackRoute(RULES_ROUTE, 'extract', sm.code), threads: items.length, modelClaimIds: [], dropped: [], fallback: { reason: sm.unavailable, code: sm.code } };
+    } else {
+      const extractor = createLlmExtractor({ provider: sm.provider, model: sm.model });
+      report = await enrichWithModel(this.store, items, extractor, {
+        orgId: this.orgId, accessScope: scope, now: this.now().toISOString(),
+        onFailure: (reason) => this.models.recordFailure('extract', reason),
+      });
+      if (!report.fallback) this.models.clearFailure('extract');
+      this.reapplyDirectory();
+    }
+    this.trace(res.batch.id, 'import.enriched', { id: 'system', displayName: 'import' }, {
+      route: report.route, modelClaims: report.modelClaimIds.length, dropped: report.dropped.length, ...(report.fallback ? { fallback: report.fallback.reason } : {}),
+    });
+    this.afterChange();
+    return {
+      ...res,
+      extraction: { route: report.route, modelClaims: report.modelClaimIds.length, dropped: report.dropped.length, ...(report.fallback ? { fallback: report.fallback.reason } : {}) },
+    };
+  }
+
+  importData(req: ImportRequest, onCommitted?: (items: EnrichItem[], scope: AccessScope) => void): ImportResponse {
     if (req.path && !existsSync(req.path)) throw badRequest(`Path does not exist: ${req.path}`);
     const batchesBefore = new Set(this.store.list('importBatch').map((b) => b.id));
     let res: ImportResponse;
@@ -321,7 +369,7 @@ export class Engine {
       res = importFromPath(this.store, {
         format: req.format, ...(req.path ? { path: req.path } : {}), ...(req.payload !== undefined ? { payload: req.payload } : {}),
         ...(req.connectionId ? { connectionId: req.connectionId } : {}), ...(req.accessGroups ? { accessGroups: req.accessGroups } : {}),
-        orgId: this.orgId, now: this.now().toISOString(),
+        orgId: this.orgId, now: this.now().toISOString(), ...(onCommitted ? { onCommitted } : {}),
       });
     } catch (e) {
       throw badRequest(`Import failed: ${e instanceof Error ? e.message : String(e)}`);

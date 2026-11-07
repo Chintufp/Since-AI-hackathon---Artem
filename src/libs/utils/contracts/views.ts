@@ -14,6 +14,8 @@ export interface TimelineNode {
   evidence: EvidenceRef[];
   who?: string;
   when?: string;
+  /** Model provenance of the statements behind this node, e.g. "proposed by local model qwen3:4b, committed by rules". Absent when rules produced all of them. */
+  provenance?: string[];
 }
 
 export interface CaseView {

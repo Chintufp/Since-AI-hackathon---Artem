@@ -47,7 +47,7 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
   const keys = (): string[] => Object.keys(table);
   const table: Record<RouteKey, Handler> = {
     'GET /health': () => engine.health(keys()),
-    'POST /import': (c) => engine.importData(parse(importSchema, c.body)),
+    'POST /import': (c) => engine.importAndEnrich(parse(importSchema, c.body)),
     'GET /connections': () => engine.connections(),
     'GET /cases': (c) => engine.cases(q(c).principalId),
     'GET /cases/:id': (c) => engine.caseView(c.params.id!, q(c).principalId),

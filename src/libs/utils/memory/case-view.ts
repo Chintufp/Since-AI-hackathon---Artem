@@ -5,6 +5,7 @@ import { evidenceOrder, isLive } from './case-builder.ts';
 import { cmpPos, earliest, positionOf, type Position } from './case-label.ts';
 import { independentSources } from './commit.ts';
 import { defaultExtractionConfig } from './extraction-config.ts';
+import { modelProvenance } from './provenance.ts';
 import { conditionText, defaultViewConfig, humanAction, pastAction, type ViewConfig } from './view-config.ts';
 
 type P = Pick<Principal, 'id' | 'groups'>;
@@ -64,7 +65,16 @@ export function buildCaseView(store: KnowledgeStore, caseId: string, principal: 
     }
     return kept;
   };
-  const withAuthor = (x: Claim): string => `${nameOf(x.assertedBy) ?? 'Someone'}: ${clip(unpunct(x.statement), 200)}`;
+  /** " (proposed by local model qwen3:4b, committed by rules)" after a statement a model proposed. */
+  const tag = (x: Claim): string => {
+    const p = modelProvenance(x.extraction);
+    return p ? ` (${p})` : '';
+  };
+  const provenanceOf = (list: Claim[]): { provenance?: string[] } => {
+    const p = [...new Set(list.map((x) => modelProvenance(x.extraction)).filter((v): v is string => !!v))];
+    return p.length ? { provenance: p } : {};
+  };
+  const withAuthor = (x: Claim): string => `${nameOf(x.assertedBy) ?? 'Someone'}: ${clip(unpunct(x.statement), 200)}${tag(x)}`;
 
   const timeline: TimelineNode[] = [];
   const obs = live.filter((x) => x.type === 'observation').sort(byPos);
@@ -78,10 +88,10 @@ export function buildCaseView(store: KnowledgeStore, caseId: string, principal: 
     timeline.push({
       id: first.id, kind: 'problem', stage: 'observation', label: 'Reported problem',
       detail: (() => {
-        const lines = [...new Set(obs.map((o) => clip(unpunct(o.statement))))];
+        const lines = [...new Set(obs.map((o) => clip(unpunct(o.statement)) + tag(o)))];
         return [...lines.slice(0, 4), ...(lines.length > 4 ? [`(${lines.length - 4} more reported observation${lines.length - 4 > 1 ? 's' : ''})`] : [])].join('\n');
       })() + (who || when ? `\nReported${who ? ` by ${who}` : ''}${when ? `, ${when}` : ''}.` : ''),
-      evidence: visRefs(first.supporting), who, when,
+      evidence: visRefs(first.supporting), who, when, ...provenanceOf(obs),
     });
   } else {
     timeline.push({ id: `${c.id}:problem`, kind: 'unknown', stage: 'unknown', label: 'Problem statement', detail: `No explicit problem statement was extracted. Case: ${c.title}`, evidence: [] });
@@ -126,8 +136,10 @@ export function buildCaseView(store: KnowledgeStore, caseId: string, principal: 
         [...labels.keys()].join('; '),
         hedged.length ? `Reported as likely rather than certain: ${hedged.join('; ')}.` : '',
         inferred.length ? `Inferred: ${[...new Set(inferred)].join('; ')}.` : '',
+        ...(provenanceOf(condClaims).provenance ?? []).map((p) => `Some of these were ${p}.`),
       ].filter(Boolean).join('\n'),
       evidence: visRefs([...condClaims.flatMap((x) => x.supporting), ...preceding.flatMap((a) => a.evidence)]).slice(0, 8),
+      ...provenanceOf(condClaims),
     });
   }
 
@@ -139,7 +151,7 @@ export function buildCaseView(store: KnowledgeStore, caseId: string, principal: 
       id: `${c.id}:causes`, kind: 'step', stage: 'hypothesis', label: 'Possible cause',
       detail: ['Stated as hypotheses, not confirmed:', ...causes.map(withAuthor)].join('\n'),
       evidence: visRefs(causes.flatMap((x) => x.supporting)).slice(0, 8),
-      ...(authors.length === 1 && authors[0] ? { who: authors[0] } : {}), when: whenOf(causes[0]!.supporting),
+      ...(authors.length === 1 && authors[0] ? { who: authors[0] } : {}), when: whenOf(causes[0]!.supporting), ...provenanceOf(causes),
     });
   }
 
@@ -151,7 +163,7 @@ export function buildCaseView(store: KnowledgeStore, caseId: string, principal: 
       id: `${c.id}:checks`, kind: 'step', stage: 'check', label: 'Suggested checks',
       detail: ['Advice, not confirmed to work:', ...advice.map(withAuthor)].join('\n'),
       evidence: visRefs(advice.flatMap((x) => x.supporting)).slice(0, 8),
-      ...(authors.length === 1 && authors[0] ? { who: authors[0] } : {}), when: whenOf(advice[0]!.supporting),
+      ...(authors.length === 1 && authors[0] ? { who: authors[0] } : {}), when: whenOf(advice[0]!.supporting), ...provenanceOf(advice),
     });
   }
 

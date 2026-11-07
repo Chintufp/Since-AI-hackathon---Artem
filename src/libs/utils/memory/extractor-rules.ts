@@ -194,12 +194,44 @@ export function fixedVersion(text: string, cfg: ExtractionConfig): { version: st
 
 const dateOnly = (raw: string): TimeRef => ({ known: false, partial: 'date-only', raw: raw.trim() });
 
+const MONTH_INDEX = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+/**
+ * B1 review (D-B1-37): an "until 1 December" date resolved against the message's own known time: the year is the
+ * message's (the next one when the date is already past), the zone is the message's offset, the moment is the start of
+ * that day. When the message time is unknown, or carries no offset, the date stays date-only (nothing is invented).
+ */
+export function resolveDateCue(raw: string, msgTime: TimeRef | undefined): TimeRef {
+  const text = raw.trim();
+  const msgIso = msgTime?.known ? msgTime.iso : undefined;
+  const off = /(Z|[+-]\d{2}:?\d{2})\s*$/i.exec(msgTime?.raw ?? '')?.[1];
+  if (!msgIso || !off) return dateOnly(text);
+  const offset = off.toUpperCase() === 'Z' ? 'Z' : off.includes(':') ? off : `${off.slice(0, 3)}:${off.slice(3)}`;
+  let y: number | undefined, mo: number | undefined, d: number | undefined;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+  if (m) { y = +m[1]!; mo = +m[2]! - 1; d = +m[3]!; }
+  const dm = /^(\d{1,2})\.?\s+([a-z]+)(?:\s+(\d{4}))?$/i.exec(text) ?? null;
+  const md = dm ? null : /^([a-z]+)\s+(\d{1,2})(?:,?\s+(\d{4}))?$/i.exec(text);
+  if (dm) { d = +dm[1]!; mo = MONTH_INDEX.indexOf(dm[2]!.slice(0, 3).toLowerCase()); y = dm[3] ? +dm[3] : undefined; }
+  if (md) { d = +md[2]!; mo = MONTH_INDEX.indexOf(md[1]!.slice(0, 3).toLowerCase()); y = md[3] ? +md[3] : undefined; }
+  if (mo === undefined || mo < 0 || !d || d > 31) return dateOnly(text);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const at = (year: number) => Date.parse(`${year}-${pad(mo! + 1)}-${pad(d!)}T00:00:00${offset}`);
+  const msgMs = Date.parse(msgIso);
+  const local = new Date(msgMs + (offset === 'Z' ? 0 : (offset.startsWith('-') ? -1 : 1) * (+offset.slice(1, 3) * 60 + +offset.slice(4, 6)) * 60000));
+  let year = y ?? local.getUTCFullYear();
+  if (y === undefined && at(year) <= msgMs - 86400000) year += 1;
+  const ms = at(year);
+  if (!Number.isFinite(ms)) return dateOnly(text);
+  return { known: true, iso: new Date(ms).toISOString(), raw: text };
+}
+
 /**
  * B1 message-level validity cues, after classification:
  * - "every October" in a message lands on the nearest preceding access fact of that message (the code it talks about,
  *   preferring the site.access_code claim) as validity.condition "changes every October";
- * - "until 1 December" / "from 3 November to 1 December" in a claim's own sentence set validity.to as a date-only time
- *   (no year or zone is ever invented, so the end stays unknown to the validity rule);
+ * - "until 1 December" / "from 3 November to 1 December" in a claim's own sentence set validity.to: resolved against the
+ *   message's known time and offset (resolveDateCue), else a date-only time (no year or zone is invented);
  * - a replacement cue anywhere in a message marks that message's access facts (a newer code "is now" 7731).
  */
 function applyValidityCues(claims: RulesClaim[], msgs: Msg[], cfg: ExtractionConfig): void {
@@ -230,7 +262,10 @@ function applyValidityCues(claims: RulesClaim[], msgs: Msg[], cfg: ExtractionCon
     const range = re(vc.range).exec(text);
     const until = range ? undefined : re(vc.until).exec(text);
     const to = range?.groups?.to ?? until?.groups?.to;
-    if (to) c.validity = { ...c.validity, to: dateOnly(to), cue: (range ?? until)![0].toLowerCase() };
+    const msgTime = msgs.find((m) => m.e.id === c.evidence[0]?.evidenceId)?.e.eventTime;
+    // A "from 1 December to 30 April" range is usually a season that recurs, so it stays date-only (inert); only a
+    // one-off "until <date>" is resolved.
+    if (to) c.validity = { ...c.validity, to: range ? dateOnly(to) : resolveDateCue(to, msgTime), cue: (range ?? until)![0].toLowerCase() };
   }
 }
 

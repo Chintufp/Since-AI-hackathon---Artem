@@ -165,3 +165,18 @@ test('a firmware note bounds the older advice and hypothesis of its asset; nothi
   assert.equal(s.list('outcome').length, outcomesBefore, 'the note adds no outcome');
   assert.ok(s.list('case').every((c) => !c.conditions.some((x) => x.key === 'software.version')), 'no software.version case condition');
 });
+
+test('"until 1 December" closes the claim on 1 Dec when the message date is known; an undated message keeps it date-only', () => {
+  const dated = `From: Eino Salo <eino.salo@example.test>\nTo: Ilmari Karjalainen <ilmari@example.test>\nDate: Tue, 6 Oct 2026 08:40:00 +0300\nSubject: RBS-311 access\n\nBarrier code at RBS-311 is 1111 until 1 December.\n`;
+  const s = openStore(':memory:');
+  email(s, dated);
+  const c = code(s, '1111')!;
+  assert.equal(c.validity.to?.known, true);
+  assert.equal(c.validity.to?.iso, '2026-11-30T21:00:00.000Z', 'start of 1 Dec at the message offset (+03:00); no other zone is assumed');
+  assert.equal(c.validity.to?.raw, '1 December');
+  assert.equal(validAt(c, Date.parse('2026-11-15T00:00:00Z')), true);
+  assert.equal(validAt(c, Date.parse('2027-06-01T00:00:00Z')), false);
+  const s2 = openStore(':memory:');
+  email(s2, dated.replace('Date: Tue, 6 Oct 2026 08:40:00 +0300\n', ''));
+  assert.deepEqual(code(s2, '1111')!.validity.to, { known: false, partial: 'date-only', raw: '1 December' });
+});

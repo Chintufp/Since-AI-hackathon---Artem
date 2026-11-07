@@ -207,3 +207,8 @@ Reverse: drop the flag from the two scripts.
 
 The panel shows a text box for `answerType: 'free-text'` (the standing missing-symptom question): Yes becomes **Send** and No is hidden; Send with an empty box focuses the box and sends nothing. `Engine.answer` refuses (400) a yes/no answer to a free-text question without words, before anything moves, so the question stays in Later and the gap stays open; Not sure is still accepted. Test: standing.test.ts (missing symptom). The panel change is typechecked but not checked visually in the desktop app.
 Reverse: the guard in `Engine.answer`; the `.rf-free-text` box in panel.ts/styles.css.
+
+## D-B1-37 · "until 1 December" is resolved when the message date is known (amends D-B1-10)
+
+`resolveDateCue` (extractor-rules.ts) turns an "until <date>" cue into a known `validity.to` when the claim's message has a known time with an offset: the year is the message's (the next year when the date is already more than a day past), the moment is the start of that day at the message's own offset. Without a known message time or offset it stays date-only, as before. A "from 1 December to 30 April" range stays date-only: such ranges are usually seasons that recur (the MW-77 snowmobile route), and closing the claim after one April would be wrong. E00 re-run: 17/17, only timings changed (result files not committed). Test: supersession.test.ts "until 1 December".
+Reverse: use `dateOnly(to)` again in `applyValidityCues`.

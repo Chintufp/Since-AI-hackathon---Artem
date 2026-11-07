@@ -33,6 +33,13 @@ function instantOfLocal(y: number, mo: number, d: number, minutes: number, timeZ
   return t;
 }
 
+/** The local calendar date (YYYY-MM-DD) of `at` in `timeZone` (UTC when none is given). */
+export function localDay(at: Date, timeZone?: string): string {
+  if (!timeZone) return at.toISOString().slice(0, 10);
+  const l = localParts(at, timeZone);
+  return `${l.y}-${String(l.mo + 1).padStart(2, '0')}-${String(l.d).padStart(2, '0')}`;
+}
+
 /** Is `now` inside the quiet hours? Equal start and end mean no quiet hours. */
 export function inQuiet(now: Date, qh: QuietHours): boolean {
   const s = minutesOf(qh.start);

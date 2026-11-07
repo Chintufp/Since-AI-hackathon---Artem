@@ -1,6 +1,6 @@
 {
   "manifestId": "e10-store-metric",
-  "finishedAt": "2026-11-07T22:46:43.054Z",
+  "finishedAt": "2026-11-07T23:02:10.759Z",
   "variants": [
     {
       "variantId": "rules@store-metric",
@@ -145,9 +145,10 @@
     "Completeness is the unweighted mean over cases here: the weighted one needs retrievals in the last 30 days, which only exist after the day, so it would not compare like with like (both are in per-seed.json).",
     "Per point = one percentage point of completeness x correctness. questions.perPointGained uses the same-case before/after gain; questions.perMeasuredPoint uses the sum of the per-answer deltas the coordinator measured on the touched cases (QuestionRecord.reward.delta). Either is null when nothing was gained.",
     "The product is multiplicative: a touched case with no supported claim has correctness 0, so an answer that fills a completeness slot there measures a delta of 0 and the reward is the burden alone (touchedCasesWithNoSupportedClaim in per-seed.json).",
-    "Each seed starts from a fresh demo store and a fresh selector, so LinUCB learns only within one day; the rules selector is the fixed prior with the same reward written for comparison.",
-    "How an answer is read (D-B2-66, superseding D-B2-51): An answer to an applicability question (missing|unit.model, missing|unit.age: does the earlier unit share the current unit's model or age?) fills that key of the case's distinguishing slot (Yes records the value, No records it as explicitly not applicable to this unit) and is neither support for nor a contradiction of the case's claims; only an answer about the claim itself (an outcome report) is. Before this reading, each No on a claim still cited by a standing recommendation measured -6.77 points. The completeness and correctness deltas of each answer are reported beside the product (QuestionRecord.reward.scores).",
-    "Questions are ranked by value / cost (D-B2-67): expected gain in completeness x correctness x retrieval weight over burden, as the rules selector's order among the pairs that pass its gate; LinUCB learns the measured version.",
-    "B1 pairing links do not exist yet, so the correctness term \"links made without an answer\" counts 0 (store-health links hook)."
+    "Each seed starts from a fresh demo store and a fresh selector, so LinUCB learns only within one day; the rules selector is the fixed baseline with the same reward written for comparison (LinUCB does not start from its order: ridge prior only, no value features in its vector, D-B2-74).",
+    "How an answer is read (D-B2-66, superseding D-B2-51): An answer to an applicability question (missing|unit.model, missing|unit.age: does the earlier unit share the current unit's model or age?) fills that key of the case's distinguishing slot (Yes records the value, No records that the case differs from this unit, which the metric counts as filling the key: an approximation of brief 5.1's explicit not applicable, D-B2-75) and is neither support for nor a contradiction of the case's claims; only an answer about the claim itself (an outcome report) is. Before this reading, each No on a claim still cited by a standing recommendation measured -6.77 points. The completeness and correctness deltas of each answer are reported beside the product (QuestionRecord.reward.scores).",
+    "Questions are ranked by value / cost (D-B2-67): expected gain in completeness x correctness x retrieval weight over burden, as the rules selector's order among the pairs of one investigation state that pass its gate; an outcome question's Yes branch is weighted by P_CONFIRM 0.5 and its No branch adds 0 (D-B2-74); LinUCB learns the measured version.",
+    "The correctness term \"links made without an answer\" is counted by storeHealth from B1's confirmed pairing Patterns (D-B2-74); the coordinator writes a pairing only with its answer, so it is 0 on every answer here.",
+    "Hash lock: lock.json holds the sha256 of results.json, per-seed.json and decision.json without timestamps (tests/e10-lock.test.ts checks the committed files)."
   ]
 }

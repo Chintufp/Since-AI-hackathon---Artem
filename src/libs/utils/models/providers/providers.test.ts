@@ -4,6 +4,7 @@ import { installNetworkGuard } from '../routes.ts';
 import {
   ApiProvider, ApiProviderDisabledError, EmbeddingCache, OllamaProvider, ProviderError, textHash, withFallback, type FetchFn, type OllamaSystem,
 } from './index.ts';
+import { timeoutSignal } from './types.ts';
 
 interface Call { url: string; body: any }
 const sys: OllamaSystem = { which: async () => '/usr/local/bin/ollama', totalMem: () => 24e9, freeDisk: async () => 300e9 };
@@ -175,4 +176,19 @@ test('embedding cache: keyed by (model, sha256(text)); only uncached texts reach
   assert.equal(n, 3, 'another model is another key');
   assert.equal(textHash('x'), textHash('x'));
   assert.equal(textHash('x').length, 64);
+});
+
+test('a fractional or spent leftover budget reaches Ollama instead of throwing ERR_OUT_OF_RANGE (D-B2-72)', async () => {
+  // The phrase generator's second pass passes 20000 - performance.now() deltas, e.g. 19013.56 ms.
+  const f = fake({ '/api/generate': () => json({ response: '{"answer":"yes"}', done: true }) });
+  const p = new OllamaProvider({ fetch: f.fetch, system: sys });
+  const schema = { type: 'object', properties: { answer: { type: 'string' } }, required: ['answer'] };
+  assert.deepEqual(await p.generateJson('qwen3:4b', 'Q?', schema, { timeoutMs: 19013.56 }), { answer: 'yes' });
+  assert.equal(f.calls.length, 1, 'the request was sent');
+  assert.ok(timeoutSignal(19013.56) instanceof AbortSignal);
+  const spent = timeoutSignal(-3.2)!;
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal(spent.aborted, true, 'a spent budget times out at once');
+  assert.equal(timeoutSignal(undefined), undefined);
+  assert.equal(timeoutSignal(0), undefined, '0 still means no timeout');
 });

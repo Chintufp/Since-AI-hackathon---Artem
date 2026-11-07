@@ -33,7 +33,7 @@ import { familyEntry, loadHidden, loadVisibleInputs } from '../benchmarks/load.t
 import { writeManifest, writeResults } from '../benchmarks/manifest.ts';
 import type { VariantResult } from '../benchmarks/manifest.ts';
 import { DEFAULT_SCENARIOS_DIR, loadFamiliesFile } from '../benchmarks/splits.ts';
-import { baseManifest, familiesOf, fmt, problemTable, runVariant, writeExtra } from './common.ts';
+import { baseManifest, familiesOf, fmt, problemTable, runVariant, writeExtra, writeResultsLock } from './common.ts';
 import type { Decision, VariantRun } from './common.ts';
 import { proposalToKnowledge } from './e01-convert.ts';
 import { buildRetriever, collectKnowledge, evidenceSourceIdsOf, independentSupportOf, ORG } from './harness.ts';
@@ -584,7 +584,7 @@ export async function runE10(seeds = [1, 2, 3]): Promise<void> {
     hypothesis: 'A simulated day of questions answered by simulated colleagues raises the store metric (completeness x correctness, BUILD_BRIEF 5.1-5.2) of the demo store, and the LinUCB selector rewarded by the measured delta of that metric minus burden (5.4) gains at least as much per question asked as the rules selector on the same store and the same day.',
     splits: ['demo'],
     visibleInputs: ['sources/ and people.json of the demo, train and validation families (demo seeded by demo:reset --synthetic, train and validation arriving during the day as demo:play sends them)', 'incoming problem text and observations (asked by simulated engineers)', 'data/fixtures/dev-family-01'],
-    variants: selectors.map((s) => ({ id: `${s}@store-metric`, description: s === 'rules' ? 'rules selector (the fixed prior); the coordinator still writes the measured reward' : 'LinUCB (alpha 0.5, fresh per seed), updated live after every answer with the store-metric reward', route: 'rules' as const })),
+    variants: selectors.map((s) => ({ id: `${s}@store-metric`, description: s === 'rules' ? 'rules selector (the fixed baseline, ranking by value / cost); the coordinator still writes the measured reward' : 'LinUCB (alpha 0.5, fresh per seed), updated live after every answer with the store-metric reward', route: 'rules' as const })),
     route: 'rules',
     config: {
       store: 'Engine on :memory:, demo:reset --synthetic (the Elisa files are absent here), clock frozen at 2026-11-09T07:00Z and moved only by the simulated day',
@@ -688,12 +688,14 @@ export async function runE10(seeds = [1, 2, 3]): Promise<void> {
       'Completeness is the unweighted mean over cases here: the weighted one needs retrievals in the last 30 days, which only exist after the day, so it would not compare like with like (both are in per-seed.json).',
       'Per point = one percentage point of completeness x correctness. questions.perPointGained uses the same-case before/after gain; questions.perMeasuredPoint uses the sum of the per-answer deltas the coordinator measured on the touched cases (QuestionRecord.reward.delta). Either is null when nothing was gained.',
       'The product is multiplicative: a touched case with no supported claim has correctness 0, so an answer that fills a completeness slot there measures a delta of 0 and the reward is the burden alone (touchedCasesWithNoSupportedClaim in per-seed.json).',
-      'Each seed starts from a fresh demo store and a fresh selector, so LinUCB learns only within one day; the rules selector is the fixed prior with the same reward written for comparison.',
-      'How an answer is read (D-B2-66, superseding D-B2-51): An answer to an applicability question (missing|unit.model, missing|unit.age: does the earlier unit share the current unit\'s model or age?) fills that key of the case\'s distinguishing slot (Yes records the value, No records it as explicitly not applicable to this unit) and is neither support for nor a contradiction of the case\'s claims; only an answer about the claim itself (an outcome report) is. Before this reading, each No on a claim still cited by a standing recommendation measured -6.77 points. The completeness and correctness deltas of each answer are reported beside the product (QuestionRecord.reward.scores).',
-      'Questions are ranked by value / cost (D-B2-67): expected gain in completeness x correctness x retrieval weight over burden, as the rules selector\'s order among the pairs that pass its gate; LinUCB learns the measured version.',
-      'B1 pairing links do not exist yet, so the correctness term "links made without an answer" counts 0 (store-health links hook).',
+      'Each seed starts from a fresh demo store and a fresh selector, so LinUCB learns only within one day; the rules selector is the fixed baseline with the same reward written for comparison (LinUCB does not start from its order: ridge prior only, no value features in its vector, D-B2-74).',
+      'How an answer is read (D-B2-66, superseding D-B2-51): An answer to an applicability question (missing|unit.model, missing|unit.age: does the earlier unit share the current unit\'s model or age?) fills that key of the case\'s distinguishing slot (Yes records the value, No records that the case differs from this unit, which the metric counts as filling the key: an approximation of brief 5.1\'s explicit not applicable, D-B2-75) and is neither support for nor a contradiction of the case\'s claims; only an answer about the claim itself (an outcome report) is. Before this reading, each No on a claim still cited by a standing recommendation measured -6.77 points. The completeness and correctness deltas of each answer are reported beside the product (QuestionRecord.reward.scores).',
+      'Questions are ranked by value / cost (D-B2-67): expected gain in completeness x correctness x retrieval weight over burden, as the rules selector\'s order among the pairs of one investigation state that pass its gate; an outcome question\'s Yes branch is weighted by P_CONFIRM 0.5 and its No branch adds 0 (D-B2-74); LinUCB learns the measured version.',
+      'The correctness term "links made without an answer" is counted by storeHealth from B1\'s confirmed pairing Patterns (D-B2-74); the coordinator writes a pairing only with its answer, so it is 0 on every answer here.',
+      'Hash lock: lock.json holds the sha256 of results.json, per-seed.json and decision.json without timestamps (tests/e10-lock.test.ts checks the committed files).',
     ],
   });
+  writeResultsLock(E10_ID, ['results.json', 'per-seed.json', 'decision.json']);
   console.log(`${E10_ID}: ${decision.outcome}`);
 }
 

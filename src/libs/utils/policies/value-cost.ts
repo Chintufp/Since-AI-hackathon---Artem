@@ -3,17 +3,26 @@
  * computes (all visible store data; no hidden truth).
  *
  *   value = consequential x p(answer) x expectedGain x retrievalWeight
- *     p(answer)       = (firsthand ? 1 : 0.6) x recency            (the rules prior's answer likelihood)
- *     expectedGain    = gain in completeness x correctness of the touched case if the gap is filled (store-health)
+ *     p(answer)       = (firsthand ? 1 : 0.6) x recency            (the rules gate's answer likelihood)
+ *     expectedGain    = expected gain in completeness x correctness of the touched case over both answers (store-health
+ *                       expectedGain; an outcome question's Yes branch is weighted by P_CONFIRM, its No branch adds 0)
  *     retrievalWeight = investigations that retrieved the case in the last 30 days, +1 for an investigation gap (its
- *                       case is being retrieved right now; a standing gap gets no such +1)
+ *                       case is being retrieved right now)
  *   cost  = 1 + burden / BURDEN.open
  *     burden          = 0.02 x asked today + 0.02 x open questions + 0.05 x inside quiet hours  (the reward's burden term)
  *
- * The LinUCB reward is the measured version of the same quantity (delta of completeness x correctness minus burden,
- * brief 5.4), so the rules selector, which ranks by this formula, is the bandit's fixed prior.
+ * Scope (D-B2-74): the ranking applies among the candidates of ONE investigation state (the coordinator plans one state
+ * at a time), so every pair it compares has the same origin and the +1 never orders an investigation gap against a
+ * standing one; it only keeps a case nobody retrieved before from being worth 0. Investigation gaps come before standing
+ * gaps by flow, not by this formula: an investigation asks at once, and Engine.askStanding skips a person who already
+ * has an open question; standing states are taken in a fixed kind order (outcome, pairing, the rest).
+ *
+ * LinUCB (D-B2-74): its reward is the measured version of the same quantity (delta of completeness x correctness minus
+ * burden, brief 5.4), but it does not start from this order: it has a ridge prior only (A = lambda x I) and its feature
+ * vector (features.ts vectorize) leaves out expectedGain, retrievalWeight and quietHours. "The rules selector keeps the
+ * same formula as its fixed prior" (brief 5.4) holds only in that sense: the rules selector is the fixed baseline that
+ * ranks by the quantity the bandit is rewarded with.
  */
-
 /** Burden weights (brief 5.3): per question delivered today, per other open question, inside quiet hours. */
 export const BURDEN = { askedToday: 0.02, open: 0.02, quiet: 0.05 };
 

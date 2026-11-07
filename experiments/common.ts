@@ -1,7 +1,8 @@
 /**
  * Shared helpers for experiment runners: running a variant over a split, extra (harness-side) metrics, decision records.
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { FamilyManifestEntry, Split } from '../src/libs/utils/contracts/index.ts';
 import { ratio } from '../benchmarks/evaluator.ts';
@@ -162,4 +163,26 @@ export async function runVariantPooled(variantId: string, splits: Split[], opts:
   const result = toVariantResult(variantId, 'measured', label as Split, scored, { ...ex.counts, 'pooled.families': runs.length });
   result.metrics = { ...result.metrics, ...ex.metrics };
   return { variantId, split: label as Split, runs, scored, extras: ex.metrics, result };
+}
+
+/** Timestamp fields left out of a results lock: they change on every re-run while the numbers do not. */
+const LOCK_VOLATILE = new Set(['startedAt', 'finishedAt', 'at']);
+const stripVolatile = (v: unknown): unknown =>
+  Array.isArray(v) ? v.map(stripVolatile)
+    : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v as Record<string, unknown>).filter(([k]) => !LOCK_VOLATILE.has(k)).map(([k, x]) => [k, stripVolatile(x)]))
+    : v;
+
+/** sha256 (16 hex) over a run's result files with their timestamps removed, in the given order. */
+export function resultsSha256(runId: string, files: string[], root = DEFAULT_RESULTS_DIR): string {
+  const h = createHash('sha256');
+  for (const f of files) h.update(f + '\n' + JSON.stringify(stripVolatile(JSON.parse(readFileSync(join(root, runId, f), 'utf8')))) + '\n');
+  return h.digest('hex').slice(0, 16);
+}
+
+/**
+ * Hash-lock a run's results (brief 5.4 "hash-locked"): lock.json records the hash of its result files without
+ * timestamps, so a re-run that reproduces the numbers reproduces the hash, and a test can check the committed files.
+ */
+export function writeResultsLock(runId: string, files: string[], root = DEFAULT_RESULTS_DIR): string {
+  return writeExtra(runId, 'lock.json', { runId, method: 'sha256 (first 16 hex) of each file name and its JSON without startedAt/finishedAt/at, in this order', files, resultsSha256: resultsSha256(runId, files, root) }, root);
 }

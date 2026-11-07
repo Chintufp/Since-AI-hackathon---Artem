@@ -1,9 +1,12 @@
-/** Brief 5.3 (D-B2-67): questions ranked by value / cost; the rules selector's order is the bandit's fixed prior. */
+/**
+ * Brief 5.3 (D-B2-67): questions ranked by value / cost within one investigation's candidates. The rules selector ranks
+ * by the quantity the bandit's reward measures; LinUCB does not start from that order (D-B2-74).
+ */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { EligibleAction, InvestigationState, SelectorContext } from '../contracts/index.ts';
-import { expectedGain, type GainInput } from '../memory/store-health.ts';
-import { actionKey, BURDEN, burdenOf, questionCost, questionValue, RulesSelector, valuePerCost } from './index.ts';
+import { expectedGain, P_CONFIRM, type GainInput } from '../memory/store-health.ts';
+import { actionKey, BURDEN, burdenOf, FEATURE_NAMES, questionCost, questionValue, RulesSelector, valuePerCost, vectorize } from './index.ts';
 
 const clock = () => new Date('2026-11-07T12:00:00.000Z');
 const state = { id: 'inv_t', orgId: 'org:t' } as InvestigationState;
@@ -39,8 +42,11 @@ test('expected gain in completeness x correctness under the metric\'s reading (D
   assert.equal(g({ keyUnknown: false }), 0, 'the key is already known');
   assert.equal(g({ correctness: 0 }), 0, 'the product hides a completeness gain on a case with no supported claim');
   assert.equal(g({ correctness: null }), 0);
-  // outcome: one more supported claim (an outcome report is a source of its own), the outcome slot already filled
-  close(g({ kind: 'outcome' }), Math.round(0.5 * 0.1 * 10_000) / 10_000);
+  // outcome: one more supported claim (an outcome report is a source of its own) if the answer is Yes, weighted by
+  // P_CONFIRM; the No branch adds none (review of D-B2-67: an expectation over both answers, not the Yes branch)
+  assert.equal(P_CONFIRM, 0.5);
+  close(g({ kind: 'outcome' }), Math.round(0.5 * (P_CONFIRM * 1 / 10) * 10_000) / 10_000);
+  close(g({ kind: 'outcome' }), Math.round(0.5 * 0.1 * 10_000) / 10_000 * P_CONFIRM);
   assert.equal(g({ kind: 'outcome', targetSupported: true }), 0);
   close(g({ kind: 'outcome', slots: { symptom: 1, distinguishing: 0.25, outcome: 0, lasting: 0 }, targetSupported: true }), Math.round((1 / 6) * 0.1 * 10_000) / 10_000);
   close(g({ kind: 'lasting' }), Math.round((1 / 6) * 0.1 * 10_000) / 10_000);
@@ -86,4 +92,14 @@ test('rules selector without measured value features orders exactly as before (s
   const d = sel.select(ctx([b, a], { [actionKey(a)]: { consequential: 1, firsthand: 1 }, [actionKey(b)]: { consequential: 1, firsthand: 1 } }));
   assert.deepEqual(d.chosen, a);
   assert.doesNotMatch(d.reason, /value\/cost/);
+});
+
+test('LinUCB does not start from the value / cost order: its vector leaves out the value features (review of D-B2-67, D-B2-74)', () => {
+  // The rules order is not a prior LinUCB starts from: LinUCB has a ridge prior only and cannot represent the
+  // value / cost features at all. Two pairs that differ only in value / cost look the same to it.
+  for (const n of ['expectedGain', 'retrievalWeight', 'quietHours']) assert.equal((FEATURE_NAMES as readonly string[]).includes(n), false, n);
+  const lo = { ...base, expectedGain: 0.001, retrievalWeight: 1 };
+  const hi = { ...base, expectedGain: 0.5, retrievalWeight: 9, quietHours: 1 };
+  assert.deepEqual(vectorize(lo), vectorize(hi));
+  assert.ok(valuePerCost(hi)! !== valuePerCost(lo)!);
 });

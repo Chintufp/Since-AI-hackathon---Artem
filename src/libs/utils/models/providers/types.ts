@@ -77,7 +77,9 @@ export class ProviderError extends Error {
 
 /** Abort after `ms`, also when an outer signal aborts. */
 export function timeoutSignal(ms: number | undefined, outer?: AbortSignal): AbortSignal | undefined {
-  const sigs = [ms ? AbortSignal.timeout(ms) : undefined, outer].filter((s): s is AbortSignal => !!s);
+  // AbortSignal.timeout throws ERR_OUT_OF_RANGE on a non-integer or negative delay; a leftover budget measured with
+  // performance.now() is fractional (D-B2-72), and a spent one is <= 0 (time out at once).
+  const sigs = [ms ? AbortSignal.timeout(Math.max(1, Math.ceil(ms))) : undefined, outer].filter((s): s is AbortSignal => !!s);
   if (!sigs.length) return undefined;
   return sigs.length === 1 ? sigs[0] : AbortSignal.any(sigs);
 }

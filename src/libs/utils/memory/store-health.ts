@@ -36,7 +36,11 @@ export interface StoreHealthOptions {
   outcomeKey?: string;
   windowDays?: number;
   validityDays?: number;
-  /** Case-to-case links made by the system (B1 pairing). Links made without an answer count against correctness. */
+  /**
+   * Case-to-case links made by the system (B1 pairing). Links made without an answer count against correctness. When
+   * absent, `pairingLinks` over the measured cases is used, so every caller (the engine, the coordinator's reward and
+   * expected gain, E10) counts the same term.
+   */
   links?: (store: KnowledgeStore) => { made: number; withoutAnswer: number };
   /** Only these cases (the cases a question touched). */
   caseIds?: string[];
@@ -112,8 +116,11 @@ function caseHealth(store: KnowledgeStore, c: Case, o: Required<Pick<StoreHealth
   const symptom = claims.some((x) => x.type === 'observation' && x.supporting.length > 0) ? 1 : 0;
 
   // A key is filled by a recorded value, a recorded absence, or an answered applicability question on this case: a Yes
-  // records the value (the current unit's, which matches the case), a No records the key as explicitly not applicable
-  // to the current unit (brief 5.1: "a value or an explicit 'not applicable'").
+  // records the value (the current unit's, which matches the case). A No ("does the earlier unit share this unit's X?")
+  // says only that the case's value differs from this unit's: it is neither the case's value nor a statement that the
+  // key does not apply. The metric counts it as filling the key all the same, an approximation of brief 5.1's "a value
+  // or an explicit 'not applicable'" (D-B2-75): the question was settled by an attributed answer, and the key is not
+  // asked again. Limited to the asked key and its aliases.
   const known = (key: string): boolean => {
     const keys = [key, ...(o.keyAliases[key] ?? [])];
     return c.conditions.some((x) => keys.includes(x.key) && x.evidence.length > 0 && (x.value !== undefined || x.operator === 'absent'))
@@ -148,9 +155,9 @@ function caseHealth(store: KnowledgeStore, c: Case, o: Required<Pick<StoreHealth
 /**
  * Whether an answer was given to an applicability question (a `missing` gap: "does the earlier unit share this unit's
  * <key>?"). Such an answer says whether the earlier case matches the current unit, not whether the case was right
- * (D-B2-66, superseding D-B2-51): its Yes records the value and its No records the key as explicitly not applicable
- * for this unit (both fill the distinguishing slot through the answered Observation), and neither supports nor
- * contradicts the case's claims.
+ * (D-B2-66, superseding D-B2-51): its Yes records the value and its No records that the case's value differs from
+ * this unit's (both fill the distinguishing slot through the answered Observation; for the No that approximates brief
+ * 5.1's "explicit not applicable", D-B2-75), and neither supports nor contradicts the case's claims.
  */
 export function isApplicabilityAnswer(store: KnowledgeStore, answer: { questionId: string }): boolean {
   const q = store.get('question', answer.questionId);
@@ -174,6 +181,16 @@ function answerRefs(store: KnowledgeStore): Map<string, { support: string[]; con
     }
   }
   return m;
+}
+
+/**
+ * Brief 5.2 "links made without an answer": the system's case-to-case links are B1's pairing Patterns. A confirmed one
+ * touching a measured case without the answer that confirmed it counts against correctness. The coordinator writes a
+ * pairing only with its answer, so this is 0 by construction today; it is counted, not assumed (D-B6-29).
+ */
+export function pairingLinks(store: KnowledgeStore, caseIds: Set<string>): { made: number; withoutAnswer: number } {
+  const made = store.list('pattern').filter((x) => x.status === 'confirmed' && x.caseIds.some((id) => caseIds.has(id)));
+  return { made: made.length, withoutAnswer: made.filter((x) => !x.answerId).length };
 }
 
 /** Claims behind a recommendation that still stands (anything but none / retain-uncertainty). */
@@ -229,7 +246,7 @@ export function storeHealth(store: KnowledgeStore, principal: { id: string; grou
     const contradicted = x.status === 'contradicted' || (extra?.contradict ?? 0) > (extra?.support.length ?? 0);
     if (contradicted && cited.has(x.id)) contradictedCited++;
   }
-  const links = opts.links?.(store) ?? { made: 0, withoutAnswer: 0 };
+  const links = opts.links?.(store) ?? pairingLinks(store, ids);
   const correctness = claims.length ? round((supported - contradictedCited - links.withoutAnswer) / claims.length) : null;
   return {
     cases, completeness: round(weighted), completenessUnweighted: round(unweighted), correctness, supportedClaimIds,
@@ -254,6 +271,12 @@ export function canonicalKey(key: string, aliases: Record<string, string[]> = DE
   return Object.entries(aliases).find(([, a]) => a.includes(key))?.[0] ?? key;
 }
 
+/**
+ * Chance that an outcome question is answered Yes, for the expected gain. No answer history is used: an uninformed 0.5
+ * (the store records no base rate of recoveries that could be read without an answer key).
+ */
+export const P_CONFIRM = 0.5;
+
 /** What one case looks like to a candidate question, for the expected gain (brief 5.3). */
 export interface GainInput {
   /** Gap kind of the question (investigation/gaps.ts GapKind). */
@@ -275,10 +298,14 @@ export interface GainInput {
 /**
  * Brief 5.3: the gain in completeness x correctness of the case a question touches if its gap is filled, under the
  * metric's own reading (D-B2-66). Pure.
- * - missing (applicability): either answer fills the key (a value or an explicit not-applicable): completeness +1/(6k)
+ * - missing (applicability): either answer fills the key (a Yes the value, a No that the case differs, D-B2-75): completeness +1/(6k)
  *   when the key is unknown; correctness unchanged (an applicability answer is not a source for the claim).
- * - outcome: the outcome slot (+1/6 when empty) and, when the confirmed claim is not supported yet, one more supported
- *   claim (+1/n): an outcome report is an attributed source of its own.
+ * - outcome: the outcome slot (+1/6 when empty: either answer fills it) and, when the claim a Yes would confirm is not
+ *   supported yet, one more supported claim (+1/n: an outcome report is an attributed source of its own) weighted by
+ *   P_CONFIRM, the chance of a Yes. The No branch adds no supported claim and is taken as 0 for correctness: a No
+ *   contradicts the claim, and the rebuilt investigation stops recommending it (on the demo store an outcome No
+ *   measures 0, tests/store-health.test.ts). So the gain is an expectation over both answers, not the Yes branch alone
+ *   (review of D-B2-67).
  * - lasting: the lasting slot (+1/6 when empty). missing-symptom: the symptom slot (+1/6 when empty).
  * - pairing and anything else: 0 (a confirmed link with its answer neither adds nor costs correctness).
  * gain = (c + dc)(r + dr) - c r. With a case whose correctness is 0 a completeness-only gap gains 0: the product hides it,
@@ -293,7 +320,7 @@ export function expectedGain(i: GainInput): number {
   if (i.kind === 'missing') dc = i.keyUnknown && i.distinguishingKeys > 0 ? slot / i.distinguishingKeys : 0;
   else if (i.kind === 'outcome') {
     dc = i.slots.outcome < 1 ? slot : 0;
-    dr = i.targetSupported === false && i.caseClaims > 0 ? 1 / i.caseClaims : 0;
+    dr = i.targetSupported === false && i.caseClaims > 0 ? P_CONFIRM / i.caseClaims : 0;
   } else if (i.kind === 'lasting') dc = i.slots.lasting < 1 ? slot : 0;
   else if (i.kind === 'missing-symptom') dc = i.slots.symptom < 1 ? slot : 0;
   return round(Math.max(0, (c + dc) * (r + dr) - c * r));

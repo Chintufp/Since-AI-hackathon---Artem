@@ -211,6 +211,28 @@ test('§5.2 through the engine (D-B6-29): a confirmed case link without an answe
   }
 });
 
+test('§5.2 without the engine (review of D-B2-66..68): storeHealth counts unanswered pairing links itself, so the coordinator\'s reward and E10 see the term too', () => {
+  const e = engine();
+  try {
+    const [a, b] = e.store.list('case').map((c) => c.id);
+    const plain = (ids?: string[]) => storeHealth(e.store, undefined, { now: NOW, ...(ids ? { caseIds: ids } : {}) });
+    const before = plain([a!]);
+    assert.equal(before.denominators.linksWithoutAnswer, 0);
+    const base = { orgId: e.store.list('case')[0]!.orgId, title: 'link', caseIds: [a!, b!], sharedConditions: [], distinguishingConditions: [], createdBy: { route: 'test', version: '1' }, status: 'confirmed' as const };
+    e.store.put('pattern', { ...base, id: 'pattern:test:answered', answerId: 'answer:test:1' });
+    assert.equal(plain([a!]).denominators.linksWithoutAnswer, 0, 'a link with its answer costs nothing');
+    e.store.put('pattern', { ...base, id: 'pattern:test:unanswered' });
+    e.store.put('pattern', { ...base, id: 'pattern:test:candidate', status: 'candidate' });
+    assert.equal(plain([a!]).denominators.linksWithoutAnswer, 1, 'the touched case is linked without an answer');
+    assert.equal(plain().denominators.linksWithoutAnswer, 1);
+    const other = e.store.list('case').map((c) => c.id).find((id) => id !== a && id !== b);
+    if (other) assert.equal(plain([other]).denominators.linksWithoutAnswer, 0, 'a case outside the link is not charged');
+    assert.equal(storeHealth(e.store, undefined, { now: NOW, links: () => ({ made: 0, withoutAnswer: 0 }) }).denominators.linksWithoutAnswer, 0, 'an explicit hook still wins');
+  } finally {
+    e.close();
+  }
+});
+
 // ---- D-B2-66: an applicability answer scopes the case; only an answer about the claim itself counts for correctness ----
 
 const B2 = `Asset-B2: ${SYMPTOM_TEXT}`;
@@ -274,7 +296,7 @@ test('D-B2-66: the same contradicting answer counts against correctness when it 
   assert.ok(outcome.correctness! < applicability.correctness!);
 });
 
-test('D-B2-66: an explicit "not applicable" answer fills the distinguishing slot for a key the case never recorded (brief 5.1)', () => {
+test('D-B2-66: an answered applicability question fills the distinguishing slot for a key the case never recorded (approximates brief 5.1\'s "explicit not applicable", D-B2-75)', () => {
   const store = buildSyntheticStore();
   const before = health(store);
   store.put('observation', {

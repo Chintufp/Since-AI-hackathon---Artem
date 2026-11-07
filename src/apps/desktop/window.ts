@@ -103,7 +103,7 @@ export function createCompanionWindow(options: CompanionWindowOptions): BrowserW
     // that click only activates the window). Not yet verified with a real mouse.
     acceptFirstMouse: true,
     show: false,
-    title: 'Snowbally',
+    title: 'Lumi',
     webPreferences: {
       preload: join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -117,7 +117,7 @@ export function createCompanionWindow(options: CompanionWindowOptions): BrowserW
   // desktop (R31): a full-work-area overlay must not show up as a window in Mission Control (macOS only).
   if (typeof win.setHiddenInMissionControl === 'function') win.setHiddenInMissionControl(true);
   win.setBounds(bounds);
-  // Start click-through; the renderer turns it off while the pointer is over Snowbally or the panel.
+  // Start click-through; the renderer turns it off while the pointer is over Lumi or the panel.
   win.setIgnoreMouseEvents(true, { forward: true });
 
   // desktop (R31): follow the work area (resolution / Dock / menu bar changes) and tell the renderer.
@@ -252,7 +252,7 @@ export function createShell(options: ShellOptions): Shell {
     );
 
   const tray = new Tray(createTrayIcon());
-  tray.setToolTip('Snowbally');
+  tray.setToolTip('Lumi');
   // desktop (R36): on macOS a set context menu would swallow the left click; the click toggles away / back and
   // right-click (or ctrl-click) opens the menu. Fallback mode keeps the R28 tray (menu on click).
   const clickToggles = away && mac;

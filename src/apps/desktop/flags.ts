@@ -15,7 +15,7 @@ export type WindowMode = 'area' | 'column';
 export interface DesktopFlags {
   /** desktop (R31): the companion module (carrier, away, peek, perch) runs at all. */
   companion: boolean;
-  /** desktop (R32): Snowbally can be picked up and dropped. */
+  /** desktop (R32): Lumi can be picked up and dropped. */
   drag: boolean;
   /** desktop (R33): away is his home state (leave after launch / close, peek on proximity). */
   away: boolean;
@@ -319,7 +319,7 @@ export function menuTemplate(model: MenuModel, actions: MenuActions): MenuItemCo
   if (!awayEnabled(model.flags)) {
     // Fallback (column mode / companion off): the R28 menu.
     return [
-      { label: 'Show / Hide Snowbally', click: () => (model.visible ? actions.hide() : actions.show()) },
+      { label: 'Show / Hide Lumi', click: () => (model.visible ? actions.hide() : actions.show()) },
       { label: 'Reset demo', click: () => actions.resetDemo() },
       { type: 'separator' },
       { label: 'Quit', click: () => actions.quit() },
@@ -327,7 +327,7 @@ export function menuTemplate(model: MenuModel, actions: MenuActions): MenuItemCo
   }
   const away = model.state.away || !model.visible;
   const toggle: MenuItemConstructorOptions = {
-    label: away ? 'Bring Snowbally back' : 'Send Snowbally away',
+    label: away ? 'Bring Lumi back' : 'Send Lumi away',
     click: () => actions.command(away ? 'return' : 'away'),
   };
   if (model.shortcutRegistered) {
@@ -336,7 +336,7 @@ export function menuTemplate(model: MenuModel, actions: MenuActions): MenuItemCo
   }
   return [
     toggle,
-    { label: 'Put Snowbally back in the corner', click: () => actions.command('reset-position') },
+    { label: 'Put Lumi back in the corner', click: () => actions.command('reset-position') },
     { label: 'Reset demo', click: () => actions.resetDemo() },
     { type: 'separator' },
     { label: 'Hide completely (stops questions)', enabled: model.visible, click: () => actions.hide() },

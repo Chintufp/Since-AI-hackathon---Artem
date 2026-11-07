@@ -1,6 +1,6 @@
 /**
  * The long launch fall (R28). The authored v006 entrance starts 3 px above its 96 px scene and is
- * on the floor by frame 5. On the desktop Snowbally instead falls from the top of the screen
+ * on the floor by frame 5. On the desktop Lumi instead falls from the top of the screen
  * (the window spans the work area), so the host moves this floor-aligned falling pose with a
  * CSS transform and then hands over to the authored impact frames. Nothing new is drawn: the
  * body is the entrance's 'stretch' silhouette and the two accent air streaks of frames 0-4; the

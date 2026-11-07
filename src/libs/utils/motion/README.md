@@ -1,6 +1,6 @@
 # motion
 
-Snowbally: the ChatGPT v006 compact companion (plus the v007 `click` Springy tap) and the v008/v009 avatar behaviour as reusable TypeScript. Browser-safe, no dependencies beyond the DOM canvas API.
+Lumi: the ChatGPT v006 compact companion (plus the v007 `click` Springy tap) and the v008/v009 avatar behaviour as reusable TypeScript. Browser-safe, no dependencies beyond the DOM canvas API.
 
 ## Public interface (`index.ts`)
 

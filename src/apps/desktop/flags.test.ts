@@ -120,26 +120,26 @@ test('menu: away / back label follows the reported state, accelerator only when 
   const { calls, actions } = recorder();
   const base: MenuModel = { flags: { ...DEFAULT_FLAGS }, state: { away: false, question: false }, shortcutRegistered: true, visible: true };
   const inMenu = menuTemplate(base, actions);
-  assert.deepEqual(inMenu.map((i) => i.label ?? i.type), ['Send Snowbally away', 'Put Snowbally back in the corner', 'Reset demo', 'separator', 'Hide completely (stops questions)', 'Quit']);
+  assert.deepEqual(inMenu.map((i) => i.label ?? i.type), ['Send Lumi away', 'Put Lumi back in the corner', 'Reset demo', 'separator', 'Hide completely (stops questions)', 'Quit']);
   assert.equal(inMenu[0]!.accelerator, SHORTCUT_ACCELERATOR);
   assert.equal(inMenu[0]!.registerAccelerator, false);
   click(inMenu[0]!);
   click(inMenu[1]!);
   const awayMenu = menuTemplate({ ...base, state: { away: true, question: true }, shortcutRegistered: false }, actions);
-  assert.equal(awayMenu[0]!.label, 'Bring Snowbally back');
+  assert.equal(awayMenu[0]!.label, 'Bring Lumi back');
   assert.equal(awayMenu[0]!.accelerator, undefined);
   click(awayMenu[0]!);
   click(awayMenu[4]!);
   assert.deepEqual(calls, ['command:away', 'command:reset-position', 'command:return', 'hide']);
   const hidden = menuTemplate({ ...base, visible: false }, actions);
-  assert.equal(hidden[0]!.label, 'Bring Snowbally back');
+  assert.equal(hidden[0]!.label, 'Bring Lumi back');
   assert.equal(hidden[4]!.enabled, false);
 });
 
 test('menu: fallback (column / companion off) is the R28 menu', () => {
   const { calls, actions } = recorder();
   const m = menuTemplate({ flags: { ...COLUMN_FLAGS }, state: { away: false, question: false }, shortcutRegistered: false, visible: true }, actions);
-  assert.deepEqual(m.map((i) => i.label ?? i.type), ['Show / Hide Snowbally', 'Reset demo', 'separator', 'Quit']);
+  assert.deepEqual(m.map((i) => i.label ?? i.type), ['Show / Hide Lumi', 'Reset demo', 'separator', 'Quit']);
   click(m[0]!);
   assert.deepEqual(calls, ['hide']);
 });

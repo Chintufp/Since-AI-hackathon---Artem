@@ -1,5 +1,5 @@
 /**
- * desktop (R31..R36): the companion state machine. Snowbally lives at the edge of the work area
+ * desktop (R31..R36): the companion state machine. Lumi lives at the edge of the work area
  * ("away is home"), comes in when the pointer comes near his edge, when a question arrives or when
  * asked (tray, shortcut, click), can be picked up and dropped anywhere on the floor, and remembers
  * that spot.
@@ -11,7 +11,7 @@
  *
  * The carrier is `.rf-window` (the v008 card, which contains `.rf-avatar`): a desktop CSS rule
  * anchors it at `left:0; bottom:0` and only this module moves it, by translate3d rounded to whole
- * device pixels. The card and Snowbally always move together.
+ * device pixels. The card and Lumi always move together.
  *
  * `createCompanion()` is DOM-less: the clock, rAF, storage, avatar, panel hooks and the render
  * sinks are injected (unit-tested with fakes). `attachCompanion()` binds the DOM events to it.

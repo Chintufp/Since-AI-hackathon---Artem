@@ -1,5 +1,5 @@
 /**
- * desktop (R34): attention rules for questions while Snowbally is away. Pure apart from the
+ * desktop (R34): attention rules for questions while Lumi is away. Pure apart from the
  * injected clock and storage; nothing leaves the machine.
  *
  * Per question id it remembers when the id was first waiting, when its question view was first

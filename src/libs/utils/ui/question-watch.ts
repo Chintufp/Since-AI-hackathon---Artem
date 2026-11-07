@@ -1,6 +1,6 @@
 /**
  * desktop (R34): keeps the open-question list fresh while the panel is collapsed, so a question
- * can reach the person while Snowbally is away.
+ * can reach the person while Lumi is away.
  *
  * Before the UX pass the panel polled `/questions` only while open (20 s) and ran no timer at all
  * while collapsed. Now, while collapsed and the document is visible, it polls every

@@ -1,6 +1,6 @@
 /**
  * The v008 panel as a factory. It renders into `root` (id "kt-panel"), talks to the service only
- * through an ApiClient and drives Snowbally only through the Avatar interface.
+ * through an ApiClient and drives Lumi only through the Avatar interface.
  *
  * Views: input, question, queue, settings, receipt (v008) plus result, people, case and contact
  * (new, same visual language). Behaviour kept from app.js: avatar click toggles the panel and
@@ -36,7 +36,7 @@ export interface PanelOptions {
   root: HTMLElement;
   api: ApiClient;
   /**
-   * Build Snowbally on the panel's canvas. The host callbacks let him react to panel state.
+   * Build Lumi on the panel's canvas. The host callbacks let him react to panel state.
    * desktop (R31..R36): `surfaces.shadow` is the `.rf-shadow` floor strip (pass it as AvatarOptions.shadow).
    */
   avatar: (canvas: HTMLCanvasElement, host: AvatarHost, surfaces: { drop: HTMLCanvasElement; shadow: HTMLCanvasElement }) => CompanionAvatar;
@@ -148,7 +148,7 @@ const TEMPLATE = `
      <label class="rf-setting rf-option"><span>Sound</span><em class="rf-setting-note">No sounds yet</em><input class="rf-sound" type="checkbox" disabled aria-label="Sound (no sounds yet)"></label>
      <div class="rf-setting rf-option"><span>Demo data</span><button class="rf-later" type="button" data-action="reset-demo">Reset demo</button></div>
      <label class="rf-setting rf-option rf-desktop-companion" hidden><span>Fidgets</span><input class="rf-fidgets" type="checkbox"></label>
-     <div class="rf-setting rf-option rf-desktop-companion" hidden><span>Position</span><button class="rf-later" type="button" data-action="reset-position">Put Snowbally back in the corner</button></div>
+     <div class="rf-setting rf-option rf-desktop-companion" hidden><span>Position</span><button class="rf-later" type="button" data-action="reset-position">Put Lumi back in the corner</button></div>
     </div>
    </section>
    <section class="rf-view rf-receipt" data-view="receipt" hidden aria-live="polite"><p class="rf-receipt-title"></p><div class="rf-receipt-detail"></div><div class="rf-reward" hidden><canvas width="${BURST.width}" height="${BURST.height}" aria-hidden="true"></canvas><span></span></div><button class="rf-undo" type="button" data-action="receipt-action">Undo</button></section>
@@ -630,7 +630,7 @@ export function createPanel(options: PanelOptions): Panel {
     motion.panel(false, animate);
     avatar.refresh();
     avatarButton.focus(focusOptions(via)); // ux fix M1: no ring after a mouse close; Escape keeps it
-    companion?.panelClosed(); // desktop (R33): the idle timer starts; a displaced Snowbally rolls back to his spot
+    companion?.panelClosed(); // desktop (R33): the idle timer starts; a displaced Lumi rolls back to his spot
   }
   function focusFor(view: ViewName, via: InputModality = modality.current()): void {
     const target =
@@ -650,7 +650,7 @@ export function createPanel(options: PanelOptions): Panel {
     };
     attempt(12);
   }
-  /** `user`: a direct click / key on Snowbally. Programmatic opens never move focus (desktop R33). */
+  /** `user`: a direct click / key on Lumi. Programmatic opens never move focus (desktop R33). */
   function openPanel(user = false, via: InputModality = modality.current()): void {
     if (state.serviceDown) {
       showError(new ApiError('unreachable', 'GET /health', 'Couldn’t reach the service'), () => void retryConnect());
@@ -1002,7 +1002,7 @@ export function createPanel(options: PanelOptions): Panel {
   window.addEventListener('pointerup', onPointerUp);
   avatarButton.addEventListener('pointercancel', onPointerUp);
 
-  // ---- boot: panel starts collapsed (R05); Snowbally alone is visible ----
+  // ---- boot: panel starts collapsed (R05); Lumi alone is visible ----
   syncMotion();
   setView(state.view, false);
   state.panelOpen = false;

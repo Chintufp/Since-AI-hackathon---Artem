@@ -1,4 +1,4 @@
-/** Renderer: composes the v008 panel (ui) with Snowbally (motion) against the service API. */
+/** Renderer: composes the v008 panel (ui) with Lumi (motion) against the service API. */
 import { AvatarController } from '../../libs/utils/motion/index.ts';
 import { createApiClient, createMockFetch, createPanel, MOCK_BASE_URL } from '../../libs/utils/ui/index.ts';
 import type { Panel } from '../../libs/utils/ui/index.ts';
@@ -56,7 +56,7 @@ const panel = createPanel({
   companion: flags,
 });
 
-// Click-through: the window is transparent; only Snowbally and the open panel take the mouse.
+// Click-through: the window is transparent; only Lumi and the open panel take the mouse.
 // desktop (R31): O(1) hit test against two cached rects instead of elementFromPoint. The rects are recomputed
 // when the companion moves the carrier or the panel spring settles (`kt-companion:moved`), on resize, and, as a
 // fallback, at most once per MEASURE_FALLBACK_MS on mousemove: always without the companion (nothing dispatches
@@ -90,7 +90,7 @@ const setIgnore = (flag: boolean): void => {
   sentAt = now;
   window.kt?.setIgnoreMouse(flag);
 };
-// desktop (R32): pinned between pointerdown on Snowbally and pointerup / pointercancel / lostpointercapture.
+// desktop (R32): pinned between pointerdown on Lumi and pointerup / pointercancel / lostpointercapture.
 // shell-03: only a plain primary press pins; a right-click / ctrl-click opens the menu, whose tracking loop eats
 // the release, and `contextmenu` drops any pin so the next mousemove re-runs the hit test.
 let pinned = false;

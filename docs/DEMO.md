@@ -4,7 +4,7 @@ Everything below runs on this machine only: a local service, a local SQLite file
 
 ## What you are looking at (30 seconds)
 
-Elisa's challenge: expert knowledge lives in Teams threads and e-mails, never in the manuals. Knowledge Twin reads those messages as they are (no form, no documentation step), turns each thread into a **case** bound to the equipment, the people and the time it concerns, and, when a similar problem comes in later, answers with the earlier fix **and its caveats**: who said it, whether the outcome was verified, which condition it depends on. If one deciding fact is missing, it asks exactly one person one Yes/No question, within a daily budget, and uses the answer. The same engine is an MCP server, so an autonomous agent gets the same answer under the same access rules and limits. The pixel companion ("Snowbally") is how a person meets it: click him, tell him what happened, answer the rare question.
+Elisa's challenge: expert knowledge lives in Teams threads and e-mails, never in the manuals. Knowledge Twin reads those messages as they are (no form, no documentation step), turns each thread into a **case** bound to the equipment, the people and the time it concerns, and, when a similar problem comes in later, answers with the earlier fix **and its caveats**: who said it, whether the outcome was verified, which condition it depends on. If one deciding fact is missing, it asks exactly one person one Yes/No question, within a daily budget, and uses the answer. The same engine is an MCP server, so an autonomous agent gets the same answer under the same access rules and limits. The pixel companion ("Lumi") is how a person meets it: click him, tell him what happened, answer the rare question.
 
 ## Start
 
@@ -16,7 +16,7 @@ pnpm install
 pnpm demo:judge
 ```
 
-That one command resets the demo data, starts the service on `127.0.0.1:47831`, launches the companion, opens the activity page in your browser and starts the **simulated** activity stream, whose day begins four minutes later so the script below runs on untouched data first (`--stream-delay 0` starts it at once, `--no-stream` never). Snowbally falls in from the top of the screen, lands bottom-right, says hello and, a few seconds later, rolls off to the right edge: that is where he lives. A sliver of him stays visible at the edge. Move the cursor near that corner and he peeks and hops back in; clicking the sliver works too, and so does ⌘⌥S or the menu-bar icon. He goes back to the edge after about 20 s without interaction, and comes by himself when a question arrives for you. Ctrl-C in that terminal stops everything.
+That one command resets the demo data, starts the service on `127.0.0.1:47831`, launches the companion, opens the activity page in your browser and starts the **simulated** activity stream, whose day begins four minutes later so the script below runs on untouched data first (`--stream-delay 0` starts it at once, `--no-stream` never). Lumi falls in from the top of the screen, lands bottom-right, says hello and, a few seconds later, rolls off to the right edge: that is where he lives. A sliver of him stays visible at the edge. Move the cursor near that corner and he peeks and hops back in; clicking the sliver works too, and so does ⌘⌥S or the menu-bar icon. He goes back to the edge after about 20 s without interaction, and comes by himself when a question arrives for you. Ctrl-C in that terminal stops everything.
 
 The reset prints what was captured, for example:
 
@@ -29,7 +29,7 @@ That is the **capture** step: Erkki's Teams thread and his e-mail imported as th
 
 ## The 3-minute script
 
-**0:00 Open the companion.** Bring the cursor to the bottom-right corner so Snowbally hops in, then click him (he does a springy tap). The card opens with "Tell me what happened…". At the bottom there are three icons: paperclip, questions (speech bubbles, with a count when there are open questions), settings (sliders).
+**0:00 Open the companion.** Bring the cursor to the bottom-right corner so Lumi hops in, then click him (he does a springy tap). The card opens with "Tell me what happened…". At the bottom there are three icons: paperclip, questions (speech bubbles, with a count when there are open questions), settings (sliders).
 
 **0:10 Be Veikko.** Click the sliders icon → Settings. In the **You** row choose `Veikko Vikkelä · Field Engineer`. Click the back arrow (top right). Say: *"Veikko is the field engineer from the Elisa example. He is at another site today."*
 
@@ -81,7 +81,7 @@ This is a plain MCP client (no model) starting the same MCP server on the same d
 - **investigation** rows: simulated engineers ask the service, and the row shows the recommendation they got.
 - **question** rows: the real coordinator asked someone, with **why them** ("because they performed the action on TRN-117", "because they can observe this through their role (Network Expert)") and the checks it passed (access, daily limit, cooldown, open questions, duplicates).
 - **answer** rows: simulated colleagues answer Yes / No / Not sure, tap Later or Dismiss after a plausible delay, and the row says what the recommendation became.
-- Rows marked **for you** concern the person chosen under Settings → You. Every couple of simulated hours the stream tries once to involve you; when the coordinator picks you, Snowbally's questions badge shows it and the row says *For you: … open the companion to answer*. The stream never answers for you, and it never exceeds the coordinator's limits (they are enforced by the service, and the service's clock runs in simulated time while the stream runs). Your own actions in the companion also appear in the stream.
+- Rows marked **for you** concern the person chosen under Settings → You. Every couple of simulated hours the stream tries once to involve you; when the coordinator picks you, Lumi's questions badge shows it and the row says *For you: … open the companion to answer*. The stream never answers for you, and it never exceeds the coordinator's limits (they are enforced by the service, and the service's clock runs in simulated time while the stream runs). Your own actions in the companion also appear in the stream.
 - Agent calls over MCP against the same database appear as **agent** rows.
 
 The same rows are appended as JSON lines to `data/local/demo-activity.jsonl` (git-ignored) and served by `GET /demo/activity`. `pnpm demo:play -- --seed 2` replays a different day; `--hour-seconds 5` runs it faster; `--instant` runs it in one go; `--delay 0` skips the quiet period when you run it by hand.
@@ -164,7 +164,7 @@ The service listens on loopback only and refuses non-loopback host names. The da
 | Something is in a strange state | Sliders icon → **Demo data: Reset demo** (click twice), or `pnpm demo:reset` in a terminal; both re-import everything and keep your settings. |
 | A question does not appear | Questions are per person: check Settings → **You** is the person who was asked (the stream and the result card say who). The badge refreshes every 20 s while the card is open; close and reopen the card to refresh now. A person gets at most 3 questions a day with 30 minutes between them: `pnpm demo:reset` clears that too. |
 | The question went to someone other than Erkki | More NOC people are in the directory (the simulated day has begun, or a family was imported): the coordinator picks among equally placed observers deterministically. Reset, or do the script before the day begins. |
-| Snowbally is not visible | He sits bottom-right; the tray (menu bar) icon has **Show / Hide Snowbally**. |
+| Lumi is not visible | He sits bottom-right; the tray (menu bar) icon has **Show / Hide Lumi**. |
 | Port 47831 is taken | `KT_PORT=47900 pnpm demo:judge` (or `pnpm demo:judge --port 47900`). |
 | The activity page is empty | The stream has not written anything yet (`pnpm demo:play` needs the service running), or it is pointed at another log file. |
 | Nothing from Elisa's example | The organizer's files are not in this clone's `private/` folder; the synthetic TRN-117 case plays the same role (use the same texts; the basis case will read TRN-117). |

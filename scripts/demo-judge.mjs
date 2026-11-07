@@ -1,5 +1,5 @@
 // One command for the judges: reset the demo data, start the service, start the simulated activity stream, open the
-// activity page in the browser and launch the desktop companion. Ctrl-C (or quitting Snowbally) stops everything.
+// activity page in the browser and launch the desktop companion. Ctrl-C (or quitting Lumi) stops everything.
 //   pnpm demo:judge [-- --seed 1 --hour-seconds 10 --hours 10 --stream-delay 240 --no-browser --no-stream --port 47831]
 // Everything runs on this machine; no model API, no real chat, mail or Slack. The stream is simulated and labelled so.
 import { spawn } from 'node:child_process';
@@ -105,4 +105,4 @@ if (!values['no-desktop']) {
   // A per-checkout user-data directory keeps this companion's single-instance lock and local state apart from any other Electron app.
   run('desktop', electron, [join(root, 'dist/desktop/main.cjs'), `--user-data-dir=${join(root, 'data', 'local', 'electron')}`], { env });
 }
-log('ready. Click Snowbally (bottom-right); follow docs/DEMO.md. Ctrl-C here stops everything.');
+log('ready. Click Lumi (bottom-right); follow docs/DEMO.md. Ctrl-C here stops everything.');

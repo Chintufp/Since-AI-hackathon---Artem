@@ -1,5 +1,5 @@
 /**
- * Electron main process. Launch behaviour (R05): a transparent always-on-top window with only Snowbally
+ * Electron main process. Launch behaviour (R05): a transparent always-on-top window with only Lumi
  * visible; he falls in from the top of the screen once (R28) and lands at his home spot; the panel opens when he
  * is clicked. Flip OPEN_ON_LAUNCH to start with the panel open instead.
  *

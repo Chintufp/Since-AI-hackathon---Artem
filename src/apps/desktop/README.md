@@ -1,6 +1,6 @@
 # desktop
 
-Electron companion. Since the UX pass (R31–R36) the window is a frameless, transparent, always-on-top (`floating`) overlay that covers the primary display's **work area exactly** (no margin), is visible on all workspaces, hidden in Mission Control, never resizable, shown with `showInactive()` (never steals focus) and click-through everywhere except Snowbally and the open panel. On launch he falls from the top of the screen and lands with the authored entrance (R05/R28); the companion module (`src/libs/utils/ui/companion.ts`) then moves him along the floor, away to the edge and back. `OPEN_ON_LAUNCH` in `main.ts` opens the panel at launch instead.
+Electron companion. Since the UX pass (R31–R36) the window is a frameless, transparent, always-on-top (`floating`) overlay that covers the primary display's **work area exactly** (no margin), is visible on all workspaces, hidden in Mission Control, never resizable, shown with `showInactive()` (never steals focus) and click-through everywhere except Lumi and the open panel. On launch he falls from the top of the screen and lands with the authored entrance (R05/R28); the companion module (`src/libs/utils/ui/companion.ts`) then moves him along the floor, away to the edge and back. `OPEN_ON_LAUNCH` in `main.ts` opens the panel at launch instead.
 
 **Fallback (R28):** `KT_WINDOW_MODE=column` keeps the old window exactly: 420 px wide at the right edge with a 12 px margin, as tall as the work area minus the margin (minimum 680), and turns every flag below off (no drag, no away; the tray is the old Show / Hide menu). `KT_DRAG`, `KT_AWAY` and `KT_SHORTCUT` cannot turn back on in the column (logged and ignored; shell-16).
 
@@ -32,7 +32,7 @@ Values: `1/true/on/yes`, `0/false/off/no`. Example: `KT_AWAY=0 pnpm desktop`.
 
 ## Tray, menu, shortcut
 
-- Menu (tray and right-click on Snowbally, same items): **Send Snowbally away** / **Bring Snowbally back** (label follows the state the renderer reports; shows `⌥⌘S` when the shortcut registered), **Put Snowbally back in the corner**, **Reset demo**, **Hide completely (stops questions)** (the old `win.hide()`: no window, no polling), **Quit**.
+- Menu (tray and right-click on Lumi, same items): **Send Lumi away** / **Bring Lumi back** (label follows the state the renderer reports; shows `⌥⌘S` when the shortcut registered), **Put Lumi back in the corner**, **Reset demo**, **Hide completely (stops questions)** (the old `win.hide()`: no window, no polling), **Quit**.
 - Tray click toggles away / back (not hide / show); right-click or ctrl-click opens the menu (macOS). Any command while the window is hidden shows it first (`showInactive`).
 - Tray title ` ?` next to the icon while he is away with a question waiting, empty otherwise.
 - Global shortcut `CommandOrControl+Alt+S` toggles away / back. If `register()` returns false (taken by another app) it is logged and the accelerator is omitted from the menu. `unregisterAll` on `will-quit`.

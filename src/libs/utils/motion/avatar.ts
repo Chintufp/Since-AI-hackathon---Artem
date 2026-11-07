@@ -1,5 +1,5 @@
 /**
- * Snowbally controller: v008 avatar behaviour as a reusable module.
+ * Lumi controller: v008 avatar behaviour as a reusable module.
  *
  * Pipeline (unchanged from v008): authored acts draw onto a transparent raw 96px scene
  * (the white background fill is skipped), the 44x44 window at (26,42) is copied into the

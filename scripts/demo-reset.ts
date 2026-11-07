@@ -5,6 +5,7 @@
  */
 import { parseArgs } from 'node:util';
 import { Engine } from '../src/apps/service/engine.ts';
+import { defaultObservabilityPolicy } from '../src/apps/service/org-config.ts';
 import { DEFAULT_DB_PATH } from '../src/apps/service/paths.ts';
 
 const { values } = parseArgs({ options: { db: { type: 'string', default: DEFAULT_DB_PATH }, seed: { type: 'string' } } });
@@ -13,7 +14,7 @@ if (values.seed !== undefined && !['elisa', 'synthetic', 'empty'].includes(value
   process.exit(2);
 }
 
-const engine = new Engine({ dbPath: values.db });
+const engine = new Engine({ dbPath: values.db, investigation: { observability: defaultObservabilityPolicy } });
 try {
   const r = await engine.resetDemo(values.seed as 'elisa' | 'synthetic' | 'empty' | undefined);
   process.stdout.write(`Demo reset on ${engine.dbPath}\n`);

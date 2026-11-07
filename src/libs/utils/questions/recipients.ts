@@ -82,8 +82,8 @@ export function findRecipients(ctx: QuestionContext, state: InvestigationState, 
     for (const p of directory.all()) {
       const viaGroup = p.groups.find((g) => settings.observability.groups[g]?.includes(key));
       const viaRole = p.role && settings.observability.roles[p.role]?.includes(key) ? p.role : undefined;
-      if (viaGroup) add(p.id, `Directory: group "${viaGroup}" is configured to observe ${key}`, undefined, false, `their group (${viaGroup}) can observe this`);
-      if (viaRole) add(p.id, `Directory: role "${viaRole}" is configured to observe ${key}`, undefined, false, `their role (${viaRole}) can observe this`);
+      if (viaGroup) add(p.id, `Directory: group "${viaGroup}" is configured to observe ${key}`, undefined, false, `can observe this through their group (${viaGroup})`);
+      if (viaRole) add(p.id, `Directory: role "${viaRole}" is configured to observe ${key}`, undefined, false, `can observe this through their role (${viaRole})`);
     }
   }
   return [...acc.values()].sort((a, b) => Number(b.firsthand) - Number(a.firsthand) || a.personEntityId.localeCompare(b.personEntityId));

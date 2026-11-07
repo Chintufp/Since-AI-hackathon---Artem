@@ -34,7 +34,7 @@ test('(3) missing distinguishing condition -> one consequential gap -> one quick
   const cand = r.candidates[0]!;
   assert.equal(cand.kind, 'quick');
   assert.equal(cand.text, 'Is Asset-B2 an older unit?');
-  assert.match(cand.rationale, /Evidence: /);
+  assert.doesNotMatch(cand.rationale, /\bev_[0-9a-f]+|Evidence: /); // prose never carries raw evidence ids; the basis is structured
   assert.ok(cand.consequences.yes && cand.consequences.no);
   assert.deepEqual(cand.recipientIds, [P.site.entity]);
   assert.ok(!(cand.recipientIds as string[]).includes(P.req.entity));

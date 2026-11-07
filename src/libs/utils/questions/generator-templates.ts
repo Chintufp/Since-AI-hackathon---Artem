@@ -50,7 +50,7 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
       const assetName = [...own.map((id) => names.get(id)).filter(Boolean), ...(own.length ? [] : unresolved)].join(' and ') || 'this asset';
       const hyp = state.hypotheses.find((h) => h.id === stableId('hyp', state.id, p.caseId));
       const evIds = [...new Set((hyp?.basis ?? []).map((b) => b.evidenceId))].slice(0, 4);
-      const cite = evIds.length ? ` Evidence: ${evIds.join(', ')}.` : '';
+      const cite = ''; // evidence ids stay in the structured basis, never in prose (evIds kept for dedup/scope)
       const common = { orgId: state.orgId, investigationId: state.id, gapId: gap.id, kind: 'quick' as const, answerType: 'yes-no-unknown' as const, generatedBy: { route: this.route.route, version: this.route.version } };
 
       let text: string, rationale: string, consequences: { yes: string; no: string }, scope: QuestionCandidate['scope'], dedup: string;

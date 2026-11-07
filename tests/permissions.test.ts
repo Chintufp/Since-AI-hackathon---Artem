@@ -30,7 +30,7 @@ before(async () => {
   // The whole chat is restricted to the 'core' group.
   await svc.call('POST', '/import', { format: 'teams-json', path: join(DEV_FIXTURE, 'teams.json'), accessGroups: insiderGroups });
   client = new Client({ name: 'kt-perm', version: '0.0.0' });
-  await client.connect(new StdioClientTransport({ command: process.execPath, args: [join(ROOT, 'src/apps/service/mcp.ts'), '--db', db], stderr: 'ignore' }));
+  await client.connect(new StdioClientTransport({ command: process.execPath, args: [join(ROOT, 'src/apps/service/mcp.ts'), '--db', db, '--org-policy', 'none'], stderr: 'ignore' }));
 });
 after(async () => {
   await client.close();

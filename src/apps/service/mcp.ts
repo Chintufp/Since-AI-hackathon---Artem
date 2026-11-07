@@ -6,11 +6,14 @@
 import { parseArgs } from 'node:util';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { Engine } from './engine.ts';
+import { defaultObservabilityPolicy } from './org-config.ts';
 import { createMcpServer, DEFAULT_AGENT } from './mcp-tools.ts';
 import { DEFAULT_DB_PATH } from './paths.ts';
 
 const { values } = parseArgs({
   options: {
+    /** 'default' applies the documented organization observability policy (org-config.ts); 'none' disables it (tests). */
+    'org-policy': { type: 'string', default: process.env.KT_ORG_POLICY ?? 'default' },
     db: { type: 'string', default: process.env.KT_DB ?? DEFAULT_DB_PATH },
     'agent-id': { type: 'string' },
     'agent-name': { type: 'string' },
@@ -18,7 +21,7 @@ const { values } = parseArgs({
   },
 });
 
-const engine = new Engine({ dbPath: values.db });
+const engine = new Engine({ dbPath: values.db, investigation: values['org-policy'] === 'none' ? {} : { observability: defaultObservabilityPolicy } });
 const fallback = {
   ...DEFAULT_AGENT,
   ...(values['agent-id'] ? { id: values['agent-id'] } : {}),

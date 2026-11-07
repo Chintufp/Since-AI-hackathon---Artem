@@ -28,7 +28,7 @@ before(async () => {
   svc = await startService({ dbPath: db });
   await svc.call('POST', '/import', { format: 'scenario-dir', path: DEV_FIXTURE });
   client = new Client({ name: 'kt-test', version: '0.0.0' });
-  await client.connect(new StdioClientTransport({ command: process.execPath, args: [join(ROOT, 'src/apps/service/mcp.ts'), '--db', db], stderr: 'ignore' }));
+  await client.connect(new StdioClientTransport({ command: process.execPath, args: [join(ROOT, 'src/apps/service/mcp.ts'), '--db', db, '--org-policy', 'none'], stderr: 'ignore' }));
 });
 after(async () => {
   await client.close();

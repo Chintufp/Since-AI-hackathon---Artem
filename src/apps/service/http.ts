@@ -124,6 +124,32 @@ function compile(keys: RouteKey[]): CompiledRoute[] {
   });
 }
 
+/**
+ * The same route table without a socket: method + path(+query) + JSON body in, {status, body} out, with the body and
+ * the result passed through JSON exactly as over HTTP. For in-process drivers (the E10 simulated day) that must not open
+ * a port while the network guard is installed. The loopback Host check does not apply (there is no request).
+ */
+export function createDispatcher(engine: Engine): (method: string, pathAndQuery: string, body?: unknown) => Promise<{ status: number; body: unknown }> {
+  const table = buildRoutes(engine);
+  const routes = compile(Object.keys(table) as RouteKey[]);
+  return async (method, pathAndQuery, body) => {
+    try {
+      const url = new URL(pathAndQuery, 'http://local');
+      const pathMatches = routes.filter((r) => r.rx.test(url.pathname));
+      const hit = pathMatches.find((r) => r.method === method);
+      if (!hit) throw pathMatches.length ? new ServiceError(405, `Method ${method} not allowed for ${url.pathname}`) : new ServiceError(404, `No route ${method} ${url.pathname}`);
+      const m = hit.rx.exec(url.pathname)!;
+      const params: Record<string, string> = {};
+      hit.names.forEach((n, i) => (params[n] = safeDecode(m[i + 1]!)));
+      const result = await table[hit.key]({ params, query: url.searchParams, body: body === undefined ? undefined : JSON.parse(JSON.stringify(body)) });
+      return { status: 200, body: result instanceof HtmlResponse ? result.html : JSON.parse(JSON.stringify(result ?? null)) };
+    } catch (e) {
+      const err = toServiceError(e);
+      return { status: err.status, body: { error: err.message } };
+    }
+  };
+}
+
 async function readBody(req: IncomingMessage): Promise<unknown> {
   const chunks: Buffer[] = [];
   let size = 0;

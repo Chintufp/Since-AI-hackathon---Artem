@@ -71,6 +71,21 @@ test('route guard: provider calls throw, fetch is blocked while the guard is ins
     restore();
   }
   assert.equal(typeof fetch, 'function');
+  // An allowed origin passes through to the original fetch; every other host (localhost on another port too) is blocked.
+  const g = globalThis as { fetch: unknown };
+  const real = g.fetch;
+  const seen: string[] = [];
+  g.fetch = (u: string) => { seen.push(u); return 'ok'; };
+  const restore2 = installNetworkGuard({ allowOrigins: ['http://127.0.0.1:11434'] });
+  try {
+    assert.equal((globalThis.fetch as unknown as (u: string) => string)('http://127.0.0.1:11434/api/embed'), 'ok');
+    assert.throws(() => fetch('http://127.0.0.1:8080/x'), NetworkProviderBlockedError);
+    assert.throws(() => fetch('https://example.invalid'), NetworkProviderBlockedError);
+  } finally {
+    restore2();
+    g.fetch = real;
+  }
+  assert.deepEqual(seen, ['http://127.0.0.1:11434/api/embed']);
   assert.throws(() => assertRouteInfo({ route: 'replay', version: 'no-prefix' }));
   assert.doesNotThrow(() => assertRouteInfo({ route: 'replay', version: 'replay:fx' }));
   assert.equal(routeInfo('trigram-hash').route, 'local');

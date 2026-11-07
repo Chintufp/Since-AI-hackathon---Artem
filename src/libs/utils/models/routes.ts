@@ -41,11 +41,27 @@ export function blockedProviderCall(provider: string): never {
   throw new NetworkProviderBlockedError(provider);
 }
 
+export interface NetworkGuardOptions {
+  /**
+   * URL origins that may still be fetched, exactly as `new URL(u).origin` prints them (e.g. 'http://127.0.0.1:11434'
+   * for the experiments' explicit --record mode). Everything else, localhost included, stays blocked. Default: none.
+   */
+  allowOrigins?: string[];
+}
+
 /** Replace globalThis.fetch with a thrower (tests/experiments). Returns a restore function. */
-export function installNetworkGuard(): () => void {
+export function installNetworkGuard(opts: NetworkGuardOptions = {}): () => void {
   const g = globalThis as { fetch?: unknown };
-  const original = g.fetch;
-  g.fetch = () => {
+  const original = g.fetch as ((input: unknown, init?: unknown) => unknown) | undefined;
+  const allow = new Set(opts.allowOrigins ?? []);
+  g.fetch = (input: unknown, init?: unknown) => {
+    if (allow.size && original) {
+      let origin: string | undefined;
+      try {
+        origin = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : String((input as { url?: string })?.url ?? '')).origin;
+      } catch { /* not a URL: blocked below */ }
+      if (origin && allow.has(origin)) return original(input, init);
+    }
     throw new NetworkProviderBlockedError('fetch');
   };
   return () => {

@@ -63,10 +63,13 @@ export const COMPANION = {
   GAZE_MIN_INTERVAL_MS: 250,
   GAZE_ON_PX: 24,
   GAZE_OFF_PX: 12,
-  /** R35: fidgets (off by default, flags.fidgets): one per 4-8 min, stretching or peek only. */
-  fidgets: false,
-  FIDGET_MIN_MS: 4 * 60 * 1000,
-  FIDGET_MAX_MS: 8 * 60 * 1000,
+  /** R35/R45: idle moves (on by default, flags.fidgets): one per 40-110 s only while nobody points at him and nothing is open; stretching, peek, hop or a short wander along the floor; a small move 1.2 s after the panel closes. */
+  fidgets: true,
+  FIDGET_MIN_MS: 40 * 1000,
+  FIDGET_MAX_MS: 110 * 1000,
+  AFTER_CLOSE_MOVE_MS: 1200,
+  WANDER_MIN_PX: 40,
+  WANDER_MAX_PX: 120,
   STORE_KEY: 'kt-companion.v1',
   /**
    * R33 (ux fix M2): a travel / slide / watcher / fall that gets no frame for this long is completed
@@ -563,14 +566,29 @@ export function createCompanion(deps: CompanionDeps): Companion {
   }
 
   // ---- fidgets (R35; off by default) ----
+  const quietNow = (): boolean => st === 'in' && !panel.isOpen() && !pointerNear && !panel.hasQuestion() && !deps.reduced() && !gesture && !animKind && !avatar.status().reactionPlaying;
+  /** One idle move (R45): never while the pointer is near. Wander = a short roll along the floor to a nearby spot (the home spot is unchanged). */
+  function idleMove(allowWander = true): void {
+    if (!quietNow()) return;
+    const r = random();
+    if (allowWander && r < 0.3) {
+      const dir = random() < 0.5 ? -1 : 1;
+      const d = COMPANION.WANDER_MIN_PX + random() * (COMPANION.WANDER_MAX_PX - COMPANION.WANDER_MIN_PX);
+      const to = clamp(bodyX + dir * d, GEOMETRY.CARD_MIN_X, W - GEOMETRY.CARD_RIGHT_INSET);
+      if (Math.abs(to - bodyX) < 20) { avatar.play('peek'); return; }
+      setState('returning');
+      roll(to, () => { avatar.run('hello', 0, 3); setState('in'); syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true); armFidget(); });
+      return;
+    }
+    avatar.play(r < 0.55 ? 'stretching' : r < 0.8 ? 'peek' : 'hop');
+  }
   function armFidget(): void {
     clear('fidget');
     if (!fidgetsOn || st !== 'in') return;
     const ms = COMPANION.FIDGET_MIN_MS + random() * (COMPANION.FIDGET_MAX_MS - COMPANION.FIDGET_MIN_MS);
     timer('fidget', ms, () => {
-      const quiet = st === 'in' && !panel.isOpen() && !pointerNear && !panel.hasQuestion() && !deps.reduced() && !gesture && !animKind && !avatar.status().reactionPlaying;
-      if (quiet) avatar.play(random() < 0.5 ? 'stretching' : 'peek');
-      armFidget();
+      idleMove(true);
+      if (st === 'in' && !timers.has('fidget')) armFidget();
     });
   }
 
@@ -1061,6 +1079,8 @@ export function createCompanion(deps: CompanionDeps): Companion {
       }
       syncIdle(COMPANION.LEAVE_AFTER_IDLE_MS, true);
       armFidget();
+      // R45: a small move after the panel closes, when the pointer has moved away.
+      if (fidgetsOn) timer('afterclose', COMPANION.AFTER_CLOSE_MOVE_MS, () => idleMove(false));
     });
   }
 

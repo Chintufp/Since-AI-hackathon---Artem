@@ -25,12 +25,12 @@ import {
 } from './flags.ts';
 import type { MenuActions, MenuModel, ShellCommand } from './flags.ts';
 
-test('flags: defaults, fidgets off, env overrides', () => {
+test('flags: defaults, fidgets on (R45), env overrides', () => {
   assert.deepEqual(flagsFromEnv({}), { ...DEFAULT_FLAGS });
-  assert.equal(DEFAULT_FLAGS.fidgets, false);
-  const f = flagsFromEnv({ KT_COMPANION: '0', KT_FIDGETS: '1', KT_DRAG: 'off', KT_GAZE: 'nonsense' });
+  assert.equal(DEFAULT_FLAGS.fidgets, true);
+  const f = flagsFromEnv({ KT_COMPANION: '0', KT_FIDGETS: '0', KT_DRAG: 'off', KT_GAZE: 'nonsense' });
   assert.equal(f.companion, false);
-  assert.equal(f.fidgets, true);
+  assert.equal(f.fidgets, false);
   assert.equal(f.drag, false);
   assert.equal(f.gaze, true, 'unparseable value keeps the default');
 });

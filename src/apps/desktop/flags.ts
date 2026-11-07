@@ -21,7 +21,7 @@ export interface DesktopFlags {
   away: boolean;
   /** desktop (R33): cursor awareness (gaze / quarter view) while in. */
   gaze: boolean;
-  /** desktop (R35): rare idle fidgets. Off by default. */
+  /** desktop (R35/R45): idle moves when nobody points at him. On by default; KT_FIDGETS=0 turns them off. */
   fidgets: boolean;
   /** desktop (R44, trial): small grey crosses fading in at the bottom of the card. KT_TEXTURE=0 turns it off. */
   texture: boolean;
@@ -38,7 +38,7 @@ export const DEFAULT_FLAGS: Readonly<DesktopFlags> = Object.freeze({
   drag: true,
   away: true,
   gaze: true,
-  fidgets: false,
+  fidgets: true,
   texture: true,
   shortcut: true,
   windowMode: 'area',

@@ -94,7 +94,8 @@ abstract class Base implements Retriever {
   protected abstract lists(docs: CorpusDoc[], q: RetrievalQuery, entityIds: string[]): RankedList[];
 
   async search(q: RetrievalQuery): Promise<CandidateMatch[]> {
-    const docs = buildCorpus(this.store, q.requesterPrincipal);
+    const atMs = q.at ? Date.parse(q.at) : undefined;
+    const docs = buildCorpus(this.store, q.requesterPrincipal, atMs !== undefined && Number.isFinite(atMs) ? atMs : undefined);
     const byKey = new Map(docs.map((d) => [d.key, d] as const));
     const entities = this.store.list('entity');
     const { ids: entityIds } = resolveEntityIds(q.text, entities, q.entityIds);

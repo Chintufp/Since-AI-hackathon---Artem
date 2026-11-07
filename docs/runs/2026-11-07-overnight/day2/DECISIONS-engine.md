@@ -38,7 +38,7 @@ Reverse: pass a time zone to `shortDate`.
 
 ## D-B1-07 · A "fixed in firmware X" note bounds older advice; it does not close it for everyone
 
-A sentence matching `validityCues.fixedInVersion` ("fixed in firmware 4.2", "the 4.2 firmware fixes ...") is checked before access facts and before outcome classification and becomes one claim of type `other` (caseless) with `supersessionBound = software.version gte 4.2`; the other sentences of that message become `other` claims too (they explain the note, they are not new advice for the case). `memory/supersession.ts` then gives every older live hypothesis/advice claim with an overlapping subject `validity.condition = "software.version < 4.2"` and `validity.conditionedBy = <note id>`; their status stays as it was. The recommendation reads the bound only when the problem states a version inside it (D-B1-11).
+A sentence matching `validityCues.fixedInVersion` ("fixed in firmware 4.2", "the 4.2 firmware fixes ...") is checked before access facts and before outcome classification and becomes one claim of type `other` (caseless) with `supersessionBound = software.version gte 4.2`; the other sentences of that message become `other` claims too (they explain the note, they are not new advice for the case). `memory/supersession.ts` then gives every older live hypothesis/advice claim with an overlapping subject `validity.condition = "software.version < 4.2"` and `validity.conditionedBy = <note id>`; their status stays as it was. The recommendation reads the bound only when the problem states a version inside it (D-B1-13).
 Why: Erkki's note says units already on 4.2 should not see the bug; for a unit of unknown version his advice still stands (TRN-088 keeps "Check the traffic counters ..."). Closing the advice for everyone would make TRN-042 unusable for every older unit.
 Reverse: set `status: 'superseded'` in rule (b) instead of the condition, or remove the note patterns from `defaultValidityCues.fixedInVersion`.
 
@@ -60,8 +60,29 @@ Reverse: remove the second push in the access-fact branch of `extractor-rules.ts
 Why: in Eino's email "changes every October" is a separate sentence with no access cue.
 Reverse: `applyValidityCues` in `extractor-rules.ts`.
 
-## D-B1-11 (placeholder, see below) · Links of a superseded claim stay
+## D-B1-11 · Links of a superseded claim stay
 
 `rebuildCase` keeps the person link of a superseded claim (only retracted, corrected or contradicted claims reject their links).
 Why: the person still said it; the window closed, the attribution did not.
 Reverse: `case-builder.ts`, links section.
+
+## D-B1-12 · What a past `at` sees
+
+`Problem.at` (and `at` on POST /investigate, kt_investigate, kt_get_context) re-runs the same pipeline as of that moment:
+- an evidence gate at the moment (`retrieval/access.ts gateAt`): evidence with a known event time after `at` is invisible; undated (time-only, date-only, unknown) evidence stays visible;
+- observations and answers recorded after `at` are left out (this investigation's, and answers reused from other investigations);
+- `loadCaseFacts` and `buildCorpus` keep only claims valid at `at` (`validAt`); superseded claims whose window covers `at` count, closed ones do not. Without `at` (now), only superseded claims are dropped; every other status behaves as before;
+- a candidate case's conditions at a past `at` come from its condition claims valid then (live or superseded), not from the stored (now) case;
+- attempts and outcomes are still the stored ones (built from live claims), filtered by the gate at `at`. A superseded action or outcome claim is therefore not re-derived into an attempt for a past `at` (none exist today; the newer-value rule touches only access codes and software versions).
+- The moment is part of the problem id (only when given, so every existing id is unchanged), `allowQuestions` is forced false, and the state carries `problem.at`; anything that later counts reuse must skip states with `problem.at`.
+Reverse: drop `at` from `Engine.investigate`; the library changes are inert without it.
+
+## D-B1-13 · The superseded caveat and the cap
+
+`recommend.ts applyBounds`: when the basis case's hypothesis/advice claims are bounded by a visible note valid at the moment and the problem states a value inside the bound (`software.version` 4.2 or later for `gte 4.2`, numeric version compare), the recommendation gets the first caveat "Superseded on 14 Oct by Erkki Expert: fixed in firmware 4.2" (date from the note's own known time, `describeTime` text when unknown; the product word from the note's cue) and is capped: `qualified` with the case's diagnostic check as the step when it has one, otherwise `none`; the next step names the asserter to ask. `retain-uncertainty`/`none` only gain the caveat. A problem that states no version is not affected (TRN-088 keeps "Check the traffic counters ...").
+Reverse: remove `applyBounds` from `recommend()`.
+
+## D-B1-14 · Problem parser reads a stated version
+
+`DEFAULT_LEXICON` gains `software-version` ("firmware 4.2", "on 4.2", "running 4.2", "fw 4.2", "version 4.2"; not followed by a unit such as dB or %) and `software-version-after` ("4.2 firmware").
+Reverse: delete the two rules.

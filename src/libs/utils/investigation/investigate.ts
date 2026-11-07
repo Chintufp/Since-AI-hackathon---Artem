@@ -4,7 +4,7 @@ import type {
 } from '../contracts/index.ts';
 import { freshId, stableId } from '../contracts/index.ts';
 import { uniqueRoutes } from '../models/routes.ts';
-import { canSee, evidenceGate, type EvidenceGate } from '../retrieval/access.ts';
+import { canSee, evidenceGate, gateAt, type EvidenceGate } from '../retrieval/access.ts';
 import { isAnswerMarker } from '../retrieval/conditions.ts';
 import { resolveEntityIds } from '../retrieval/exact.ts';
 import { loadCaseFacts, OUTCOME_KEY, viewerOfState } from './case-facts.ts';
@@ -43,6 +43,12 @@ export interface InvestigateInput {
 
 export const investigationId = (problemId: string): string => stableId('inv', problemId);
 
+/** B1: the problem's point in time in epoch ms (undefined = now). */
+export const atOf = (problem: Pick<Problem, 'at'>): number | undefined => {
+  const ms = problem.at ? Date.parse(problem.at) : NaN;
+  return Number.isFinite(ms) ? ms : undefined;
+};
+
 const dedupeRefs = (refs: EvidenceRef[]): EvidenceRef[] => {
   const seen = new Set<string>();
   return refs.filter((r) => (seen.has(r.evidenceId) ? false : (seen.add(r.evidenceId), true)));
@@ -62,7 +68,7 @@ async function buildHypothesis(
   const { candidate, state, deps, store, gate } = d;
   const assessment = await deps.assessor.assess(candidate, state);
   if (candidate.caseId) {
-    const facts = loadCaseFacts(store, candidate.caseId, state.id, deps.settings, gate);
+    const facts = loadCaseFacts(store, candidate.caseId, state.id, deps.settings, gate, atOf(state.problem));
     if (!facts.case) return undefined;
     if (facts.hypothesisClaims.length === 0 && facts.attempts.length === 0 && facts.adviceClaims.length === 0) return undefined;
     const primary = facts.corrective ?? facts.diagnostic;
@@ -93,7 +99,7 @@ async function buildHypothesis(
  * (inventory-style facts such as unit revision), so the only person who knows is not asked the same thing again.
  * Only condition answers are reused (never outcome answers), only when the answer's evidence is visible to the principal.
  */
-function priorAnswerConditions(store: KnowledgeStore, investigationId: string, entityIds: string[], principal: Principal): Condition[] {
+function priorAnswerConditions(store: KnowledgeStore, investigationId: string, entityIds: string[], principal: Principal, atMs?: number): Condition[] {
   if (entityIds.length === 0) return [];
   const want = [...entityIds].sort().join(',');
   const out: Condition[] = [];
@@ -106,6 +112,7 @@ function priorAnswerConditions(store: KnowledgeStore, investigationId: string, e
     const ans = store.get('answer', q.answerId as string);
     const ev = ans ? store.get('evidence', ans.evidenceId) : undefined;
     if (!obs || !ev || !canSee(ev.accessScope, principal)) continue;
+    if (atMs !== undefined && (Date.parse(obs.at) > atMs || (ev.eventTime.known && ev.eventTime.iso && Date.parse(ev.eventTime.iso) > atMs))) continue;
     out.push({ ...obs.condition, label: `${obs.condition.label ?? obs.condition.key} [prior answer, earlier investigation]` });
   }
   return out;
@@ -150,17 +157,19 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
   const previous = input.previous ?? store.get('investigation', id);
 
   const parsed = parseProblemText(problem.text, problem.id, { olderThroughYear: settings.ageFold.olderThroughYear, ...(settings.modelParser !== undefined ? { modelParser: settings.modelParser } : {}), ...deps.parser });
-  const recorded = store.list('observation', { where: { investigationId: id } }).sort((a, b) => a.at.localeCompare(b.at));
+  const atMs = atOf(problem);
+  // B1: a past view leaves out what was recorded after it (answers, observations, outcome overlays).
+  const recorded = store.list('observation', { where: { investigationId: id } }).filter((o) => atMs === undefined || Date.parse(o.at) <= atMs).sort((a, b) => a.at.localeCompare(b.at));
   const visibleEntities = store.list('entity').filter((e) => canSee(e.accessScope, principal));
   const { ids: entityIds } = resolveEntityIds(problem.text, visibleEntities, problem.entityIds ?? []);
-  const prior = priorAnswerConditions(store, id, entityIds, principal);
+  const prior = priorAnswerConditions(store, id, entityIds, principal, atMs);
   const conditions = mergeConditions([
     parsed.conditions, prior, problem.observations ?? [], recorded.map((o) => o.condition).filter((c) => c.key !== OUTCOME_KEY),
   ]);
 
-  const gate = evidenceGate(store, principal);
+  const gate = atMs === undefined ? evidenceGate(store, principal) : gateAt(store, evidenceGate(store, principal), atMs);
   const candidates = visibleCandidates(store, await deps.retriever.search({
-    text: problem.text, conditions, entityIds, requesterPrincipal: { id: principal.id, groups: principal.groups }, k: settings.k,
+    text: problem.text, conditions, entityIds, requesterPrincipal: { id: principal.id, groups: principal.groups }, k: settings.k, ...(problem.at ? { at: problem.at } : {}),
   }), gate);
   const top = candidates[0]?.score ?? 0;
   const relevant = candidates.filter((c) => c.score >= settings.relativeScoreFloor * top && c.score > 0);

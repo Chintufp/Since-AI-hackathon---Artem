@@ -1,5 +1,10 @@
-import type { Condition, KnowledgeStore } from '../contracts/index.ts';
-import { evidenceGate, visibleCase, type PrincipalLike } from './access.ts';
+import type { Claim, Condition, KnowledgeStore } from '../contracts/index.ts';
+import { validAt } from '../memory/validity.ts';
+import { evidenceGate, gateAt, visibleCase, type PrincipalLike } from './access.ts';
+
+/** B1: claims that count at a moment: valid at `atMs`; without a moment (now), everything but superseded claims. */
+export const countsAt = (c: Claim, atMs?: number): boolean => (atMs === undefined ? c.status !== 'superseded' : validAt(c, atMs));
+const liveOrSuperseded = (c: Claim): boolean => c.status === 'provisional' || c.status === 'supported' || c.status === 'superseded';
 
 export interface CorpusDoc {
   key: string;
@@ -20,12 +25,19 @@ export const conditionLabel = (c: Condition): string => c.label ?? `${c.key} ${c
  * entity names/aliases, and procedures (purpose, steps, condition labels). Access scope is applied here, so nothing
  * downstream can leak a case the principal may not see.
  */
-export function buildCorpus(store: KnowledgeStore, principal: PrincipalLike): CorpusDoc[] {
-  const gate = evidenceGate(store, principal);
+export function buildCorpus(store: KnowledgeStore, principal: PrincipalLike, atMs?: number): CorpusDoc[] {
+  const base = evidenceGate(store, principal);
+  const gate = atMs === undefined ? base : gateAt(store, base, atMs);
   const entities = new Map(store.list('entity').filter((e) => e.type !== 'person').map((e) => [e.id, e] as const));
   const claimsByCase = new Map<string, string[]>();
+  // B1: at a past moment the case's conditions come from its condition claims valid then (the stored ones are the now view).
+  const conditionsAt = new Map<string, Condition[]>();
   for (const cl of store.list('claim')) {
-    if (!cl.caseId || !gate.scope(cl.accessScope) || !gate.supported(cl.supporting)) continue;
+    if (!cl.caseId || !gate.scope(cl.accessScope) || !gate.supported(cl.supporting) || !countsAt(cl, atMs)) continue;
+    if (atMs !== undefined && cl.type === 'condition' && cl.condition && liveOrSuperseded(cl)) {
+      const refs = gate.refs(cl.supporting);
+      if (refs.length) conditionsAt.set(cl.caseId, [...(conditionsAt.get(cl.caseId) ?? []), { ...cl.condition, evidence: refs }]);
+    }
     const arr = claimsByCase.get(cl.caseId) ?? [];
     arr.push(cl.statement);
     claimsByCase.set(cl.caseId, arr);
@@ -41,8 +53,9 @@ export function buildCorpus(store: KnowledgeStore, principal: PrincipalLike): Co
   for (const raw of store.list('case')) {
     // A merged case may carry evidence the principal cannot see: that evidence contributes no condition and no claim,
     // and a case with no visible evidence at all is not in the corpus.
-    const c = visibleCase(raw, gate);
-    if (!c) continue;
+    const seen = visibleCase(raw, gate);
+    if (!seen) continue;
+    const c = atMs === undefined ? seen : { ...seen, conditions: conditionsAt.get(seen.id) ?? [] };
     visibleCases.add(c.id);
     docs.push({
       key: `case:${c.id}`, kind: 'case', id: c.id, title: c.title, entityIds: c.entityIds, conditions: c.conditions, supportingCaseIds: [],

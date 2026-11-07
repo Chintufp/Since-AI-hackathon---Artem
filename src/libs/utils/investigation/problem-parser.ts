@@ -37,6 +37,9 @@ export const DEFAULT_LEXICON: LexiconRule[] = [
   { id: 'reset', pattern: String.raw`\b(?:reset|bounced|flapped)\s+(?:the\s+)?(?:interface|port|link)\b`, key: 'action.performed', value: 'interface.reset', label: 'Interface reset' },
   { id: 'bgp-flapping', pattern: String.raw`\bbgp\b[^.;\n]{0,30}?\bflap(?:s|ping|ped)?\b`, key: 'bgp.session', value: 'flapping', label: 'BGP session flapping' },
   { id: 'bgp-session', pattern: String.raw`\bbgp\b[^.;\n]{0,30}?\b(down|established|up)\b`, key: 'bgp.session', valueGroup: 1, label: 'BGP session {value}' },
+  // B1: a stated software/firmware version ("firmware 4.2", "on 4.2", "running 4.2", "4.2 firmware").
+  { id: 'software-version', pattern: String.raw`\b(?:firmware|software|fw|version|release|running|on)\s+v?(\d+(?:\.\d+)+)(?![\d.]*\s*(?:%|db|dbm|mbps|gbps|ms|v\b|a\b|w\b|°))`, key: 'software.version', valueGroup: 1, label: 'Software version {value}' },
+  { id: 'software-version-after', pattern: String.raw`\b(\d+(?:\.\d+)+)\s+(?:firmware|software)\b`, key: 'software.version', valueGroup: 1, label: 'Software version {value}' },
   { id: 'config-changed', pattern: String.raw`\b(?:after|since|following)\s+(?:the\s+|a\s+)?(?:(?:firmware|software|config(?:uration)?)\s+)?(?:update|upgrade|change|release)\b`, key: 'config.changed', value: true, label: 'Recent change', negatable: false },
   { id: 'site-access', pattern: String.raw`\b(?:barrier|locked\s+gate|gate\s+(?:is\s+)?locked|gate\s+code|key\s*box)\b`, key: 'site.access', value: 'barrier', label: 'Site access restriction', negatable: false },
 ];

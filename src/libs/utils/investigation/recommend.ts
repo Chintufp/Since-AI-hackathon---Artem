@@ -1,4 +1,6 @@
-import type { Condition, EvidenceRef, Recommendation } from '../contracts/index.ts';
+import type { Claim, Condition, EvidenceRef, Recommendation } from '../contracts/index.ts';
+import { describeTime } from '../connectors/time.ts';
+import { shortDate } from '../memory/validity.ts';
 import { isAnswerMarker, isSoftCondition } from '../retrieval/conditions.ts';
 import { casePhrase, capitalize, clampText, conflictInWords, plainLabel, symptomsPhrase } from './phrases.ts';
 import type { HypothesisDetail } from './types.ts';
@@ -167,6 +169,82 @@ function planFor(d: HypothesisDetail, s: RecommendSettings, problem: Condition[]
   };
 }
 
+/** Compare dotted versions numerically ("4.10" > "4.2"); non-numeric parts compare as text. */
+export function compareVersions(a: string, b: string): number {
+  const pa = a.split(/[.\-]/);
+  const pb = b.split(/[.\-]/);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const x = pa[i] ?? '0';
+    const y = pb[i] ?? '0';
+    const nx = Number(x);
+    const ny = Number(y);
+    const c = Number.isFinite(nx) && Number.isFinite(ny) ? nx - ny : x.localeCompare(y);
+    if (c !== 0) return c < 0 ? -1 : 1;
+  }
+  return 0;
+}
+
+/** Does the problem's stated condition fall inside a note's bound (e.g. problem software.version 4.2 vs bound gte 4.2)? */
+export function insideBound(problem: Condition[], bound: Condition): boolean {
+  const stated = problem.find((c) => c.key === bound.key && c.operator === 'eq' && c.value !== undefined);
+  if (!stated || bound.value === undefined) return false;
+  const cmp = compareVersions(String(stated.value), String(bound.value));
+  switch (bound.operator) {
+    case 'gte': return cmp >= 0;
+    case 'lte': return cmp <= 0;
+    case 'eq': return cmp === 0;
+    case 'neq': return cmp !== 0;
+    default: return false;
+  }
+}
+
+/** "fixed in firmware 4.2": the product word from the note's own cue, never a guess beyond it. */
+function fixedWords(note: Claim): string {
+  const what = /\b(firmware|software|release|version|fw)\b/i.exec(note.validity.cue ?? note.statement)?.[1]?.toLowerCase() ?? 'software';
+  return `fixed in ${what === 'fw' ? 'firmware' : what} ${String(note.supersessionBound?.value ?? '')}`.trim();
+}
+
+/**
+ * B1: a superseding note bounds the basis case's advice ("fixed in firmware 4.2") and the problem states a version inside
+ * the bound: say so (date from the note's own time, never invented; the asserter named) and cap the recommendation at
+ * 'qualified' (a check the case has) or 'none' (nothing else supports it). A problem that states no version is not
+ * affected (D-B1-13).
+ */
+function applyBounds(plan: Plan, s: RecommendSettings, problem: Condition[]): Plan {
+  const note = plan.detail.facts?.bounds.find((n) => n.supersessionBound && insideBound(problem, n.supersessionBound));
+  if (!note) return plan;
+  const who = note.assertedBy?.displayName ?? 'a colleague';
+  const when = shortDate(note.validity.from);
+  const words = fixedWords(note);
+  const caveat = `Superseded ${when ? `on ${when}` : `(${describeTime(note.validity.from ?? { known: false })})`} by ${who}: ${words}`;
+  const rec = plan.rec;
+  const caveats = [caveat, ...rec.caveats];
+  const basis = dedupeRefs([...note.supporting, ...rec.basis]);
+  if (rec.kind === 'retain-uncertainty' || rec.kind === 'none') return { ...plan, rec: { ...rec, caveats, basis } };
+  const label = plan.detail.label;
+  const P = s.phrases;
+  const diagnostic = plan.detail.facts?.diagnostic;
+  if (diagnostic) {
+    const dg = casePhrase(diagnostic.action, plan.detail.facts?.evidenceText, P);
+    return {
+      ...plan, rank: Math.min(plan.rank, 4),
+      rec: {
+        kind: 'qualified', basis, applicability: 'qualified', actionClass: 'diagnostic-check', caveats,
+        text: clampText(`${capitalize(dg.imperative)} first; the fix from ${label} was superseded for this version.`, P.maxTextLength),
+        nextStep: `${who} wrote that it was ${words}; ask ${who} what applies to this unit before reusing the fix from ${label}.`,
+      },
+    };
+  }
+  return {
+    ...plan, rank: 1,
+    rec: {
+      kind: 'none', basis, applicability: 'unsupported', actionClass: 'none', caveats,
+      text: clampText(`No supported response yet; the fix from ${label} was superseded for this version.`, P.maxTextLength),
+      nextStep: `${who} wrote that it was ${words}; ask ${who} what applies to this unit.`,
+    },
+  };
+}
+
 export function recommend(details: HypothesisDetail[], s: RecommendSettings, problemConditions: Condition[] = []): { recommendation: Recommendation; selected?: HypothesisDetail } {
   if (details.length === 0) {
     return {
@@ -176,7 +254,7 @@ export function recommend(details: HypothesisDetail[], s: RecommendSettings, pro
       },
     };
   }
-  const plans = details.map((d) => planFor(d, s, problemConditions)).sort((a, b) => b.rank - a.rank || b.detail.candidate.score - a.detail.candidate.score);
+  const plans = details.map((d) => applyBounds(planFor(d, s, problemConditions), s, problemConditions)).sort((a, b) => b.rank - a.rank || b.detail.candidate.score - a.detail.candidate.score);
   const best = plans[0] as Plan;
   const ruledOut = plans.filter((p) => p !== best && p.rec.kind === 'retain-uncertainty');
   const rec = {

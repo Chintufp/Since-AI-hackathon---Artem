@@ -341,12 +341,19 @@ export class Engine {
     const principal = this.effective(req.principal);
     const w = this.wiring();
     const observations = req.observations ?? [];
-    const problemId = stableId('prob', this.orgId, principal.id, req.text.trim(), (req.entityIds ?? []).join(','), JSON.stringify(observations.map((o) => [o.key, o.operator, o.value ?? null])), (req.attachmentNames ?? []).join('|'));
+    // B1: a point-in-time view is its own investigation (the moment is part of the id) and never asks anyone.
+    let at: string | undefined;
+    if (req.at !== undefined) {
+      const ms = parseAt(req.at);
+      if (ms === undefined) throw badRequest(`Invalid at: ${req.at} (ISO 8601 with a zone, e.g. 2026-10-20T12:00:00Z)`);
+      at = new Date(ms).toISOString();
+    }
+    const problemId = stableId('prob', this.orgId, principal.id, req.text.trim(), (req.entityIds ?? []).join(','), JSON.stringify(observations.map((o) => [o.key, o.operator, o.value ?? null])), (req.attachmentNames ?? []).join('|'), ...(at ? [`at:${at}`] : []));
     const problem: Problem = {
       id: problemId, orgId: this.orgId, text: req.text.trim(),
       requester: principal.type === 'agent' ? { id: 'agent', displayName: principal.displayName, agentId: principal.id } : actorOf(principal),
       ...(req.entityIds ? { entityIds: req.entityIds } : {}), ...(observations.length ? { observations } : {}),
-      ...(req.attachmentNames ? { attachmentNames: req.attachmentNames } : {}), createdAt: this.now().toISOString(),
+      ...(req.attachmentNames ? { attachmentNames: req.attachmentNames } : {}), createdAt: this.now().toISOString(), ...(at ? { at } : {}),
     };
     let state: InvestigationState;
     // The id is derived from the whole request, so a repeat carries no new observations or attachments: what the stored
@@ -354,7 +361,7 @@ export class Engine {
     const prior = this.store.get('investigation', investigationId(problemId));
     try {
       state = await investigate({ problem, store: this.store, principal, deps: { retriever: w.retriever, assessor: w.assessor, generator: w.generator, selector: w.selector, settings: w.settings, clock: this.clock, directory: w.directory } });
-      if (req.allowQuestions !== false) state = (await w.coordinator.request(state)).state;
+      if (req.allowQuestions !== false && !at) state = (await w.coordinator.request(state)).state;
       if (prior?.loop === 'answered' && state.loop === 'no-question-needed') {
         state = this.store.put('investigation', { ...state, loop: 'answered', loopReason: prior.loopReason ?? w.settings.loopReasons.answered });
       }
@@ -368,6 +375,20 @@ export class Engine {
     // Known gap (see worker report): an absent principalId is still accepted because the typed GET contract carries no
     // principal and tests/e2e.test.ts reads without one. A deployment must authenticate callers.
     return this.view(this.owned(id, principalId));
+  }
+
+  /**
+   * B1: the stored problem of an investigation re-run as of `at` (its own investigation id; no question is asked).
+   * Only the principal that started the investigation may do this, as for every other read of it.
+   */
+  async contextAt(id: string, at: string, principalId?: string): Promise<InvestigationResult> {
+    const state = this.owned(id, principalId);
+    const starter = startedBy(state) ?? this.principalFor(principalId);
+    const p = state.problem;
+    return this.investigate({
+      text: p.text, principal: starter, ...(p.entityIds ? { entityIds: p.entityIds } : {}), ...(p.observations ? { observations: p.observations } : {}),
+      ...(p.attachmentNames ? { attachmentNames: p.attachmentNames } : {}), allowQuestions: false, at,
+    });
   }
 
   /** Run the clarification loop for an existing investigation. Limits and eligibility are the coordinator's, whoever asks. */

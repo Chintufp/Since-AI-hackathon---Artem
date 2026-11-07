@@ -70,6 +70,8 @@ export interface RetrievalQuery {
   entityIds: string[];
   requesterPrincipal: { id: string; groups: string[] };
   k: number;
+  /** B1: retrieve as of this moment (ISO): later evidence and claims not valid then are left out. */
+  at?: string;
 }
 
 export interface Retriever {

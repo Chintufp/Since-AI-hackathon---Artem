@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { defaultCoordinatorSettings, type QuietHours } from '../contracts/index.ts';
 import { buildSyntheticStore, P, SYMPTOM_TEXT } from '../models/testing/fixtures.ts';
 import { computeBudget } from '../investigation/index.ts';
+import { BURDEN } from './coordinator.ts';
 import { inQuiet, nextWindow } from './quiet-hours.ts';
 import { makeHarness } from './testing/harness.ts';
 
@@ -42,12 +43,12 @@ test('a question created at 03:00 EET stays queued until 07:00; deliverDue deliv
   assert.equal((await h.coordinator.request(st)).question?.status, 'queued');
   assert.equal(computeBudget(h.store, P.site.entity, h.settings, h.clock()).askedToday, 0);
 
-  h.time.iso = '2026-11-07T05:30:00.000Z';
+  h.time.iso = '2026-11-08T05:30:00.000Z';
   const done = h.coordinator.deliverDue();
-  assert.deepEqual(done.map((x) => [x.id, x.status, x.deliveredAt]), [[q.id, 'delivered', '2026-11-07T05:30:00.000Z']]);
+  assert.deepEqual(done.map((x) => [x.id, x.status, x.deliveredAt]), [[q.id, 'delivered', '2026-11-08T05:30:00.000Z']]);
   const b = computeBudget(h.store, P.site.entity, h.settings, h.clock());
   assert.equal(b.askedToday, 1);
-  assert.equal(b.lastAskedAt, '2026-11-07T05:30:00.000Z', 'cooldown counts from the window, not from 03:00');
+  assert.equal(b.lastAskedAt, '2026-11-08T05:30:00.000Z', 'cooldown counts from the window, not from 03:00');
   const inv = h.store.get('investigation', st.id)!;
   assert.match(inv.loopReason ?? '', /Asked|Waiting/);
   assert.ok(inv.events.some((e) => e.type === 'question.delivered'));
@@ -96,4 +97,26 @@ test('a held question whose window passed unpolled is not delivered inside the n
   assert.equal(held.deliveredAt, undefined);
   h.time.iso = '2026-11-09T05:10:00.000Z';
   assert.deepEqual(h.coordinator.deliverDue().map((x) => [x.id, x.status]), [[q.id, 'delivered']]);
+});
+
+test('reward burden: the quiet-hours term (BURDEN.quiet) follows Helsinki local time, not the UTC clock (D-INT-06)', async () => {
+  // Same question answered by the same person at the same instant, with and without quiet hours: the burdens differ
+  // by exactly BURDEN.quiet when Helsinki is inside 22:00-07:00, and not at all when only UTC would be.
+  const burdenAt = async (answerIso: string, quiet: boolean): Promise<number> => {
+    const h = makeHarness(buildSyntheticStore(), quiet ? { settings: { coordinator: { ...defaultCoordinatorSettings, quietHours: QH } } } : {});
+    h.time.iso = '2026-11-07T10:00:00.000Z'; // 12:00 EET: delivered at once
+    const st = await h.start('pr', B2);
+    const q = (await h.coordinator.request(st)).question!;
+    assert.equal(q.status, 'delivered');
+    const person = h.store.get('entity', q.personEntityId)!;
+    h.time.iso = answerIso;
+    const a = await h.coordinator.answer(q.id, 'no', { id: person.id, displayName: person.name, groups: ['noc', 'field'], type: 'human' });
+    assert.ok(a.question.reward, 'the synthetic store is measurable');
+    return a.question.reward.burden;
+  };
+  // 21:00Z = 23:00 EET: quiet in Helsinki, outside 22:00-07:00 on the UTC clock.
+  const late = await burdenAt('2026-11-07T21:00:00.000Z', true);
+  assert.equal(Math.round((late - (await burdenAt('2026-11-07T21:00:00.000Z', false))) * 10_000) / 10_000, BURDEN.quiet);
+  // 05:30Z next morning = 07:30 EET: not quiet in Helsinki, though 05:30 UTC is inside 22:00-07:00.
+  assert.equal(await burdenAt('2026-11-08T05:30:00.000Z', true), await burdenAt('2026-11-08T05:30:00.000Z', false));
 });

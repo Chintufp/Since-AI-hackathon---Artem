@@ -14,6 +14,7 @@ import {
 import type { Companion, CompanionFlags } from './companion.ts';
 
 const W = 1512;
+const HOME = GEOMETRY.HOME_FROM_RIGHT;
 const H = 872;
 
 function fakeEnv() {
@@ -160,7 +161,7 @@ function launchedAway(t = setup()) {
 }
 
 test('geometry: home, sliver, perch, make-room range and the carrier transform', () => {
-  assert.equal(homeXFor(W, GEOMETRY.HOME_FROM_RIGHT), W - 79);
+  assert.equal(homeXFor(W, GEOMETRY.HOME_FROM_RIGHT), W - HOME);
   assert.equal(homeXFor(W, W + 50), GEOMETRY.HOME_CLAMP_PX, 'clamped to [14, W-14]');
   assert.equal(sliverX('right', W), W + 28 - 12);
   assert.equal(sliverX('left', W), -28 + 12);
@@ -170,7 +171,7 @@ test('geometry: home, sliver, perch, make-room range and the carrier transform',
   assert.equal(roomX(W - 10, W), W - 59);
   assert.equal(roomX(800, W), 800);
   // card left = bodyX - 333, card bottom = 30 + lift, both on whole device pixels (dpr 2 -> 0.5 px steps)
-  assert.deepEqual(carrierTransform(W - 79, 0, 2), { x: W - 79 - 333, y: 30 });
+  assert.deepEqual(carrierTransform(W - HOME, 0, 2), { x: W - HOME - 333, y: 30 });
   assert.deepEqual(carrierTransform(400.3, 10.2, 2), { x: 67.5, y: 40 });
   assert.deepEqual(carrierTransform(400.3, -5, 1), { x: 67, y: 30 }, 'never below the floor');
 });
@@ -207,8 +208,8 @@ test('gaze hysteresis: turns at 24 px, holds down to 12 px, front when far', () 
 });
 
 test('persistence: defaults on garbage, round trip of the dropped spot', () => {
-  assert.deepEqual(loadPlacement({ getItem: () => '{nope' }), { version: 1, homeFromRight: 79, awaySide: null });
-  assert.deepEqual(loadPlacement(null), { version: 1, homeFromRight: 79, awaySide: null });
+  assert.deepEqual(loadPlacement({ getItem: () => '{nope' }), { version: 1, homeFromRight: HOME, awaySide: null });
+  assert.deepEqual(loadPlacement(null), { version: 1, homeFromRight: HOME, awaySide: null });
   assert.deepEqual(loadPlacement({ getItem: () => JSON.stringify({ version: 1, homeFromRight: 500, awaySide: 'left', fidgets: true }) }), { version: 1, homeFromRight: 500, awaySide: 'left', fidgets: true });
   const t = setup({ stored: JSON.stringify({ version: 1, homeFromRight: 700, awaySide: 'left' }) });
   t.c.start();
@@ -221,7 +222,7 @@ test('launch: carrier at home before the entrance, D0 = window height, "in" afte
   t.c.start();
   t.avatar.playEntranceThenRest();
   assert.equal(t.c.status().state, 'launching');
-  assert.deepEqual(t.carrier.at(-1), { x: W - 79 - 333, y: 30 });
+  assert.deepEqual(t.carrier.at(-1), { x: W - HOME - 333, y: 30 });
   assert.equal(t.avatar.fallDistance, H);
   t.env.advance(500);
   assert.equal(t.c.status().state, 'launching', 'still falling / landing');
@@ -252,7 +253,7 @@ test('launch leave waits while the pointer is near or the panel is open', () => 
   const t = setup();
   t.c.start();
   t.env.advance(32);
-  t.c.pointer(W - 79, H - 40);
+  t.c.pointer(W - HOME, H - 40);
   t.env.advance(COMPANION.LEAVE_AFTER_LAUNCH_MS + 1000);
   assert.equal(t.c.status().state, 'in');
   t.c.pointer(200, 200); // pointer leaves: the idle timer (20 s) starts
@@ -275,7 +276,7 @@ test('proximity: peek to the perch with gaze, return after the dwell with hello'
   t.env.advance(COMPANION.HOP_MS + 100);
   const s = t.c.status();
   assert.equal(s.state, 'in');
-  assert.equal(s.bodyX, W - 79);
+  assert.equal(s.bodyX, W - HOME);
   assert.ok(t.avatar.calls.includes('run:hop:0'), 'hops in');
   assert.equal(t.avatar.calls.at(-1), 'play:hello');
   assert.equal(t.hooks.returned, 1, 'questions refreshed on return');
@@ -304,7 +305,7 @@ test('click: press pose on pointerdown, toggle + run(click, 2) on release within
   const t = setup();
   t.c.start();
   t.env.advance(32);
-  const x = W - 79, y = H - 40;
+  const x = W - HOME, y = H - 40;
   assert.equal(t.c.pointerDown(x, y), true);
   assert.equal(t.avatar.calls.at(-1), 'pose:press');
   assert.equal(t.c.status().state, 'pressed');
@@ -321,7 +322,7 @@ test('drag: carried 1:1 with the floor shadow, release falls from the lift, the 
   const t = setup();
   t.c.start();
   t.env.advance(32);
-  const x0 = W - 79, y0 = H - 40;
+  const x0 = W - HOME, y0 = H - 40;
   t.c.pointerDown(x0, y0);
   t.c.pointerMove(x0 - 50, y0 - 120);
   assert.equal(t.c.status().state, 'carried');
@@ -336,7 +337,7 @@ test('drag: carried 1:1 with the floor shadow, release falls from the lift, the 
   assert.equal(t.c.pointerUp(x0 - 400, y0 - 300), true);
   assert.equal(t.c.status().state, 'airborne');
   assert.equal(t.avatar.calls.at(-1), 'fall:300');
-  assert.equal(JSON.parse(t.store.get(COMPANION.STORE_KEY)!).homeFromRight, 79 + 400);
+  assert.equal(JSON.parse(t.store.get(COMPANION.STORE_KEY)!).homeFromRight, HOME + 400);
   t.avatar.land();
   assert.equal(t.c.status().state, 'in');
   assert.equal(t.c.status().lift, 0);
@@ -364,7 +365,7 @@ test('drag past the edge = deliberate leave to that edge; the home spot is kept'
   const t = setup();
   t.c.start();
   t.env.advance(32);
-  const x0 = W - 79;
+  const x0 = W - HOME;
   t.c.pointerDown(x0, H - 40);
   t.c.pointerMove(W - 1, H - 100);
   t.c.pointerUp(W - 1, H - 100);
@@ -373,12 +374,12 @@ test('drag past the edge = deliberate leave to that edge; the home spot is kept'
   t.env.advance(1000);
   assert.equal(t.c.status().state, 'away');
   assert.equal(t.c.status().side, 'right');
-  assert.equal(t.c.status().homeFromRight, 79);
+  assert.equal(t.c.status().homeFromRight, HOME);
 
   const u = setup();
   u.c.start();
   u.env.advance(32);
-  u.c.pointerDown(W - 79, H - 40);
+  u.c.pointerDown(W - HOME, H - 40);
   u.c.pointerMove(2, H - 60);
   assert.equal(u.c.status().bodyX, 2);
   u.c.pointerUp(2, H - 60);
@@ -440,7 +441,7 @@ test('make-room from away brings him in; programmatic open from the default spot
   assert.equal(t.c.status().state, 'in');
   assert.equal(t.c.status().away, false);
   t.env.advance(600);
-  assert.equal(t.c.status().bodyX, W - 79);
+  assert.equal(t.c.status().bodyX, W - HOME);
 
   const u = setup();
   u.c.start();
@@ -458,7 +459,7 @@ test('panel: no leave while open; closing starts the 20 s idle timer; the pointe
   t.c.panelClosed();
   t.env.advance(32);
   assert.deepEqual(t.c.status().timers, ['idle']);
-  t.c.pointer(W - 79, H - 40);
+  t.c.pointer(W - HOME, H - 40);
   assert.deepEqual(t.c.status().timers, []);
   t.env.advance(60000);
   assert.equal(t.c.status().state, 'in');
@@ -529,7 +530,7 @@ test('click at the perch opens the panel (user-initiated) and make-room brings h
   assert.deepEqual(t.panelCalls, ['open']);
   assert.equal(t.c.status().state, 'in');
   t.env.advance(600);
-  assert.equal(t.c.status().bodyX, W - 79);
+  assert.equal(t.c.status().bodyX, W - HOME);
 });
 
 test('commands: toggle-away, return, reset-position (also persisted)', () => {
@@ -550,8 +551,8 @@ test('commands: toggle-away, return, reset-position (also persisted)', () => {
   assert.equal(t.c.status().bodyX, W - 900);
   t.c.command('reset-position');
   t.env.advance(3000);
-  assert.equal(t.c.status().bodyX, W - 79);
-  assert.equal(JSON.parse(t.store.get(COMPANION.STORE_KEY)!).homeFromRight, 79);
+  assert.equal(t.c.status().bodyX, W - HOME);
+  assert.equal(JSON.parse(t.store.get(COMPANION.STORE_KEY)!).homeFromRight, HOME);
 });
 
 test('command away while the panel is open closes it first', () => {
@@ -578,7 +579,7 @@ test('reduced motion: leave, peek and return jump to their end states without rA
   assert.ok(t.avatar.calls.includes('hold:{}'), 'no gaze under reduced motion');
   t.env.advance(COMPANION.PEEK_DWELL_MS + 50);
   assert.equal(t.c.status().state, 'in');
-  assert.equal(t.c.status().bodyX, W - 79);
+  assert.equal(t.c.status().bodyX, W - HOME);
   assert.equal(t.env.rafCount - before, 0);
 });
 
@@ -605,7 +606,7 @@ test('cursor awareness: look() toward the pointer, quarter only to the right, at
   const t = setup();
   t.c.start();
   t.env.advance(32);
-  const x = W - 79, y = H - 40;
+  const x = W - HOME, y = H - 40;
   t.avatar.calls = [];
   t.c.pointer(x + 60, y);
   assert.deepEqual(t.avatar.calls, ['look:1:quarter']);
@@ -877,13 +878,13 @@ test('fidelity-03: from a far perch a click travels in and opens on arrival; a p
   const u = setup();
   u.c.start();
   u.env.advance(32);
-  u.c.pointerDown(W - 79, H - 40);
+  u.c.pointerDown(W - HOME, H - 40);
   u.c.pointerMove(2, H - 60);
   u.c.pointerUp(2, H - 60);
   u.avatar.land();
   u.env.advance(1500);
   assert.equal(u.c.status().side, 'left');
-  assert.equal(u.c.status().homeX, W - 79, 'the home spot is kept');
+  assert.equal(u.c.status().homeX, W - HOME, 'the home spot is kept');
   u.c.arrive('q1', 'arrival');
   u.env.advance(COMPANION.HOP_MS + 100);
   assert.equal(u.c.status().state, 'perched');
@@ -907,7 +908,7 @@ test('fidelity-03: from a far perch a click travels in and opens on arrival; a p
   const v = setup();
   v.c.start();
   v.env.advance(32);
-  v.c.pointerDown(W - 79, H - 40);
+  v.c.pointerDown(W - HOME, H - 40);
   v.c.pointerMove(2, H - 60);
   v.c.pointerUp(2, H - 60);
   v.avatar.land();
@@ -917,7 +918,7 @@ test('fidelity-03: from a far perch a click travels in and opens on arrival; a p
   assert.equal(v.hooks.returned, 1);
   v.env.advance(4000);
   assert.equal(v.c.status().state, 'in');
-  assert.equal(v.c.status().bodyX, roomX(W - 79, W));
+  assert.equal(v.c.status().bodyX, roomX(W - HOME, W));
 });
 
 test('fidelity-05: fidgets are stored only once chosen in Settings', () => {
@@ -936,11 +937,11 @@ test('internal cancel (command / lock) swallows the click of the release that fo
   const t = setup();
   t.c.start();
   t.env.advance(32);
-  t.c.pointerDown(W - 79, H - 40);
+  t.c.pointerDown(W - HOME, H - 40);
   t.c.command('toggle-away');
   assert.equal(t.c.status().state, 'leaving');
-  assert.equal(t.c.pointerUp(W - 79, H - 40), true, 'the native click is suppressed');
-  assert.equal(t.c.pointerUp(W - 79, H - 40), false, 'only once');
+  assert.equal(t.c.pointerUp(W - HOME, H - 40), true, 'the native click is suppressed');
+  assert.equal(t.c.pointerUp(W - HOME, H - 40), false, 'only once');
   assert.deepEqual(t.panelCalls, []);
 });
 
@@ -965,9 +966,9 @@ test('proximity is recomputed after a release, so the idle leave can start', () 
   const t = setup();
   t.c.start();
   t.env.advance(32);
-  t.c.pointer(W - 79, H - 40);
+  t.c.pointer(W - HOME, H - 40);
   assert.equal(t.c.status().pointerNear, true);
-  t.c.pointerDown(W - 79, H - 40);
+  t.c.pointerDown(W - HOME, H - 40);
   t.c.pointerMove(600, H - 140);
   t.c.pointer(null); // the pointer leaves the window during the drag
   t.c.pointerUp(600, H - 140);

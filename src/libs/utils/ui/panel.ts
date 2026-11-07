@@ -655,15 +655,7 @@ export function createPanel(options: PanelOptions): Panel {
     if (state.serviceDown) {
       showError(new ApiError('unreachable', 'GET /health', 'Couldn’t reach the service'), () => void retryConnect());
     } else if (!state.panelOpen) {
-      // desktop (R34): the glyph promised a question; a direct click opens it.
-      const waiting = user && attention ? attention.unseen(openIds())[0] : undefined;
-      if (waiting) {
-        if (state.active !== waiting) { state.openNodes.question = null; state.expanded = false; }
-        state.active = waiting;
-        setView('question');
-        focusFor('question', via);
-        return;
-      }
+      // desktop (ux, Artem 7 Nov): a direct click opens the text panel (last view) as v009; a waiting question shows as the badge and the glyph.
       companion?.makeRoom(); // desktop (R33): slide to where the card fits (with the hop) before it opens
       state.panelOpen = true;
       syncPoll();

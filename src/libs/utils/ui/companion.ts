@@ -49,9 +49,7 @@ export const COMPANION = {
   TAP_ALLOWANCE: { ms: 180, px: 8 },
   /** R32: carried face: surprised at lift-off, happy after this long. */
   CARRIED_HAPPY_MS: 400,
-  /** Springy tap on a click: a 12 px bounce over 330 ms; while it plays (TAP_HOLD_MS) further clicks still toggle but do not restart it (spam-clicking looked laggy). */
-  TAP_LIFT_PX: 12,
-  TAP_LIFT_MS: 330,
+  /** Springy tap on a click (authored act, no jump). While one plays (TAP_HOLD_MS, slightly shorter than the act) further clicks still toggle but the next tap is queued, not cut (spam-clicking looked laggy). */
   TAP_HOLD_MS: 450,
   /** R33: leaving rolls out; returning / arriving hops in (each direction one constant). */
   LEAVE_MOTION: 'roll' as TravelMotion,
@@ -99,7 +97,7 @@ export const GEOMETRY = {
   /** Away: this much of his body stays inside the window. */
   SLIVER_PX: 12,
   /** Default home: today's spot, work-area width - 79. */
-  HOME_FROM_RIGHT: 79,
+  HOME_FROM_RIGHT: 59 /* desktop (ux): just inside where the card fits, so he does not travel away from the cursor when he comes in */,
   /** A dropped home spot is clamped to [14, W - 14]. */
   HOME_CLAMP_PX: 14,
   /** Body centre height above the window bottom (12 px floor + half the body). */
@@ -349,12 +347,22 @@ export function createCompanion(deps: CompanionDeps): Companion {
   let lockedAt: number | null = null;
   let lastAlive = clock.now();
   let tapUntil = 0;
-  /** The Springy tap from its squash frame with a small bounce; not restarted while one is still playing. */
+  let tapQueued = false;
+  /** The Springy tap from its squash frame. A click while one plays queues exactly one more tap after it (never cut mid-way). */
   const tap = (): void => {
     const now = clock.now();
-    if (now < tapUntil) return;
+    if (now < tapUntil) {
+      tapQueued = true;
+      return;
+    }
     tapUntil = now + COMPANION.TAP_HOLD_MS;
-    avatar.run('click', 2, undefined, { lift: { px: COMPANION.TAP_LIFT_PX, ms: COMPANION.TAP_LIFT_MS } });
+    tapQueued = false;
+    avatar.run('click', 2);
+    timer('tap', COMPANION.TAP_HOLD_MS, () => {
+      if (!tapQueued || destroyed || st !== 'in') return;
+      tapQueued = false;
+      tap();
+    });
   };
   let lastState = { away: false, question: false };
   let destroyed = false;

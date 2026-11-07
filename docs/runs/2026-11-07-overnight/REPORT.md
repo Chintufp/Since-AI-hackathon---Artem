@@ -30,6 +30,10 @@ Built with a three-proposal design round, two judges, four build workers on excl
 - **Fixed in review.** The mid-roll freeze (a roll back after closing the panel left him in the roll pose), a frame-starvation watchdog with resume on focus/visibility, falls that could strand him in the air, the keyboard focus ring after mouse clicks, focus after an open, the right-edge question cue, click-through pinning on right-clicks, duplicate area updates.
 - **Not verified by the harness:** a real mouse on the full-area window (you did that by hand), the tray and shortcut from the main process, lock/resume, multiple displays. Fidgets are off by default; no sound.
 
+### 1b. Points, opt-in (R46, 7 Nov afternoon)
+
+Built by its own session on Artem's request and merged: a per-person opt-in (nobody is scored or listed until they say so), awards only while the person takes part (answers 2, observations and outcome reports 3, authored evidence that became a claim 2, neutral kinds 0, undo revokes), neutral event summaries, own balance only (403 for anyone else's), a rating among participants (all time and last 7 days), the Points & rating view in the panel (from Settings and the receipt), a read-only `kt_participation` MCP tool, and simulated points rows in the judge stream (never for the judge's own person). 387 tests; harness clean. Points measure participation, not correctness.
+
 ## 2. How to launch
 
 ```bash

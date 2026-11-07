@@ -47,7 +47,7 @@ test('questions: list filters by person, answer/defer/dismiss return receipts, u
   assert.equal(answered.question.status, 'answered');
   assert.equal(answered.answer.value, 'yes');
   assert.equal(answered.receipt.canUndo, true);
-  assert.equal(answered.receipt.pointsAwarded, undefined, 'no points while the setting is off');
+  assert.equal(answered.receipt.pointsAwarded, 2, 'R46: the dev user takes part by default; the display switch is the panel\'s business');
   assert.equal((await api.questions({ personEntityId: p.id })).length, 1);
 
   await api.undo(q.questionId, p);
@@ -60,14 +60,29 @@ test('questions: list filters by person, answer/defer/dismiss return receipts, u
   assert.equal(dismissed.question.status, 'dismissed');
 });
 
-test('points are awarded only when the setting is on, and never to defer/dismiss', async () => {
+test('R46: points only while the person takes part, never to defer/dismiss; the rating is deterministic and private', async () => {
   const api = createMockApi();
   const p = mockPrincipal();
-  await api.putSettings({ points: true });
   const [a, b] = await api.questions({ personEntityId: p.id });
+  const r0 = await api.rating(p.id, p.id);
+  assert.deepEqual(r0.participants.map((x) => [x.displayName, x.balance, x.rank]), [['Noor Ahmadi', 14, 1], ['Priya Nair', 7, 2], ['Dev User', 5, 3]]);
+  assert.equal(r0.me?.rank, 3);
+  assert.equal(r0.me?.events.length, 3);
+  assert.ok(!JSON.stringify(r0).includes('Tomas'), 'Tomas does not take part');
+  await api.setOptIn(p.id, p, false);
+  assert.equal((await api.optIn(p.id)).participates, false);
+  const none = await api.answer(a!.questionId, { principal: p, value: 'yes' });
+  assert.equal(none.receipt.pointsAwarded, undefined, 'not taking part: no points');
+  assert.equal((await api.rating(p.id, p.id)).me, null);
+  await api.undo(a!.questionId, p);
+  await api.setOptIn(p.id, p, true);
   const yes = await api.answer(a!.questionId, { principal: p, value: 'yes' });
-  assert.ok((yes.receipt.pointsAwarded ?? 0) > 0);
+  assert.equal(yes.receipt.pointsAwarded, 2);
+  assert.equal((await api.rating(p.id, p.id)).me?.balance, 7);
+  await api.undo(a!.questionId, p);
+  assert.equal((await api.rating(p.id, p.id)).me?.balance, 5, 'undo revokes');
   assert.equal((await api.defer(b!.questionId, p)).receipt.pointsAwarded, undefined);
+  await assert.rejects(api.rating('person:mock:noor', 'person:mock:noor'), (e: unknown) => (e as { status?: number }).status === 403);
 });
 
 test('contact drafts require review and unknown ids are 404 ApiErrors', async () => {

@@ -10,7 +10,7 @@
  */
 import { renderBurst, BURST } from '../motion/burst.ts';
 import type { ActKey, AvatarHost, AvatarStatus, CompanionAvatar } from '../motion/avatar.ts';
-import type { UserSettings } from '../contracts/outcomes.ts';
+import type { ParticipationOptIn, ParticipationRating, UserSettings } from '../contracts/outcomes.ts';
 import type { DirectoryEntry, Principal } from '../contracts/service.ts';
 import type { ContactDraft } from '../contracts/questions.ts';
 import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
@@ -28,9 +28,9 @@ import type { QuestionWatch } from './question-watch.ts';
 import { focusOptions, trackModality } from './focus.ts';
 import type { InputModality } from './focus.ts';
 
-export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'receipt' | 'result' | 'people' | 'case' | 'contact';
+export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'receipt' | 'result' | 'people' | 'case' | 'contact' | 'points';
 const RESTORABLE: ViewName[] = ['input', 'queue', 'settings'];
-const BACK: Partial<Record<ViewName, ViewName>> = { people: 'result', case: 'people', contact: 'people' };
+const BACK: Partial<Record<ViewName, ViewName>> = { people: 'result', case: 'people', contact: 'people', points: 'settings' };
 
 export interface PanelOptions {
   root: HTMLElement;
@@ -99,6 +99,8 @@ export interface Panel {
   attachFiles(files: File[]): void;
   /** Re-read settings and open questions (e.g. when the window is shown again). */
   refresh(): Promise<void>;
+  /** desktop (R46): open the panel on a view (the harness captures the points view this way). */
+  showView(view: 'input' | 'queue' | 'settings' | 'points'): void;
   /** Run the service connection check; used at startup and by Retry. */
   connect(): Promise<boolean>;
   /** desktop (R31..R36): companion hooks for the harness; null when the companion is off. */
@@ -144,14 +146,27 @@ const TEMPLATE = `
      <div class="rf-setting"><span>Model</span><span class="rf-setting-value rf-model"></span></div>
      <label class="rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox"></label>
      <label class="rf-setting rf-option"><span>Reduced motion</span><input class="rf-motion" type="checkbox"></label>
-     <label class="rf-setting rf-option"><span>Points &amp; rewards</span><input class="rf-points" type="checkbox"></label>
+     <div class="rf-setting rf-option"><span>Points &amp; rating</span><button class="rf-later" type="button" data-action="points">Open</button></div>
      <label class="rf-setting rf-option"><span>Sound</span><em class="rf-setting-note">No sounds yet</em><input class="rf-sound" type="checkbox" disabled aria-label="Sound (no sounds yet)"></label>
      <div class="rf-setting rf-option"><span>Demo data</span><button class="rf-later" type="button" data-action="reset-demo">Reset demo</button></div>
      <label class="rf-setting rf-option rf-desktop-companion" hidden><span>Fidgets</span><input class="rf-fidgets" type="checkbox"></label>
      <div class="rf-setting rf-option rf-desktop-companion" hidden><span>Position</span><button class="rf-later" type="button" data-action="reset-position">Put Lumi back in the corner</button></div>
     </div>
    </section>
-   <section class="rf-view rf-receipt" data-view="receipt" hidden aria-live="polite"><p class="rf-receipt-title"></p><div class="rf-receipt-detail"></div><div class="rf-reward" hidden><canvas width="${BURST.width}" height="${BURST.height}" aria-hidden="true"></canvas><span></span></div><button class="rf-undo" type="button" data-action="receipt-action">Undo</button></section>
+   <section class="rf-view rf-receipt" data-view="receipt" hidden aria-live="polite"><p class="rf-receipt-title"></p><div class="rf-receipt-detail"></div><div class="rf-reward" hidden><canvas width="${BURST.width}" height="${BURST.height}" aria-hidden="true"></canvas><span></span><button class="rf-later" type="button" data-action="points">See your points</button></div><button class="rf-undo" type="button" data-action="receipt-action">Undo</button></section>
+   <section class="rf-view rf-panel-content rf-points-view" data-view="points" aria-label="Points and rating" hidden>
+    <h2>Points &amp; rating</h2><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back"><i data-icon="arrow-left"></i></button>
+    <div class="rf-settings-rows">
+     <label class="rf-setting rf-option"><span>I take part in points</span><input class="rf-optin" type="checkbox"></label>
+     <label class="rf-setting rf-option rf-points-display" hidden><span>Show +points in receipts</span><input class="rf-points" type="checkbox"></label>
+    </div>
+    <p class="rf-points-note"></p>
+    <div class="rf-points-body" hidden>
+     <div class="rf-points-balance"><span class="rf-points-big"></span><span class="rf-points-meta"></span></div>
+     <p class="rf-points-sub">Recent</p><div class="rf-points-events"></div>
+     <p class="rf-points-sub">Participants</p><div class="rf-points-list"></div>
+    </div>
+   </section>
    <section class="rf-view rf-result" data-view="result" aria-label="Result" hidden>
     <div class="rf-result-head"><p class="rf-result-title"></p><div class="rf-result-notes"></div></div>
     <div class="rf-case-path"></div>
@@ -254,6 +269,11 @@ export function createPanel(options: PanelOptions): Panel {
   let caseView: CaseView | null = null;
   let draftText = '';
   let receiptAction: ReceiptAction | null = null;
+  // desktop (R46): points. The opt-in is the person's own record on the service; `state.points` stays the device display switch.
+  let pointsOptIn: ParticipationOptIn | null = null;
+  let pointsRating: ParticipationRating | null = null;
+  let pointsFrom: ViewName = 'settings';
+  let pointsLoad = 0;
   let timers: Array<ReturnType<typeof setTimeout>> = [];
   let pollTimer: ReturnType<typeof setInterval> | 0 = 0;
   let destroyed = false;
@@ -543,7 +563,6 @@ export function createPanel(options: PanelOptions): Panel {
     $('.rf-model').textContent = settings?.model ?? '—';
     renderYou();
     $<HTMLInputElement>('.rf-mcp').checked = !!settings?.mcp;
-    $<HTMLInputElement>('.rf-points').checked = state.points;
     const m = $<HTMLInputElement>('.rf-motion');
     m.checked = isReduced();
     m.disabled = systemReduced;
@@ -567,6 +586,76 @@ export function createPanel(options: PanelOptions): Panel {
   async function loadDirectory(): Promise<void> {
     try { directory = await api.directory(); } catch { /* older service or offline: guest only */ }
   }
+  // ---- points (desktop, R46): opt-in toggle, balance, rank, recent events, participants ----
+  const POINTS_NOTE = 'Points count what you contribute, never whether an answer was right. Opting out hides your points; nothing is deleted.';
+  function renderPoints(): void {
+    const id = settings?.currentPersonEntityId;
+    const toggle = $<HTMLInputElement>('.rf-optin');
+    const participates = !!pointsOptIn?.participates;
+    toggle.checked = participates;
+    toggle.disabled = !id;
+    $<HTMLInputElement>('.rf-points').checked = state.points;
+    $('.rf-points-display').hidden = !participates;
+    $('.rf-points-note').textContent = !id ? 'Choose who you are in Settings first.' : POINTS_NOTE;
+    const body = $('.rf-points-body');
+    const r = pointsRating;
+    body.hidden = !(participates && r?.me);
+    if (!participates || !r?.me) return;
+    $('.rf-points-big').textContent = String(r.me.balance);
+    $('.rf-points-meta').textContent = `${r.me.balance === 1 ? 'point' : 'points'} · rank ${r.me.rank} of ${r.totals.participants} · ${r.me.recent} in the last ${r.period.recentDays} days`;
+    const events = $('.rf-points-events');
+    events.replaceChildren();
+    if (!r.me.events.length) events.append(el('p', 'rf-points-none', 'Nothing yet. Your next answer counts.'));
+    r.me.events.slice(0, 5).forEach((e) => {
+      const row = el('div', 'rf-points-event');
+      const left = el('span');
+      left.append(el('span', undefined, e.summary), el('small', undefined, whenLabel(e.at)));
+      row.append(left, el('span', 'rf-points-plus', e.points > 0 ? `+${e.points}` : '0'));
+      events.append(row);
+    });
+    const list = $('.rf-points-list');
+    list.replaceChildren();
+    r.participants.slice(0, 10).forEach((p) => {
+      const row = el('div', 'rf-points-row');
+      row.dataset.me = String(p.personEntityId === id);
+      row.append(el('span', 'rf-points-rank', String(p.rank)), el('span', 'rf-points-name', p.personEntityId === id ? `${p.displayName} (you)` : p.displayName), el('span', 'rf-points-plus', String(p.balance)));
+      list.append(row);
+    });
+    if (state.view === 'points') motion.view(false);
+  }
+  function whenLabel(iso: string): string {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    const days = Math.floor((Date.now() - d.getTime()) / 86400000);
+    return days <= 0 ? 'today' : days === 1 ? 'yesterday' : days < 7 ? `${days} days ago` : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  }
+  async function loadPoints(): Promise<void> {
+    const id = settings?.currentPersonEntityId;
+    const n = ++pointsLoad;
+    if (!id) { pointsOptIn = null; pointsRating = null; renderPoints(); return; }
+    try {
+      const optIn = await api.optIn(id);
+      const rating = optIn.participates ? await api.rating(id, id) : null;
+      if (n !== pointsLoad) return;
+      pointsOptIn = optIn;
+      pointsRating = rating;
+      renderPoints();
+    } catch (e) {
+      if (n === pointsLoad) showError(e, () => { setView('points'); });
+    }
+  }
+  async function setOptIn(on: boolean): Promise<void> {
+    const id = settings?.currentPersonEntityId;
+    if (!id) return;
+    try {
+      pointsOptIn = await api.setOptIn(id, principal(), on);
+      // Taking part turns the receipt's +points on too, so the first answer shows what happened; opting out leaves the switch alone.
+      if (on && !state.points) await saveSetting({ points: true });
+      await loadPoints();
+      if (on && companion) react('hop');
+    } catch (e) { showError(e, () => { setView('points'); }); }
+  }
+
   function applySettings(s: UserSettings): void {
     settings = s;
     state.points = !!s.points;
@@ -587,7 +676,7 @@ export function createPanel(options: PanelOptions): Panel {
     const wasOpen = state.panelOpen;
     if (!wasOpen) companion?.makeRoom(); // desktop (R33): the card fits before it opens
     state.view = view;
-    if (!['receipt', 'contact'].includes(view)) state.lastOpen = view;
+    if (!['receipt', 'contact', 'points'].includes(view)) state.lastOpen = view;
     state.panelOpen = true;
     syncPoll();
     stage.dataset.view = view;
@@ -604,6 +693,7 @@ export function createPanel(options: PanelOptions): Panel {
     if (view === 'result') renderResult();
     if (view === 'people') renderPeople();
     if (view === 'case') renderCase();
+    if (view === 'points') { renderPoints(); void loadPoints(); }
     // The expanded flag survives leaving the question view (restored on return); other views stay collapsed.
     if (view === 'question') setExpanded(state.expanded, false);
     else motion.context(false, false);
@@ -639,6 +729,7 @@ export function createPanel(options: PanelOptions): Panel {
       : view === 'receipt' ? (viewEl('receipt').querySelector<HTMLElement>('[data-action="receipt-action"]:not([hidden])') ?? $('[data-action="attach"]'))
       : view === 'queue' ? root.querySelector<HTMLElement>('.rf-question-item') ?? $('.rf-view[data-view="queue"] [data-action="input"]')
       : view === 'settings' ? $('.rf-view[data-view="settings"] [data-action="input"]')
+      : view === 'points' ? $('.rf-optin')
       : viewEl(view).querySelector<HTMLElement>('button:not([disabled])');
     if (!target) return;
     // desktop (ux fix): on the first frame of an open the surface is still visibility:hidden (panel-motion sets it
@@ -910,7 +1001,8 @@ export function createPanel(options: PanelOptions): Panel {
       case 'send': void submit(); return;
       case 'remove-attachment': attachments.splice(Number(button.dataset.index), 1); renderAttachments(); return;
       case 'people': setView('people'); focusFor('people'); return;
-      case 'back': { const to = BACK[state.view]; if (to) { setView(to); focusFor(to); } return; }
+      case 'points': pointsFrom = state.view === 'receipt' ? 'receipt' : 'settings'; setView('points'); focusFor('points'); return;
+      case 'back': { const to = state.view === 'points' ? pointsFrom : BACK[state.view]; if (to) { setView(to); focusFor(to); } return; }
       case 'view-case': {
         const id = button.dataset.caseId!;
         void (async () => {
@@ -987,10 +1079,12 @@ export function createPanel(options: PanelOptions): Panel {
     void (async () => {
       await saveSetting({ currentPersonEntityId: id });
       cache.clear(); state.active = null; state.expanded = false; state.openNodes.question = null;
+      pointsOptIn = null; pointsRating = null;
       await refreshQuestions();
     })();
   });
   $<HTMLInputElement>('.rf-points').addEventListener('change', (e) => void saveSetting({ points: (e.target as HTMLInputElement).checked }));
+  $<HTMLInputElement>('.rf-optin').addEventListener('change', (e) => void setOptIn((e.target as HTMLInputElement).checked));
   $<HTMLInputElement>('.rf-mcp').addEventListener('change', (e) => void saveSetting({ mcp: (e.target as HTMLInputElement).checked }));
   $<HTMLInputElement>('.rf-fidgets').addEventListener('change', (e) => companion?.setFidgets((e.target as HTMLInputElement).checked));
   const onMedia = (e: MediaQueryListEvent): void => syncMotion(e);
@@ -1083,6 +1177,7 @@ export function createPanel(options: PanelOptions): Panel {
     companion: companionHooks,
     attachFiles: addFiles,
     refresh: async () => { try { await loadDirectory(); applySettings(await api.getSettings()); } catch { state.serviceDown = true; return; } await refreshQuestions(); },
+    showView: (view) => { if (view === 'points') pointsFrom = 'settings'; setView(view); },
     connect,
     status: () => ({
       view: state.panelOpen ? state.view : 'collapsed',
@@ -1101,6 +1196,7 @@ export function createPanel(options: PanelOptions): Panel {
       avatar: avatar.status(),
       companion: companion?.status() ?? null,
       unseenQuestion: unseenWaiting(),
+      points: { display: state.points, participates: pointsOptIn ? pointsOptIn.participates : null, balance: pointsRating?.me?.balance ?? null, rank: pointsRating?.me?.rank ?? null },
     }),
     destroy: () => {
       destroyed = true;

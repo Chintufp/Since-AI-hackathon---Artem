@@ -24,6 +24,8 @@ import { DEFAULT_SERVICE_PORT } from '../src/libs/utils/contracts/index.ts';
 import { DEFAULT_DB_PATH, REPO_ROOT } from '../src/apps/service/paths.ts';
 
 const { values } = parseArgs({
+  // `pnpm demo:agent -- --simulate-tap` passes the separator through; it is not an argument.
+  args: process.argv.slice(2).filter((a) => a !== '--'),
   options: {
     db: { type: 'string', default: DEFAULT_DB_PATH },
     text: { type: 'string', default: 'TRN-301: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.' },

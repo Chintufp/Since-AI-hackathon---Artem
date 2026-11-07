@@ -4,8 +4,9 @@
 !.env.example
 
 # Elisa's challenge material: keep it here, out of the public repo,
-# unless the organisers say it may be published
+# unless the organisers say it may be published (the bare name also covers a symlink to it)
 private/
+private
 
 # Python
 __pycache__/

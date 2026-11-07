@@ -27,3 +27,12 @@ Status of each deliberately unanswered question from the technical handoff. "Def
 | U21 | default | v008 panel + v006 Snowbally, points off by default, reduced motion, tray | Windows packaging, sounds |
 | U22 | default | E00, E02, E04, E03, E05, E06, E07 bounded; 3 seeds | More repeats |
 | U23 | open | No small GPT route available; rules/local/replay routes only | Generator model and execution route |
+
+## Added by the demo-mode session (7 Nov, afternoon)
+
+| ID | Status | What exists now | Still open (Artem) |
+| --- | --- | --- | --- |
+| U24 | open | `pnpm demo:judge` starts the simulated day 240 s after launch so the 3-minute walkthrough runs on the seeded data (R31); `--stream-delay 0` starts it at once | Should the judges see the stream from the first second (livelier, but Erkki's question may go to another NOC person and his budget may be used by simulated requesters), or after the walkthrough (deterministic script)? Also: seed 1 and 10 s per simulated hour are my picks for the pitch; a slower day (20 s/h) reads more calmly on a projector. |
+| U25 | open | Slack: synthetic export path demonstrated (`pnpm demo:slack`, private #change-review visible to members only); live connector `awaiting-authorization`, refuses without `{liveAuthorized, token}`; DEMO.md says what the live path would do and needs | Should a sandbox Slack workspace be used for the demo? If yes, name it in chat (workspace, the channel(s) and a bot token scope list: `channels:history`, `channels:read`, `groups:history`, `groups:read`, `users:read`); nothing will be connected before that. Credentials present on this Mac are not authorization. |
+| U26 | open | Rules selector breaks ties between equally placed observers by `questionId|personEntityId` string order, which is why Erkki wins on the seeded directory and loses once more NOC people exist (seen in the dry run) | Prefer a role-based observer over a group-based one, or the least-loaded person, on ties? Changing it touches E03/E06 numbers; left as is. |
+| U27 | open | The MCP transcript (`demo/mcp-transcript.md`) was recorded with the SDK client in `scripts/mcp-demo.ts`, not by a model choosing tools | Record one real Claude Code or Claude Desktop session with `.mcp.json` from DEMO.md before Sunday (needs your Claude account; our code never calls a model). |

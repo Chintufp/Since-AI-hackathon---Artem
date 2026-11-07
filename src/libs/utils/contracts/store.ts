@@ -2,7 +2,7 @@ import type { EvidenceEnvelope, ImportBatch, ConnectionCard } from './evidence.t
 import type { Attempt, Case, Claim, Correction, Entity, Observation, Outcome, Pattern, PersonWorkLink, Procedure } from './memory.ts';
 import type { InvestigationState } from './investigation.ts';
 import type { Answer, PolicyDecision, PreferenceFeedback, QuestionRecord, RecipientEligibility } from './questions.ts';
-import type { EvaluationRecord, OutcomeReport, ParticipationEvent, UserSettings } from './outcomes.ts';
+import type { EvaluationRecord, OutcomeReport, ParticipationEvent, ParticipationOptIn, UserSettings } from './outcomes.ts';
 import type { TraceEvent } from './common.ts';
 
 /** Record types persisted by the knowledge store. Each has a string `id`. */
@@ -29,6 +29,7 @@ export interface RecordTypes {
   outcomeReport: OutcomeReport;
   evaluation: EvaluationRecord;
   participation: ParticipationEvent;
+  participationOptin: ParticipationOptIn;
   trace: TraceEvent;
   settings: UserSettings & { id: string };
 }

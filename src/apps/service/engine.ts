@@ -6,7 +6,7 @@ import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type {
   AccessScope, Answer, ApiRoutes, CaseView, Condition, ConnectionCard, ContactDraft, ContactDraftRequest, CoordinatorSettings, ImportRequest, ImportResponse,
-  InvestigateRequest, InvestigationState, KnowledgeStore, ObservationRequest, OutcomeReport, OutcomeRequest, ParticipationBalance, PeopleDirectory,
+  InvestigateRequest, InvestigationState, KnowledgeStore, ObservationRequest, OutcomeReport, OutcomeRequest, ParticipationBalance, ParticipationOptIn, ParticipationRating, PeopleDirectory,
   PersonView, PreferenceFeedback, Principal, Problem, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
 import { defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
 import { connectionCards } from '../../libs/utils/connectors/index.ts';
@@ -18,7 +18,7 @@ import { buildCaseView, importFromPath, listCases, openStore } from '../../libs/
 import { TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
 import { createSelector, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
 import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
-import { awardPoints, balanceOf, revokeContribution, type ParticipationKind } from '../../libs/utils/participation/index.ts';
+import { awardPoints, balanceOf, getOptIn, participates, rating, revokeContribution, setOptIn, type ParticipationKind } from '../../libs/utils/participation/index.ts';
 import { applyDirectory } from './directory.ts';
 import { resetDemo } from './demo.ts';
 import { DEFAULT_ACTIVITY_LOG, readActivity, type ActivityResponse } from './activity.ts';
@@ -245,6 +245,7 @@ export class Engine {
 
   importData(req: ImportRequest): ImportResponse {
     if (req.path && !existsSync(req.path)) throw badRequest(`Path does not exist: ${req.path}`);
+    const batchesBefore = new Set(this.store.list('importBatch').map((b) => b.id));
     let res: ImportResponse;
     try {
       res = importFromPath(this.store, {
@@ -258,8 +259,30 @@ export class Engine {
     if (req.format === 'scenario-dir' && req.path) this.loadDirectoryFile(join(req.path, 'people.json'));
     if (req.directory) this.inlineDirectories.push(req.directory);
     this.reapplyDirectory();
-    this.trace(res.batch.id, 'import.completed', { id: 'system', displayName: 'import' }, { format: req.format, counts: res.batch.counts, cases: res.cases, claims: res.claims, people: res.people });
-    return res;
+    // A scenario directory imports several sources, each its own batch; the response's batch id is their combination.
+    const points = this.awardEvidence(new Set(this.store.list('importBatch').map((b) => b.id).filter((id) => !batchesBefore.has(id))));
+    this.trace(res.batch.id, 'import.completed', { id: 'system', displayName: 'import' }, { format: req.format, counts: res.batch.counts, cases: res.cases, claims: res.claims, people: res.people, ...(points.length ? { points } : {}) });
+    return points.length ? { ...res, points } : res;
+  }
+
+  /**
+   * R46: evidence a person authored that became a claim earns once per evidence record, at import, when that person
+   * takes part at the time. The summary names nothing from the evidence; only the evidence id is kept as a reference.
+   */
+  private awardEvidence(batchIds: Set<string>): Array<{ personEntityId: string; points: number }> {
+    if (!batchIds.size) return [];
+    const dir = storeDirectory(this.store);
+    const supported = new Set<string>();
+    for (const c of this.store.list('claim')) for (const ref of c.supporting) supported.add(ref.evidenceId);
+    const totals = new Map<string, number>();
+    for (const e of this.store.list('evidence')) {
+      if (!batchIds.has(e.lineage.importBatchId) || !supported.has(e.id)) continue;
+      const who = dir.resolve(e.author.id);
+      if (!who) continue;
+      const n = this.award({ personEntityId: who, contributionEventId: `evidence:${e.id}`, kind: 'evidence', summary: 'Shared evidence that became knowledge', refId: e.id });
+      if (n > 0) totals.set(who, (totals.get(who) ?? 0) + n);
+    }
+    return [...totals].map(([personEntityId, points]) => ({ personEntityId, points }));
   }
 
   private loadDirectoryFile(file: string): void {
@@ -361,6 +384,9 @@ export class Engine {
     const w = this.wiring();
     try {
       const r = await w.coordinator.recordObservation(state.id, req.condition as Condition, actorOf(principal), req.caseId);
+      // R46: an observation a person records for their own investigation is a contribution (one award per key and value).
+      const who = storeDirectory(this.store).resolve(principal.id);
+      if (who) this.award({ personEntityId: who, contributionEventId: stableId('obs-award', state.id, req.condition.key, String(req.condition.value ?? '')), kind: 'correction', summary: 'Recorded an observation', refId: state.id });
       return { investigation: this.view(r.state) };
     } catch (e) {
       throw toServiceError(e);
@@ -400,7 +426,7 @@ export class Engine {
     this.store.put('outcomeReport', report);
     this.trace(state.id, 'outcome.reported', { id: principal.id, displayName: principal.displayName }, { reportId: id, result: req.result, lasting, ...(req.decisionId ? { decisionId: req.decisionId } : {}) });
     const who = storeDirectory(this.store).resolve(principal.id);
-    if (who) this.award({ personEntityId: who, contributionEventId: id, kind: 'outcome-report', summary: `Reported an outcome (${req.result})` });
+    if (who) this.award({ personEntityId: who, contributionEventId: id, kind: 'outcome-report', summary: `Reported an outcome (${req.result})`, refId: state.id });
     const w = this.wiring();
     for (const c of req.observations ?? []) {
       try {
@@ -442,8 +468,9 @@ export class Engine {
     return questionView(this.store, q, p);
   }
 
-  private award(a: { personEntityId: string; contributionEventId: string; kind: ParticipationKind; summary: string }): number {
-    const r = awardPoints(this.store, { orgId: this.orgId, at: this.now().toISOString(), enabled: this.getSettings().points, ...a });
+  /** R46: points go only to a person who takes part at the time of the contribution; `settings.points` is the device's display switch, not this. */
+  private award(a: { personEntityId: string; contributionEventId: string; kind: ParticipationKind; summary: string; refId?: string }): number {
+    const r = awardPoints(this.store, { orgId: this.orgId, at: this.now().toISOString(), participates: participates(this.store, a.personEntityId), ...a });
     return r.awarded;
   }
 
@@ -466,7 +493,7 @@ export class Engine {
       const r = await w.coordinator.answer(questionId, req.value, principal, req.text);
       this.sync(r.state);
       const kind: ParticipationKind = req.value === 'yes' ? 'answer-yes' : req.value === 'no' ? 'answer-no' : 'answer-unknown';
-      const points = this.award({ personEntityId: q.personEntityId, contributionEventId: r.answer.id, kind, summary: `Answered "${req.value}": ${q.candidate.text}` });
+      const points = this.award({ personEntityId: q.personEntityId, contributionEventId: r.answer.id, kind, summary: `Answered a question (${req.value === 'unknown' ? 'not sure' : req.value})`, refId: q.id });
       return { answer: r.answer, receipt: this.receipt(req.value, r.question, r.state, points, r.recommendationChanged), question: r.question };
     } catch (e) {
       throw toServiceError(e);
@@ -497,7 +524,7 @@ export class Engine {
     const w = this.wiring();
     try {
       const question = to === 'defer' ? w.coordinator.defer(questionId, principal) : w.coordinator.dismiss(questionId, principal);
-      this.award({ personEntityId: q.personEntityId, contributionEventId: `${to}:${questionId}`, kind: to, summary: to === 'defer' ? 'Saved a question for later' : 'Dismissed a question' });
+      this.award({ personEntityId: q.personEntityId, contributionEventId: `${to}:${questionId}`, kind: to, summary: to === 'defer' ? 'Saved a question for later' : 'Dismissed a question', refId: q.id });
       const detail = q.candidate.text;
       return { question, receipt: to === 'defer' ? { title: 'Saved for later', detail, canUndo: true } : { title: 'Question dismissed', detail, canUndo: true } };
     } catch (e) {
@@ -642,8 +669,46 @@ export class Engine {
     return next;
   }
 
-  participation(personEntityId: string): ParticipationBalance {
-    return balanceOf(this.store, personEntityId, this.getSettings().points);
+  /** R46: a person's own balance; the caller (`principalId`, else the settings' current person) must be that person. */
+  participation(personEntityId: string, principalId?: string): ParticipationBalance {
+    this.mustBeSelf(personEntityId, principalId);
+    return balanceOf(this.store, personEntityId);
+  }
+
+  private mustBeSelf(personEntityId: string, principalId: string | undefined): void {
+    const p = this.principalFor(principalId);
+    const dir = storeDirectory(this.store);
+    const self = dir.resolve(p.id) ?? p.id;
+    if (self !== personEntityId && self !== (dir.resolve(personEntityId) ?? personEntityId)) throw forbidden(`Principal ${p.id} may only read their own points`);
+  }
+
+  optIn(personEntityId: string): ParticipationOptIn {
+    return getOptIn(this.store, personEntityId) ?? { id: '', orgId: this.orgId, personEntityId, participates: false, since: '' };
+  }
+
+  /** Only the person themselves may change whether they take part. Opting out keeps the rows; nothing is deleted. */
+  setOptIn(personEntityId: string, req: { principal: Principal; participates: boolean }): ParticipationOptIn {
+    const principal = this.effective(req.principal);
+    const dir = storeDirectory(this.store);
+    if ((dir.resolve(principal.id) ?? principal.id) !== personEntityId) throw forbidden(`Principal ${principal.id} may only change their own participation`);
+    const rec = setOptIn(this.store, { orgId: this.orgId, personEntityId, participates: req.participates, at: this.now().toISOString() });
+    this.trace('participation', 'participation.optin', { id: principal.id, displayName: principal.displayName }, { personEntityId, participates: req.participates });
+    return rec;
+  }
+
+  /** Rating among the people who take part. `personEntityId` (which must be the caller) fills `me`. */
+  participationRating(query: { personEntityId?: string; principalId?: string }): ParticipationRating {
+    if (query.personEntityId) this.mustBeSelf(query.personEntityId, query.principalId);
+    const dir = storeDirectory(this.store);
+    return rating(this.store, { displayName: (id) => dir.get(id)?.name, now: this.now(), ...(query.personEntityId ? { personEntityId: query.personEntityId } : {}) });
+  }
+
+  /** Read-only rating for agents: the public rows (people who take part) and totals; never anyone's events. */
+  participationForAgents(personEntityId?: string): Omit<ParticipationRating, 'me'> & { person?: { personEntityId: string; participates: boolean; balance?: number; rank?: number } } {
+    const { me: _me, ...pub } = this.participationRating({});
+    if (!personEntityId) return pub;
+    const row = pub.participants.find((r) => r.personEntityId === personEntityId);
+    return { ...pub, person: row ? { personEntityId, participates: true, balance: row.balance, rank: row.rank } : { personEntityId, participates: false } };
   }
 
   events(query: { since?: string; traceId?: string }): Array<{ id: string; at: string; type: string; traceId: string }> {

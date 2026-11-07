@@ -14,18 +14,18 @@ pnpm demo:reset [-- --db path --seed elisa|synthetic|empty]   # scripts/demo-res
 ## Files
 `engine.ts` (composition and all behavior), `http.ts` (router, validation, errors), `mcp-tools.ts` (tool registration) + `mcp.ts` (stdio entry), `views.ts` (ResultView/QuestionView/PersonView builders), `schemas.ts` (zod), `directory.ts` (people.json -> person entities), `demo.ts` (demo reset), `errors.ts`, `paths.ts`. Participation lives in `src/libs/utils/participation`.
 
-## HTTP API (contracts/service.ts `ApiRoutes`, 25 routes)
+## HTTP API (contracts/service.ts `ApiRoutes`, 32 routes)
 | Route | Notes |
 |---|---|
 | `GET /health` | `{ok, version, store, routes}` (routes actually served) |
-| `POST /import` | formats teams-json, email-text, slack-export, scenario-dir (path on this machine or inline payload); a scenario dir's `people.json` is applied as the directory |
+| `POST /import` | formats teams-json, email-text, slack-export, scenario-dir (path on this machine or inline payload); a scenario dir's `people.json` is applied as the directory. R46: `points` lists who earned for authored evidence that became a claim (people who take part only) |
 | `GET /connections` | connector cards with last import batch |
 | `GET /cases`, `GET /cases/:id` | access-filtered; optional `?principalId=` (directory person), else the settings' current person, else anonymous (organization-wide cases only) |
 | `POST /investigate` | stable id from (principal, text, entities, observations, attachments): repeating a request is idempotent. `allowQuestions` default true over HTTP |
 | `GET /investigations/:id` | optional `?principalId=` must be the starter (403 otherwise) |
 | `GET /questions` | `personEntityId`, `status` (default open: queued, delivered, deferred; `all` for everything) |
 | `GET /questions/:id` | viewed as the recipient |
-| `POST /questions/:id/answer` | recipient only (403). Same answer again is idempotent; a different one needs undo first (409). Receipt carries `pointsAwarded` when points are on |
+| `POST /questions/:id/answer` | recipient only (403). Same answer again is idempotent; a different one needs undo first (409). Receipt carries `pointsAwarded` when the recipient takes part in points (yes/no 2, not sure 0) |
 | `POST /questions/:id/defer`, `/dismiss`, `/undo` | recipient only |
 | `POST /questions/:id/cancel` | only the requester that started the investigation (human or agent) |
 | `POST /preferences` | preference between two questions; own person only; never evidence |
@@ -35,7 +35,9 @@ pnpm demo:reset [-- --db path --seed elisa|synthetic|empty]   # scripts/demo-res
 | `POST /contact-draft` | reviewable message: current symptoms, checks performed, unresolved question. Person must be in the requester's people list. Never sent |
 | `GET /directory` | `DirectoryEntry[]` `{personEntityId, name, role?, groups, available}` sorted by name: the visible organization directory (never knowledge or answers). The desktop's "You" picker reads it |
 | `GET /settings`, `PUT /settings` | settings record `user` in the store; unknown keys are 400; extension `selectorId` (default `rules`) |
-| `GET /participation/:personEntityId` | balance and events; points only awarded while `settings.points` is on |
+| `GET /participation/:personEntityId` | own balance and events (R46): `?principalId=` (else the settings' current person) must resolve to that person, 403 otherwise; `{participates: false, points: 0, events: []}` for a person who does not take part |
+| `GET` / `PUT /participation/:personEntityId/optin` | whether the person takes part in points (default no); PUT `{principal, participates}` only by that person (403). Opting out hides the rows, nothing is deleted |
+| `GET /participation/rating` | rating among the people who take part (balance, last 7 days, answers, outcomes, rank, totals); `?personEntityId=` (must be the caller) fills `me` with the last 10 events. People who do not take part appear nowhere |
 | `POST /demo/reset` | `{seed?, defaultPerson?}`: clear (settings kept), import Elisa example if present under `private/`, the `demo` split families (sources + people.json only) and `data/fixtures/dev-family-01`; `empty` only clears |
 | `GET /events` | trace events by `traceId` / `since` |
 

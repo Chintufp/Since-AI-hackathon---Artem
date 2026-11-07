@@ -8,7 +8,7 @@ import type { Engine, ExtendedSettings } from './engine.ts';
 import { ServiceError, toServiceError } from './errors.ts';
 import {
   activityQuerySchema, answerSchema, cancelSchema, clockSchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema,
-  observationSchema, outcomeSchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, settingsPatchSchema,
+  observationSchema, optInSchema, outcomeSchema, participationQuerySchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, ratingQuerySchema, settingsPatchSchema,
 } from './schemas.ts';
 
 /** A handler result that is served as-is (HTML) instead of JSON. */
@@ -71,7 +71,11 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
     'GET /directory': () => engine.directory(),
     'GET /settings': () => engine.getSettings(),
     'PUT /settings': (c) => engine.putSettings(parse(settingsPatchSchema, c.body) as Partial<ExtendedSettings>),
-    'GET /participation/:personEntityId': (c) => engine.participation(c.params.personEntityId!),
+    // R46: the rating route is listed before the :personEntityId one, because both match the path "rating".
+    'GET /participation/rating': (c) => engine.participationRating(parse(ratingQuerySchema, q(c))),
+    'GET /participation/:personEntityId': (c) => engine.participation(c.params.personEntityId!, parse(participationQuerySchema, q(c)).principalId),
+    'GET /participation/:personEntityId/optin': (c) => engine.optIn(c.params.personEntityId!),
+    'PUT /participation/:personEntityId/optin': (c) => engine.setOptIn(c.params.personEntityId!, parse(optInSchema, c.body)),
     'POST /demo/reset': (c) => {
       const b = parse(demoResetSchema, c.body ?? {});
       return engine.resetDemo(b.seed, b.defaultPerson);

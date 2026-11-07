@@ -64,6 +64,10 @@ export interface ApiClient {
   contactDraft(req: ReqOf<'POST /contact-draft'>): Promise<ResOf<'POST /contact-draft'>>;
   directory(): Promise<ResOf<'GET /directory'>>;
   resetDemo(seed?: 'elisa' | 'synthetic' | 'empty'): Promise<ResOf<'POST /demo/reset'> & { defaultPersonEntityId?: string }>;
+  /** R46: points. The rating's `me` needs the caller to be that person. */
+  optIn(personEntityId: string): Promise<ResOf<'GET /participation/:personEntityId/optin'>>;
+  setOptIn(personEntityId: string, principal: Principal, participates: boolean): Promise<ResOf<'PUT /participation/:personEntityId/optin'>>;
+  rating(personEntityId: string | undefined, principalId?: string): Promise<ResOf<'GET /participation/rating'>>;
 }
 
 /** Split "POST /questions/:id/answer" into method and path template. */
@@ -156,5 +160,8 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     contactDraft: (req) => call('POST /contact-draft', { body: req }),
     directory: () => call('GET /directory'),
     resetDemo: (seed) => call('POST /demo/reset', { body: seed ? { seed } : {} }),
+    optIn: (personEntityId) => call('GET /participation/:personEntityId/optin', { params: { personEntityId } }),
+    setOptIn: (personEntityId, principal, participates) => call('PUT /participation/:personEntityId/optin', { params: { personEntityId }, body: { principal, participates } }),
+    rating: (personEntityId, principalId) => call('GET /participation/rating', { query: { ...(personEntityId ? { personEntityId } : {}), ...(principalId ? { principalId } : {}) } }),
   };
 }

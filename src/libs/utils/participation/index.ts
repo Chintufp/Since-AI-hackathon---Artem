@@ -1,2 +1,2 @@
-export { POINT_TABLE, pointsFor, awardPoints, revokeContribution, balanceOf, participationEventId } from './participation.ts';
-export type { AwardInput, AwardResult, ParticipationKind } from './participation.ts';
+export { POINT_TABLE, RECENT_DAYS, pointsFor, awardPoints, revokeContribution, balanceOf, participationEventId, getOptIn, setOptIn, participates, optInId, rating } from './participation.ts';
+export type { AwardInput, AwardResult, ParticipationKind, RatingInput } from './participation.ts';

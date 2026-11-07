@@ -2,6 +2,7 @@
 export interface ServiceClient {
   get<T = unknown>(path: string): Promise<T>;
   post<T = unknown>(path: string, body: unknown): Promise<T>;
+  put<T = unknown>(path: string, body: unknown): Promise<T>;
 }
 
 export class ServiceHttpError extends Error {
@@ -28,5 +29,5 @@ export function httpClient(baseUrl: string, fetchImpl: typeof fetch = fetch): Se
     if (!res.ok) throw new ServiceHttpError(res.status, (json as { error?: string }).error ?? `${method} ${path} -> ${res.status}`);
     return json as T;
   };
-  return { get: (p) => call('GET', p), post: (p, b) => call('POST', p, b) };
+  return { get: (p) => call('GET', p), post: (p, b) => call('POST', p, b), put: (p, b) => call('PUT', p, b) };
 }

@@ -27,6 +27,7 @@ export function activityPage(): string {
   .kind { font-size: 11px; color: #838990; letter-spacing: .025em; margin-top: 4px; }
   .row[data-kind="question"] .text::before { content: "?"; display: inline-block; width: 16px; color: #8b939a; }
   .row[data-kind="answer"] .text::before { content: "·"; display: inline-block; width: 16px; color: #8b939a; }
+  .row[data-kind="points"] .text::before { content: "+"; display: inline-block; width: 16px; color: #8a7330; }
   .row[data-foryou="true"] { background: #f7f8f8; margin: 0 -24px; padding-left: 24px; padding-right: 24px; }
   .row[data-foryou="true"] .kind { color: #303438; }
   .empty { font-size: 13px; color: #7f8489; padding: 18px 0; }

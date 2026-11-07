@@ -8,7 +8,7 @@ import type { ApiRoutes, Principal } from '../contracts/service.ts';
 import type { InvestigationState } from '../contracts/investigation.ts';
 import type { QuestionRecord, QuestionStatus } from '../contracts/questions.ts';
 import { defaultUserSettings } from '../contracts/outcomes.ts';
-import type { UserSettings } from '../contracts/outcomes.ts';
+import type { ParticipationEvent, ParticipationOptIn, ParticipationRating, UserSettings } from '../contracts/outcomes.ts';
 import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
 import { createApiClient, parseRoute } from './api-client.ts';
 import type { ApiClient, FetchLike, ReqOf, ResOf, RouteKey } from './api-client.ts';
@@ -53,12 +53,41 @@ interface MockState {
   records: Map<string, QuestionRecord>;
   investigations: Map<string, ResultView & { state: InvestigationState }>;
   counter: number;
+  /** R46: whether the dev user takes part in points, and their events (deterministic for the screenshot harness). */
+  optIn: boolean;
+  events: ParticipationEvent[];
+}
+
+/** R46: fixed points data: three colleagues who take part (Tomas does not), and the dev user's own events. */
+const POINTS_FIXED = '2026-11-06T09:00:00.000Z';
+const MY_EVENTS = (): ParticipationEvent[] => [
+  { id: 'part:mock:1', orgId: ORG, personEntityId: ME, contributionEventId: 'answer:mock:seed-1', kind: 'answer-no', points: 2, summary: 'Answered a question (no)', refId: 'q:mock:seed-1', at: '2026-11-05T14:12:00.000Z' },
+  { id: 'part:mock:2', orgId: ORG, personEntityId: ME, contributionEventId: 'outrep:mock:seed-1', kind: 'outcome-report', points: 3, summary: 'Reported an outcome (recovered)', refId: 'inv:mock:seed', at: '2026-11-06T08:40:00.000Z' },
+  { id: 'part:mock:3', orgId: ORG, personEntityId: ME, contributionEventId: 'answer:mock:seed-2', kind: 'answer-unknown', points: 0, summary: 'Answered a question (not sure)', refId: 'q:mock:seed-2', at: POINTS_FIXED },
+];
+const OTHERS: Array<{ personEntityId: string; displayName: string; balance: number; recent: number; answered: number; outcomes: number }> = [
+  { personEntityId: 'person:mock:noor', displayName: 'Noor Ahmadi', balance: 14, recent: 6, answered: 4, outcomes: 2 },
+  { personEntityId: 'person:mock:priya', displayName: 'Priya Nair', balance: 7, recent: 2, answered: 2, outcomes: 1 },
+];
+
+function mockRating(s: MockState): ParticipationRating {
+  const mine = s.events.reduce((n, e) => n + e.points, 0);
+  const rows = [...OTHERS, ...(s.optIn ? [{ personEntityId: ME, displayName: 'Dev User', balance: mine, recent: mine, answered: s.events.filter((e) => e.kind.startsWith('answer')).length, outcomes: s.events.filter((e) => e.kind === 'outcome-report').length }] : [])]
+    .sort((a, b) => b.balance - a.balance || a.displayName.localeCompare(b.displayName))
+    .map((r, i, all) => ({ ...r, rank: i > 0 && all[i - 1]!.balance === r.balance ? i : i + 1 }));
+  const me = rows.find((r) => r.personEntityId === ME);
+  return {
+    period: { recentDays: 7, recentFrom: '2026-10-31T09:00:00.000Z' },
+    me: me ? { personEntityId: ME, balance: me.balance, recent: me.recent, rank: me.rank, events: [...s.events].reverse().slice(0, 10) } : null,
+    participants: rows,
+    totals: { participants: rows.length, points: rows.reduce((n, r) => n + r.balance, 0), recent: rows.reduce((n, r) => n + r.recent, 0) },
+  };
 }
 
 function freshState(): MockState {
   const records = new Map<string, QuestionRecord>();
   SEED_QUESTIONS.forEach((q, i) => records.set(q.id, record(q, 'queued', i)));
-  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0 };
+  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS() };
 }
 
 function record(q: SeedQuestion, status: QuestionStatus, i: number): QuestionRecord {
@@ -104,12 +133,16 @@ function makeHandlers(s: MockState): Handlers {
     if (!r) throw new MockHttpError(404, `Unknown question ${id}`);
     return r;
   };
-  const settle = (rec: QuestionRecord, status: QuestionStatus, title: string, detail: string, points: number) => {
+  const settle = (rec: QuestionRecord, status: QuestionStatus, title: string, detail: string, points: number, summary?: string) => {
     rec.previousStatus = rec.status;
     rec.status = status;
     rec.updatedAt = NOW();
-    return { title, detail, canUndo: true, ...(s.settings.points && points ? { pointsAwarded: points } : {}) };
+    // R46: points only for a person who takes part; the display switch (settings.points) is the panel's business.
+    const awarded = s.optIn ? points : 0;
+    if (s.optIn && summary) s.events.push({ id: `part:mock:${++s.counter}`, orgId: ORG, personEntityId: ME, contributionEventId: `${status}:${rec.id}`, kind: points ? 'answer-yes' : 'answer-unknown', points: awarded, summary, refId: rec.id, at: NOW() });
+    return { title, detail, canUndo: true, ...(awarded ? { pointsAwarded: awarded } : {}) };
   };
+  const optInView = (): ParticipationOptIn => ({ id: 'optin:mock:you', orgId: ORG, personEntityId: ME, participates: s.optIn, since: POINTS_FIXED });
   const h: Handlers = {
     'GET /health': () => ({ ok: true as const, version: 'ui-dev-mock', store: 'memory', routes: Object.keys(h) }),
     'GET /settings': () => ({ ...s.settings }),
@@ -169,7 +202,7 @@ function makeHandlers(s: MockState): Handlers {
       const rec = need(params.id);
       assertRecipient(rec, body.principal);
       const labels = { yes: 'Recorded: Yes', no: 'Recorded: No', unknown: 'Recorded: Not sure' } as const;
-      const receipt = settle(rec, 'answered', labels[body.value], rec.candidate.text, body.value === 'unknown' ? 1 : 2);
+      const receipt = settle(rec, 'answered', labels[body.value], rec.candidate.text, body.value === 'unknown' ? 0 : 2, `Answered a question (${body.value === 'unknown' ? 'not sure' : body.value})`);
       const answer = { id: `answer:mock:${++s.counter}`, orgId: ORG, questionId: rec.id, personEntityId: rec.personEntityId, value: body.value, text: body.text, at: NOW(), claimUpdates: [], evidenceId: `evidence:mock:${s.counter}` };
       rec.answerId = answer.id;
       return { answer, receipt, question: { ...rec } };
@@ -188,6 +221,7 @@ function makeHandlers(s: MockState): Handlers {
       const rec = need(params.id);
       assertRecipient(rec, body.principal);
       rec.status = rec.previousStatus ?? 'queued';
+      s.events = s.events.filter((e) => e.contributionEventId !== `answered:${rec.id}`);
       delete rec.previousStatus;
       delete rec.answerId;
       rec.updatedAt = NOW();
@@ -212,6 +246,25 @@ function makeHandlers(s: MockState): Handlers {
         body: `Hi ${person.name.split(' ')[0]},\n\nLP-3 on line 3 feeds labels but prints them blank after a ribbon swap. Head temperature looks normal.\n\nSo far: nothing has been confirmed; reloading the ribbon the other way round helped in PKG-117, but the cause was never verified.\n\nStill unclear: was this the older printhead revision?\n\nCould you tell me what you saw, or point me to someone who did?\n\nThanks`,
         requiresReview: true, createdAt: NOW(),
       };
+    },
+    // R46: points (dev data; the rating is deterministic for the screenshot harness)
+    'GET /participation/rating': ({ query }) => {
+      if (query.personEntityId && query.personEntityId !== ME) throw new MockHttpError(403, 'Only your own points');
+      const r = mockRating(s);
+      return query.personEntityId ? r : { ...r, me: null };
+    },
+    'GET /participation/:personEntityId': ({ params, query }) => {
+      if (params.personEntityId !== ME || (query.principalId && query.principalId !== ME)) throw new MockHttpError(403, 'Only your own points');
+      return s.optIn ? { personEntityId: ME, participates: true, points: s.events.reduce((n, e) => n + e.points, 0), events: [...s.events] } : { personEntityId: ME, participates: false, points: 0, events: [] };
+    },
+    'GET /participation/:personEntityId/optin': ({ params }) => {
+      if (params.personEntityId !== ME) return { id: '', orgId: ORG, personEntityId: params.personEntityId!, participates: false, since: '' };
+      return optInView();
+    },
+    'PUT /participation/:personEntityId/optin': ({ params, body }) => {
+      if (params.personEntityId !== ME || body.principal.id !== ME) throw new MockHttpError(403, 'Only you can change whether you take part');
+      s.optIn = body.participates;
+      return optInView();
     },
     'POST /demo/reset': () => {
       Object.assign(s, freshState());

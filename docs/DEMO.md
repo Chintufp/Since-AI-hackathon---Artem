@@ -86,6 +86,10 @@ This is a plain MCP client (no model) starting the same MCP server on the same d
 
 The same rows are appended as JSON lines to `data/local/demo-activity.jsonl` (git-ignored) and served by `GET /demo/activity`. `pnpm demo:play -- --seed 2` replays a different day; `--hour-seconds 5` runs it faster; `--instant` runs it in one go; `--delay 0` skips the quiet period when you run it by hand.
 
+## Points, if you want them (30 seconds)
+
+Points are optional and personal: nobody has any until they say so. As Erkki (Settings → **You** = Erkki), open **Settings → Points & rating** and switch on **I take part in points**; the sentence under it says points count contributions and never judge whether an answer was right, and that opting out hides them without deleting anything. Answer a question (the TRN-301 one, or the next one the stream sends you) and the receipt shows **+2** with a small pixel burst and a link **See your points**: your balance large, your rank among the simulated people who take part, your last contributions as neutral lines ("Answered a question (no)"), and the participants list with you marked. A useful *No* earns the same as a *Yes*; *Not sure*, *Later* and *Dismiss* earn nothing and cost nothing. The simulated colleagues take part by default (their awards are **points** rows in the stream, labelled simulated); a person who never opted in has no points and appears nowhere, not even to an agent asking over MCP (`kt_participation`). Switch the toggle off and the view goes quiet; switch it on again and the history is back.
+
 ## The Slack path (1 minute, synthetic export)
 
 Slack is captured through the same pipeline as Teams and e-mail, with one addition: a private channel's member list becomes an access grant, so what was said there is visible only to its members. Run, with the service up:

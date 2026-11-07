@@ -8,7 +8,7 @@ import type { ActorRef, Condition } from './common.ts';
 import type { ConnectionCard, ImportBatch } from './evidence.ts';
 import type { InvestigationState } from './investigation.ts';
 import type { Answer, ContactDraft, PreferenceFeedback, QuestionRecord } from './questions.ts';
-import type { OutcomeReport, ParticipationBalance, UserSettings } from './outcomes.ts';
+import type { OutcomeReport, ParticipationBalance, ParticipationOptIn, ParticipationRating, UserSettings } from './outcomes.ts';
 import type { PeopleDirectory } from './scenarios.ts';
 import type { CaseView, PersonView, QuestionView, ReceiptView, ResultView } from './views.ts';
 
@@ -48,6 +48,8 @@ export interface ImportResponse {
   claims: number;
   entities: number;
   people: number;
+  /** R46: points awarded by this import to people who take part (evidence they authored that became a claim). */
+  points?: Array<{ personEntityId: string; points: number }>;
 }
 
 export interface InvestigateRequest {
@@ -115,7 +117,14 @@ export interface ApiRoutes {
   'GET /directory': { res: DirectoryEntry[] };
   'GET /settings': { res: UserSettings };
   'PUT /settings': { req: Partial<UserSettings>; res: UserSettings };
-  'GET /participation/:personEntityId': { res: ParticipationBalance };
+  /** R46: rating among the people who take part. `personEntityId` (must be the caller: `principalId` or the settings' current person) fills `me`. */
+  'GET /participation/rating': { query: { personEntityId?: string; principalId?: string }; res: ParticipationRating };
+  /** Own balance only: `principalId` (or the settings' current person) must resolve to that person (403 otherwise). */
+  'GET /participation/:personEntityId': { query: { principalId?: string }; res: ParticipationBalance };
+  /** Whether a person takes part in points (default false). */
+  'GET /participation/:personEntityId/optin': { res: ParticipationOptIn };
+  /** Only that person may change it (403 otherwise). Opting out hides the rows; nothing is deleted. */
+  'PUT /participation/:personEntityId/optin': { req: { principal: Principal; participates: boolean }; res: ParticipationOptIn };
   'POST /demo/reset': { req: { seed?: 'elisa' | 'synthetic' | 'empty'; defaultPerson?: string }; res: { ok: true; imported: ImportResponse[]; defaultPersonEntityId?: string } };
   'GET /events': { query: { since?: string; traceId?: string }; res: Array<{ id: string; at: string; type: string; traceId: string }> };
   /** The engine's clock: real time, or a simulated moment advancing at `rate` simulated seconds per real second. */
@@ -170,6 +179,7 @@ export const MCP_TOOLS = {
   kt_record_observation: 'POST /observations',
   kt_record_outcome: 'POST /outcomes',
   kt_find_people: 'GET /people',
+  kt_participation: 'GET /participation/rating',
 } as const;
 
 export type McpToolName = keyof typeof MCP_TOOLS;

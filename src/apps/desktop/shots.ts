@@ -390,7 +390,11 @@ async function walk(width: number): Promise<Record<string, unknown>> {
   await step('question-context-node', width, '__s.click(".rf-reveal .rf-node-title[data-node=attempt]")');
   await step('queue', width, '__s.click(".rf-view[data-view=question] [data-action=queue]")');
   await step('settings', width, '__s.click(".rf-footer [data-action=settings]")');
-  await act('__s.click(".rf-points"); __s.click(".rf-view[data-view=settings] [data-action=input]")');
+  // desktop (R46): the points view (the dev user takes part in the mock); the display switch lives there now
+  await step('points', width, '__s.click(".rf-view[data-view=settings] [data-action=points]")');
+  await waitFor('__kt.panel.status().points.balance !== null');
+  await step('points-loaded', width, '0');
+  await act('__s.click(".rf-points"); __s.click(".rf-view[data-view=points] [data-action=back]"); __s.click(".rf-view[data-view=settings] [data-action=input]")');
   await act('__s.click(".rf-footer [data-action=queue]"); __s.click(".rf-question-item")');
   await js('__s.click("[data-action=yes]")');
   await waitFor('__kt.panel.status().view === "receipt"');

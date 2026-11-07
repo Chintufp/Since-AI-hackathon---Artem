@@ -23,7 +23,7 @@ export interface DesktopFlags {
   gaze: boolean;
   /** desktop (R35/R45): idle moves when nobody points at him. On by default; KT_FIDGETS=0 turns them off. */
   fidgets: boolean;
-  /** desktop (R44, trial): small grey crosses fading in at the bottom of the card. KT_TEXTURE=0 turns it off. */
+  /** desktop (R44, trial): small grey crosses fading in at the bottom of the card. Off by default; KT_TEXTURE=1 turns it on (R44 trial). */
   texture: boolean;
   /** desktop (R36): global shortcut CommandOrControl+Alt+S toggles away / back. */
   shortcut: boolean;
@@ -39,7 +39,7 @@ export const DEFAULT_FLAGS: Readonly<DesktopFlags> = Object.freeze({
   away: true,
   gaze: true,
   fidgets: true,
-  texture: true,
+  texture: false,
   shortcut: true,
   windowMode: 'area',
 });
@@ -54,7 +54,7 @@ export const COLUMN_FLAGS: Readonly<DesktopFlags> = Object.freeze({
   away: false,
   gaze: false,
   fidgets: false,
-  texture: true,
+  texture: false,
   shortcut: false,
   windowMode: 'column',
 });

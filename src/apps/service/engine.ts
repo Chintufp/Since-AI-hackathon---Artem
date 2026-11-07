@@ -19,7 +19,7 @@ import {
   defaultInvestigationSettings, investigate, investigationId, OUTCOME_KEY, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
   type InvestigationSettings, type PersonDirectory,
 } from '../../libs/utils/investigation/index.ts';
-import { buildCaseView, contextAssertions, defaultStandingGapSettings, importFromPath, listCases, openStore, parseAt, recordStandingGaps, resolveContextEntity, type StandingGapSettings } from '../../libs/utils/memory/index.ts';
+import { buildCaseView, contextAssertions, defaultStandingGapSettings, importFromPath, listCases, openStore, parseAt, recordStandingGaps, resolveContextEntity, type ImportFromPathResult, type StandingGapSettings } from '../../libs/utils/memory/index.ts';
 import { evaluateEligibility, PhrasedQuestionGenerator, TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
 import { createSelector, LinUcb, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
 import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
@@ -27,6 +27,7 @@ import { buildPeople } from '../../libs/utils/investigation/index.ts';
 import type { CandidateMatch } from '../../libs/utils/contracts/investigation.ts';
 import { awardPoints, balanceOf, getOptIn, participates, rating, revokeContribution, setOptIn, type ParticipationKind } from '../../libs/utils/participation/index.ts';
 import { applyDirectory } from './directory.ts';
+import { capturedSummary } from './capture.ts';
 import { resetDemo } from './demo.ts';
 import { DEFAULT_ACTIVITY_LOG, readActivity, type ActivityResponse } from './activity.ts';
 import { activityPage } from './activity-page.ts';
@@ -487,12 +488,13 @@ export class Engine {
     if (req.path && !existsSync(req.path)) throw badRequest(`Path does not exist: ${req.path}`);
     const batchesBefore = new Set(this.store.list('importBatch').map((b) => b.id));
     let res: ImportResponse;
+    let ids: ImportFromPathResult['ids'];
     try {
-      res = importFromPath(this.store, {
+      ({ ids, ...res } = importFromPath(this.store, {
         format: req.format, ...(req.path ? { path: req.path } : {}), ...(req.payload !== undefined ? { payload: req.payload } : {}),
         ...(req.connectionId ? { connectionId: req.connectionId } : {}), ...(req.accessGroups ? { accessGroups: req.accessGroups } : {}),
         orgId: this.orgId, now: this.now().toISOString(), standing: this.standingSettings(), ...(onCommitted ? { onCommitted } : {}),
-      });
+      }));
     } catch (e) {
       throw badRequest(`Import failed: ${e instanceof Error ? e.message : String(e)}`);
     }
@@ -505,6 +507,7 @@ export class Engine {
     // Integration (D-INT-04): on the model path the standing gaps are asked after the model's union (importAndEnrich).
     if (this.opts.standingGaps?.ask && !onCommitted) void this.askStanding().catch((e) => this.standingFailed('import', e));
     this.afterChange();
+    if (req.format === 'paste' && ids) res = { ...res, captured: capturedSummary(this.store, ids, res.batch, req.accessGroups) };
     return points.length ? { ...res, points } : res;
   }
 

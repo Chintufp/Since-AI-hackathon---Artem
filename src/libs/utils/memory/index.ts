@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import type { AccessScope, Case, ConversationContext, EvidenceEnvelope, ExtractionProposal, ImportBatch, KnowledgeStore, Principal } from '../contracts/index.ts';
 import { stableId } from '../contracts/index.ts';
-import { parseEmailText, parsePaste, parseSlackExport, parseTeamsJson, readSlackExportDir } from '../connectors/index.ts';
+import { detectPasteKind, normName, parseEmailText, parsePaste, parsePastedThread, parseSlackExport, parseTeamsJson, PASTE_CONNECTION_ID, readSlackExportDir } from '../connectors/index.ts';
 import type { PastePayload, SlackExportData } from '../connectors/index.ts';
 import { loadContexts } from '../context/index.ts';
 import { importSources } from '../ingest/index.ts';
@@ -79,6 +79,30 @@ export interface ImportFromPathResult {
   claims: number;
   entities: number;
   people: number;
+  /** B4: the ids behind the counts and the evidence read (inserted or already known), for the capture receipt. */
+  ids?: { cases: string[]; entities: string[]; people: string[]; evidence: string[] };
+}
+
+/** "Remember this" payload over HTTP: the text itself, or the PastePayload object with an optional author name. */
+export type PasteInput = string | (PastePayload & { authorName?: string });
+
+/**
+ * B4: a paste is sniffed (connectors/paste-thread.ts) and goes to the adapter that keeps its structure: a chat thread
+ * to the Teams adapter (provider 'teams', so speakers are bound), an e-mail to the e-mail adapter, a JSON export to the
+ * Teams adapter, anything else to the single-note paste adapter. All under connection 'paste:desktop' unless the caller
+ * names one. Text verbatim, a time-only stamp stays partial, a missing time stays unknown.
+ */
+export function parsePasteInput(input: PasteInput, opts: { orgId: string; connectionId?: string; accessGroups?: string[]; ingestedAt?: string }): { envelopes: EvidenceEnvelope[]; description: string } {
+  const p: PastePayload & { authorName?: string } = typeof input === 'string' ? { text: input } : input;
+  if (!p || typeof p.text !== 'string') throw new Error('paste: expected text');
+  const o = { ...opts, connectionId: opts.connectionId ?? PASTE_CONNECTION_ID };
+  const kind = detectPasteKind(p.text);
+  if (kind === 'empty') throw new Error('paste: nothing to remember (empty text)');
+  if (kind === 'email') return { envelopes: parseEmailText(p.text, o), description: 'Pasted e-mail' };
+  if (kind === 'teams-json') return { envelopes: parseTeamsJson(JSON.parse(p.text.trim()), o), description: 'Pasted Teams export' };
+  if (kind === 'thread') return { envelopes: parseTeamsJson(parsePastedThread(p.text)!, o), description: 'Pasted thread' };
+  const author = p.author ?? (p.authorName?.trim() ? { id: `person:paste:${normName(p.authorName)}`, displayName: p.authorName.trim(), provider: 'paste' } : undefined);
+  return { envelopes: parsePaste({ text: p.text, ...(p.attachmentNames ? { attachmentNames: p.attachmentNames } : {}), ...(author ? { author } : {}) }, o), description: 'Pasted text' };
 }
 
 const IGNORED = /^(truth|incoming)\.json$/i;
@@ -100,8 +124,7 @@ function importOne(store: KnowledgeStore, format: Exclude<ImportFormat, 'scenari
     envelopes = parseSlackExport(data, format === 'slack-live' ? { ...opts, connectionId: opts.connectionId ?? 'slack-live' } : opts);
     description = format === 'slack-live' ? 'Slack live (read-only pull of one channel)' : `Slack export ${source.path ?? '(inline)'}`;
   } else {
-    envelopes = parsePaste(source.payload as PastePayload, opts);
-    description = 'Pasted text';
+    ({ envelopes, description } = parsePasteInput(source.payload as PasteInput, opts));
   }
   const connectionId = envelopes[0]?.connectionId ?? req.connectionId ?? format;
   return importSources(store, envelopes, { orgId: req.orgId, connectionId, sourceDescription: description, now: req.now });
@@ -167,7 +190,10 @@ export function importFromPath(store: KnowledgeStore, req: ImportFromPathRequest
           finishedAt: new Date().toISOString(), sourceDescription: `Scenario directory ${req.path} (${batches.length} sources)`,
           counts: { seen: sum('seen'), inserted: sum('inserted'), unchangedDuplicates: sum('unchangedDuplicates'), revised: sum('revised'), copies: sum('copies') },
         };
-  return { batch, cases: cases.size, claims: claims.size, entities: entities.size, people: people.size };
+  return {
+    batch, cases: cases.size, claims: claims.size, entities: entities.size, people: people.size,
+    ids: { cases: [...cases], entities: [...entities], people: [...people], evidence: evidence.map((e) => e.id) },
+  };
 }
 
 /** Cases visible to the principal (all cases when no principal is given: trusted/internal callers only). */

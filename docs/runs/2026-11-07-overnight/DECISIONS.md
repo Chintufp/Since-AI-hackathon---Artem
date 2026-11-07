@@ -124,3 +124,7 @@ An e-mail imported from a text file carries no ACL, so it is stored as organizat
 ## R26 · DECISION — Shipped experiment choices (all behind configuration; baseline retained)
 
 E02 hybrid retrieval (tied lexical on validation and test, so hybrid is kept as the configured default while lexical remains available), E04 separate support/applicability (tie; keeps the targets identifiable), E03 rules selector (LinUCB wins only on the simulator; the family arm asked too few questions to test the frozen rule), E05 pool size 1 (uninformative tie), E06 question-dependent eligibility, E07 defaults 3/day and 30 minutes. None is a product decision; U01–U23 stay open as listed in `OPEN_QUESTIONS.md`.
+
+## R27 · DECISION — Local history was rewritten once to remove an accidental bulk add of design-lab
+
+Two of my early `git add -A` commits had swept all 4,299 design-lab files (143 MB of frame caches and screenshots) into the branch, against the instruction to keep bulky caches out of Git. Since nothing had been pushed, I rewrote the branch's commits to drop those files (only the 37 selected design sources stay tracked, hashes unchanged), restored the working tree from a backup, and added `design-lab/` to `.gitignore`. Commit hashes on the branch changed; the content of every commit is otherwise identical. `.git` went from 34 MB to 6.2 MB. **Reverse:** not needed; the files are untouched on disk.

@@ -14,6 +14,7 @@ import { actionKey, SUPPORT_LEVEL } from '../policies/features.ts';
 import type { QuestionContext } from './context.ts';
 import { evaluateEligibility, PERMANENT_VIOLATIONS } from './eligibility.ts';
 import { findRecipients, type RecipientReason } from './recipients.ts';
+import { inQuiet, nextWindow } from './quiet-hours.ts';
 
 export interface CoordinatorDeps {
   store: KnowledgeStore;
@@ -178,8 +179,17 @@ export class QuestionCoordinator {
       store.put('question', question);
       state.questionIds = [...state.questionIds, question.id];
       this.trace(state, 'question.queued', { questionId: question.id, personEntityId: question.personEntityId, decisionId: decision.id });
-      if (opts.deliver !== false) question = await this.deliver(question.id);
-      this.setLoop(state, 'question-open', this.waitingReason((chosen as EligibleAction).personEntityId, state, cand.gapId, recipientCache.get(cand.gapId)));
+      const qh = settings.coordinator.quietHours;
+      if (qh && inQuiet(now, qh)) {
+        // B1: nobody is interrupted inside quiet hours; the question waits, queued, for the next window.
+        const at = nextWindow(now, qh).toISOString();
+        question = store.put('question', { ...question, deliverAfter: at });
+        this.trace(state, 'question.held', { questionId: question.id, personEntityId: question.personEntityId, deliverAfter: at, quietHours: qh });
+        this.setLoop(state, 'question-open', `Queued until ${qh.end}: nobody is woken at night`);
+      } else {
+        if (opts.deliver !== false) question = this.deliverNow(question.id);
+        this.setLoop(state, 'question-open', this.waitingReason((chosen as EligibleAction).personEntityId, state, cand.gapId, recipientCache.get(cand.gapId)));
+      }
     } else {
       const reasons = this.d.settings.loopReasons;
       const used = questionsForInvestigation(store, state.id).filter((q) => q.status !== 'cancelled').length;
@@ -203,16 +213,54 @@ export class QuestionCoordinator {
 
   /** Recheck eligibility (state may have changed since queueing); deliver or cancel as obsolete. */
   async deliver(questionId: string): Promise<QuestionRecord> {
+    return this.deliverNow(questionId);
+  }
+
+  /**
+   * Synchronous delivery. A question held by quiet hours is not delivered before its `deliverAfter`. A standing question
+   * of the 'later' pile goes straight to 'deferred' (listed under Later, never an interruption, so no deliveredAt).
+   */
+  deliverNow(questionId: string): QuestionRecord {
     const q = this.mustGet(questionId);
     if (q.status !== 'queued') return q;
+    const nowD = this.now();
+    if (q.deliverAfter && Date.parse(q.deliverAfter) > nowD.getTime()) return q;
     const state = this.load(q.candidate.investigationId);
     const e = evaluateEligibility(this.ctx, state, q.candidate, q.personEntityId, { ignoreQuestionIds: [q.id] });
-    const now = this.now().toISOString();
+    const now = nowD.toISOString();
     if (!e.eligible) {
       const reason = e.violations.includes('gap-resolved') ? 'gap-resolved' : e.violations.includes('duplicate') ? 'duplicate' : 'obsolete';
       return this.store.put('question', { ...q, status: 'cancelled', cancelReason: reason, previousStatus: q.status, updatedAt: now });
     }
+    if (q.candidate.pile === 'later') return this.store.put('question', { ...q, status: 'deferred', previousStatus: q.status, updatedAt: now });
     return this.store.put('question', { ...q, status: 'delivered', deliveredAt: now, previousStatus: q.status, updatedAt: now });
+  }
+
+  /**
+   * B1: deliver every queued question whose quiet-hours window has come (deliverAfter <= now). deliver() re-checks
+   * eligibility, and deliveredAt is now, so the daily limit and cooldown count from the window, not from creation.
+   */
+  deliverDue(): QuestionRecord[] {
+    const now = this.now().getTime();
+    const due = this.store.list('question', { where: { status: 'queued' } })
+      .filter((q) => q.deliverAfter && Date.parse(q.deliverAfter) <= now)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    const out: QuestionRecord[] = [];
+    for (const q of due) {
+      const r = this.deliverNow(q.id);
+      out.push(r);
+      const state = this.store.get('investigation', q.candidate.investigationId);
+      if (!state) continue;
+      if (r.status === 'delivered' || r.status === 'deferred') {
+        this.trace(state, 'question.delivered', { questionId: q.id, personEntityId: q.personEntityId, held: true, status: r.status });
+        this.setLoop(state, 'question-open', this.waitingReason(q.personEntityId, state, q.candidate.gapId));
+      } else {
+        this.trace(state, 'question.cancelled', { questionId: q.id, reason: r.cancelReason });
+        this.setLoop(state, 'deferred', this.d.settings.loopReasons.peopleBusy);
+      }
+      this.store.put('investigation', state);
+    }
+    return out;
   }
 
   private mustGet(id: string): QuestionRecord {

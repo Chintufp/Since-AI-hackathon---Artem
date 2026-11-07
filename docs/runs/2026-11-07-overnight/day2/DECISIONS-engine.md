@@ -127,3 +127,18 @@ Reverse: org-config `site.access_code` entries; `whoHandles`.
 `ValidityCueLexicon.leave` (optional) matches a person's own statement ("I am on leave from 3 November to 1 December"). For an unavailable directory person `returnDate` reads the newest visible evidence that person authored and says "back 1 Dec" while the stated window covers the moment (year from the message's own date; a passed end or a start still ahead says nothing). Nothing is written to the store, so claim and entity counts (E00) do not move. Availability itself stays the directory's current `available` attribute, also for a past `at`.
 Why: people.json has only `available:false`; a person attribute claim would change hash-locked E00 counts.
 Reverse: drop `leave` from `defaultValidityCues`.
+
+## D-B1-22 · Quiet hours are organization configuration, wired by the hosts, never a library default
+
+`org-config.ts defaultQuietHours = { start: '22:00', end: '07:00', timeZone: 'Europe/Helsinki' }` is passed as `coordinator.quietHours` by `main.ts`, `mcp.ts` (both: `--quiet-hours off` or `KT_QUIET_HOURS=off` disables it, and `--org-policy none` disables it with the rest of the organization configuration) and `scripts/demo-reset.ts`. `defaultCoordinatorSettings` has no `quietHours` (experiments spread it for the hash-locked E00, and tests without a fixed clock run at night). Equal start and end mean no quiet hours.
+Reverse: drop the `coordinator` option in the three hosts.
+
+## D-B1-23 · Held questions: queued with deliverAfter, delivered by deliverDue
+
+`questions/quiet-hours.ts`: `inQuiet` and `nextWindow` read local wall time through `Intl.DateTimeFormat` parts and convert the local window back to UTC (two-step offset), so the March/October clock changes come from the time-zone data. `coordinator.request()`: a question created inside quiet hours stays `queued` with the additive `QuestionRecord.deliverAfter` = the next window, a `question.held` trace event, loop `question-open` and the line "Queued until 07:00: nobody is woken at night". `deliverNow` never delivers before `deliverAfter`. `coordinator.deliverDue()` delivers every queued question whose `deliverAfter` has come through the same eligibility re-check (`deliveredAt` = now, so the daily limit and the cooldown count from the window; a gap resolved overnight cancels it as `gap-resolved`) and sets the investigation's waiting line. There is no timer: `Engine` calls it on `setClock` (after moving the demo clock), on `GET /questions` and `GET /questions/:id`, `investigate`, `getInvestigation`, `requestClarification` and `clarificationStatus` (the MCP status tool). A held question still counts as open for its recipient (one open per person) and for its investigation.
+Reverse: remove the quiet branch in `request()`; `deliverDue` is then a no-op.
+
+## D-B1-24 · The inbox hides a held question; the requester sees it queued
+
+`Engine.questions()` (the panel's poll) leaves out `queued` questions whose `deliverAfter` is in the future, because the panel treats `queued` as open. `QuestionView` gains the additive `deliverAfter` (only while queued) and `answerType` (only for free text), so the requester's result shows the question queued for 07:00 next to the loop line.
+Reverse: the filter in `Engine.questions()`.

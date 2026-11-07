@@ -195,6 +195,15 @@ export class Engine {
     return person ? { id: person.id, displayName: person.name, groups: person.groups, type: 'human' } : { id: wanted, displayName: wanted, groups: [], type: 'human' };
   }
 
+  /**
+   * B1: deliver questions held by quiet hours whose window has come. Called on clock moves, question listings, requests,
+   * investigations and status reads (there is no timer: the demo clock and the panel's poll drive it).
+   */
+  private deliverDue(): void {
+    if (!this.store.list('question', { where: { status: 'queued' } }).some((q) => q.deliverAfter)) return;
+    this.wiring().coordinator.deliverDue();
+  }
+
   // ---- trace --------------------------------------------------------------------------------
 
   private trace(traceId: string, type: string, actor: TraceEvent['actor'], data: Record<string, unknown> = {}): TraceEvent {
@@ -340,6 +349,7 @@ export class Engine {
   }
 
   async investigate(req: InvestigateRequest): Promise<InvestigationResult> {
+    this.deliverDue();
     const principal = this.effective(req.principal);
     const w = this.wiring();
     const observations = req.observations ?? [];
@@ -376,6 +386,7 @@ export class Engine {
   getInvestigation(id: string, principalId?: string): InvestigationResult {
     // Known gap (see worker report): an absent principalId is still accepted because the typed GET contract carries no
     // principal and tests/e2e.test.ts reads without one. A deployment must authenticate callers.
+    this.deliverDue();
     return this.view(this.owned(id, principalId));
   }
 
@@ -395,6 +406,7 @@ export class Engine {
 
   /** Run the clarification loop for an existing investigation. Limits and eligibility are the coordinator's, whoever asks. */
   async requestClarification(principalIn: Principal, investigationId: string): Promise<ClarificationResult> {
+    this.deliverDue();
     const principal = this.effective(principalIn);
     const state0 = this.owned(investigationId, principal.id);
     const w = this.wiring();
@@ -487,14 +499,19 @@ export class Engine {
   }
 
   questions(query: { personEntityId?: string; status?: string }): QuestionView[] {
+    this.deliverDue();
     const where = query.personEntityId ? { personEntityId: query.personEntityId } : undefined;
     const wanted = query.status === 'all' ? undefined : query.status ? [query.status] : ['queued', 'delivered', 'deferred'];
+    const now = this.now().getTime();
     return this.store.list('question', where ? { where } : {})
       .filter((q) => !wanted || wanted.includes(q.status))
+      // B1: a question held by quiet hours is not in anyone's inbox before its window (the panel treats queued as open).
+      .filter((q) => !(q.status === 'queued' && q.deliverAfter && Date.parse(q.deliverAfter) > now))
       .map((q) => this.questionFor(q));
   }
 
   question(id: string): QuestionView {
+    this.deliverDue();
     return this.questionFor(this.mustQuestion(id));
   }
 
@@ -614,6 +631,7 @@ export class Engine {
 
   /** Status of one clarification question for the investigation's requester (never for anyone else). */
   clarificationStatus(principalIn: Principal, questionId: string): { questionId: string; investigationId: string; status: string; text: string; cancelReason?: string; answer?: { value: string; answeredBy: string; at: string } } {
+    this.deliverDue();
     const principal = this.effective(principalIn);
     const q = this.mustQuestion(questionId);
     this.owned(q.candidate.investigationId, principal.id);
@@ -783,6 +801,7 @@ export class Engine {
     try {
       const s = this.demoClock.set(input);
       this.trace('demo', 'demo.clock', { id: 'system', displayName: 'demo' }, { mode: s.mode, now: s.now, rate: s.rate });
+      this.deliverDue();
       return s;
     } catch (e) {
       throw badRequest(e instanceof Error ? e.message : String(e));

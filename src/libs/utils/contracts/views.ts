@@ -40,6 +40,10 @@ export interface QuestionView {
   caveat: string;
   status: string;
   deferred: boolean;
+  /** B1: held by quiet hours until this moment (shown to the requester as "queued for 07:00"). */
+  deliverAfter?: string;
+  /** B1: 'free-text' asks for the person's own words (standing missing-symptom questions). */
+  answerType?: 'yes-no' | 'yes-no-unknown' | 'free-text';
   /** Evaluative: the two compared candidates. */
   compare?: [{ id: string; text: string }, { id: string; text: string }];
 }

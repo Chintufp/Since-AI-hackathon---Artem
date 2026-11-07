@@ -3,6 +3,7 @@
  * This is configuration, not core logic: an organization replaces these maps with its own
  * groups, roles and the condition keys each may observe. Nothing here names a person or an incident.
  */
+import type { QuietHours } from '../../libs/utils/contracts/index.ts';
 import type { ObservabilityPolicy } from '../../libs/utils/investigation/settings.ts';
 
 const EQUIPMENT_FACTS = ['unit.age', 'unit.model', 'unit.revision', 'software.version', 'config.changed'];
@@ -27,3 +28,10 @@ export const defaultObservabilityPolicy: ObservabilityPolicy = {
     'Site Access Coordinator': ['site.access', 'site.access_code'],
   },
 };
+
+/**
+ * B1: nobody is interrupted between 22:00 and 07:00 Helsinki time; a question created then waits, queued, for 07:00.
+ * Wired by the service, the MCP server and the demo scripts as `coordinator.quietHours`; deliberately NOT part of
+ * defaultCoordinatorSettings (experiments spread those for hash-locked runs, and tests without a fixed clock run at night).
+ */
+export const defaultQuietHours: QuietHours = { start: '22:00', end: '07:00', timeZone: 'Europe/Helsinki' };

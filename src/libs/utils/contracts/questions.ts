@@ -10,7 +10,8 @@ export interface QuestionCandidate {
   gapId: string;
   kind: QuestionKind;
   text: string;
-  answerType: 'yes-no' | 'yes-no-unknown';
+  /** 'free-text' (B1): a standing missing-symptom question asks for the person's own words. */
+  answerType: 'yes-no' | 'yes-no-unknown' | 'free-text';
   targetClaimId?: string;
   scope: { entityIds: string[]; caseId?: string; timeWindow?: string };
   rationale: string;
@@ -20,6 +21,12 @@ export interface QuestionCandidate {
   dedupKey: string;
   /** Candidate recipients, each with a question-specific reason to know/observe. */
   recipientIds: string[];
+  /**
+   * B1: 'standing' for a capture-time gap on a case (no live investigation asked it). Standing questions never count
+   * against an investigation question's budget, and the 'later' pile is delivered straight to 'deferred'.
+   */
+  origin?: 'standing';
+  pile?: 'later';
 }
 
 export type EligibilityViolation =
@@ -78,6 +85,8 @@ export interface QuestionRecord {
   createdAt: Iso;
   updatedAt: Iso;
   deliveredAt?: Iso;
+  /** B1: created inside quiet hours; stays 'queued' and is delivered at this moment (the next window), not before. */
+  deliverAfter?: Iso;
   /** Previous status, to support Undo of dismiss/answer in the UI. */
   previousStatus?: QuestionStatus;
 }
@@ -112,7 +121,16 @@ export interface PreferenceFeedback {
   at: Iso;
 }
 
+/** B1: local hours in which nobody is interrupted ('HH:MM', IANA time zone); a window across midnight when start > end. */
+export interface QuietHours {
+  start: string;
+  end: string;
+  timeZone: string;
+}
+
 export interface CoordinatorSettings {
+  /** B1: questions created inside are held until the next window. Absent = no quiet hours (the library default). */
+  quietHours?: QuietHours;
   dailyLimitPerPerson: number;
   cooldownMinutes: number;
   maxOpenQuestionsPerPerson: number;

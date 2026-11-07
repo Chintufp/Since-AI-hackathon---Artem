@@ -120,7 +120,7 @@ const TEMPLATE = `
   <div class="rf-surface"><div class="rf-content">
    <section class="rf-view rf-input" data-view="input" aria-label="Input">
     <textarea class="rf-writing" aria-label="Message to your companion" placeholder="Tell me what happened…"></textarea>
-    <div class="rf-attachments" hidden></div>
+    <div class="rf-attachments" hidden></div><p class="rf-preview-note" hidden></p>
     <input class="rf-files" type="file" multiple aria-label="Attach files">
    </section>
    <section class="rf-view" data-view="question" hidden>
@@ -892,8 +892,10 @@ export function createPanel(options: PanelOptions): Panel {
   }
   async function submit(): Promise<void> {
     if (state.busy || send.disabled) return;
-    const text = field.value.trim();
     const names = attachments.map((f) => f.name);
+    // Artem 7 Nov: a photo alone used to be rejected by the service (text required). Photos are not read by anything
+    // (no vision model, local only): they travel as names for colleagues, and the matching runs on the words.
+    const text = field.value.trim() || `Attached without a description: ${names.join(', ')}`;
     setBusy(true);
     avatar.play('processing', { loop: true });
     try {
@@ -917,6 +919,10 @@ export function createPanel(options: PanelOptions): Panel {
     send.disabled = state.busy || (!field.value.trim() && !attachments.length);
   }
   function renderAttachments(): void {
+    const note = $('.rf-preview-note');
+    const onlyFiles = attachments.length > 0 && !field.value.trim();
+    note.textContent = onlyFiles ? 'Photos are attached for colleagues; one sentence about the problem is what gets matched.' : '';
+    note.hidden = !onlyFiles;
     const wrap = $('.rf-attachments');
     wrap.replaceChildren();
     attachments.forEach((file, i) => {
@@ -1084,7 +1090,7 @@ export function createPanel(options: PanelOptions): Panel {
         return;
     }
   });
-  field.addEventListener('input', () => { motion.settle(); updateSend(); if (field.value && !inputNoticed) { inputNoticed = true; avatar.play('input'); } if (!field.value) inputNoticed = false; persist(); });
+  field.addEventListener('input', () => { motion.settle(); updateSend(); if (attachments.length) renderAttachments(); if (field.value && !inputNoticed) { inputNoticed = true; avatar.play('input'); } if (!field.value) inputNoticed = false; persist(); });
   let inputNoticed = false;
   field.addEventListener('paste', (event) => { const files = event.clipboardData?.files; if (files?.length) { addFiles([...files]); } });
   $<HTMLInputElement>('.rf-files').addEventListener('change', (event) => { const input = event.target as HTMLInputElement; addFiles([...(input.files ?? [])]); input.value = ''; });

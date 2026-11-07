@@ -11,8 +11,7 @@
 import { renderBurst, BURST } from '../motion/burst.ts';
 import type { Avatar, AvatarHost, AvatarStatus } from '../motion/avatar.ts';
 import type { UserSettings } from '../contracts/outcomes.ts';
-import { demoPrincipal } from '../contracts/service.ts';
-import type { Principal } from '../contracts/service.ts';
+import type { DirectoryEntry, Principal } from '../contracts/service.ts';
 import type { ContactDraft } from '../contracts/questions.ts';
 import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
 import { ApiError } from './api-client.ts';
@@ -51,6 +50,8 @@ export interface PanelStatus {
   serviceDown: boolean;
   busy: boolean;
   openQuestions: number;
+  /** Id of the investigation shown in the result view, when there is one. */
+  investigationId?: string;
   avatar: AvatarStatus;
 }
 
@@ -101,6 +102,7 @@ const TEMPLATE = `
     <h2>Settings</h2><button class="rf-tool rf-close" type="button" data-action="input" aria-label="Back to input"><i data-icon="corner-up-left"></i></button>
     <div class="rf-settings-rows">
      <div class="rf-setting"><span>Server</span><span class="rf-setting-value rf-server rf-selectable"></span></div>
+     <label class="rf-setting"><span>You</span><select class="rf-you" aria-label="Who you are"></select></label>
      <label class="rf-setting"><span>Provider</span><select class="rf-provider" disabled aria-label="Provider"><option>Local only</option></select></label>
      <div class="rf-setting"><span>Model</span><span class="rf-setting-value rf-model"></span></div>
      <label class="rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox"></label>
@@ -145,6 +147,7 @@ const TEMPLATE = `
 </div>`;
 
 const STORE_KEY = 'kt-panel.v1';
+const POLL_MS = 20000;
 
 export function createPanel(options: PanelOptions): Panel {
   const { root, api } = options;
@@ -186,6 +189,7 @@ export function createPanel(options: PanelOptions): Panel {
   if (persisted?.draft) field.value = persisted.draft;
 
   let settings: UserSettings | null = null;
+  let directory: DirectoryEntry[] = [];
   let attachments: File[] = [];
   let open: QuestionView[] = [];
   const cache = new Map<string, QuestionView>();
@@ -201,10 +205,13 @@ export function createPanel(options: PanelOptions): Panel {
   const hasQuestion = (): boolean => state.panelOpen && state.view === 'question';
   // Never invent an identity: without a resolved current person the panel neither lists nor answers questions.
   const hasIdentity = (): boolean => Boolean(settings?.currentPersonEntityId);
+  /** Chosen directory person (id, name, groups from the directory); otherwise a clearly labeled guest. */
+  const GUEST: Principal = { id: 'person:desktop:guest', displayName: 'Guest', groups: [], type: 'human' };
   const principal = (): Principal => {
     const id = settings?.currentPersonEntityId;
-    if (!id) throw new ApiError('http', 'principal', 'Choose who you are in Settings first.', 400);
-    return demoPrincipal({ id, displayName: 'You' }, options.groups);
+    if (!id) return { ...GUEST };
+    const me = directory.find((d) => d.personEntityId === id);
+    return { id, displayName: me?.name ?? 'You', groups: me ? [...me.groups] : [...(options.groups ?? [])], type: 'human' };
   };
 
   const avatar = options.avatar(canvas, { reduced: isReduced, hasQuestion });
@@ -271,7 +278,8 @@ export function createPanel(options: PanelOptions): Panel {
     const h = $('.rf-history');
     h.replaceChildren();
     if (!q) return;
-    h.append(el('p', 'rf-why', q.why));
+    // Internal evidence ids are for traces, not for the person answering.
+    h.append(el('p', 'rf-why', q.why.replace(/\s*Evidence:\s*(?:ev_\w+[,\s]*)+\.?\s*$/, '')));
     if (q.compare) {
       const ul = el('ul', 'rf-compare');
       q.compare.forEach((c, i) => ul.append(el('li', undefined, `${i === 0 ? 'A' : 'B'} · ${c.text}`)));
@@ -310,7 +318,7 @@ export function createPanel(options: PanelOptions): Panel {
       list.append(b);
     });
     if (!open.length) {
-      const p = el('p', undefined, state.serviceDown ? 'Waiting for the service.' : !hasIdentity() ? 'Choose who you are to see your questions.' : 'All quiet.');
+      const p = el('p', undefined, state.serviceDown ? 'Waiting for the service.' : !hasIdentity() ? 'Choose who you are in Settings to see your questions.' : 'All quiet.');
       p.style.cssText = 'font-size:13px;color:#747b82;margin:0 0 12px';
       list.append(p);
     }
@@ -353,8 +361,9 @@ export function createPanel(options: PanelOptions): Panel {
     $('.rf-result-title').textContent = r.text;
     const notes = $('.rf-result-notes');
     notes.replaceChildren();
-    const line = [r.applicability, ...r.caveats].filter(Boolean).join(' ');
-    if (line) notes.append(el('p', 'rf-result-note', line));
+    // The engine's applicability is a one-word enum (qualified, ...): the sentence above already says it, so only prose is shown.
+    const prose = /\s/.test(r.applicability) ? [r.applicability] : [];
+    [...prose, ...r.caveats.slice(0, 3)].filter(Boolean).forEach((t) => notes.append(el('p', 'rf-result-note', t)));
     if (r.nextStep) notes.append(el('p', 'rf-result-note', 'Next: ' + r.nextStep));
     const path = $('.rf-case-path');
     path.replaceChildren();
@@ -373,6 +382,8 @@ export function createPanel(options: PanelOptions): Panel {
       const asked = el('p', 'rf-asked', 'Asked a colleague with relevant experience');
       asked.append(el('span', 'rf-row-meta', result.question.status));
       rows.append(asked);
+    } else if (result.loopReason) {
+      rows.append(el('p', 'rf-loop-reason', result.loopReason));
     }
     motion.registerDetails(state.openNodes.result, path);
   }
@@ -433,8 +444,9 @@ export function createPanel(options: PanelOptions): Panel {
 
   // ---- settings ----
   function renderSettings(): void {
-    $('.rf-server').textContent = api.kind === 'mock' ? 'Dev mock · no service' : settings?.serverUrl || api.baseUrl;
+    $('.rf-server').textContent = api.kind === 'mock' ? 'Dev mock · no service' : api.baseUrl;
     $('.rf-model').textContent = settings?.model ?? '—';
+    renderYou();
     $<HTMLInputElement>('.rf-mcp').checked = !!settings?.mcp;
     $<HTMLInputElement>('.rf-points').checked = state.points;
     const m = $<HTMLInputElement>('.rf-motion');
@@ -443,6 +455,19 @@ export function createPanel(options: PanelOptions): Panel {
     const reset = $<HTMLButtonElement>('[data-action="reset-demo"]');
     reset.textContent = 'Reset demo';
     delete reset.dataset.armed;
+  }
+  function renderYou(): void {
+    const sel = $<HTMLSelectElement>('.rf-you');
+    sel.replaceChildren();
+    const current = settings?.currentPersonEntityId ?? '';
+    const add = (value: string, label: string): void => { const o = el('option', undefined, label); o.value = value; sel.append(o); };
+    if (!current || !directory.some((d) => d.personEntityId === current)) add(current, current ? 'Unknown person' : 'Choose…');
+    directory.forEach((d) => add(d.personEntityId, d.role ? `${d.name} · ${d.role}` : d.name));
+    sel.value = current;
+    sel.disabled = !directory.length;
+  }
+  async function loadDirectory(): Promise<void> {
+    try { directory = await api.directory(); } catch { /* older service or offline: guest only */ }
   }
   function applySettings(s: UserSettings): void {
     settings = s;
@@ -464,6 +489,7 @@ export function createPanel(options: PanelOptions): Panel {
     state.view = view;
     if (!['receipt', 'contact'].includes(view)) state.lastOpen = view;
     state.panelOpen = true;
+    syncPoll();
     stage.dataset.view = view;
     views.forEach((v) => (v.hidden = v.dataset.view !== view));
     send.hidden = view !== 'input';
@@ -487,8 +513,14 @@ export function createPanel(options: PanelOptions): Panel {
     avatar.refresh();
     persist();
   }
+  /** Poll the questions queue every 20 s only while the panel is open; no timer at all while collapsed. */
+  function syncPoll(): void {
+    if (state.panelOpen && !pollTimer && !destroyed) pollTimer = setInterval(() => { if (!document.hidden && !state.busy) void refreshQuestions(); }, POLL_MS);
+    else if ((!state.panelOpen || destroyed) && pollTimer) { clearInterval(pollTimer); pollTimer = 0; }
+  }
   function closePanel(animate = true): void {
     state.panelOpen = false;
+    syncPoll();
     syncPanelA11y();
     motion.panel(false, animate);
     avatar.refresh();
@@ -509,6 +541,8 @@ export function createPanel(options: PanelOptions): Panel {
       showError(new ApiError('unreachable', 'GET /health', 'Couldn’t reach the service'), () => void retryConnect());
     } else if (!state.panelOpen) {
       state.panelOpen = true;
+      syncPoll();
+      void refreshQuestions();
       if (state.view === 'queue') renderQueue();
       else if (state.view === 'question') renderQuestion();
       syncPanelA11y();
@@ -560,7 +594,7 @@ export function createPanel(options: PanelOptions): Panel {
       unreachable ? (keptDraft ? 'Nothing was lost; your draft is still here.' : 'Nothing was changed. Try again when the service is back.') : e instanceof Error ? e.message : 'Please try again.',
       { label: 'Retry', run: retry },
     );
-    if (!state.panelOpen) { state.panelOpen = true; syncPanelA11y(); motion.panel(true); }
+    if (!state.panelOpen) { state.panelOpen = true; syncPoll(); syncPanelA11y(); motion.panel(true); }
   }
 
   // ---- actions ----
@@ -678,6 +712,7 @@ export function createPanel(options: PanelOptions): Panel {
     const deadline = Date.now() + 12000;
     for (;;) {
       try {
+        await loadDirectory();
         applySettings(await api.getSettings());
         state.serviceDown = false;
         await refreshQuestions();
@@ -777,6 +812,8 @@ export function createPanel(options: PanelOptions): Panel {
         void (async () => {
           try {
             await api.resetDemo();
+            await loadDirectory();
+            applySettings(await api.getSettings());
             result = null; cache.clear(); state.active = null; state.expanded = false; state.openNodes = { question: null, result: null, case: null };
             await refreshQuestions();
             button.textContent = 'Demo reset';
@@ -806,6 +843,15 @@ export function createPanel(options: PanelOptions): Panel {
   };
   document.addEventListener('keydown', onKey);
   $<HTMLInputElement>('.rf-motion').addEventListener('change', (e) => void saveSetting({ reducedMotion: (e.target as HTMLInputElement).checked }));
+  $<HTMLSelectElement>('.rf-you').addEventListener('change', (e) => {
+    const id = (e.target as HTMLSelectElement).value;
+    if (!id) return;
+    void (async () => {
+      await saveSetting({ currentPersonEntityId: id });
+      cache.clear(); state.active = null; state.expanded = false; state.openNodes.question = null;
+      await refreshQuestions();
+    })();
+  });
   $<HTMLInputElement>('.rf-points').addEventListener('change', (e) => void saveSetting({ points: (e.target as HTMLInputElement).checked }));
   $<HTMLInputElement>('.rf-mcp').addEventListener('change', (e) => void saveSetting({ mcp: (e.target as HTMLInputElement).checked }));
   const onMedia = (e: MediaQueryListEvent): void => syncMotion(e);
@@ -821,19 +867,19 @@ export function createPanel(options: PanelOptions): Panel {
   syncMotion();
   setView(state.view, false);
   state.panelOpen = false;
+  syncPoll();
   syncPanelA11y();
   motion.panel(false, false);
   updateSend();
   if (options.entrance !== false) avatar.playEntranceThenRest();
   void connect();
-  pollTimer = setInterval(() => { if (!document.hidden) void refreshQuestions(); }, 30000);
 
   return {
     open: () => { if (!state.panelOpen) openPanel(); },
     close: () => { if (state.panelOpen) closePanel(); },
     toggle: () => (state.panelOpen ? closePanel() : openPanel()),
     attachFiles: addFiles,
-    refresh: async () => { try { applySettings(await api.getSettings()); } catch { state.serviceDown = true; return; } await refreshQuestions(); },
+    refresh: async () => { try { await loadDirectory(); applySettings(await api.getSettings()); } catch { state.serviceDown = true; return; } await refreshQuestions(); },
     connect,
     status: () => ({
       view: state.panelOpen ? state.view : 'collapsed',
@@ -848,12 +894,13 @@ export function createPanel(options: PanelOptions): Panel {
       serviceDown: state.serviceDown,
       busy: state.busy,
       openQuestions: open.length,
+      ...(result ? { investigationId: result.investigationId } : {}),
       avatar: avatar.status(),
     }),
     destroy: () => {
       destroyed = true;
       timers.forEach(clearTimeout);
-      if (pollTimer) clearInterval(pollTimer);
+      syncPoll();
       document.removeEventListener('keydown', onKey);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('pointerup', onPointerUp);

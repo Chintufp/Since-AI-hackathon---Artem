@@ -1,0 +1,495 @@
+{
+  "startedAt": "2026-11-07T01:11:45.723Z",
+  "electron": "45.2.3",
+  "chrome": "156.0.8078.80",
+  "node": "24.22.2",
+  "platform": "darwin",
+  "arch": "arm64",
+  "ids": {
+    "investigationId": "inv_ac44f4f4a11fe66c6554",
+    "secondInvestigationId": "inv_25f5c7b0be96d7c72045",
+    "questionId": "q_1f32e2b70867c5a5265a",
+    "recipient": {
+      "personEntityId": "ent_44b152574976d1f64446",
+      "name": "Ilmari Karjalainen",
+      "role": "Field Engineer"
+    }
+  },
+  "settingsAtStart": {
+    "points": false,
+    "sound": false,
+    "reducedMotion": false,
+    "serverUrl": "http://127.0.0.1:47831",
+    "provider": "local",
+    "model": "rules+local · no API",
+    "mcp": true,
+    "selectorId": "rules",
+    "currentPersonEntityId": "ent_f07bace092572f3cc4cc"
+  },
+  "firstResultRows": [
+    "People with relevant experience4",
+    "Existing evidence and your own observations settle the next step"
+  ],
+  "firstResultTitle": "Check the traffic counters before replacing the SFP again.",
+  "expandedNode": "Possible cause",
+  "lastNode": "Outcome unknown",
+  "peopleShown": [
+    "Erkki Expert · Network Expert",
+    "Aarne Koskela · Field Engineer",
+    "Helmi Virtanen · Network Expert",
+    "Tapio Lehto · NOC Engineer"
+  ],
+  "contactDraftFor": "Erkki Expert · Network Expert",
+  "contactDraftText": "Question: At site now. Replaced the SFP on TRN-088, an older unit from 2018… || Hi Erkki,\n\nI am looking into: \"At site now. Replaced the SFP on TRN-088, an older unit from 2018. Link is up, alarms cleared, RX power normal, but no traffic. Counters zero.\"\n\nWhat I see now:\n- Older unit\n- Installed year\n- Interface up\n- Alarms cleared\n- RX power normal\n- Traffic counters zero\n\nChecks already performed:\n- Component replaced\n\nStill unresolved:\n- Whether a past response I found applies to this case.\n\nCould you tell me what you saw, or point me to someone who did?\n\nThanks,\nVeikko Vikkelä",
+  "secondProblemAttempts": [
+    {
+      "text": "TRN-301: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.",
+      "asked": false,
+      "investigationId": "inv_483464c265f014fffd36",
+      "loopReasonShown": "No one with firsthand knowledge is available to ask right now"
+    },
+    {
+      "text": "RBS-310 is flapping again with DC low alarms after the rectifier work",
+      "asked": true,
+      "investigationId": "inv_25f5c7b0be96d7c72045",
+      "loopReasonShown": null
+    }
+  ],
+  "secondText": "RBS-310 is flapping again with DC low alarms after the rectifier work",
+  "secondResultRows": [
+    "People with relevant experience4",
+    "Asked a colleague with relevant experiencedelivered"
+  ],
+  "secondResultTitle": "No supported response yet; RBS-310 gives weak support.",
+  "askedRowShown": true,
+  "question": {
+    "questionId": "q_1f32e2b70867c5a5265a",
+    "investigationId": "inv_25f5c7b0be96d7c72045",
+    "caseLabel": "RBS-310 · flapping DC low alarms",
+    "text": "Did the problem clear right after the SFP replacement on RBS-310?",
+    "kind": "quick",
+    "why": "No recovery outcome is recorded after the SFP replacement in RBS-310. If recovery followed the SFP replacement, the response becomes supported and can be recommended (subject to applicability); if not, the hypothesis is contradicted and uncertainty is retained. Evidence: ev_971649b264690db9f47a, ev_4b64c1647617ad57aa37, ev_36270f7344c98afdd769, ev_10f3102cb25feadf38df.",
+    "timeline": [
+      {
+        "id": "claim_9dc25294a74d6f1c0c89",
+        "kind": "problem",
+        "stage": "observation",
+        "label": "Reported problem",
+        "detail": "RBS-310 is flapping again with the same DC low alarms as the rectifier case last week.\nIlmari, RBS-310 keeps dropping off and coming back, roughly every 40 minutes since noon.\nReported by Marja Niemi, 2026-04-02T08:12:00.000Z.",
+        "evidence": [
+          {
+            "evidenceId": "ev_66d81ce6f146404f11f7",
+            "span": {
+              "start": 0,
+              "end": 86
+            },
+            "excerpt": "RBS-310 is flapping again with the same DC low alarms as the rectifier case last week."
+          }
+        ],
+        "who": "Marja Niemi",
+        "when": "2026-04-02T08:12:00.000Z"
+      },
+      {
+        "id": "case_4e98489b4cfb92e8c980:conditions",
+        "kind": "step",
+        "stage": "observation",
+        "label": "Reported conditions",
+        "detail": "Installed around 2016; SFP replaced",
+        "evidence": [
+          {
+            "evidenceId": "ev_938aeec5ea5bffef7fb5",
+            "span": {
+              "start": 0,
+              "end": 39
+            },
+            "excerpt": "Yes, same cabinet type, installed 2016."
+          },
+          {
+            "evidenceId": "ev_10f3102cb25feadf38df",
+            "span": {
+              "start": 0,
+              "end": 17
+            },
+            "excerpt": "Swapped module 2."
+          }
+        ]
+      },
+      {
+        "id": "case_4e98489b4cfb92e8c980:causes",
+        "kind": "step",
+        "stage": "hypothesis",
+        "label": "Possible cause",
+        "detail": "Stated as hypotheses, not confirmed:\nRisto Peltola: Sounds like module 2 is failing.\nRisto Peltola: Pirkko was out at that cabinet in the spring, I think, so she may have noted something.",
+        "evidence": [
+          {
+            "evidenceId": "ev_971649b264690db9f47a",
+            "span": {
+              "start": 0,
+              "end": 32
+            },
+            "excerpt": "Sounds like module 2 is failing."
+          },
+          {
+            "evidenceId": "ev_971649b264690db9f47a",
+            "span": {
+              "start": 77,
+              "end": 164
+            },
+            "excerpt": "Pirkko was out at that cabinet in the spring, I think, so she may have noted something."
+          }
+        ],
+        "who": "Risto Peltola",
+        "when": "15:12 (date unknown)"
+      },
+      {
+        "id": "case_4e98489b4cfb92e8c980:checks",
+        "kind": "step",
+        "stage": "check",
+        "label": "Suggested checks",
+        "detail": "Advice, not confirmed to work:\nEino Salo: Do not drive around it, there is a reindeer fence on the side track.\nRisto Peltola: Ilmari, please check the breaker terminals and the DC bus bars before swapping anything else.\nRisto Peltola: Swap it, there are spares in the depot box.",
+        "evidence": [
+          {
+            "evidenceId": "ev_4b64c1647617ad57aa37",
+            "span": {
+              "start": 296,
+              "end": 364
+            },
+            "excerpt": "Do not drive around it, there is a reindeer fence on the side track."
+          },
+          {
+            "evidenceId": "ev_36270f7344c98afdd769",
+            "span": {
+              "start": 39,
+              "end": 132
+            },
+            "excerpt": "Ilmari, please check the breaker terminals and the DC bus bars before swapping anything else."
+          },
+          {
+            "evidenceId": "ev_971649b264690db9f47a",
+            "span": {
+              "start": 33,
+              "end": 76
+            },
+            "excerpt": "Swap it, there are spares in the depot box."
+          }
+        ],
+        "when": "2026-08-20T06:12:00.000Z"
+      },
+      {
+        "id": "attempt_096f1f8bbf7af9bf6f95",
+        "kind": "step",
+        "stage": "attempt",
+        "label": "Attempted SFP replacement",
+        "detail": "No advice recorded for this step. Performed by Ilmari Karjalainen as reported, not independently observed, 15:40 (date unknown).",
+        "evidence": [
+          {
+            "evidenceId": "ev_10f3102cb25feadf38df",
+            "span": {
+              "start": 0,
+              "end": 17
+            },
+            "excerpt": "Swapped module 2."
+          }
+        ],
+        "who": "Ilmari Karjalainen",
+        "when": "15:40 (date unknown)"
+      },
+      {
+        "id": "case_4e98489b4cfb92e8c980:outcome-unknown",
+        "kind": "unknown",
+        "stage": "unknown",
+        "label": "Outcome unknown",
+        "detail": "An action was reported as done, but no result was reported.",
+        "evidence": []
+      }
+    ],
+    "caveat": "No outcome has been reported; 7 independent of 7 source record(s).",
+    "status": "delivered",
+    "deferred": false
+  },
+  "badgeForRecipient": "1",
+  "queueTexts": [
+    "RBS-310 · flapping DC low alarmsDid the problem clear right after the SFP replacement on RBS-310?"
+  ],
+  "receiptNo": "Recorded: No",
+  "receiptYes": "Recorded: Yes",
+  "answeredStatus": "answered",
+  "badgeAfterAnswer": "",
+  "sameInvestigation": true,
+  "afterAnswerRows": [
+    "People with relevant experience4",
+    "Asked a colleague with relevant experiencedelivered"
+  ],
+  "afterAnswerTitle": "Confirm the unit details (older unit (installed 2016)) before replacing the SFP.",
+  "hitbox": {
+    "initial": [
+      321,
+      596,
+      64,
+      64
+    ],
+    "final": [
+      321,
+      596,
+      64,
+      64
+    ],
+    "allStatesEqual": true
+  },
+  "consoleErrors": [],
+  "states": [
+    {
+      "name": "collapsed",
+      "width": 420,
+      "file": "01-collapsed-420.png",
+      "view": "collapsed",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "settings-you",
+      "width": 420,
+      "file": "02-settings-you-420.png",
+      "view": "settings",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "input",
+      "width": 420,
+      "file": "03-input-420.png",
+      "view": "input",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "result",
+      "width": 420,
+      "file": "04-result-420.png",
+      "view": "result",
+      "settleMs": 811,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "result-node-expanded",
+      "width": 420,
+      "file": "05-result-node-expanded-420.png",
+      "view": "result",
+      "settleMs": 175,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "result-last-node",
+      "width": 420,
+      "file": "06-result-last-node-420.png",
+      "view": "result",
+      "settleMs": 177,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "people",
+      "width": 420,
+      "file": "07-people-420.png",
+      "view": "people",
+      "settleMs": 193,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "contact-draft",
+      "width": 420,
+      "file": "08-contact-draft-420.png",
+      "view": "contact",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "result-second",
+      "width": 420,
+      "file": "09-result-second-420.png",
+      "view": "result",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "settings-recipient",
+      "width": 420,
+      "file": "10-settings-recipient-420.png",
+      "view": "settings",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "queue",
+      "width": 420,
+      "file": "11-queue-420.png",
+      "view": "queue",
+      "settleMs": 22,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "question",
+      "width": 420,
+      "file": "12-question-420.png",
+      "view": "question",
+      "settleMs": 1346,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "question-context",
+      "width": 420,
+      "file": "13-question-context-420.png",
+      "view": "question",
+      "settleMs": 239,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "receipt-no",
+      "width": 420,
+      "file": "14-receipt-no-420.png",
+      "view": "receipt",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "undo-returns-to-question",
+      "width": 420,
+      "file": "15-undo-returns-to-question-420.png",
+      "view": "question",
+      "settleMs": 208,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "receipt-yes",
+      "width": 420,
+      "file": "16-receipt-yes-420.png",
+      "view": "receipt",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "result-after-answer",
+      "width": 420,
+      "file": "17-result-after-answer-420.png",
+      "view": "result",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    },
+    {
+      "name": "collapsed-end",
+      "width": 420,
+      "file": "18-collapsed-end-420.png",
+      "view": "collapsed",
+      "settleMs": 0,
+      "hitbox": [
+        321,
+        596,
+        64,
+        64
+      ],
+      "reduced": false
+    }
+  ],
+  "finishedAt": "2026-11-07T01:12:04.996Z"
+}

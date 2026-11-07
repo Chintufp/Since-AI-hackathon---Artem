@@ -96,7 +96,7 @@ export const settingsPatchSchema = z.object({
   selectorId: z.string().min(1),
 }).partial().strict();
 
-export const demoResetSchema = z.object({ seed: z.enum(['elisa', 'synthetic', 'empty']).optional() });
+export const demoResetSchema = z.object({ seed: z.enum(['elisa', 'synthetic', 'empty']).optional(), defaultPerson: z.string().min(1).optional() });
 
 export const peopleQuerySchema = z.object({ investigationId: z.string().min(1), principalId: z.string().min(1) });
 export const questionsQuerySchema = z.object({ personEntityId: z.string().optional(), status: z.string().optional() });

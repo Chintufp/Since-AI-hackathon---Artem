@@ -62,7 +62,8 @@ export interface ApiClient {
   undo(id: string, principal: Principal): Promise<ResOf<'POST /questions/:id/undo'>>;
   people(query: { investigationId: string; principalId: string }): Promise<ResOf<'GET /people'>>;
   contactDraft(req: ReqOf<'POST /contact-draft'>): Promise<ResOf<'POST /contact-draft'>>;
-  resetDemo(seed?: 'elisa' | 'synthetic' | 'empty'): Promise<ResOf<'POST /demo/reset'>>;
+  directory(): Promise<ResOf<'GET /directory'>>;
+  resetDemo(seed?: 'elisa' | 'synthetic' | 'empty'): Promise<ResOf<'POST /demo/reset'> & { defaultPersonEntityId?: string }>;
 }
 
 /** Split "POST /questions/:id/answer" into method and path template. */
@@ -153,6 +154,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     undo: (id, principal) => call('POST /questions/:id/undo', { params: { id }, body: { principal } }),
     people: (query) => call('GET /people', { query }),
     contactDraft: (req) => call('POST /contact-draft', { body: req }),
+    directory: () => call('GET /directory'),
     resetDemo: (seed) => call('POST /demo/reset', { body: seed ? { seed } : {} }),
   };
 }

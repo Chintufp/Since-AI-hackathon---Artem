@@ -28,6 +28,21 @@ import { ACTIVE_QUESTION, personView, questionView, resultView, type Investigati
 export { DEFAULT_DB_PATH, REPO_ROOT } from './paths.ts';
 export const SERVICE_VERSION = '0.1.0';
 const SETTINGS_ID = 'user';
+const RECOMMENDATION_PROSE: Record<string, string> = {
+  reuse: 'The recommendation is to reuse the earlier fix',
+  'check-first': 'The recommendation now starts with a check',
+  qualified: 'The recommendation was updated, with conditions',
+  'retain-uncertainty': 'The recommendation stays uncertain',
+  none: 'There is no recommendation yet',
+};
+/** Cut at a word boundary and add an ellipsis. */
+const clip = (text: string, max: number): string => {
+  const t = text.replace(/\s+/g, ' ').trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max);
+  const at = cut.lastIndexOf(' ');
+  return `${(at > max / 2 ? cut.slice(0, at) : cut).replace(/[\s,.;:-]+$/, '')}…`;
+};
 const ANONYMOUS: Principal = { id: 'anonymous', displayName: 'Anonymous', groups: [], type: 'human' };
 
 export type ExtendedSettings = UserSettings & { selectorId: string };
@@ -440,7 +455,7 @@ export class Engine {
     const label = { yes: 'Recorded: Yes', no: 'Recorded: No', unknown: 'Recorded: Not sure' }[value];
     const effect = value === 'unknown'
       ? 'No factual update was made; the question stays unresolved and you will not be asked again.'
-      : state ? `The recommendation is now "${state.recommendation.kind}".` : 'Your answer was recorded as attributed evidence.';
+      : state ? `${RECOMMENDATION_PROSE[state.recommendation.kind] ?? 'The recommendation was updated'}.` : 'Your answer was recorded as attributed evidence.';
     return { title: label, detail: `${q.candidate.text} ${effect}`, canUndo: true, ...(points ? { pointsAwarded: points } : {}) };
   }
 
@@ -566,7 +581,7 @@ export class Engine {
     const draft: ContactDraft = {
       id: stableId('draft', state.id, person.personEntityId), investigationId: state.id, personEntityId: person.personEntityId,
       to: { id: person.personEntityId, displayName: person.displayName, ...(person.role ? { role: person.role } : {}) },
-      subject: `Question: ${state.problem.text.replace(/\s+/g, ' ').slice(0, 70)}`, body, requiresReview: true, createdAt: this.now().toISOString(),
+      subject: `Question: ${clip(state.problem.text, 70)}`, body, requiresReview: true, createdAt: this.now().toISOString(),
     };
     this.trace(state.id, 'contact-draft.created', { id: principal.id, displayName: principal.displayName }, { draftId: draft.id, personEntityId: person.personEntityId, sent: false });
     return draft;
@@ -605,8 +620,8 @@ export class Engine {
     this.trace('demo', 'demo.reset', { id: 'system', displayName: 'demo' });
   }
 
-  async resetDemo(seed: 'elisa' | 'synthetic' | 'empty' | undefined): Promise<ApiRoutes['POST /demo/reset']['res']> {
-    return resetDemo(this, seed, this.opts);
+  async resetDemo(seed: 'elisa' | 'synthetic' | 'empty' | undefined, defaultPerson?: string): Promise<ApiRoutes['POST /demo/reset']['res'] & { defaultPersonEntityId?: string }> {
+    return resetDemo(this, seed, this.opts, defaultPerson);
   }
 }
 

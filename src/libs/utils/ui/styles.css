@@ -146,7 +146,7 @@
 #kt-panel .rf-avatar { right:15px; bottom:-24px; }
 #kt-panel .rf-reveal { transition:none; }
 #kt-panel .rf-node-detail { padding:0; margin:0; overflow:hidden; height:0; }
-#kt-panel .rf-node-detail p { margin:0; padding:12px 0 10px; font:inherit; }
+#kt-panel .rf-node-detail p { margin:0; padding:12px 0 10px; font:inherit; white-space:pre-line; }
 #kt-panel .rf-reveal[data-animating="true"] .rf-history { visibility:visible; }
 @media (max-width:419px) { #kt-panel .rf-avatar { right:11px; } }
 @media (pointer:coarse) { #kt-panel .rf-surface { grid-template-rows:minmax(0,1fr) 54px; } }
@@ -229,3 +229,15 @@
   #kt-panel .rf-case-path,
   #kt-panel .rf-reveal .rf-history { padding-bottom:26px; -webkit-mask-image:linear-gradient(#000 calc(100% - 24px), transparent); mask-image:linear-gradient(#000 calc(100% - 24px), transparent); }
 }
+
+/* Result without a question: the engine's own reason, quiet. */
+#kt-panel .rf-loop-reason { margin:0; padding:10px 24px; border-top:1px solid #edf0f1; font-size:12px; line-height:1.45; color:#8d959c; }
+@media (max-width:419px) { #kt-panel .rf-loop-reason { padding-left:19px; padding-right:19px; } }
+#kt-panel .rf-setting select.rf-you { text-overflow:ellipsis; cursor:pointer; }
+
+/* Long engine text must never push the panel out of the window: the head and the matched case scroll. */
+#kt-panel .rf-result-head { max-height:min(190px, calc(100vh - 470px)); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; }
+#kt-panel .rf-case-path { max-height:min(260px, calc(100vh - 470px)); }
+#kt-panel .rf-result-note + .rf-result-note { margin-top:5px; }
+#kt-panel .rf-node-inner p { padding:0; }
+#kt-panel .rf-draft-body { scrollbar-color:#cdd1d4 transparent; }

@@ -64,6 +64,7 @@ export function resultView(store: KnowledgeStore, state: InvestigationState, fal
     people: state.people.map(personView),
     ...(active ? { question: questionView(store, active, viewer) } : {}),
     loop: state.loop,
+    ...(state.loopReason ? { loopReason: state.loopReason } : {}),
     routes: state.routes.map((x) => ({ route: x.route, version: x.version })),
     ...(caseView ? { caseView } : {}),
     state,

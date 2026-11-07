@@ -64,7 +64,10 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
     'GET /settings': () => engine.getSettings(),
     'PUT /settings': (c) => engine.putSettings(parse(settingsPatchSchema, c.body) as Partial<ExtendedSettings>),
     'GET /participation/:personEntityId': (c) => engine.participation(c.params.personEntityId!),
-    'POST /demo/reset': (c) => engine.resetDemo(parse(demoResetSchema, c.body ?? {}).seed),
+    'POST /demo/reset': (c) => {
+      const b = parse(demoResetSchema, c.body ?? {});
+      return engine.resetDemo(b.seed, b.defaultPerson);
+    },
     'GET /events': (c) => engine.events(parse(eventsQuerySchema, q(c))),
   };
   return table;

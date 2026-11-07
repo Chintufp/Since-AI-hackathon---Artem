@@ -17,7 +17,7 @@ If `GET /health` fails the main process runs `node src/apps/service/main.ts --po
 
 ## Run
 
-`pnpm desktop` (build + launch), `pnpm dev`, `node scripts/screenshot.mjs`. Build output: `dist/desktop/{main.cjs,preload.cjs,renderer.js,index.html,styles.css,shots.cjs}`.
+`pnpm desktop` (build + launch), `pnpm dev`, `node scripts/screenshot.mjs` (dev mock), `node scripts/real-check.mjs` (starts its own service on KT_REAL_PORT, default 47951, `--db :memory: --seed elisa`; Electron runs `shots.cjs` with `KT_SHOTS_REAL=<url>`; writes `screenshots/real/*.png` and `checks-real.json`). Build output: `dist/desktop/{main.cjs,preload.cjs,renderer.js,index.html,styles.css,shots.cjs}`.
 
 ## Checks run
 

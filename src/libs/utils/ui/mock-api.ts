@@ -125,6 +125,7 @@ function makeHandlers(s: MockState): Handlers {
     'POST /investigate': ({ body }) => {
       const id = `inv:mock:${++s.counter}`;
       const question = viewOf(s.records.get(SEED_QUESTIONS[0]!.id)!);
+      const quiet = /\bno one to ask\b/i.test(body.text);
       const result: ResultView = {
         investigationId: id,
         recommendation: {
@@ -137,8 +138,8 @@ function makeHandlers(s: MockState): Handlers {
         },
         matches: [{ caseId: CASE.caseId, title: CASE.title, score: 0.72, matching: ['Blank output after ribbon change'], conflicting: [], missing: ['Printhead revision'] }],
         people: PEOPLE,
-        question,
-        loop: 'question-open',
+        ...(quiet ? { loopReason: 'No one to ask right now: nobody with firsthand knowledge is available' } : { question }),
+        loop: quiet ? 'deferred' : 'question-open',
         routes: [{ route: 'replay', version: 'ui-dev-mock' }],
         caseView: CASE,
       };
@@ -197,6 +198,10 @@ function makeHandlers(s: MockState): Handlers {
       rec.status = 'cancelled';
       return { question: { ...rec } };
     },
+    'GET /directory': () => [
+      { personEntityId: ME, name: 'Dev User', role: 'Line technician', groups: [], available: true },
+      ...PEOPLE.map((p) => ({ personEntityId: p.personEntityId, name: p.name, ...(p.role ? { role: p.role } : {}), groups: [], available: p.askable })),
+    ],
     'GET /people': () => PEOPLE,
     'POST /contact-draft': ({ body }) => {
       const person = PEOPLE.find((p) => p.personEntityId === body.personEntityId);

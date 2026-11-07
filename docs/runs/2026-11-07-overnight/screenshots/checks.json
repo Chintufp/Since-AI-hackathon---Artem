@@ -1,5 +1,5 @@
 {
-  "startedAt": "2026-11-07T00:26:12.298Z",
+  "startedAt": "2026-11-07T01:12:15.383Z",
   "electron": "45.2.3",
   "chrome": "156.0.8078.80",
   "node": "24.22.2",
@@ -16,7 +16,7 @@
       },
       {
         "type": "GPU",
-        "percent": 0.1
+        "percent": 0.09
       },
       {
         "type": "Utility",
@@ -42,18 +42,18 @@
     }
   },
   "openFrames_420": {
-    "frames": 95,
+    "frames": 94,
     "maxMs": 10.3,
     "meanMs": 8.33,
-    "p95Ms": 10.1,
+    "p95Ms": 8.4,
     "over20ms": 0
   },
   "avatarModeRightAfterSend_420": "processing",
   "closeFrames_420": {
-    "frames": 37,
-    "maxMs": 10.4,
-    "meanMs": 8.33,
-    "p95Ms": 10.3,
+    "frames": 35,
+    "maxMs": 9.8,
+    "meanMs": 8.34,
+    "p95Ms": 9.6,
     "over20ms": 0
   },
   "hitbox": {
@@ -89,25 +89,25 @@
     }
   },
   "openFrames_320": {
-    "frames": 93,
+    "frames": 94,
     "maxMs": 10.4,
-    "meanMs": 8.33,
-    "p95Ms": 10.3,
+    "meanMs": 8.32,
+    "p95Ms": 9.9,
     "over20ms": 0
   },
   "avatarModeRightAfterSend_320": "processing",
   "closeFrames_320": {
-    "frames": 37,
-    "maxMs": 10.3,
-    "meanMs": 8.32,
+    "frames": 36,
+    "maxMs": 10.4,
+    "meanMs": 8.35,
     "p95Ms": 10.3,
     "over20ms": 0
   },
   "reducedMotion": {
     "timingsMs": {
       "nodeExpand": 23,
-      "people": 23,
-      "close": 23
+      "people": 24,
+      "close": 24
     },
     "status": {
       "view": "collapsed",
@@ -129,8 +129,8 @@
           },
           {
             "id": "hypothesis",
-            "value": 82,
-            "target": 82
+            "value": 60,
+            "target": 60
           },
           {
             "id": "check",
@@ -162,6 +162,7 @@
       "serviceDown": false,
       "busy": false,
       "openQuestions": 2,
+      "investigationId": "inv:mock:1",
       "avatar": {
         "mode": "idle3",
         "lastFrame": 0,
@@ -226,7 +227,7 @@
       "width": 420,
       "file": "04-result-420.png",
       "view": "result",
-      "settleMs": 818,
+      "settleMs": 808,
       "hitbox": [
         321,
         596,
@@ -240,7 +241,7 @@
       "width": 420,
       "file": "05-result-node-expanded-420.png",
       "view": "result",
-      "settleMs": 160,
+      "settleMs": 155,
       "hitbox": [
         321,
         596,
@@ -254,7 +255,7 @@
       "width": 420,
       "file": "06-people-420.png",
       "view": "people",
-      "settleMs": 217,
+      "settleMs": 196,
       "hitbox": [
         321,
         596,
@@ -268,7 +269,7 @@
       "width": 420,
       "file": "07-contact-draft-420.png",
       "view": "contact",
-      "settleMs": 815,
+      "settleMs": 816,
       "hitbox": [
         321,
         596,
@@ -282,7 +283,7 @@
       "width": 420,
       "file": "08-people-back-420.png",
       "view": "people",
-      "settleMs": 196,
+      "settleMs": 190,
       "hitbox": [
         321,
         596,
@@ -296,7 +297,7 @@
       "width": 420,
       "file": "09-case-from-people-420.png",
       "view": "case",
-      "settleMs": 197,
+      "settleMs": 191,
       "hitbox": [
         321,
         596,
@@ -310,7 +311,7 @@
       "width": 420,
       "file": "10-result-question-card-420.png",
       "view": "question",
-      "settleMs": 1336,
+      "settleMs": 1344,
       "hitbox": [
         321,
         596,
@@ -324,7 +325,7 @@
       "width": 420,
       "file": "11-question-context-420.png",
       "view": "question",
-      "settleMs": 242,
+      "settleMs": 232,
       "hitbox": [
         321,
         596,
@@ -338,7 +339,7 @@
       "width": 420,
       "file": "12-question-context-node-420.png",
       "view": "question",
-      "settleMs": 163,
+      "settleMs": 160,
       "hitbox": [
         321,
         596,
@@ -366,7 +367,7 @@
       "width": 420,
       "file": "14-settings-420.png",
       "view": "settings",
-      "settleMs": 198,
+      "settleMs": 212,
       "hitbox": [
         321,
         596,
@@ -394,7 +395,7 @@
       "width": 420,
       "file": "16-receipt-undo-420.png",
       "view": "receipt",
-      "settleMs": 583,
+      "settleMs": 571,
       "hitbox": [
         321,
         596,
@@ -408,7 +409,7 @@
       "width": 420,
       "file": "17-undo-returns-to-question-420.png",
       "view": "question",
-      "settleMs": 205,
+      "settleMs": 193,
       "hitbox": [
         321,
         596,
@@ -492,7 +493,7 @@
       "width": 320,
       "file": "23-result-320.png",
       "view": "result",
-      "settleMs": 809,
+      "settleMs": 820,
       "hitbox": [
         235,
         596,
@@ -506,7 +507,7 @@
       "width": 320,
       "file": "24-result-node-expanded-320.png",
       "view": "result",
-      "settleMs": 161,
+      "settleMs": 159,
       "hitbox": [
         235,
         596,
@@ -534,7 +535,7 @@
       "width": 320,
       "file": "26-contact-draft-320.png",
       "view": "contact",
-      "settleMs": 808,
+      "settleMs": 814,
       "hitbox": [
         235,
         596,
@@ -548,7 +549,7 @@
       "width": 320,
       "file": "27-people-back-320.png",
       "view": "people",
-      "settleMs": 191,
+      "settleMs": 190,
       "hitbox": [
         235,
         596,
@@ -562,7 +563,7 @@
       "width": 320,
       "file": "28-case-from-people-320.png",
       "view": "case",
-      "settleMs": 211,
+      "settleMs": 210,
       "hitbox": [
         235,
         596,
@@ -576,7 +577,7 @@
       "width": 320,
       "file": "29-result-question-card-320.png",
       "view": "question",
-      "settleMs": 1350,
+      "settleMs": 1367,
       "hitbox": [
         235,
         596,
@@ -590,7 +591,7 @@
       "width": 320,
       "file": "30-question-context-320.png",
       "view": "question",
-      "settleMs": 223,
+      "settleMs": 230,
       "hitbox": [
         235,
         596,
@@ -618,7 +619,7 @@
       "width": 320,
       "file": "32-queue-320.png",
       "view": "queue",
-      "settleMs": 24,
+      "settleMs": 25,
       "hitbox": [
         235,
         596,
@@ -632,7 +633,7 @@
       "width": 320,
       "file": "33-settings-320.png",
       "view": "settings",
-      "settleMs": 212,
+      "settleMs": 207,
       "hitbox": [
         235,
         596,
@@ -660,7 +661,7 @@
       "width": 320,
       "file": "35-receipt-undo-320.png",
       "view": "receipt",
-      "settleMs": 561,
+      "settleMs": 573,
       "hitbox": [
         235,
         596,
@@ -674,7 +675,7 @@
       "width": 320,
       "file": "36-undo-returns-to-question-320.png",
       "view": "question",
-      "settleMs": 193,
+      "settleMs": 190,
       "hitbox": [
         235,
         596,
@@ -744,7 +745,7 @@
       "width": 420,
       "file": "41-reduced-collapsed-420.png",
       "view": "collapsed",
-      "settleMs": 23,
+      "settleMs": 24,
       "hitbox": [
         321,
         596,
@@ -754,5 +755,5 @@
       "reduced": true
     }
   ],
-  "finishedAt": "2026-11-07T00:26:51.924Z"
+  "finishedAt": "2026-11-07T01:12:55.025Z"
 }

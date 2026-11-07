@@ -14,7 +14,7 @@ pnpm demo:reset [-- --db path --seed elisa|synthetic|empty]   # scripts/demo-res
 ## Files
 `engine.ts` (composition and all behavior), `http.ts` (router, validation, errors), `mcp-tools.ts` (tool registration) + `mcp.ts` (stdio entry), `views.ts` (ResultView/QuestionView/PersonView builders), `schemas.ts` (zod), `directory.ts` (people.json -> person entities), `demo.ts` (demo reset), `errors.ts`, `paths.ts`. Participation lives in `src/libs/utils/participation`.
 
-## HTTP API (contracts/service.ts `ApiRoutes`, 24 routes)
+## HTTP API (contracts/service.ts `ApiRoutes`, 25 routes)
 | Route | Notes |
 |---|---|
 | `GET /health` | `{ok, version, store, routes}` (routes actually served) |
@@ -33,9 +33,10 @@ pnpm demo:reset [-- --db path --seed elisa|synthetic|empty]   # scripts/demo-res
 | `POST /outcomes` | starter only; stored as its own `OutcomeReport` + evidence, never written into the historical case; identical report is idempotent |
 | `GET /people` | `investigationId`, `principalId` (starter) |
 | `POST /contact-draft` | reviewable message: current symptoms, checks performed, unresolved question. Person must be in the requester's people list. Never sent |
+| `GET /directory` | `DirectoryEntry[]` `{personEntityId, name, role?, groups, available}` sorted by name: the visible organization directory (never knowledge or answers). The desktop's "You" picker reads it |
 | `GET /settings`, `PUT /settings` | settings record `user` in the store; unknown keys are 400; extension `selectorId` (default `rules`) |
 | `GET /participation/:personEntityId` | balance and events; points only awarded while `settings.points` is on |
-| `POST /demo/reset` | `{seed?}`: clear (settings kept), import Elisa example if present under `private/`, the `demo` split families (sources + people.json only) and `data/fixtures/dev-family-01`; `empty` only clears |
+| `POST /demo/reset` | `{seed?, defaultPerson?}`: clear (settings kept), import Elisa example if present under `private/`, the `demo` split families (sources + people.json only) and `data/fixtures/dev-family-01`; `empty` only clears |
 | `GET /events` | trace events by `traceId` / `since` |
 
 Errors are `{error: message}` with 400 (validation), 403 (not allowed / not recipient / not starter), 404, 405, 409 (lifecycle), 413, 415 (bodies must be `application/json`). Requests whose Host is not loopback are refused (DNS rebinding guard). No CORS headers (the desktop shim handles its origin).
@@ -77,3 +78,8 @@ Every tool takes `principal: {id, displayName, groups}` (always treated as type 
 - Directory persons are capped at their directory groups exactly, including an empty list.
 - Undoing a cancellation is owner-only. Answering or dismissing a deferred question undoes the deferral first.
 - Malformed percent-encoded path parameters return 400.
+
+## Identity in the desktop app
+- The panel's Settings has a "You" row (a `<select>` of `GET /directory`, `name · role`), stored with `PUT /settings {currentPersonEntityId}`. Every call's principal is built from that directory entry (id, displayName = name, groups from the directory, type human).
+- Nobody chosen: investigating still works as the labeled guest `{id:'person:desktop:guest', displayName:'Guest', groups:[]}`; the queue says "Choose who you are in Settings to see your questions." and no person is invented. A guest is never a question recipient, so the service answers 403 to any answer/defer/dismiss/undo by it (`tests/identity.test.ts`).
+- The question badge counts only the current person's questions. It refreshes when the panel opens and after answering, and polls `GET /questions` every 20 s only while the panel is open (no timer at all while collapsed).

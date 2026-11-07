@@ -60,7 +60,7 @@ test('unit.batch: distinguishing, asked with its own template, observable by the
   assert.equal(DEFAULT_PHRASES.recoveries['table.clear'], 'restored traffic');
 });
 
-test('unit.batch: a later batch conflicts with a flat "older unit" in the problem, is missing when the problem says nothing about age', () => {
+test('unit.batch: a later batch conflicts with a flat "older unit" in the problem, is missing when the problem says nothing about age', async () => {
   const s = defaultInvestigationSettings();
   const opts = { ageFold: s.ageFold, ignoredKeys: s.ignoredKeys, historyKeys: s.historyKeys };
   const caseConds = [cond('traffic.counters', 'zero', 'Traffic counters zero'), cond('unit.batch', '2021', '2021 batch')];
@@ -71,6 +71,11 @@ test('unit.batch: a later batch conflicts with a flat "older unit" in the proble
   assert.deepEqual(silent.missing.map((m) => m.key), ['unit.batch']);
   assert.equal(silent.conflicting.length, 0);
   // An inferred "older" (folded from a year) conflicts too: the fold already decided the age class from a flat year.
+  // A Yes to "Is TRN-301 an older unit?" counts as an older unit; a Yes about a newer unit or a No does not.
+  const { ANSWER_MATCHES_CASE: YES, ANSWER_DIFFERS_FROM_CASE: NO } = await import('../retrieval/conditions.ts');
+  assert.deepEqual(compareConditions([cond('unit.age', YES, 'older unit: yes (answered)')], caseConds, opts).conflicting.map((c) => c.label), ['2021 batch (this problem: older unit (answered))']);
+  assert.equal(compareConditions([cond('unit.age', YES, 'newer unit: yes (answered)')], caseConds, opts).conflicting.length, 0);
+  assert.equal(compareConditions([cond('unit.age', NO, 'older unit: no (answered)')], caseConds, opts).conflicting.length, 0);
   const year = compareConditions([cond('unit.installed_year', 2018, 'Installed in 2018')], caseConds, opts);
   assert.equal(year.conflicting.length, 1);
   // A batch at or before the cutoff, or a case that records its age itself, is left to the ordinary comparison.

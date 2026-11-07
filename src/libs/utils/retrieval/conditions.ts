@@ -152,7 +152,11 @@ export function compareConditions(problemIn: Condition[], caseIn: Condition[], o
     const y = num(c.value);
     if (y === undefined || y <= f.olderThroughYear) return undefined;
     const older = (byKey.get(f.ageKey) ?? []).find((p) => p.operator === 'eq' && !isAnswerMarker(p) && same(p.value, f.olderValue));
-    return older ? (older.label ?? 'Older unit') : undefined;
+    if (older) return older.label ?? 'Older unit';
+    // A Yes to "Is {asset} an older unit?" (the marker carries no value; its label starts with the case's age label).
+    const startsOlder = new RegExp(`^\\s*${f.olderValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    const yes = (byKey.get(f.ageKey) ?? []).find((p) => p.operator === 'eq' && p.value === ANSWER_MATCHES_CASE && startsOlder.test(p.label ?? ''));
+    return yes ? 'older unit (answered)' : undefined;
   };
   // B5 (D-B5-13), the same rule the other way round: the label of the problem's later batch year when the case records an
   // older unit. The batch is stated flatly in the problem, or a Yes to "Is {asset} from the {value} batch?" whose label

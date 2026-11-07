@@ -227,6 +227,13 @@ test('elisa reset with the thread: the judge steps and prompt recipients (TRN-08
     const t301 = await e.investigate({ text: 'TRN-301: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.', principal: as('Veikko Vikkelä'), allowQuestions: true });
     assert.equal(t301.question?.text, 'Is TRN-301 an older unit?');
     assert.equal(nameOf(t301.question?.personEntityId), 'Erkki Expert');
+    assert.equal(t301.alternatives?.find((x) => x.applicability === 'qualified')?.text, 'Helmi Virtanen advised clearing the forwarding table in TRN-512 (qualified, depends on 2021 batch)');
+    // DEMO 2:05/2:35: Erkki's Yes gives the check first, and the older unit now rules out Helmi's 2021-batch branch.
+    const erkki = as('Erkki Expert');
+    await e.answer(t301.question!.questionId, { principal: erkki, value: 'yes' });
+    const t301yes = await e.investigate({ text: 'TRN-301: changed the SFP, link up, alarms cleared, no traffic. Not sure which unit generation this is.', principal: as('Veikko Vikkelä'), allowQuestions: true });
+    assert.equal(t301yes.recommendation.text, 'Check the traffic counters before replacing the SFP again.');
+    assert.equal(t301yes.alternatives?.find((x) => x.caseLabel === 'TRN-512')?.applicability, 'inapplicable');
     // Known limit (D-B5-17): TRN-117's own "2019 batch" is not parsed, so its prompt asks about the 2021 batch.
     await e.resetDemo('elisa'); // a fresh reset per prompt, as judge-prompts.json records its targets
     const t117 = await e.investigate({ text: 'TRN-117: replaced the SFP again this morning, link up, alarms cleared, counters zero. Not sure which unit generation this is.', principal: as('Marja Niemi'), allowQuestions: true });

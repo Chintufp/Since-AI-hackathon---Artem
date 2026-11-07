@@ -121,3 +121,19 @@ test('mock rejects answers from a non-recipient like the engine', async () => {
   const ok = await api.answer(q!.questionId, { principal: mockPrincipal(), value: 'yes' });
   assert.ok(ok.receipt);
 });
+
+test('the mock implements the B2 model routes and merges a partial models patch per slot', async () => {
+  const api = createMockApi();
+  const s = await api.putSettings({ models: { embed: { provider: 'local', model: 'bge-m3' } } });
+  assert.deepEqual(s.models, { embed: { provider: 'local', model: 'bge-m3' }, extract: { provider: 'rules' }, phrase: { provider: 'rules' } });
+  let v = await api.models();
+  assert.equal(v.slots.embed.chip, 'not downloaded');
+  assert.equal(v.slots.extract.chip, 'off');
+  const job = await api.pullModel('bge-m3');
+  assert.equal((await api.pullJob(job.jobId)).state, 'done');
+  v = await api.models();
+  assert.equal(v.slots.embed.chip, 'ready');
+  assert.equal((await api.testModelKey('anthropic')).ok, false);
+  assert.deepEqual(await api.setModelKey('anthropic', 'k'), { provider: 'anthropic', present: true });
+  assert.equal((await api.testModelKey('anthropic')).ok, true);
+});

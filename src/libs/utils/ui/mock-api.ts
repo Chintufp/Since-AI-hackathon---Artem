@@ -9,6 +9,8 @@ import type { InvestigationState } from '../contracts/investigation.ts';
 import type { QuestionRecord, QuestionStatus } from '../contracts/questions.ts';
 import { defaultUserSettings } from '../contracts/outcomes.ts';
 import { DEFAULT_MODEL_SLOTS } from '../contracts/models.ts';
+import type { ModelSlotName } from '../contracts/models.ts';
+import type { CatalogEntry, ModelsView, PullJobView, SlotStatusView } from '../contracts/service.ts';
 import type { ParticipationEvent, ParticipationOptIn, ParticipationRating, UserSettings } from '../contracts/outcomes.ts';
 import type { CaseView, PersonView, QuestionView, ResultView, TimelineNode } from '../contracts/views.ts';
 import { createApiClient, parseRoute } from './api-client.ts';
@@ -57,6 +59,35 @@ interface MockState {
   /** R46: whether the dev user takes part in points, and their events (deterministic for the screenshot harness). */
   optIn: boolean;
   events: ParticipationEvent[];
+  /** B2: models mock state (never a real key: only whether one was given). */
+  installed: string[];
+  pulls: Map<string, PullJobView>;
+  keys: { anthropic: boolean; gemini: boolean };
+}
+
+function mockModels(s: MockState): ModelsView {
+  const slots = s.settings.models ?? DEFAULT_MODEL_SLOTS;
+  const entry = (model: string, why: string, recommended = false): CatalogEntry => {
+    const installed = s.installed.includes(model);
+    return { model, why, installed, ...(recommended ? { recommended } : {}), availability: installed ? 'ready' : 'not-downloaded', label: installed ? 'installed · ready' : 'not downloaded · Download' };
+  };
+  const status = (slot: ModelSlotName): SlotStatusView => {
+    const c = slots[slot];
+    if (c.provider === 'rules') return { choice: c, state: 'off', chip: 'off' };
+    if (c.provider === 'api') return s.keys.anthropic || s.keys.gemini ? { choice: c, state: 'ready', chip: 'ready' } : { choice: c, state: 'failed', chip: 'failed: no anthropic key', reason: 'no anthropic key' };
+    const model = c.model ?? { embed: 'bge-m3', extract: 'qwen3:4b', phrase: 'qwen3:8b' }[slot];
+    return s.installed.includes(model) ? { choice: c, state: 'ready', chip: 'ready' } : { choice: c, state: 'not-downloaded', chip: 'not downloaded' };
+  };
+  return {
+    detection: { installed: true, running: true, version: 'dev-mock', totalMemBytes: 24e9, freeDiskBytes: 300e9, installedModels: s.installed.map((name) => ({ name, capabilities: name === 'bge-m3' ? ['embedding'] : ['completion'] })), setup: ['brew install ollama', 'ollama serve', 'ollama pull bge-m3'] },
+    catalog: {
+      embed: [entry('bge-m3', 'Multilingual embeddings (dev mock).', true)],
+      extract: [entry('qwen3:4b', 'Schema-constrained extraction (dev mock).', true)],
+      phrase: [entry('qwen3:8b', 'Natural question wording (dev mock).', true)],
+    },
+    slots: { embed: status('embed'), extract: status('extract'), phrase: status('phrase') },
+    apiKeys: { ...s.keys },
+  };
 }
 
 /** R46: fixed points data: three colleagues who take part (Tomas does not), and the dev user's own events. */
@@ -88,7 +119,7 @@ function mockRating(s: MockState): ParticipationRating {
 function freshState(): MockState {
   const records = new Map<string, QuestionRecord>();
   SEED_QUESTIONS.forEach((q, i) => records.set(q.id, record(q, 'queued', i)));
-  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS() };
+  return { settings: { ...defaultUserSettings, serverUrl: MOCK_BASE_URL, model: 'dev mock · no model', currentPersonEntityId: ME }, records, investigations: new Map(), counter: 0, optIn: true, events: MY_EVENTS(), installed: ['qwen3:8b'], pulls: new Map(), keys: { anthropic: false, gemini: false } };
 }
 
 function record(q: SeedQuestion, status: QuestionStatus, i: number): QuestionRecord {
@@ -271,6 +302,24 @@ function makeHandlers(s: MockState): Handlers {
     'POST /demo/reset': () => {
       Object.assign(s, freshState());
       return { ok: true as const, imported: [] };
+    },
+    // B2: Settings -> Models. A fixed machine with Ollama running and qwen3:8b installed; downloads finish at once.
+    'GET /models': () => mockModels(s),
+    'POST /models/pull': ({ body }) => {
+      const job = { jobId: `pull-mock-${++s.counter}`, model: body.model, state: 'done' as const, status: 'success', percent: 100, startedAt: NOW(), finishedAt: NOW() };
+      s.pulls.set(job.jobId, job);
+      if (!s.installed.includes(body.model)) s.installed.push(body.model);
+      return job;
+    },
+    'GET /models/pull/:id': ({ params }) => {
+      const j = s.pulls.get(params.id!);
+      if (!j) throw new MockHttpError(404, `Unknown download ${params.id}`);
+      return j;
+    },
+    'POST /models/test': ({ body }) => (s.keys[body.provider] ? { ok: true, provider: body.provider, model: body.model ?? 'dev mock model' } : { ok: false, provider: body.provider, error: `no ${body.provider} key` }),
+    'POST /models/key': ({ body }) => {
+      s.keys[body.provider] = body.key.trim().length > 0;
+      return { provider: body.provider, present: s.keys[body.provider] };
     },
   };
   return h;

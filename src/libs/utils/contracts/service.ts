@@ -10,7 +10,7 @@ import type { InvestigationState } from './investigation.ts';
 import type { Answer, ContactDraft, PreferenceFeedback, QuestionRecord } from './questions.ts';
 import type { OutcomeReport, ParticipationBalance, ParticipationOptIn, ParticipationRating, UserSettings } from './outcomes.ts';
 import type { PeopleDirectory } from './scenarios.ts';
-import type { ModelSlots } from './models.ts';
+import type { ModelSlotName, ModelSlots, SlotChoice } from './models.ts';
 import type { CaseView, PersonView, QuestionView, ReceiptView, ResultView } from './views.ts';
 
 export const DEFAULT_SERVICE_PORT = 47831;
@@ -137,6 +137,82 @@ export interface ApiRoutes {
   'GET /demo/activity': { query: { since?: number; limit?: number }; res: ActivityView };
   /** Standalone local page (text/html) that polls GET /demo/activity, for a browser tab next to the companion. */
   'GET /demo/activity.html': { res: string };
+  /** Settings -> Models: machine detection, the catalog per slot (merged with installed models) and a status chip per slot. */
+  'GET /models': { res: ModelsView };
+  /** Starts `ollama pull` for one model (only ever from a click); progress by polling GET /models/pull/:id. */
+  'POST /models/pull': { req: { model: string }; res: PullJobView };
+  'GET /models/pull/:id': { res: PullJobView };
+  /** One tiny call to the api provider with the key held in memory; reports the model that answered. */
+  'POST /models/test': { req: { provider: 'anthropic' | 'gemini'; model?: string }; res: ModelTestResult };
+  /** Holds an api key in memory only (never SQLite, data/ or the repo). An empty key forgets it. */
+  'POST /models/key': { req: { provider: 'anthropic' | 'gemini'; key: string }; res: { provider: 'anthropic' | 'gemini'; present: boolean } };
+}
+
+/** One row of the model catalog (data/models/catalog.json), or an installed model that is not in it. */
+export interface CatalogEntry {
+  model: string;
+  recommended?: boolean;
+  sizeBytes?: number;
+  dims?: number;
+  contextTokens?: number;
+  minRamGb?: number;
+  why?: string;
+  /** Found in `ollama list`. */
+  installed: boolean;
+  /** Not in the catalog file: listed because it is installed. */
+  fromInstalled?: boolean;
+  /** 'installed · ready' | 'not downloaded · 1.2 GB' | 'Ollama not installed' | 'too large for this Mac' */
+  availability: 'ready' | 'not-downloaded' | 'ollama-missing' | 'too-large';
+  label: string;
+}
+
+export interface SlotStatusView {
+  choice: SlotChoice;
+  /** off · not downloaded · downloading N% · ready · failed: <reason> */
+  state: 'off' | 'not-downloaded' | 'downloading' | 'ready' | 'failed';
+  chip: string;
+  percent?: number;
+  reason?: string;
+}
+
+export interface ModelsView {
+  detection: {
+    installed: boolean;
+    running: boolean;
+    version?: string;
+    binaryPath?: string;
+    freeDiskBytes?: number;
+    totalMemBytes?: number;
+    note?: string;
+    installedModels: Array<{ name: string; sizeBytes?: number; capabilities: string[] }>;
+    /** How to set Ollama up by hand (shown when it is missing). */
+    setup: string[];
+  };
+  catalog: Record<ModelSlotName, CatalogEntry[]>;
+  slots: Record<ModelSlotName, SlotStatusView>;
+  /** Which api vendors have a key in memory (never the key). */
+  apiKeys: { anthropic: boolean; gemini: boolean };
+}
+
+export interface PullJobView {
+  jobId: string;
+  model: string;
+  state: 'running' | 'done' | 'failed';
+  status: string;
+  percent?: number;
+  completedBytes?: number;
+  totalBytes?: number;
+  error?: string;
+  startedAt: string;
+  finishedAt?: string;
+}
+
+export interface ModelTestResult {
+  ok: boolean;
+  provider: 'anthropic' | 'gemini';
+  /** The model that answered (as the provider names it). */
+  model?: string;
+  error?: string;
 }
 
 export interface DemoClockView {

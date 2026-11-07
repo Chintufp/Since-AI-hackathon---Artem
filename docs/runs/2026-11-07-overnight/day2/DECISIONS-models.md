@@ -41,3 +41,21 @@ A case-card hit counts only when the requester may see every piece of the case's
 
 ## D-B2-12 · Retrieval may import `models/providers` (contracts-only); the case card is injected
 `retrieval/` now depends on `models/providers` for `withFallback` and `EmbeddingCache` (both depend on contracts only), and never on `memory/`: the engine passes `cardText: (id) => caseCard(store, id)`. Reverse: move the two helpers into retrieval.
+
+## D-B2-13 · Automatic model work is opt-in per Engine (`autoModels`), on in main.ts
+Background indexing after imports/answers/outcomes, and warming a slot just switched to local, run only when `EngineOptions.autoModels` is true. `main.ts` sets it (unless `KT_AUTO_MODELS=0`); tests and scripts that build an Engine directly do not, so a test that flips a slot to local can never reach a real Ollama by accident. Requests that need a model (an investigation with embed=local, GET /models, a pull) work either way. Reverse: default `autoModels` to true in the Engine constructor.
+
+## D-B2-14 · The catalog stays at `data/models/catalog.json`; `listArtifacts` skips it
+As the brief names it; `artifacts.ts` has a small `NOT_ARTIFACTS` set. Installed models not in the catalog are offered per slot by capability (`embedding` for embed, `completion` and not `embedding` for extract and phrase). Availability: installed wins; else Ollama missing; else too large (minRamGb above total RAM); else not downloaded. Reverse: move the file to `data/models/catalog/` and drop the filter.
+
+## D-B2-15 · Status chip rules
+`off` for rules. api: `failed: no <vendor> key` until a key is posted, then `ready` (a recorded call failure shows instead). local: a running pull for that model shows `downloading N%`; then a recorded failure (warm, index or query) as `failed: <reason>`; then `failed: Ollama not running|not installed`; then `not downloaded` when `ollama list` lacks it; else `ready`. Changing a slot clears its recorded failure. Model names compare with Ollama's implicit `:latest`. Reverse: `ModelManager.slotStatus`.
+
+## D-B2-16 · `ollama serve` is started as a child the service owns, and stopped on shutdown
+When a slot is local, the binary exists and the server is down, `warmSlots` spawns `ollama serve` (not detached) and polls `/api/version` for up to 10 s. On shutdown the service unloads its models (at most 3 s) and kills only a server it started itself; a server Artem started stays. Brew install is not run by the service in this stage (the next stage's UI offers it with a visible log); `GET /models` returns the three setup commands to copy. Reverse: spawn detached in `defaultStartServer`.
+
+## D-B2-17 · Pull jobs are in memory, one running job per model, polled as JSON
+The HTTP layer has no SSE, so `POST /models/pull` returns `{jobId, state, percent ...}` and the panel polls `GET /models/pull/:id`. A second click on a model already downloading returns the same job. Jobs do not survive a restart; shutdown aborts running downloads (Ollama resumes a partial pull on the next request). The model name must look like an Ollama tag (`[A-Za-z0-9._:/-]+`). Reverse: `ModelManager.startPull`.
+
+## D-B2-18 · Route count tests updated 32 -> 37
+`tests/e2e.test.ts` and `tests/points.test.ts` assert the number of contract routes; both now expect the five new model routes by name. This is the only change to an existing test's expectation.

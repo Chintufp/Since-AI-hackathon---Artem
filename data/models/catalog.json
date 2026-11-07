@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "note": "Model catalog for Settings -> Models (BUILD_BRIEF 2.3). Editable. Sizes are the Ollama download sizes (approximate); minRamGb is a comfortable minimum for this app plus the model. Not a learned artifact (listArtifacts skips this file).",
+  "slots": {
+    "embed": [
+      { "model": "bge-m3", "recommended": true, "sizeBytes": 1200000000, "dims": 1024, "minRamGb": 8, "why": "Multilingual (Finnish fragments embed well), 1024 dims, the default for finding cases by meaning." },
+      { "model": "nomic-embed-text", "sizeBytes": 274000000, "dims": 768, "minRamGb": 4, "why": "Light and fast, English-first; for a small Mac." },
+      { "model": "mxbai-embed-large", "sizeBytes": 670000000, "dims": 1024, "minRamGb": 8, "why": "Strong English retrieval quality at a mid size." }
+    ],
+    "extract": [
+      { "model": "qwen3:4b", "recommended": true, "sizeBytes": 2500000000, "contextTokens": 40960, "minRamGb": 8, "why": "Fills the extraction form reliably with a JSON schema; fast enough on a laptop." },
+      { "model": "qwen3:1.7b", "sizeBytes": 1400000000, "contextTokens": 40960, "minRamGb": 6, "why": "Fallback when 4b is too slow on the venue Mac; weaker on long threads." },
+      { "model": "qwen3:8b", "sizeBytes": 5200000000, "contextTokens": 40960, "minRamGb": 12, "why": "Better recall on messy threads; slower; already installed on many Macs." },
+      { "model": "llama3.2:3b", "sizeBytes": 2000000000, "contextTokens": 131072, "minRamGb": 8, "why": "Long context, different family; a cross-check for extraction." }
+    ],
+    "phrase": [
+      { "model": "qwen3:8b", "recommended": true, "sizeBytes": 5200000000, "contextTokens": 40960, "minRamGb": 12, "why": "Natural one-sentence questions; the validator falls back to the template on any slip." },
+      { "model": "qwen3:14b", "sizeBytes": 9300000000, "contextTokens": 40960, "minRamGb": 20, "why": "Smoothest wording; needs a big Mac." },
+      { "model": "gemma3:4b", "sizeBytes": 3300000000, "contextTokens": 131072, "minRamGb": 8, "why": "Small and fluent; for a Mac without much memory." }
+    ]
+  }
+}

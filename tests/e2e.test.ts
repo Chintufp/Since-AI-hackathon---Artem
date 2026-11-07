@@ -23,7 +23,9 @@ test('health lists every contract route', async () => {
   const h = await svc.call('GET', '/health');
   assert.equal(h.ok, true);
   assert.ok(h.routes.includes('POST /investigate') && h.routes.includes('GET /events'));
-  assert.equal(h.routes.length, 32);
+  // 32 before B2, plus GET /models, POST /models/pull, GET /models/pull/:id, POST /models/test, POST /models/key.
+  assert.equal(h.routes.length, 37);
+  for (const r of ['GET /models', 'POST /models/pull', 'GET /models/pull/:id', 'POST /models/test', 'POST /models/key']) assert.ok(h.routes.includes(r), r);
 });
 
 test('import dev-family-01, then GET /cases has the cases', async () => {

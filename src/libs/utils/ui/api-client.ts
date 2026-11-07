@@ -68,6 +68,12 @@ export interface ApiClient {
   optIn(personEntityId: string): Promise<ResOf<'GET /participation/:personEntityId/optin'>>;
   setOptIn(personEntityId: string, principal: Principal, participates: boolean): Promise<ResOf<'PUT /participation/:personEntityId/optin'>>;
   rating(personEntityId: string | undefined, principalId?: string): Promise<ResOf<'GET /participation/rating'>>;
+  /** B2: Settings -> Models. */
+  models(): Promise<ResOf<'GET /models'>>;
+  pullModel(model: string): Promise<ResOf<'POST /models/pull'>>;
+  pullJob(jobId: string): Promise<ResOf<'GET /models/pull/:id'>>;
+  testModelKey(provider: 'anthropic' | 'gemini', model?: string): Promise<ResOf<'POST /models/test'>>;
+  setModelKey(provider: 'anthropic' | 'gemini', key: string): Promise<ResOf<'POST /models/key'>>;
 }
 
 /** Split "POST /questions/:id/answer" into method and path template. */
@@ -163,5 +169,10 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     optIn: (personEntityId) => call('GET /participation/:personEntityId/optin', { params: { personEntityId } }),
     setOptIn: (personEntityId, principal, participates) => call('PUT /participation/:personEntityId/optin', { params: { personEntityId }, body: { principal, participates } }),
     rating: (personEntityId, principalId) => call('GET /participation/rating', { query: { ...(personEntityId ? { personEntityId } : {}), ...(principalId ? { principalId } : {}) } }),
+    models: () => call('GET /models'),
+    pullModel: (model) => call('POST /models/pull', { body: { model } }),
+    pullJob: (jobId) => call('GET /models/pull/:id', { params: { id: jobId } }),
+    testModelKey: (provider, model) => call('POST /models/test', { body: { provider, ...(model ? { model } : {}) } }),
+    setModelKey: (provider, key) => call('POST /models/key', { body: { provider, key } }),
   };
 }

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -43,6 +43,8 @@ test('artifact save/load round-trips a logistic model through a temp dir', () =>
     const path = saveArtifact(m.toArtifact({ id: 'toy-logistic', dataset: { id: 'toy', split: 'train', families: [] }, seeds: [1], trainedAt: '2026-11-07T00:00:00.000Z' }), dir);
     assert.ok(path.endsWith('toy-logistic.json'));
     assert.deepEqual(listArtifacts(dir), ['toy-logistic']);
+    writeFileSync(join(dir, 'catalog.json'), '{}');
+    assert.deepEqual(listArtifacts(dir), ['toy-logistic'], 'the model catalog is configuration, not an artifact');
     const loaded = LogisticHashed.fromArtifact(loadArtifact('toy-logistic', dir));
     const probe = 'interface reset traffic';
     assert.equal(loaded.predictProba(probe), m.predictProba(probe));

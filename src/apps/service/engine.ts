@@ -9,7 +9,11 @@ import type {
   InvestigateRequest, InvestigationState, KnowledgeStore, ObservationRequest, OutcomeReport, OutcomeRequest, ParticipationBalance, ParticipationOptIn, ParticipationRating, PeopleDirectory,
   PersonView, PreferenceFeedback, Principal, Problem, QuestionRecord, QuestionView, ReceiptView, Selector, TraceEvent, UserSettings, DirectoryEntry } from '../../libs/utils/contracts/index.ts';
 import { DEFAULT_MODEL_SLOTS, defaultCoordinatorSettings, defaultUserSettings, freshId, stableId, textFingerprint } from '../../libs/utils/contracts/index.ts';
-import type { ModelSlots } from '../../libs/utils/contracts/index.ts';
+import type { ModelSlotName, ModelSlots, ModelsView, ModelTestResult, PullJobView } from '../../libs/utils/contracts/index.ts';
+import type { ApiVendor } from '../../libs/utils/models/providers/index.ts';
+import { EmbeddingIndex, type IndexReport } from '../../libs/utils/retrieval/index.ts';
+import { caseCard } from '../../libs/utils/memory/index.ts';
+import { DEFAULT_LOCAL_MODELS, ModelManager, type ModelManagerOptions } from './models.ts';
 import { connectionCards } from '../../libs/utils/connectors/index.ts';
 import {
   defaultInvestigationSettings, investigate, investigationId, parseGapId, parseProblemText, questionsForInvestigation, RulesAssessor, startedBy, storeDirectory,
@@ -74,6 +78,14 @@ export interface EngineOptions {
   fixturesDir?: string;
   /** Model slots used when the user has not chosen any (default DEFAULT_MODEL_SLOTS: every slot on rules). */
   models?: Partial<ModelSlots>;
+  /** The model lifecycle manager, or options for one (tests inject a fake local provider here). */
+  modelManager?: ModelManager | ModelManagerOptions;
+  /**
+   * Background model work without a request: indexing embeddings after imports/answers/outcomes and warming a slot
+   * switched to local. Off by default so tests never reach a model; main.ts turns it on. Requests that need a model
+   * (an investigation with embed=local, GET /models, a pull) work either way.
+   */
+  autoModels?: boolean;
 }
 
 export interface ClarificationResult {
@@ -99,12 +111,16 @@ export class Engine {
   private readonly directoryFiles = new Set<string>();
   private readonly inlineDirectories: PeopleDirectory[] = [];
   private readonly demoClock: DemoClock;
+  /** Model slots' lifecycle: detection, catalog, warm/idle/unload, pulls, api keys in memory. */
+  readonly models: ModelManager;
+  private embedQueue: Promise<IndexReport | undefined> = Promise.resolve(undefined);
 
   constructor(opts: EngineOptions = {}) {
     this.opts = opts;
     this.orgId = opts.orgId ?? 'org:local';
     this.demoClock = opts.demoClock ?? createDemoClock();
     this.clock = opts.clock ?? (() => this.demoClock.now());
+    this.models = opts.modelManager instanceof ModelManager ? opts.modelManager : new ModelManager(opts.modelManager ?? {});
     if (opts.store) {
       this.store = opts.store;
       this.ownsStore = false;
@@ -118,6 +134,7 @@ export class Engine {
   }
 
   close(): void {
+    this.models.dispose();
     if (this.ownsStore) this.store.close();
   }
 
@@ -169,10 +186,54 @@ export class Engine {
     return sel;
   }
 
+  /**
+   * The embed slot's index when embed=local and the store keeps vectors: a cheap view over r_embedding with the
+   * engine's cached provider and embedding cache. Undefined otherwise (the trigram list stays).
+   */
+  embeddingIndex(): EmbeddingIndex | undefined {
+    const choice = this.modelSlots().embed;
+    if (choice.provider !== 'local' || !this.store.embeddings) return undefined;
+    return new EmbeddingIndex(this.store, this.models.local, choice.model ?? DEFAULT_LOCAL_MODELS.embed, {
+      cache: this.models.cache, cardText: (id) => caseCard(this.store, id),
+    });
+  }
+
+  /**
+   * Bring r_embedding in line with the store (new evidence, claims, rebuilt case cards; unchanged text is skipped).
+   * Serialized; failures go to the embed slot's status chip. Resolves undefined when embed is not local.
+   */
+  refreshEmbeddings(): Promise<IndexReport | undefined> {
+    this.embedQueue = this.embedQueue.then(async () => {
+      const index = this.embeddingIndex();
+      if (!index) return undefined;
+      try {
+        const r = await index.indexStore();
+        this.models.clearFailure('embed');
+        return r;
+      } catch (e) {
+        this.models.recordFailure('embed', e instanceof Error ? e.message : String(e));
+        return undefined;
+      }
+    });
+    return this.embedQueue;
+  }
+
+  /** Resolves when queued embedding work has finished (tests, demo scripts). */
+  embeddingsIdle(): Promise<IndexReport | undefined> {
+    return this.embedQueue;
+  }
+
+  private afterChange(): void {
+    if (this.opts.autoModels) void this.refreshEmbeddings();
+  }
+
   private wiring() {
     const settings = this.invSettings();
     const directory: PersonDirectory = storeDirectory(this.store);
-    const retriever = new HybridRetriever(this.store, settings);
+    const index = this.embeddingIndex();
+    const retriever = new HybridRetriever(this.store, index
+      ? { ...settings, embedding: { index, onFailure: (reason) => this.models.recordFailure('embed', reason) } }
+      : settings);
     const assessor = new RulesAssessor({ store: this.store, settings });
     const generator = new TemplateQuestionGenerator({ store: this.store, settings, directory, clock: this.clock });
     const selector = this.selector(settings.coordinator.selectorId);
@@ -271,6 +332,7 @@ export class Engine {
     // A scenario directory imports several sources, each its own batch; the response's batch id is their combination.
     const points = this.awardEvidence(new Set(this.store.list('importBatch').map((b) => b.id).filter((id) => !batchesBefore.has(id))));
     this.trace(res.batch.id, 'import.completed', { id: 'system', displayName: 'import' }, { format: req.format, counts: res.batch.counts, cases: res.cases, claims: res.claims, people: res.people, ...(points.length ? { points } : {}) });
+    this.afterChange();
     return points.length ? { ...res, points } : res;
   }
 
@@ -444,6 +506,7 @@ export class Engine {
         throw toServiceError(e);
       }
     }
+    this.afterChange();
     return report;
   }
 
@@ -503,6 +566,7 @@ export class Engine {
       this.sync(r.state);
       const kind: ParticipationKind = req.value === 'yes' ? 'answer-yes' : req.value === 'no' ? 'answer-no' : 'answer-unknown';
       const points = this.award({ personEntityId: q.personEntityId, contributionEventId: r.answer.id, kind, summary: `Answered a question (${req.value === 'unknown' ? 'not sure' : req.value})`, refId: q.id });
+      this.afterChange();
       return { answer: r.answer, receipt: this.receipt(req.value, r.question, r.state, points, r.recommendationChanged), question: r.question };
     } catch (e) {
       throw toServiceError(e);
@@ -678,7 +742,46 @@ export class Engine {
     const next: ExtendedSettings = { ...current, ...plain, ...(modelsPatch ? { models: { ...(current.models ?? DEFAULT_MODEL_SLOTS), ...modelsPatch } } : {}) };
     this.store.put('settings', { id: SETTINGS_ID, ...next });
     this.trace('settings', 'settings.updated', { id: 'system', displayName: 'settings' }, { keys: Object.keys(patch) });
+    if (modelsPatch) {
+      // A slot leaving a provider forgets that slot's old failure; a slot switched to local is warmed (auto mode only).
+      for (const slot of Object.keys(modelsPatch) as ModelSlotName[]) this.models.clearFailure(slot);
+      if (this.opts.autoModels) {
+        // Only the slots this patch names; the others were warmed (or not) already.
+        const changed: ModelSlots = { ...DEFAULT_MODEL_SLOTS };
+        for (const k of Object.keys(modelsPatch) as ModelSlotName[]) changed[k] = next.models![k];
+        void this.models.warmSlots(changed).then(() => (modelsPatch.embed ? this.refreshEmbeddings() : undefined));
+      }
+    }
     return next;
+  }
+
+  // ---- models (Settings -> Models) -------------------------------------------------------------
+
+  modelsView(): Promise<ModelsView> {
+    return this.models.view(this.modelSlots());
+  }
+
+  /** Only ever called from a click (POST /models/pull). */
+  pullModel(model: string): PullJobView {
+    this.trace('models', 'models.pull', { id: 'system', displayName: 'models' }, { model });
+    return this.models.startPull(model);
+  }
+
+  pullJob(id: string): PullJobView {
+    const j = this.models.pullJob(id);
+    if (!j) throw notFound(`Unknown download ${id}`);
+    return j;
+  }
+
+  /** Memory only: the key is never stored, traced or returned. */
+  setModelKey(provider: ApiVendor, key: string): { provider: ApiVendor; present: boolean } {
+    const r = this.models.setKey(provider, key);
+    this.trace('models', 'models.key', { id: 'system', displayName: 'models' }, { provider, present: r.present });
+    return r;
+  }
+
+  testModelKey(provider: ApiVendor, model?: string): Promise<ModelTestResult> {
+    return this.models.testKey(provider, model);
   }
 
   /** R46: a person's own balance; the caller (`principalId`, else the settings' current person) must be that person. */

@@ -185,6 +185,8 @@ export class PhrasedQuestionGenerator implements QuestionGenerator {
         inputText: [facts.gapDescription, facts.whatAnswerChanges, facts.caseLabel, caseFacts, facts.templateText, facts.problemText].join('\n'), templateText: facts.templateText,
       });
       if (!verdict.ok) return { ...candidate, phrasing: { by: 'template' as const, reason: `model wording rejected: ${verdict.reason}` } };
+      // The model returned the template's own sentence: nothing was worded by it, so the card must not say so.
+      if (r.value.toLowerCase() === candidate.text.replace(/\s+/g, ' ').trim().toLowerCase()) return { ...candidate, phrasing: { by: 'template' as const, reason: 'the model kept the template wording' } };
       accepted++;
       return { ...candidate, text: r.value, templateText: candidate.text, generatedBy: { route: this.modelRoute.route, version: this.modelRoute.version }, phrasing: { by: 'model' as const } };
     }));

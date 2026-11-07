@@ -103,3 +103,11 @@ test('phrased generator: the prompt carries only what the requester may see of t
   assert.match(prompt, /Earlier case: /);
   assert.doesNotMatch(prompt, /\bundefined\b/);
 });
+
+test('phrased generator: a model that returns the template sentence unchanged does not get the credit', async () => {
+  const { template, phrased, g } = await setup(() => ({ question: 'Is TRN-301 an older unit?' }));
+  assert.equal(phrased[0]!.text, template[0]!.text);
+  assert.deepEqual(phrased[0]!.phrasing, { by: 'template', reason: 'the model kept the template wording' });
+  assert.deepEqual(phrased[0]!.generatedBy, template[0]!.generatedBy);
+  assert.equal(g.route.version, 'question-templates@1');
+});

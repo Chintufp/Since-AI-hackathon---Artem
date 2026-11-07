@@ -31,6 +31,10 @@ export function activityPage(): string {
   .row[data-foryou="true"] { background: #f7f8f8; margin: 0 -24px; padding-left: 24px; padding-right: 24px; }
   .row[data-foryou="true"] .kind { color: #303438; }
   .empty { font-size: 13px; color: #7f8489; padding: 18px 0; }
+  .cost { padding: 14px 0; }
+  .cost-title { font-size: 11px; color: #838990; letter-spacing: .025em; margin: 0 0 4px; }
+  .cost-line { font-size: 14px; line-height: 1.45; letter-spacing: -.01em; margin: 0; font-variant-numeric: tabular-nums; }
+  .cost-store { font-size: 12px; color: #676e74; line-height: 1.45; margin: 4px 0 0; font-variant-numeric: tabular-nums; }
   @media (max-width: 480px) { main { padding: 16px 16px 40px; } .row { grid-template-columns: 44px 1fr; gap: 8px; } }
 </style>
 </head>
@@ -43,6 +47,7 @@ export function activityPage(): string {
   <section class="card">
     <p class="intro">A scripted day, sped up: chats and e-mails arrive, simulated engineers ask the service, the real question coordinator picks who to ask (within daily limits, cooldowns and access rules) and simulated colleagues answer after a while. Nothing here is a real person; rows marked <b>for you</b> involve the person chosen under Settings → You in the companion.</p>
   </section>
+  <section class="card" id="cost" hidden aria-live="polite"><div class="cost"><p class="cost-title" id="cost-title">Cost</p><p class="cost-line" id="cost-line"></p><p class="cost-store" id="cost-store"></p></div></section>
   <section class="card" id="rows"><p class="empty">No activity yet. Start <code>pnpm demo:play</code> (or <code>pnpm demo:judge</code>).</p></section>
 </main>
 <script>
@@ -62,7 +67,17 @@ export function activityPage(): string {
     });
     if (rows.length) window.scrollTo(0, document.body.scrollHeight);
   }
+  // B3: Erkki's cost and the store line (GET /costs, from store records, not from this log), in the same tick.
+  function cost() {
+    fetch('/costs', { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(); return r.json(); }).then(function (c) {
+      document.getElementById('cost-title').textContent = c.name + "'s cost" + (c.seconds.clock === 'simulated' ? ' · simulated seconds' : '');
+      document.getElementById('cost-line').textContent = 'asked ' + c.asked + ' · answered ' + c.answered + ' · deferred ' + c.deferred + ' · ' + Math.round(c.seconds.total) + ' s spent · reused ' + c.reuse.total + ' times (' + c.reuse.people + ' by people, ' + c.reuse.agents + ' by agents)';
+      document.getElementById('cost-store').textContent = c.storeHealth ? c.storeHealth.line : '';
+      document.getElementById('cost').hidden = false;
+    }).catch(function () {});
+  }
   function tick() {
+    cost();
     fetch('/demo/activity?since=' + seen, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (a) {
       if (a.rows.length) { render(a.rows); seen = a.rows[a.rows.length - 1].seq; }
       fetch('/demo/clock', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (c) {

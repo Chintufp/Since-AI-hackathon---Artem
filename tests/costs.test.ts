@@ -76,3 +76,11 @@ test('reuse: by people and by agents, a repeated request once, previews and past
   await svc.call('POST', '/investigate', { text, principal: human('person:test:other', 'Olga Other', ['noc']), at: '2026-11-08T00:00:00Z' });
   assert.deepEqual((await costs(authorId)).reuse, withAgent.reuse);
 });
+
+test('the activity page shows the cost card from GET /costs in the same tick', async () => {
+  const res = await fetch(svc.http.url + '/demo/activity.html');
+  const html = await res.text();
+  assert.match(html, /fetch\('\/costs'/);
+  assert.match(html, /id="cost"/);
+  assert.doesNotThrow(() => new Function(/<script>([\s\S]*)<\/script>/.exec(html)![1]!));
+});

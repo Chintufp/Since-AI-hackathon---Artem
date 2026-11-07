@@ -176,6 +176,7 @@ const TEMPLATE = `
      <label class="rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox"></label>
      <label class="rf-setting rf-option"><span>Reduced motion</span><input class="rf-motion" type="checkbox"></label>
      <div class="rf-setting rf-option"><span>Points &amp; rating</span><button class="rf-later" type="button" data-action="points">Open</button></div>
+     <div class="rf-setting rf-cost-row" hidden><span class="rf-cost-label">Cost</span><span class="rf-cost"><span class="rf-cost-line"></span><small class="rf-cost-store"></small></span></div>
      <div class="rf-setting rf-option"><span>Connections</span><button class="rf-later" type="button" data-action="connections">Open</button></div>
      <label class="rf-setting rf-option"><span>Sound</span><em class="rf-setting-note">No sounds yet</em><input class="rf-sound" type="checkbox" disabled aria-label="Sound (no sounds yet)"></label>
      <div class="rf-setting rf-option"><span>Demo data</span><button class="rf-later" type="button" data-action="reset-demo">Reset demo</button></div>
@@ -315,6 +316,7 @@ export function createPanel(options: PanelOptions): Panel {
   let pointsRating: ParticipationRating | null = null;
   let pointsFrom: ViewName = 'settings';
   let pointsLoad = 0;
+  let costsLoad = 0;
   // B2: Settings -> Models.
   let modelsView: ModelsView | null = null;
   let modelsError: string | null = null;
@@ -752,6 +754,27 @@ export function createPanel(options: PanelOptions): Panel {
       if (n === pointsLoad) showError(e, () => { setView('points'); });
     }
   }
+  /**
+   * B3: "Erkki's cost" row: what answering cost the most-asked person and how often their knowledge was reused, plus the
+   * store line. Loaded after the view opens; any failure (older service, mock without the route) leaves the row hidden.
+   */
+  async function loadCosts(): Promise<void> {
+    const n = ++costsLoad;
+    const row = $('.rf-cost-row');
+    try {
+      const c = await api.costs(settings?.currentPersonEntityId ? { principalId: settings.currentPersonEntityId } : {});
+      if (n !== costsLoad) return;
+      $('.rf-cost-label').textContent = `${c.name.split(' ')[0]}'s cost`;
+      const secs = `${Math.round(c.seconds.total)} s${c.seconds.clock === 'simulated' ? ' simulated' : ''}`;
+      const line = `asked ${c.asked} · answered ${c.answered} · ${secs} · reused ${c.reuse.total} (${c.reuse.people} people, ${c.reuse.agents} agents)`;
+      $('.rf-cost-line').textContent = line;
+      $('.rf-cost-store').textContent = c.storeHealth?.line ?? '';
+      row.title = `${c.line}${c.storeHealth ? `\n${c.storeHealth.line}` : ''}`;
+      row.hidden = false;
+    } catch {
+      if (n === costsLoad) row.hidden = true;
+    }
+  }
   async function setOptIn(on: boolean): Promise<void> {
     const id = settings?.currentPersonEntityId;
     if (!id) return;
@@ -1008,7 +1031,7 @@ export function createPanel(options: PanelOptions): Panel {
     compose.innerHTML = iconSvg(view === 'input' ? 'paperclip' : 'square-pen');
     if (view === 'queue') renderQueue();
     if (view === 'question') renderQuestion();
-    if (view === 'settings') renderSettings();
+    if (view === 'settings') { renderSettings(); void loadCosts(); }
     if (view === 'result') renderResult();
     if (view === 'people') renderPeople();
     if (view === 'case') renderCase();

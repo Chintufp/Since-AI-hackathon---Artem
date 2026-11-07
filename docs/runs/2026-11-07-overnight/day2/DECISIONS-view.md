@@ -140,3 +140,13 @@ when k > 0 and the two values differ at two decimals. Not persisted: writing a b
 reset would add a record type or a trace event that other counts (E00, event tests) would see; a restart simply starts
 a new "before". A failure in the store metric never fails the cost (the block is left out).
 Reverse: drop `healthBaselines` and the `storeHealth` block.
+
+## D-B3-09 · Where the cost shows
+
+Settings: one row under "Points & rating", labelled "<first name>'s cost", loaded when Settings opens (`loadCosts`,
+like `loadPoints`; it calls `GET /costs` with the current person as `principalId` and lets the route pick the most-asked
+person), two short lines: "asked 3 · answered 2 · 21 s · reused 5 (3 people, 2 agents)" and the store line; any failure
+hides the row. Activity page: a card above the rows filled by the same 2 s tick from `GET /costs` (never from the JSONL
+log), titled "<name>'s cost · simulated seconds" when the demo clock is simulated. Not checked visually in the desktop
+app in this pass beyond the screenshot harness (D-B3-11).
+Reverse: the row in `panel.ts` TEMPLATE and `loadCosts`; the `cost()` call in `activity-page.ts`.

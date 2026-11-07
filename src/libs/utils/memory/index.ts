@@ -42,7 +42,7 @@ export {
 } from './extractor-llm.ts';
 export type { DroppedItem, LlmExtractor, LlmExtractorOptions, ValidatedExtraction } from './extractor-llm.ts';
 export { enrichWithModel, modelProvenance } from './enrich.ts';
-export { storeHealth, healthProduct, healthProductOrNull, retrievalCounts, canonicalKey, expectedGain, isApplicabilityAnswer, STORE_METRIC_METHOD, SLOTS as COMPLETENESS_SLOTS } from './store-health.ts';
+export { storeHealth, healthProduct, healthProductOrNull, retrievalCounts, canonicalKey, expectedGain, P_CONFIRM, pairingLinks, isApplicabilityAnswer, STORE_METRIC_METHOD, SLOTS as COMPLETENESS_SLOTS } from './store-health.ts';
 export type { StoreHealth, StoreHealthOptions, CaseHealth, CompletenessSlot, GainInput } from './store-health.ts';
 export type { EnrichItem, EnrichOptions, EnrichReport } from './enrich.ts';
 export type { ExtractionConfig } from './extraction-config.ts';

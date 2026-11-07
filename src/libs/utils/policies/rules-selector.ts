@@ -8,11 +8,13 @@ export interface RulesSelectorOptions extends SelectorClock {
 }
 
 /**
- * Deterministic baseline and the bandit's fixed prior.
+ * Deterministic baseline. It ranks by the quantity the bandit's reward measures; LinUCB does not start from this order
+ * (ridge prior only, no value features in its vector, D-B2-74).
  * Gate (unchanged): score = consequential x (firsthand ? 1 : 0.6) x 1/(1+openQuestionsForPerson) x recency
  * (recency defaults to 1 when unknown: unknown recency neither rewards nor penalises). Defers when nothing is eligible
  * or no pair reaches the threshold.
- * Order (brief 5.3, D-B2-67): among the pairs that pass the gate, the highest value / cost (value-cost.ts) is asked;
+ * Order (brief 5.3, D-B2-67): among the pairs that pass the gate (the candidates of one investigation state), the
+ * highest value / cost (value-cost.ts) is asked;
  * ties (including every pair at value 0) fall back to the score, then to the action key. Pairs without an expected gain
  * in their features rank by the score alone, as before.
  */

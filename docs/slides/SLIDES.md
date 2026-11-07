@@ -113,15 +113,16 @@ notes: An agent can't call Erkki at 3 a.m., and here it doesn't. It finds the ga
 
 ## Slide 11 · Honest numbers
 
-- 618/618 tests. Test split hash-locked: sha256 9f202253…, 73e145d0… (TEST_LOCK.json).
+- 641/641 tests. Hash-locked: test split 9f202253…, 73e145d0…; E10 results 9248c650….
 - E08 bge-m3: recall@3 7/9, as baseline; lookalike rejected 1/2; paraphrase (TRN-117) rank 1 vs 5.
 - E09 qwen3:4b: claim recall 33/47 vs rules 32/47 (train), 14/22 both (validation); 6/6 imports over 60 s.
-- E10, 5 cases × 3 seeds: completeness 0.45 → 0.45; correctness 3/180 → 3/180; bandit wins 0/3.
+- Live Ollama, once, Elisa's data: TRN-042 rank 1 (as rules); thread import 41.8 s of 60 s, 1 new claim; phrase echoed the template.
+- E10, 5 cases × 3 seeds: correctness 3/180 → 3/180; touched-case completeness +12.49 (3/5 answers) / +16.66 pts (4/6); bandit 0/3.
 - Weak: kind accuracy 3/12 vs 6/12 baseline; simulated people; synthetic data.
 
 show: the E08–E10 tables (E08-E10.md) and experiments/RESULTS.md.
 
-notes: Every number has its denominator and runs offline from recorded, hash-locked outputs. The models are opt-in because they have not earned the default: bge-m3 only wins the paraphrase, qwen3:4b adds one claim. The store metric did not move in one simulated day. Decision quality after retrieval is our weakest part.
+notes: Every number has its denominator; E08–E10 run offline from recorded, hash-locked outputs. The models are opt-in because they have not earned the default: bge-m3 only wins the paraphrase, and on Elisa's store it ties rules; qwen3:4b adds one claim. The local runs on Elisa's data are one observation each, not scored. Questions are now ranked by value / cost, and an applicability No no longer counts as a contradiction: the answers of one simulated day fill keys, but the product stays 0 because the touched cases have no supported claim yet. Decision quality after retrieval is our weakest part.
 
 ## Slide 12 · "Is this documented somewhere?"
 

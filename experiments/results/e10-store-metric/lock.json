@@ -1,0 +1,10 @@
+{
+  "runId": "e10-store-metric",
+  "method": "sha256 (first 16 hex) of each file name and its JSON without startedAt/finishedAt/at, in this order",
+  "files": [
+    "results.json",
+    "per-seed.json",
+    "decision.json"
+  ],
+  "resultsSha256": "9248c6506f594c97"
+}

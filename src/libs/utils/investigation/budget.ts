@@ -1,10 +1,14 @@
 import type { Budget, KnowledgeStore, QuestionRecord } from '../contracts/index.ts';
 import type { InvestigationSettings } from './settings.ts';
+import { localDay } from '../questions/quiet-hours.ts';
 
 const ACTIVE = new Set(['queued', 'delivered']);
-const sameUtcDay = (a: Date, b: Date): boolean => a.toISOString().slice(0, 10) === b.toISOString().slice(0, 10);
 
-/** Per-person budget derived from persisted question records (no separate counter to drift). */
+/**
+ * Per-person budget derived from persisted question records (no separate counter to drift). "Today" is the local
+ * calendar day in the quiet hours' time zone when the settings carry quiet hours (the same clock the quiet-hours term
+ * uses), UTC otherwise; so a question delivered at 01:30 Helsinki time counts toward that Helsinki day, not the UTC one.
+ */
 export function computeBudget(
   store: KnowledgeStore,
   personEntityId: string,
@@ -14,7 +18,9 @@ export function computeBudget(
 ): Budget {
   const mine = store.list('question', { where: { personEntityId } }).filter((q) => !ignoreQuestionIds.includes(q.id));
   const delivered = mine.filter((q) => q.deliveredAt);
-  const askedToday = delivered.filter((q) => sameUtcDay(new Date(q.deliveredAt as string), now)).length;
+  const tz = settings.coordinator.quietHours?.timeZone;
+  const today = localDay(now, tz);
+  const askedToday = delivered.filter((q) => localDay(new Date(q.deliveredAt as string), tz) === today).length;
   const last = delivered.map((q) => q.deliveredAt as string).sort().at(-1);
   return {
     personEntityId,

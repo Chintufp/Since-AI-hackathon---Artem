@@ -13,6 +13,8 @@ export { checkLiveGuard, pullChannelReadOnly, slackWebClient, SlackApiError, Wor
 export type { SlackReadClient, SlackReadMethod, LiveGuardInput, LiveGuardResult, PullOptions, PullResult } from './slack-live-pull.ts';
 export type { SlackChannel, SlackMessage, SlackUser } from './slack-map.ts';
 export { parsePaste, PASTE_CONNECTION_ID } from './paste.ts';
+export { detectPasteKind, parsePastedThread } from './paste-thread.ts';
+export type { PasteKind } from './paste-thread.ts';
 export type { PastePayload } from './paste.ts';
 export { parseTimeRef, timeFromEpochSeconds, compareTime, describeTime } from './time.ts';
 export { splitEmailBody, normalizeSubject, isReplySubject } from './quoted.ts';

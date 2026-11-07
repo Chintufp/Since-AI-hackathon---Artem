@@ -8,7 +8,7 @@ import {
   computeBudget, investigate, OUTCOME_KEY, parseGapId, questionsForInvestigation, startedBy, storeDirectory,
   type InvestigationSettings, type PersonDirectory,
 } from '../investigation/index.ts';
-import { ANSWER_DIFFERS_FROM_CASE, ANSWER_MATCHES_CASE } from '../retrieval/conditions.ts';
+import { ANSWER_DIFFERS_FROM_CASE, ANSWER_MATCHES_CASE, foldYearToAge } from '../retrieval/conditions.ts';
 import { uniqueRoutes } from '../models/routes.ts';
 import { actionKey, SUPPORT_LEVEL } from '../policies/features.ts';
 import type { QuestionContext } from './context.ts';
@@ -39,6 +39,8 @@ export interface AnswerResult {
   question: QuestionRecord;
   state: InvestigationState;
   cancelled: QuestionRecord[];
+  /** False when the rebuilt recommendation (kind and text) equals the one before the answer. */
+  recommendationChanged: boolean;
 }
 
 const ACTIVE = new Set(['queued', 'delivered']);
@@ -66,8 +68,14 @@ export class QuestionCoordinator {
     state.loopReason = reason;
   }
 
-  private waitingReason(personEntityId: string): string {
-    return this.d.settings.loopReasons.waiting.replace('{name}', this.ctx.directory.get(personEntityId)?.name ?? 'the recipient');
+  /** "Asked <name> because they <contribution> in <case>" when the reason is known, else the generic waiting line. */
+  private waitingReason(personEntityId: string, state?: InvestigationState, gapId?: string, recs?: RecipientReason[]): string {
+    const R = this.d.settings.loopReasons;
+    const name = this.ctx.directory.get(personEntityId)?.name ?? 'the recipient';
+    const gap = state && gapId ? state.gaps.find((g) => g.id === gapId) : undefined;
+    const found = recs ?? (state && gap ? findRecipients(this.ctx, state, gap) : []);
+    const because = found.find((r) => r.personEntityId === personEntityId)?.because;
+    return (because ? R.asked.replace('{because}', because) : R.waiting).replace('{name}', name);
   }
 
   private trace(state: InvestigationState, type: string, data: Record<string, unknown>): TraceEvent {
@@ -114,7 +122,7 @@ export class QuestionCoordinator {
 
     const active = questionsForInvestigation(store, state.id).find((q) => ACTIVE.has(q.status));
     if (active) {
-      this.setLoop(state, 'question-open', this.waitingReason(active.personEntityId));
+      this.setLoop(state, 'question-open', this.waitingReason(active.personEntityId, state, active.candidate.gapId));
       store.put('investigation', state);
       return { state, question: active, candidates: [], eligibility: [] };
     }
@@ -171,7 +179,7 @@ export class QuestionCoordinator {
       state.questionIds = [...state.questionIds, question.id];
       this.trace(state, 'question.queued', { questionId: question.id, personEntityId: question.personEntityId, decisionId: decision.id });
       if (opts.deliver !== false) question = await this.deliver(question.id);
-      this.setLoop(state, 'question-open', this.waitingReason((chosen as EligibleAction).personEntityId));
+      this.setLoop(state, 'question-open', this.waitingReason((chosen as EligibleAction).personEntityId, state, cand.gapId, recipientCache.get(cand.gapId)));
     } else {
       const reasons = this.d.settings.loopReasons;
       const used = questionsForInvestigation(store, state.id).filter((q) => q.status !== 'cancelled').length;
@@ -256,11 +264,14 @@ export class QuestionCoordinator {
     let claimUpdates: ClaimUpdate[] = [];
     let condition: Condition | undefined;
     if (parsed?.kind === 'missing') {
-      const caseCond = this.store.get('case', parsed.caseId)?.conditions.find((c) => c.key === parsed.detail);
+      // The gap's key may be a folded one (e.g. an age class derived from a stated year): look it up the way retrieval does.
+      const key = gap?.targetCondition?.key ?? parsed.detail;
+      const caseConds = foldYearToAge(this.store.get('case', parsed.caseId)?.conditions ?? [], this.d.settings.ageFold);
+      const caseCond = caseConds.find((c) => c.key === key);
       if (value !== 'unknown' && caseCond) {
         // The question asks whether the CASE's condition holds here, whatever its operator: record agreement/disagreement
         // with it (understood by agreement()), not an eq/neq of its value.
-        condition = { key: parsed.detail, operator: 'eq', value: value === 'yes' ? ANSWER_MATCHES_CASE : ANSWER_DIFFERS_FROM_CASE, origin: 'reported', evidence: [evRef], label: `${gap?.targetCondition?.label ?? parsed.detail}: ${value} (answered)` };
+        condition = { key, operator: 'eq', value: value === 'yes' ? ANSWER_MATCHES_CASE : ANSWER_DIFFERS_FROM_CASE, origin: 'reported', evidence: [evRef], label: `${gap?.targetCondition?.label ?? parsed.detail}: ${value} (answered)` };
       }
       claimUpdates = value === 'unknown'
         ? upd('no-change', 'Unknown: no factual update; the gap stays open.')
@@ -283,13 +294,15 @@ export class QuestionCoordinator {
     const ev = this.store.get('evaluation', q.decisionId) as (EvaluationRecord & { id: string }) | undefined;
     if (ev) this.store.put('evaluation', { ...ev, response: { value, latencyMs: Math.max(0, Date.parse(now) - Date.parse(q.deliveredAt ?? q.createdAt)) }, missingFeedback: false });
 
+    const before = state.recommendation;
     state = await this.rebuild(state.id);
+    const recommendationChanged = before.kind !== state.recommendation.kind || before.text !== state.recommendation.text;
     const g = state.gaps.find((x) => x.id === q.candidate.gapId);
     if (g?.status === 'resolved' && g.resolvedBy) g.resolvedBy = { ...g.resolvedBy, answerId };
-    this.setLoop(state, 'answered', this.d.settings.loopReasons.answered);
+    this.setLoop(state, 'answered', recommendationChanged ? this.d.settings.loopReasons.answered : this.d.settings.loopReasons.answeredNoChange);
     this.store.put('investigation', state);
     const cancelled = await this.cancelObsolete(state.id);
-    return { answer, question: updated, state: this.load(state.id), cancelled };
+    return { answer, question: updated, state: this.load(state.id), cancelled, recommendationChanged };
   }
 
   /** Re-run the assessment with every recorded observation/answer; carries questions, decisions and events over. */
@@ -385,7 +398,7 @@ export class QuestionCoordinator {
       const { answerId: _drop, ...rest } = restored;
       this.store.put('question', rest);
       const state = await this.rebuild(q.candidate.investigationId);
-      this.setLoop(state, 'question-open', this.waitingReason(q.personEntityId));
+      this.setLoop(state, 'question-open', this.waitingReason(q.personEntityId, state, q.candidate.gapId));
       this.store.put('investigation', state);
       return rest;
     }

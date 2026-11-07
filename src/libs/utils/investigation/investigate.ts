@@ -4,13 +4,14 @@ import type {
 } from '../contracts/index.ts';
 import { freshId, stableId } from '../contracts/index.ts';
 import { uniqueRoutes } from '../models/routes.ts';
-import { canSee } from '../retrieval/access.ts';
+import { canSee, evidenceGate, type EvidenceGate } from '../retrieval/access.ts';
 import { resolveEntityIds } from '../retrieval/exact.ts';
-import { loadCaseFacts, OUTCOME_KEY } from './case-facts.ts';
-import { shortCaseLabel } from './phrases.ts';
+import { loadCaseFacts, OUTCOME_KEY, viewerOfState } from './case-facts.ts';
+import { casePhrase, shortCaseLabel } from './phrases.ts';
 import { storeDirectory, type PersonDirectory } from './directory.ts';
 import { buildGaps, parseGapId } from './gaps.ts';
 import { buildPeople } from './people.ts';
+import { visibleCandidates } from './visible-candidates.ts';
 import { parseProblemText, type ParserOptions } from './problem-parser.ts';
 import { isRelatedCandidate } from './related.ts';
 import { recommend } from './recommend.ts';
@@ -54,17 +55,17 @@ function mergeConditions(layers: Condition[][]): Condition[] {
 }
 
 async function buildHypothesis(
-  d: { candidate: CandidateMatch; state: InvestigationState; deps: InvestigateDeps; store: KnowledgeStore },
+  d: { candidate: CandidateMatch; state: InvestigationState; deps: InvestigateDeps; store: KnowledgeStore; gate: EvidenceGate },
 ): Promise<HypothesisDetail | undefined> {
-  const { candidate, state, deps, store } = d;
+  const { candidate, state, deps, store, gate } = d;
   const assessment = await deps.assessor.assess(candidate, state);
   if (candidate.caseId) {
-    const facts = loadCaseFacts(store, candidate.caseId, state.id, deps.settings);
+    const facts = loadCaseFacts(store, candidate.caseId, state.id, deps.settings, gate);
     if (!facts.case) return undefined;
     if (facts.hypothesisClaims.length === 0 && facts.attempts.length === 0 && facts.adviceClaims.length === 0) return undefined;
     const primary = facts.corrective ?? facts.diagnostic;
     const claimIds = [...facts.hypothesisClaims, ...facts.adviceClaims].map((c) => c.id);
-    const statement = facts.hypothesisClaims[0]?.statement ?? facts.adviceClaims[0]?.statement ?? `${primary?.action ?? 'response'} in "${facts.case.title}"`;
+    const statement = facts.hypothesisClaims[0]?.statement ?? facts.adviceClaims[0]?.statement ?? `${primary ? casePhrase(primary.action, facts.evidenceText, deps.settings.phrases).noun : 'the response'} in "${facts.case.title}"`;
     const basis = dedupeRefs([
       ...[...facts.hypothesisClaims, ...facts.adviceClaims].flatMap((c) => c.supporting),
       ...facts.attempts.flatMap((a) => a.evidence),
@@ -155,9 +156,10 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
     parsed.conditions, prior, problem.observations ?? [], recorded.map((o) => o.condition).filter((c) => c.key !== OUTCOME_KEY),
   ]);
 
-  const candidates = await deps.retriever.search({
+  const gate = evidenceGate(store, principal);
+  const candidates = visibleCandidates(store, await deps.retriever.search({
     text: problem.text, conditions, entityIds, requesterPrincipal: { id: principal.id, groups: principal.groups }, k: settings.k,
-  });
+  }), gate);
   const top = candidates[0]?.score ?? 0;
   const relevant = candidates.filter((c) => c.score >= settings.relativeScoreFloor * top && c.score > 0);
 
@@ -167,9 +169,10 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
     people: [], questionIds: previous?.questionIds ?? [], decisionIds: previous?.decisionIds ?? [], loop: 'no-question-needed', events: previous?.events ?? [], routes: [],
   };
 
+  viewerOfState.set(draft, { id: principal.id, groups: principal.groups });
   const details: HypothesisDetail[] = [];
   for (const candidate of relevant) {
-    const d = await buildHypothesis({ candidate, state: draft, deps, store });
+    const d = await buildHypothesis({ candidate, state: draft, deps, store, gate });
     if (d) details.push(d);
   }
 
@@ -181,7 +184,7 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
   const requesterEntityId = directory.resolve(problem.requester.id);
   const people = buildPeople({
     store, directory, principal, ...(requesterEntityId ? { requesterEntityId } : {}),
-    investigationId: id, candidates: relevant, ...(selected?.candidate.caseId ? { selectedCaseId: selected.candidate.caseId } : {}), entityIds, settings, now,
+    investigationId: id, candidates: relevant, gate, ...(selected?.candidate.caseId ? { selectedCaseId: selected.candidate.caseId } : {}), entityIds, settings, now,
   });
 
   const state: InvestigationState = {
@@ -213,12 +216,14 @@ export async function investigate(input: InvestigateInput): Promise<Investigatio
   }
   state.routes = uniqueRoutes(routes);
 
+  // The case the recommendation is based on (the best related candidate), so views show the timeline of that case.
+  const basisData = selected?.candidate.caseId ? { basisCaseId: selected.candidate.caseId } : {};
   const event: TraceEvent = {
     id: freshId('evt'), at: nowIso, traceId: id, type: previous ? 'investigation.rebuilt' : 'investigation.started',
     actor: { id: 'system', displayName: 'investigation' },
     data: previous
-      ? { observations: recorded.length, recommendation: recommendation.kind }
-      : { principal: { id: principal.id, displayName: principal.displayName, groups: principal.groups, type: principal.type }, recommendation: recommendation.kind },
+      ? { observations: recorded.length, recommendation: recommendation.kind, ...basisData }
+      : { principal: { id: principal.id, displayName: principal.displayName, groups: principal.groups, type: principal.type }, recommendation: recommendation.kind, ...basisData },
   };
   state.events = [...state.events, event];
   store.put('investigation', state);
@@ -231,3 +236,17 @@ export function startedBy(state: InvestigationState): Principal | undefined {
   return p;
 }
 
+
+/**
+ * The case the recommendation is based on (also the best related candidate when the recommendation is `none` or
+ * `retain-uncertainty`); undefined when no related case exists. Read from the latest trace event that recorded it.
+ */
+export function basisCaseId(state: InvestigationState): string | undefined {
+  for (let i = state.events.length - 1; i >= 0; i--) {
+    const e = state.events[i] as TraceEvent;
+    if (e.type !== 'investigation.started' && e.type !== 'investigation.rebuilt') continue;
+    const id = e.data?.basisCaseId;
+    return typeof id === 'string' ? id : undefined;
+  }
+  return undefined;
+}

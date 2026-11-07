@@ -1,5 +1,6 @@
 import type { Gap, InvestigationState, PersonWorkLink } from '../contracts/index.ts';
-import { parseGapId } from '../investigation/index.ts';
+import { parseGapId, shortCaseLabel, startedBy } from '../investigation/index.ts';
+import { evidenceGate, visibleCase } from '../retrieval/access.ts';
 import { resolveEntityIds } from '../retrieval/exact.ts';
 import type { QuestionContext } from './context.ts';
 
@@ -10,6 +11,8 @@ export interface RecipientReason {
   reasons: string[];
   /** Most recent known link time (ISO), if any. */
   recencyIso?: string;
+  /** Why this person is asked, as plain words, e.g. "performed the action in TRN-042" (for the loop status line). */
+  because?: string;
 }
 
 const PAST: PersonWorkLink['contribution'][] = ['performed-action', 'reported-outcome', 'advised'];
@@ -37,13 +40,23 @@ export function findRecipients(ctx: QuestionContext, state: InvestigationState, 
   if (!parsed || parsed.kind === 'lasting') return [];
   const { store, directory, settings } = ctx;
   const requester = directory.resolve(state.problem.requester.id);
-  const links = store.list('personLink').filter((l) => l.status !== 'rejected' && l.firsthand);
+  // A person is a recipient only through knowledge the REQUESTER may see: the link's evidence must be visible to them and
+  // so must the linked case (otherwise the loop status line would name someone known only through private evidence).
+  const starter = startedBy(state);
+  const gate = starter ? evidenceGate(store, starter) : undefined;
   const cases = new Map(store.list('case').map((c) => [c.id, c] as const));
+  const caseSeen = (id: string | undefined): boolean => {
+    if (!id || !gate) return true;
+    const c = cases.get(id);
+    return !!c && !!visibleCase(c, gate);
+  };
+  const links = store.list('personLink').filter((l) => l.status !== 'rejected' && l.firsthand && (!gate || gate.supported(l.evidence)) && (!l.caseId || caseSeen(l.caseId)));
   const acc = new Map<string, RecipientReason>();
-  const add = (pid: string, reason: string, recency?: string, firsthand = false): void => {
+  const add = (pid: string, reason: string, recency?: string, firsthand = false, because?: string): void => {
     if (pid === requester) return;
     const e = acc.get(pid) ?? { personEntityId: pid, firsthand: false, reasons: [] };
     if (!e.reasons.includes(reason)) e.reasons.push(reason);
+    if (because && !e.because) e.because = because;
     e.firsthand = e.firsthand || firsthand;
     if (recency && (!e.recencyIso || recency > e.recencyIso)) e.recencyIso = recency;
     acc.set(pid, e);
@@ -53,7 +66,7 @@ export function findRecipients(ctx: QuestionContext, state: InvestigationState, 
   if (parsed.kind === 'outcome') {
     const c = cases.get(parsed.caseId);
     for (const l of links.filter((x) => x.caseId === parsed.caseId && PAST.includes(x.contribution))) {
-      add(l.personEntityId, `Firsthand: ${VERB[l.contribution]} in "${c?.title ?? parsed.caseId}"`, recencyOf(l), true);
+      add(l.personEntityId, `Firsthand: ${VERB[l.contribution]} in "${c?.title ?? parsed.caseId}"`, recencyOf(l), true, `${VERB[l.contribution]} in ${c ? shortCaseLabel(store, c) : 'that case'}`);
     }
   } else {
     const entityIds = new Set(problemEntityIds(ctx, state));
@@ -62,14 +75,15 @@ export function findRecipients(ctx: QuestionContext, state: InvestigationState, 
       const viaCase = l.caseId ? cases.get(l.caseId)?.entityIds.filter((id) => entityIds.has(id)) ?? [] : [];
       const hit = l.entityId && entityIds.has(l.entityId) ? [l.entityId] : viaCase;
       if (hit.length === 0) continue;
-      add(l.personEntityId, `Firsthand: ${VERB[l.contribution]} on ${hit.map((id) => names.get(id) ?? id).join(', ')}`, recencyOf(l), true);
+      const where = hit.map((id) => names.get(id) ?? id).join(', ');
+      add(l.personEntityId, `Firsthand: ${VERB[l.contribution]} on ${where}`, recencyOf(l), true, `${VERB[l.contribution]} on ${where}`);
     }
     const key = parsed.detail;
     for (const p of directory.all()) {
       const viaGroup = p.groups.find((g) => settings.observability.groups[g]?.includes(key));
       const viaRole = p.role && settings.observability.roles[p.role]?.includes(key) ? p.role : undefined;
-      if (viaGroup) add(p.id, `Directory: group "${viaGroup}" is configured to observe ${key}`);
-      if (viaRole) add(p.id, `Directory: role "${viaRole}" is configured to observe ${key}`);
+      if (viaGroup) add(p.id, `Directory: group "${viaGroup}" is configured to observe ${key}`, undefined, false, `their group (${viaGroup}) can observe this`);
+      if (viaRole) add(p.id, `Directory: role "${viaRole}" is configured to observe ${key}`, undefined, false, `their role (${viaRole}) can observe this`);
     }
   }
   return [...acc.values()].sort((a, b) => Number(b.firsthand) - Number(a.firsthand) || a.personEntityId.localeCompare(b.personEntityId));

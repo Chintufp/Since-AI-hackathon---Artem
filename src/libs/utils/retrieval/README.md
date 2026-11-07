@@ -28,3 +28,6 @@ Candidate retrieval for a new problem: which historical cases/procedures might a
 - Tokenizer is English-oriented with only plural stemming.
 - Trigram vectors capture spelling overlap, not meaning; no learned embedding was trained.
 - Condition values are compared as lower-cased strings (numbers for `gte`/`lte`); no unit conversion.
+
+## Fix pass 3: per-evidence access
+`evidenceGate(store, principal)` and `visibleCase(case, gate)` (access.ts): a case or claim whose evidence is entirely invisible to the principal is not in the corpus, case conditions keep only visible evidence references, and a case with no visible evidence is skipped. `canSee` on the record scope still applies first.

@@ -1,6 +1,6 @@
 import type { Condition, EvidenceRef, Recommendation } from '../contracts/index.ts';
 import { isSoftCondition } from '../retrieval/conditions.ts';
-import { actionPhrase, capitalize, clampText, conflictInWords, plainLabel, symptomsPhrase } from './phrases.ts';
+import { casePhrase, capitalize, clampText, conflictInWords, plainLabel, symptomsPhrase } from './phrases.ts';
 import type { HypothesisDetail } from './types.ts';
 import type { InvestigationSettings } from './settings.ts';
 
@@ -28,7 +28,10 @@ function planFor(d: HypothesisDetail, s: RecommendSettings, problem: Condition[]
   const { support, applicability } = d.hypothesis;
   const P = s.phrases;
   const basis = dedupeRefs(d.hypothesis.basis);
-  const corrective = d.facts?.corrective;
+  // An action the requester's own text reports as already done is never recommended again.
+  const alreadyDone = (a: string): boolean => problem.some((c) => (c.key === 'action.performed' && c.value === a) || (c.key === 'component.replaced' && typeof c.value === 'string' && a === `${c.value}.replace`));
+  const repeated = d.facts?.corrective && alreadyDone(d.facts.corrective.action) ? d.facts.corrective : undefined;
+  const corrective = repeated ? undefined : d.facts?.corrective;
   const diagnostic = d.facts?.diagnostic;
   const dKeys = new Set(s.distinguishingKeys);
   const missing = d.candidate.missingConditions.filter((m) => dKeys.has(m.key));
@@ -37,7 +40,8 @@ function planFor(d: HypothesisDetail, s: RecommendSettings, problem: Condition[]
   const lasting = recovered[0]?.lasting ?? 'unknown';
   const label = d.label;
   const text = (t: string): string => clampText(t, P.maxTextLength);
-  const act = (a: string) => actionPhrase(a, P);
+  // Actions are worded by what this case's evidence mentions (an action label the evidence never mentions is worded neutrally).
+  const act = (a: string) => casePhrase(a, d.facts?.evidenceText, P);
   const missingWords = missing.map((m) => plainLabel(m.label, s.hedgeMarkers));
   const selfCheck = missing.filter((m) => s.requesterObservableKeys.includes(m.key));
   const sameBasis = d.candidate.matchingConditions.filter((c) => dKeys.has(c.key) && !isSoftCondition(c, s.hedgeMarkers));
@@ -47,6 +51,12 @@ function planFor(d: HypothesisDetail, s: RecommendSettings, problem: Condition[]
   const symptoms = symptomsPhrase(problem.filter((c) => s.requesterObservableKeys.includes(c.key)), P);
   const replaced = problem.find((c) => c.key === 'component.replaced' && typeof c.value === 'string');
   const replacedGerund = replaced ? P.actions[`${String(replaced.value)}.replace`]?.gerund : undefined;
+
+  const primaryAttempt = d.facts?.corrective ?? d.facts?.diagnostic;
+  const badOutcome = d.facts?.primaryOutcomes.find((o) => o.result === 'no-change' || o.result === 'worse' || o.lasting === 'recurred');
+  const contradictedCaveat = badOutcome && primaryAttempt
+    ? (badOutcome.lasting === 'recurred' ? `The problem came back after ${act(primaryAttempt.action).noun}.` : `${capitalize(act(primaryAttempt.action).noun)} did not help.`)
+    : 'A reported outcome contradicts the response.';
 
   if (applicability === 'inapplicable' || support === 'contradicted') {
     const why: string[] = [];
@@ -61,7 +71,7 @@ function planFor(d: HypothesisDetail, s: RecommendSettings, problem: Condition[]
         kind: 'retain-uncertainty', basis, applicability: 'unsupported', actionClass: 'none',
         text: text(`Don't reuse the fix from ${label}: ${why.join('; ')}.`),
         nextStep: 'Treat the cause as unknown and gather more evidence before acting.',
-        caveats: ['The cause of the current problem is unconfirmed.', ...(support === 'contradicted' ? [d.assessment.reasons.find((r) => /outcome/.test(r)) ?? 'A reported outcome contradicts the response.'] : [])],
+        caveats: ['The cause of the current problem is unconfirmed.', ...(support === 'contradicted' ? [contradictedCaveat] : [])],
       },
     };
   }
@@ -121,12 +131,32 @@ function planFor(d: HypothesisDetail, s: RecommendSettings, problem: Condition[]
     };
   }
 
+  if (repeated) {
+    const done = act(repeated.action);
+    const other = d.facts?.attempts.find((a) => a.id !== repeated.id && a !== diagnostic && a.performed !== 'reported');
+    return {
+      rank: 1, detail: d,
+      rec: {
+        kind: 'none', basis, applicability: 'unsupported', actionClass: 'none',
+        text: text(`You already did ${done.noun}; ${label} has no other reported fix.`),
+        ...(other ? { nextStep: `${capitalize(act(other.action).noun)} was only proposed in ${label}; no recovery from it is reported.` } : {}),
+        caveats: [`${capitalize(done.noun)} is what ${label} reports as helping, and your problem says it was already done.`],
+      },
+    };
+  }
+
+  const why = {
+    weak: `what was done in ${label} is not confirmed to have worked`,
+    unknown: `${label} has no recorded response`,
+    supported: `it is not clear that ${label} applies here`,
+    contradicted: `a reported outcome in ${label} contradicts it`,
+  }[support];
   return {
     rank: 1, detail: d,
     rec: {
       kind: 'none', basis, applicability: 'unsupported', actionClass: 'none',
-      text: text(`No supported response yet; ${label} gives ${support} support.`),
-      caveats: [`${label} has ${support} support and ${applicability} applicability${corrective ? `; ${act(corrective.action).noun} has no reported recovery` : ''}.`],
+      text: text(`No supported response yet; ${why}.`),
+      caveats: [`${capitalize(why)}${corrective ? `; ${act(corrective.action).noun} has no reported recovery` : ''}${applicability === 'qualified' ? '; whether it applies to this unit is not confirmed' : ''}.`],
     },
   };
 }

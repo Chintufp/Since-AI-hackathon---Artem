@@ -1,7 +1,8 @@
 import type { EligibilityViolation, InvestigationState, QuestionCandidate, RecipientEligibility } from '../contracts/index.ts';
 import { budgetViolations, computeBudget, parseGapId, questionsForInvestigation } from '../investigation/index.ts';
-import { canSee } from '../retrieval/access.ts';
+import { canSee, evidenceGate, visibleCase } from '../retrieval/access.ts';
 import type { QuestionContext } from './context.ts';
+import { foldYearToAge } from '../retrieval/conditions.ts';
 import { findRecipients, type RecipientReason } from './recipients.ts';
 
 /** Minimum minutes before the same person is asked the same question again in another investigation. */
@@ -44,6 +45,21 @@ export function evaluateEligibility(
   const caseId = parseGapId(candidate.gapId)?.caseId ?? candidate.scope.caseId;
   const c = caseId ? store.get('case', caseId) : undefined;
   if (!c || !person || !canSee(c.accessScope, { id: personEntityId, groups: person.groups })) v.add('access');
+  else {
+    // The question text is built from what the requester may see; the recipient must see the evidence behind the very
+    // condition or attempt being asked about, or the wording itself would reveal it.
+    const gate = evidenceGate(store, { id: personEntityId, groups: person.groups });
+    const parsedGap = parseGapId(candidate.gapId);
+    if (!visibleCase(c, gate)) v.add('access');
+    else if (parsedGap?.kind === 'missing') {
+      const key = gap?.targetCondition?.key ?? parsedGap.detail;
+      const targets = foldYearToAge(c.conditions, settings.ageFold).filter((x) => x.key === key);
+      if (targets.some((x) => !gate.supported(x.evidence))) v.add('access');
+    } else if (parsedGap?.kind === 'outcome') {
+      const attempt = store.get('attempt', parsedGap.detail);
+      if (attempt && !gate.supported(attempt.evidence)) v.add('access');
+    }
+  }
 
   const budget = computeBudget(store, personEntityId, settings, now, ignore);
   for (const x of budgetViolations(budget, settings.coordinator.maxOpenQuestionsPerPerson, now)) v.add(x);

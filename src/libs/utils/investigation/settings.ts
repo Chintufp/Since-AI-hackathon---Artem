@@ -62,8 +62,12 @@ export interface LoopReasons {
   peopleBusy: string;
   holding: string;
   answered: string;
-  /** {name} = recipient display name. */
+  /** Used when the answer was recorded but the rebuilt recommendation is the same. */
+  answeredNoChange: string;
+  /** {name} = recipient display name. Used when no specific reason is known. */
   waiting: string;
+  /** {name} = recipient display name, {because} = what they did (e.g. "performed the action in TRN-042"). */
+  asked: string;
   preparing: string;
 }
 
@@ -104,7 +108,9 @@ export function defaultInvestigationSettings(over: Partial<InvestigationSettings
       peopleBusy: 'The people who could answer are busy or were asked recently; try again later',
       holding: 'Holding the question: asking now is not expected to help enough',
       answered: 'The answer was used to update the recommendation',
+      answeredNoChange: 'The answer was recorded; the recommendation did not change',
       waiting: 'Waiting for {name} to answer one quick question',
+      asked: 'Asked {name} because they {because}',
       preparing: 'One quick question to someone with firsthand knowledge could settle this',
     },
     ...over,

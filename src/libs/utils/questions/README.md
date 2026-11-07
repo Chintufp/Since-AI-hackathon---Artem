@@ -34,3 +34,7 @@ Everything comes from `InvestigationSettings` (`coordinator` limits from contrac
 - Eligibility: a person who answered the same dedupKey in another investigation is on a time-bounded `cooldown` (max of the configured cooldown and 24h), not a permanent `duplicate`. `investigate()` reuses that answer as attributed evidence for the same asset set.
 - Answers record agreement with the case condition (`ANSWER_MATCHES_CASE` / `ANSWER_DIFFERS_FROM_CASE` from `retrieval/conditions.ts`), so every condition operator works; `ClaimUpdate.claimId` is always a real Claim id.
 - `undo()` of a cancellation requires the requester or an agent. 25 tests in this module.
+
+## Fix pass 3
+- Templates never render an empty slot: when `{value}`/`{a_value}` is unknown the generic "Is this true for <asset>: <label>?" (a yes/no fact, so "No" means the condition does not hold; the asset is the one the problem names, never an asset that only belongs to the cited case) is used, and an outcome question for an attempt the requester cannot see (or that no longer exists) is skipped. Question text, rationale and consequences are built from the case as the requester may see it (`visibleCase`) and name actions only as far as that case's evidence mentions them (`casePhrase`). `question-text.test.ts` scans every generated text for double spaces, "undefined", "null", `{}` and empty parentheses.
+- `RecipientReason.because` feeds the loop line "Asked <name> because they <contribution> in <case>".

@@ -427,7 +427,7 @@ test('polish: exhausted only when the per-investigation question budget is used'
   const st = await h.start('pl_exh', B2);
   const r = await h.coordinator.request(st);
   assert.equal(r.state.loop, 'question-open');
-  assert.match(r.state.loopReason ?? '', /Waiting for .* to answer/);
+  assert.match(r.state.loopReason ?? '', /^Asked Site-Five because they observed conditions on Asset-B2$/); // changed from /Waiting for .* to answer/: the line now says why this person was asked
   const res = await h.coordinator.answer(r.question!.id, 'unknown', site());
   assert.equal(res.state.loop, 'answered');
   assert.ok(res.state.loopReason);

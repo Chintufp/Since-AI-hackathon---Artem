@@ -17,7 +17,7 @@ import {
 import { buildCaseView, importFromPath, listCases, openStore } from '../../libs/utils/memory/index.ts';
 import { TemplateQuestionGenerator, QuestionCoordinator, type RequestResult } from '../../libs/utils/questions/index.ts';
 import { createSelector, SELECTOR_IDS } from '../../libs/utils/policies/index.ts';
-import { HybridRetriever, canSee } from '../../libs/utils/retrieval/index.ts';
+import { HybridRetriever, canSee, evidenceGate } from '../../libs/utils/retrieval/index.ts';
 import { awardPoints, balanceOf, revokeContribution, type ParticipationKind } from '../../libs/utils/participation/index.ts';
 import { applyDirectory } from './directory.ts';
 import { resetDemo } from './demo.ts';
@@ -223,7 +223,7 @@ export class Engine {
   }
 
   private view(state: InvestigationState): InvestigationResult {
-    return resultView(this.store, this.sync(state), ANONYMOUS);
+    return resultView(this.store, this.sync(state), ANONYMOUS, this.wiring().settings.loopReasons);
   }
 
   // ---- routes -------------------------------------------------------------------------------
@@ -309,6 +309,8 @@ export class Engine {
   }
 
   getInvestigation(id: string, principalId?: string): InvestigationResult {
+    // Known gap (see worker report): an absent principalId is still accepted because the typed GET contract carries no
+    // principal and tests/e2e.test.ts reads without one. A deployment must authenticate callers.
     return this.view(this.owned(id, principalId));
   }
 
@@ -445,18 +447,22 @@ export class Engine {
       this.sync(r.state);
       const kind: ParticipationKind = req.value === 'yes' ? 'answer-yes' : req.value === 'no' ? 'answer-no' : 'answer-unknown';
       const points = this.award({ personEntityId: q.personEntityId, contributionEventId: r.answer.id, kind, summary: `Answered "${req.value}": ${q.candidate.text}` });
-      return { answer: r.answer, receipt: this.receipt(req.value, r.question, r.state, points), question: r.question };
+      return { answer: r.answer, receipt: this.receipt(req.value, r.question, r.state, points, r.recommendationChanged), question: r.question };
     } catch (e) {
       throw toServiceError(e);
     }
   }
 
-  private receipt(value: 'yes' | 'no' | 'unknown', q: QuestionRecord, state: InvestigationState | undefined, points: number | undefined): ReceiptView {
+  /** Plain prose only: what was recorded, and what it did to the recommendation. No status words or identifiers. */
+  private receipt(value: 'yes' | 'no' | 'unknown', q: QuestionRecord, state: InvestigationState | undefined, points: number | undefined, changed?: boolean): ReceiptView {
     const label = { yes: 'Recorded: Yes', no: 'Recorded: No', unknown: 'Recorded: Not sure' }[value];
+    const asked = `"${q.candidate.text.replace(/\s+/g, ' ').trim()}"`;
+    const lead = value === 'unknown' ? `You were not sure about ${asked}.` : `You answered ${value} to ${asked}.`;
     const effect = value === 'unknown'
-      ? 'No factual update was made; the question stays unresolved and you will not be asked again.'
-      : state ? `${RECOMMENDATION_PROSE[state.recommendation.kind] ?? 'The recommendation was updated'}.` : 'Your answer was recorded as attributed evidence.';
-    return { title: label, detail: `${q.candidate.text} ${effect}`, canUndo: true, ...(points ? { pointsAwarded: points } : {}) };
+      ? 'No new fact was recorded, and you will not be asked this again.'
+      : state && changed === false ? 'Your answer was recorded, and the recommendation did not change.'
+      : state ? `${RECOMMENDATION_PROSE[state.recommendation.kind] ?? 'The recommendation was updated'}.` : 'Your answer was saved as your own report.';
+    return { title: label, detail: `${lead} ${effect}`, canUndo: true, ...(points ? { pointsAwarded: points } : {}) };
   }
 
   private async settle(questionId: string, principalIn: Principal, to: 'defer' | 'dismiss'): Promise<{ receipt: ReceiptView; question: QuestionRecord }> {
@@ -546,7 +552,9 @@ export class Engine {
   // ---- people and contact draft -----------------------------------------------------------------
 
   people(investigationId: string, principalId: string): PersonView[] {
-    return this.owned(investigationId, principalId).people.map(personView);
+    const state = this.owned(investigationId, principalId);
+    const gate = evidenceGate(this.store, startedBy(state) ?? this.principalFor(principalId));
+    return state.people.map((p) => personView(p, gate));
   }
 
   contactDraft(req: ContactDraftRequest): ContactDraft {

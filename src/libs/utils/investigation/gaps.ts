@@ -1,7 +1,7 @@
 import type { Gap } from '../contracts/index.ts';
 import { stableId } from '../contracts/index.ts';
 import { isSoftCondition } from '../retrieval/conditions.ts';
-import { actionPhrase, plainLabel } from './phrases.ts';
+import { casePhrase, plainLabel } from './phrases.ts';
 import type { HypothesisDetail } from './types.ts';
 import type { InvestigationSettings } from './settings.ts';
 
@@ -62,6 +62,7 @@ export function buildGaps({ investigationId, detail, settings }: GapInput): Gap[
 
   const primary = facts?.corrective;
   if (primary && facts) {
+    const actionPhrase = (a: string, p: typeof settings.phrases) => casePhrase(a, facts.evidenceText, p);
     if (hypothesis.support === 'weak' && primary.performed === 'reported') {
       gaps.push({
         id: makeGapId(investigationId, 'outcome', caseId, primary.id),

@@ -35,6 +35,14 @@ export interface PhraseSettings {
   contributionOrder: Array<PersonWorkLink['contribution']>;
   /** Maximum characters of Recommendation.text (the heading). */
   maxTextLength: number;
+  /**
+   * Action name -> words that show, when one of them appears in the case's own evidence text, that the action really is
+   * what that evidence describes. Unlisted actions are checked against the words of their own name ("counters.check" ->
+   * "counter"). An action the evidence never mentions is worded neutrally (`unverifiedAction`) instead of by its label.
+   */
+  actionEvidenceTerms?: Record<string, string[]>;
+  /** Neutral wording for an action whose label the case's evidence does not support. */
+  unverifiedAction?: ActionPhrase;
 }
 
 export const DEFAULT_PHRASES: PhraseSettings = {
@@ -46,6 +54,7 @@ export const DEFAULT_PHRASES: PhraseSettings = {
     'sfp.replace': { imperative: 'replace the SFP', gerund: 'replacing the SFP', noun: 'the SFP replacement', past: 'replaced the SFP' },
     'device.reboot': { imperative: 'reboot the unit', gerund: 'rebooting the unit', noun: 'the reboot', past: 'rebooted the unit' },
     'power.cycle': { imperative: 'power-cycle the unit', gerund: 'power-cycling the unit', noun: 'the power cycle', past: 'power-cycled the unit' },
+    'config.rollback': { imperative: 'roll back the config', gerund: 'rolling back the config', noun: 'the config rollback', past: 'rolled back the config' },
   },
   recoveries: { 'interface.reset': 'restored traffic', 'device.reboot': 'restored traffic' },
   conditions: {
@@ -64,12 +73,32 @@ export const DEFAULT_PHRASES: PhraseSettings = {
   },
   performedAndRecovered: { withAction: 'Performed {action} and reported recovery in {case}', withoutAction: 'Performed an action and reported recovery in {case}' },
   performedAndReported: { withAction: 'Performed {action} and reported the outcome in {case}', withoutAction: 'Performed an action and reported the outcome in {case}' },
+  actionEvidenceTerms: {
+    'interface.reset': ['interface', 'port', 'shut', 're-enable', 'reenable', 'reset', 'bounce', 'toggle'],
+    'counters.check': ['counter'],
+    'optics.check': ['optic', 'rx power', 'light level', 'dbm'],
+    'logs.check': ['log'],
+    'sfp.replace': ['sfp', 'transceiver', 'optic'],
+    'device.reboot': ['reboot', 'restart', 'power cycle', 'power-cycle'],
+    'power.cycle': ['power cycle', 'power-cycle', 'powercycle', 'cycle the power'],
+  },
+  unverifiedAction: { imperative: 'repeat the earlier step', gerund: 'repeating the earlier step', noun: 'the earlier step', past: 'did the earlier step' },
   contributionOrder: ['performed-action', 'reported-outcome', 'advised', 'performed-check', 'reported-problem', 'observed-condition', 'mentioned'],
   maxTextLength: 140,
 };
 
-const lastWordEnding = (verb: string): string => (verb.endsWith('e') && !verb.endsWith('ee') ? `${verb.slice(0, -1)}ing` : `${verb}ing`);
-const pastOf = (verb: string): string => (verb.endsWith('e') ? `${verb}d` : `${verb}ed`);
+/** Verbs that are written as one word when used as a noun but are two words as a verb. */
+const PHRASAL: Record<string, string> = { rollback: 'roll back', setup: 'set up', rollout: 'roll out', failover: 'fail over', cutover: 'cut over', backup: 'back up', shutdown: 'shut down', rerun: 're-run' };
+/** One-syllable consonant-vowel-consonant verbs double the last letter ("swap" -> "swapping"). */
+const doubles = (v: string): boolean => /^[^aeiou]*[aeiou][^aeiouwxy]$/.test(v);
+const lastWordEnding = (verb: string): string => (verb.endsWith('e') && !verb.endsWith('ee') ? `${verb.slice(0, -1)}ing` : doubles(verb) ? `${verb}${verb.slice(-1)}ing` : `${verb}ing`);
+const pastOf = (verb: string): string => (verb.endsWith('e') ? `${verb}d` : doubles(verb) ? `${verb}${verb.slice(-1)}ed` : `${verb}ed`);
+const verbWords = (verb: string): { imperative: string; gerund: string; past: string } => {
+  const spaced = PHRASAL[verb];
+  if (!spaced) return { imperative: verb, gerund: lastWordEnding(verb), past: pastOf(verb) };
+  const [first, ...rest] = spaced.split(' ') as [string, ...string[]];
+  return { imperative: spaced, gerund: [lastWordEnding(first), ...rest].join(' '), past: [pastOf(first), ...rest].join(' ') };
+};
 
 /** Humanized fallback for an action name without a configured phrase: "cable.replace" -> "replace the cable". */
 function fallbackPhrase(action: string): ActionPhrase {
@@ -77,13 +106,33 @@ function fallbackPhrase(action: string): ActionPhrase {
   if (parts.length >= 2) {
     const verb = parts[parts.length - 1] as string;
     const obj = parts.slice(0, -1).join(' ');
-    return { imperative: `${verb} the ${obj}`, gerund: `${lastWordEnding(verb)} the ${obj}`, noun: `the ${obj} ${verb}`, past: `${pastOf(verb)} the ${obj}` };
+    const w = verbWords(verb);
+    return { imperative: `${w.imperative} the ${obj}`, gerund: `${w.gerund} the ${obj}`, noun: `the ${obj} ${verb}`, past: `${w.past} the ${obj}` };
   }
   const w = parts[0] ?? 'action';
-  return { imperative: w, gerund: lastWordEnding(w), noun: `the ${w}`, past: pastOf(w) };
+  const v = verbWords(w);
+  return { imperative: v.imperative, gerund: v.gerund, noun: `the ${w}`, past: v.past };
 }
 
 export const actionPhrase = (action: string, p: Pick<PhraseSettings, 'actions'>): ActionPhrase => p.actions[action] ?? fallbackPhrase(action);
+
+const stem = (w: string): string => w.toLowerCase().replace(/(?:ing|ed|es|s)$/, '');
+
+/**
+ * Does the case's evidence text mention this action? `evidenceText` is the lower-cased text of the evidence the viewer may
+ * see; undefined means it could not be read (nothing to check against, so the action is kept as is).
+ */
+export function actionIsGrounded(action: string, evidenceText: string | undefined, p: Pick<PhraseSettings, 'actionEvidenceTerms'>): boolean {
+  if (evidenceText === undefined) return true;
+  const own = action.split(/[._-]/).filter((w) => w.length > 2);
+  const terms = p.actionEvidenceTerms?.[action] ?? own.slice(0, Math.max(1, own.length - 1)).map(stem);
+  return terms.some((t) => t && evidenceText.includes(t.toLowerCase()));
+}
+
+/** The phrase for an action in the context of one case: its configured wording only when the case's evidence mentions it. */
+export function casePhrase(action: string, evidenceText: string | undefined, p: Pick<PhraseSettings, 'actions' | 'actionEvidenceTerms' | 'unverifiedAction'>): ActionPhrase {
+  return actionIsGrounded(action, evidenceText, p) ? actionPhrase(action, p) : (p.unverifiedAction ?? DEFAULT_PHRASES.unverifiedAction as ActionPhrase);
+}
 
 export const capitalize = (s: string): string => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
@@ -101,6 +150,8 @@ export function clampText(s: string, max: number): string {
 export function plainLabel(label: string, hedgeMarkers: string[] = []): string {
   let s = label.replace(/\s*\[[^\]]*\]\s*/g, ' ').trim();
   for (const m of hedgeMarkers) s = s.replace(new RegExp(`\\s*\\((?:[^()]*?${m}[^()]*?)\\)\\s*$`, 'i'), '').trim();
+  // Remaining parentheses become a comma clause so the label can sit inside parentheses of its own sentence.
+  s = s.replace(/\s*\(([^()]+)\)/g, ', $1').replace(/\s+/g, ' ').trim();
   return /^[A-Z][a-z]/.test(s) ? s.charAt(0).toLowerCase() + s.slice(1) : s;
 }
 

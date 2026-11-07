@@ -1,11 +1,18 @@
 import type { Gap, InvestigationState, QuestionCandidate, QuestionGenerator } from '../contracts/index.ts';
 import { stableId } from '../contracts/index.ts';
-import { actionPhrase, parseGapId, plainLabel, shortCaseLabel, withArticle } from '../investigation/index.ts';
+import { casePhrase, loadCaseFacts, parseGapId, plainLabel, shortCaseLabel, startedBy, withArticle } from '../investigation/index.ts';
+import { evidenceGate, visibleCase } from '../retrieval/access.ts';
 import { routeInfo } from '../models/routes.ts';
 import { normalizeKey, type QuestionContext } from './context.ts';
 import { findRecipients, problemEntityIds } from './recipients.ts';
 
-const fill = (tpl: string, vars: Record<string, string>): string => tpl.replace(/\{(\w+)\}/g, (_, k: string) => vars[k] ?? '');
+const SLOT = /\{(\w+)\}/g;
+const fill = (tpl: string, vars: Record<string, string>): string => tpl.replace(SLOT, (_, k: string) => vars[k] ?? '');
+/** True when every slot of the template has a non-empty value; a question is never rendered with an empty slot. */
+const slotsFilled = (tpl: string, vars: Record<string, string>): boolean => [...tpl.matchAll(SLOT)].every((m) => (vars[m[1] as string] ?? '').trim() !== '');
+const tidy = (s: string): string => s.replace(/\s+/g, ' ').replace(/\(\s*\)/g, '').replace(/\s+([?.,])/g, '$1').trim();
+/** Used when a specific template's slot is unknown, so the question stays askable and honest about what is unknown. */
+export const GENERIC_CONDITION_TEMPLATE = 'Is this true for {asset}: {label}?';
 
 /**
  * Route 'rules' question generator: templates over gaps. Only OPEN CONSEQUENTIAL gaps become questions, and gaps
@@ -22,16 +29,25 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
     const { store, settings } = this.ctx;
     const entityIds = problemEntityIds(this.ctx, state);
     const names = new Map(store.list('entity').map((e) => [e.id, e.name] as const));
-    const assetName = entityIds.map((id) => names.get(id)).filter(Boolean).join(' and ') || 'this asset';
+    const known = new Set([...names.values()].map((n) => n.toLowerCase()));
+    // Asset-like tokens in the problem text that the directory does not know ("ACC-33"): that is the current asset.
+    const unresolved = [...new Set((state.problem.text.match(/\b[A-Za-z]{2,6}-\d{1,6}\b/g) ?? []).filter((t) => !known.has(t.toLowerCase())))];
     const out: QuestionCandidate[] = [];
+    const requester = startedBy(state);
+    const gate = requester ? evidenceGate(store, requester) : undefined;
 
     for (const gap of state.gaps) {
       if (gap.status !== 'open' || !gap.consequential) continue;
       const p = parseGapId(gap.id);
       if (!p || p.kind === 'lasting') continue;
-      const c = store.get('case', p.caseId);
+      const rawCase = store.get('case', p.caseId);
+      // The question is built from what the requester may see of the case (never from evidence hidden from them).
+      const c = rawCase && gate ? visibleCase(rawCase, gate) : rawCase;
       if (!c) continue;
       const caseLabel = shortCaseLabel(store, c);
+      // Entities that only belong to the cited case are not the current asset when the problem names an unknown one.
+      const own = unresolved.length ? entityIds.filter((id) => !c.entityIds.includes(id)) : entityIds;
+      const assetName = [...own.map((id) => names.get(id)).filter(Boolean), ...(own.length ? [] : unresolved)].join(' and ') || 'this asset';
       const hyp = state.hypotheses.find((h) => h.id === stableId('hyp', state.id, p.caseId));
       const evIds = [...new Set((hyp?.basis ?? []).map((b) => b.evidenceId))].slice(0, 4);
       const cite = evIds.length ? ` Evidence: ${evIds.join(', ')}.` : '';
@@ -43,25 +59,32 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
         const cond = c.conditions.find((x) => x.key === p.detail);
         const label = plainLabel(gap.targetCondition?.label ?? p.detail, settings.hedgeMarkers);
         // Specific templates assume equality ("installed in {value}"); other operators use the generic wording over the case label.
-        const tpl = (!cond || cond.operator === 'eq' ? settings.questions.conditionTemplates[p.detail] : undefined) ?? 'Is this true for {asset}: {label}?';
         const value = cond?.value === undefined ? '' : String(cond.value);
-        text = fill(tpl, { asset: assetName, value, a_value: value ? withArticle(value) : '', label });
+        const vars = { asset: assetName, value, a_value: value ? withArticle(value) : '', label };
+        let tpl = (!cond || cond.operator === 'eq' ? settings.questions.conditionTemplates[p.detail] : undefined) ?? 'Is this true for {asset}: {label}?';
+        if (!slotsFilled(tpl, vars)) tpl = GENERIC_CONDITION_TEMPLATE;
+        if (!label.trim()) continue;
+        text = tidy(fill(tpl, vars));
         rationale = `${hyp ? `Hypothesis "${hyp.statement}" from ${caseLabel} applies only if ${label}. ` : ''}${gap.whatAnswerChanges}${cite}`;
         consequences = {
           yes: `${label} holds for ${assetName}: the response from ${caseLabel} becomes applicable.`,
           no: `${label} does not hold for ${assetName}: the response from ${caseLabel} becomes inapplicable and uncertainty is retained.`,
         };
-        scope = { entityIds, caseId: c.id };
+        scope = { entityIds: own, caseId: c.id };
         dedup = normalizeKey(`missing:${p.detail}|${[...entityIds].sort().join(',')}`);
       } else {
         const attempt = store.get('attempt', p.detail);
-        const action = attempt?.action ?? 'the action';
+        // No attempt (or none the requester may see): nothing concrete to ask about.
+        if (!attempt || (gate && !gate.supported(attempt.evidence))) continue;
+        const action = attempt.action;
         const phrase = settings.questions.outcomePhrases[action] ?? 'the problem clear';
-        text = `Did ${phrase} right after ${actionPhrase(action, settings.phrases).noun} on ${caseLabel}?`;
+        // The action is named only as far as this case's evidence mentions it.
+        const noun = casePhrase(action, loadCaseFacts(store, c.id, state.id, settings, gate ?? undefined).evidenceText, settings.phrases).noun;
+        text = tidy(`Did ${phrase} right after ${noun} on ${caseLabel}?`);
         rationale = `${gap.description} ${gap.whatAnswerChanges}${cite}`;
         consequences = {
-          yes: `Recovery after ${actionPhrase(action, settings.phrases).noun} is reported by this person: the response becomes supported (single reported outcome).`,
-          no: `No recovery after ${actionPhrase(action, settings.phrases).noun}: the hypothesis is contradicted and the recommendation retains uncertainty.`,
+          yes: `Recovery after ${noun} is reported by this person: the response becomes supported (single reported outcome).`,
+          no: `No recovery after ${noun}: the hypothesis is contradicted and the recommendation retains uncertainty.`,
         };
         scope = { entityIds: c.entityIds, caseId: c.id };
         dedup = normalizeKey(`outcome:${p.caseId}:${p.detail}`);

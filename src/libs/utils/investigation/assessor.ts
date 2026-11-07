@@ -1,5 +1,5 @@
 import type { Assessment, Assessor, CandidateMatch, InvestigationState, KnowledgeStore, RouteInfo } from '../contracts/index.ts';
-import { loadCaseFacts, supportFor, type Support } from './case-facts.ts';
+import { loadCaseFacts, supportFor, viewerOfState, type Support } from './case-facts.ts';
 import type { InvestigationSettings } from './settings.ts';
 
 export type Applicability = 'applicable' | 'qualified' | 'inapplicable' | 'unknown';
@@ -42,7 +42,7 @@ export class RulesAssessor implements Assessor {
     const app = applicabilityFor(candidate, this.opts.settings.distinguishingKeys);
     let sup: { level: Support; reasons: string[] };
     if (candidate.caseId) {
-      sup = supportFor(loadCaseFacts(this.opts.store, candidate.caseId, state.id, this.opts.settings));
+      sup = supportFor(loadCaseFacts(this.opts.store, candidate.caseId, state.id, this.opts.settings, viewerOfState.get(state)));
     } else {
       sup = { level: 'weak', reasons: ['candidate procedure; no reported outcome of its own'] };
     }

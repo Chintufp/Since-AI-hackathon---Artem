@@ -1,16 +1,18 @@
 import type { CandidateMatch, Case, EvidenceRef, KnowledgeStore, PersonResult, PersonWorkLink } from '../contracts/index.ts';
-import { canSee, type PrincipalLike } from '../retrieval/access.ts';
+import { canSee, evidenceGate, type EvidenceGate, type PrincipalLike } from '../retrieval/access.ts';
 import { budgetViolations, computeBudget } from './budget.ts';
 import { loadCaseFacts } from './case-facts.ts';
 import { isRelatedCandidate } from './related.ts';
 import type { PersonDirectory } from './directory.ts';
-import { actionPhrase, fillTemplate, shortCaseLabel } from './phrases.ts';
+import { actionIsGrounded, actionPhrase, fillTemplate, shortCaseLabel } from './phrases.ts';
 import { isDiagnosticAction, type InvestigationSettings } from './settings.ts';
 
 export interface PeopleInput {
   store: KnowledgeStore;
   directory: PersonDirectory;
   principal: PrincipalLike;
+  /** Per-evidence access for the principal; built from `principal` when omitted. */
+  gate?: EvidenceGate;
   requesterEntityId?: string;
   investigationId?: string;
   /** Candidates that passed the relative score floor (cases and procedures); only cases that also pass the people gate count. */
@@ -39,12 +41,14 @@ type Reason = PersonResult['reasons'][number];
 export function buildPeople(inp: PeopleInput): PersonResult[] {
   const { store, directory, principal, settings } = inp;
   const P = settings.phrases;
+  const gate = inp.gate ?? evidenceGate(store, principal);
   const cases = new Map<string, Case>(store.list('case').map((c) => [c.id, c] as const));
   const visible = (id?: string): Case | undefined => {
     const c = id ? cases.get(id) : undefined;
     return c && canSee(c.accessScope, principal) ? c : undefined;
   };
-  const links = store.list('personLink').filter((l) => l.status !== 'rejected');
+  // A link whose evidence is entirely invisible to the principal contributes nothing; the others keep only visible references.
+  const links = store.list('personLink').filter((l) => l.status !== 'rejected' && gate.supported(l.evidence)).map((l) => ({ ...l, evidence: gate.refs(l.evidence) }));
   const wantedEntities = new Set(inp.entityIds);
 
   // Which cases count, and how they rank (0 = best).
@@ -76,7 +80,7 @@ export function buildPeople(inp: PeopleInput): PersonResult[] {
   };
   const factsCache = new Map<string, ReturnType<typeof loadCaseFacts>>();
   const factsOf = (id: string) => {
-    const hit = factsCache.get(id) ?? loadCaseFacts(store, id, inp.investigationId, settings);
+    const hit = factsCache.get(id) ?? loadCaseFacts(store, id, inp.investigationId, settings, gate);
     factsCache.set(id, hit);
     return hit;
   };
@@ -114,7 +118,9 @@ export function buildPeople(inp: PeopleInput): PersonResult[] {
         return distinct.length === 1 && contribution !== 'observed-condition' && contribution !== 'reported-problem' ? distinct[0] : undefined;
       };
       const emit = (tpl: { withAction: string; withoutAction: string }, contribution: string, xs: PersonWorkLink[]) => {
-        const action = actionFor(contribution);
+        const found = actionFor(contribution);
+        // An action the case's evidence never mentions is not named (the generic wording is used instead).
+        const action = found && actionIsGrounded(found, facts.evidenceText, P) ? found : undefined;
         const base = fillTemplate(action ? tpl.withAction : tpl.withoutAction, { action: action ? actionPhrase(action, P).noun : '', case: label });
         const firsthand = xs.some((l) => l.firsthand);
         reasons.push({
@@ -126,7 +132,7 @@ export function buildPeople(inp: PeopleInput): PersonResult[] {
       const performed = firstOf(['performed-action']);
       const outcome = firstOf(['reported-outcome']);
       if (performed.length && outcome.length) {
-        const recovered = facts.primaryOutcomes.some((o) => o.result === 'recovered');
+        const recovered = facts.primaryOutcomes.some((o) => o.result === 'recovered' && o.lasting !== 'recurred');
         emit(recovered ? P.performedAndRecovered : P.performedAndReported, 'performed-action', [...performed, ...outcome]);
         done.add('performed-action');
         done.add('reported-outcome');
@@ -143,7 +149,9 @@ export function buildPeople(inp: PeopleInput): PersonResult[] {
       const firsthand = xs.some((l) => l.firsthand);
       reasons.push({ text: firsthand || /not firsthand/.test(base) ? base : `${base} (not firsthand)`, contribution, evidence: xs.flatMap((l) => l.evidence), firsthand, rank: -1, order: orderIndex(contribution) });
     }
-    const sorted = reasons
+    // Two cases can share a short label; the same sentence is then shown once.
+    const unique = reasons.filter((r, i, a) => a.findIndex((x) => x.text === r.text) === i);
+    const sorted = unique
       .sort((a, b) => b.rank - a.rank || Number(b.firsthand) - Number(a.firsthand) || a.order - b.order)
       .slice(0, settings.maxReasonsPerPerson)
       .map(({ rank: _r, order: _o, ...r }) => r);

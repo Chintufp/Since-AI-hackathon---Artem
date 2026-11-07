@@ -8,12 +8,15 @@
  * often investigations cited each case in the last 30 days of the engine clock (the unweighted mean is reported too).
  *
  * Correctness: (claims supported by >=2 independent sources or by an observed outcome - contradicted claims still
- * cited by a recommendation - links made without an answer) / case claims.
+ * cited by a recommendation - links made without an answer) / case claims. An answer to an applicability question
+ * scopes the case (it applies, or it does not apply to this unit) and never supports or contradicts its claims
+ * (D-B2-66); only an answer about the claim itself (an outcome report) does.
  */
 import type { Attempt, Case, Claim, KnowledgeStore, Outcome } from '../contracts/index.ts';
 import { canSee } from './access.ts';
 import { isLive } from './case-builder.ts';
 import { independentSources } from './commit.ts';
+import { parseGapId } from '../investigation/gaps.ts';
 
 export const STORE_METRIC_METHOD = 'store-metric-delta@1';
 export const SLOTS = ['symptom', 'distinguishing', 'attempt', 'outcome', 'lasting', 'validity'] as const;
@@ -103,6 +106,9 @@ function caseHealth(store: KnowledgeStore, c: Case, o: Required<Pick<StoreHealth
 
   const symptom = claims.some((x) => x.type === 'observation' && x.supporting.length > 0) ? 1 : 0;
 
+  // A key is filled by a recorded value, a recorded absence, or an answered applicability question on this case: a Yes
+  // records the value (the current unit's, which matches the case), a No records the key as explicitly not applicable
+  // to the current unit (brief 5.1: "a value or an explicit 'not applicable'").
   const known = (key: string): boolean => {
     const keys = [key, ...(o.keyAliases[key] ?? [])];
     return c.conditions.some((x) => keys.includes(x.key) && x.evidence.length > 0 && (x.value !== undefined || x.operator === 'absent'))
@@ -135,10 +141,27 @@ function caseHealth(store: KnowledgeStore, c: Case, o: Required<Pick<StoreHealth
   return { caseId: c.id, title: c.title, slots, completeness: round(total / SLOTS.length), singleton: filled <= 2, thinPair, retrievals };
 }
 
-/** Support a claim gains from answers that confirmed it (an answer is attributed evidence of its own). */
+/**
+ * Whether an answer was given to an applicability question (a `missing` gap: "does the earlier unit share this unit's
+ * <key>?"). Such an answer says whether the earlier case matches the current unit, not whether the case was right
+ * (D-B2-66, superseding D-B2-51): its Yes records the value and its No records the key as explicitly not applicable
+ * for this unit (both fill the distinguishing slot through the answered Observation), and neither supports nor
+ * contradicts the case's claims.
+ */
+export function isApplicabilityAnswer(store: KnowledgeStore, answer: { questionId: string }): boolean {
+  const q = store.get('question', answer.questionId);
+  return !!q && parseGapId(q.candidate.gapId)?.kind === 'missing';
+}
+
+/**
+ * Support a claim gains from answers that confirmed it (an answer is attributed evidence of its own), and the answers
+ * that contradicted it. Applicability answers are left out (see isApplicabilityAnswer): only an answer about the claim
+ * itself (an outcome report: "did it recover?") supports or contradicts it.
+ */
 function answerRefs(store: KnowledgeStore): Map<string, { support: string[]; contradict: number }> {
   const m = new Map<string, { support: string[]; contradict: number }>();
   for (const a of store.list('answer')) {
+    if (isApplicabilityAnswer(store, a)) continue;
     for (const u of a.claimUpdates) {
       const e = m.get(u.claimId) ?? { support: [], contradict: 0 };
       if (u.change === 'support') e.support.push(a.evidenceId);

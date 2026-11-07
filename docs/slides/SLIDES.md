@@ -1,6 +1,6 @@
 # Knowledge Twin: slides
 
-Twelve slides in the order of [DAY2_PLAN.md](../DAY2_PLAN.md) §4 Move 8. Every number is from [experiments/RESULTS.md](../../experiments/RESULTS.md), [E08-E10.md](../runs/2026-11-07-overnight/day2/E08-E10.md) or `pnpm test` on 7 Nov 2026; sources in [SUBMISSION.md](../SUBMISSION.md) §4. The same text, as a one-file deck: [index.html](index.html) (← → to move, N for notes, F for full screen).
+Twelve slides in the order of [DAY2_PLAN.md](../DAY2_PLAN.md) §4 Move 8. Every number is from [experiments/RESULTS.md](../../experiments/RESULTS.md), [E08-E10.md](../runs/2026-11-07-overnight/day2/E08-E10.md) or `pnpm test` (8 Nov 2026); sources in [SUBMISSION.md](../SUBMISSION.md) §4. The same text, as a one-file deck: [index.html](index.html) (← → to move, N for notes, F for full screen).
 
 ## Slide 1 · Knowledge Twin: the as-experienced layer
 
@@ -45,7 +45,7 @@ notes: Your reference architecture, layer by layer, with the module that impleme
 
 show: the result card in Lumi after pasting the TRN-088 problem as Veikko.
 
-notes: A unit Erkki has never seen. The rule comes back as a check before the corrective action, with an honest caveat. Click any node and you see who said it, where and when. This needs Elisa's files; on a clean clone the synthetic TRN-117 plays the same part.
+notes: A unit Erkki has never seen. The rule comes back as a check before the corrective action, with an honest caveat. Click any node and you see who said it, where and when. This needs Elisa's files; on a clean clone the generated TRN-233 (Pekka Laine) plays the same part.
 
 ## Slide 5 · Hard part 01: the real knowledge
 
@@ -113,10 +113,10 @@ notes: An agent can't call Erkki at 3 a.m., and here it doesn't. It finds the ga
 
 ## Slide 11 · Honest numbers
 
-- 604/604 tests. Test split hash-locked: sha256 9f202253…, 73e145d0… (TEST_LOCK.json).
-- E08 bge-m3: recall@3 7/9, same as baseline; lookalike rejected 1/2; paraphrase rank 1 vs 5.
+- 618/618 tests. Test split hash-locked: sha256 9f202253…, 73e145d0… (TEST_LOCK.json).
+- E08 bge-m3: recall@3 7/9, as baseline; lookalike rejected 1/2; paraphrase (TRN-117) rank 1 vs 5.
 - E09 qwen3:4b: claim recall 33/47 vs rules 32/47 (train), 14/22 both (validation); 6/6 imports over 60 s.
-- E10 one simulated day: completeness 0.45 → 0.45, correctness 0.0167 → 0.0167; bandit beats rules 0/3 seeds.
+- E10, 5 cases × 3 seeds: completeness 0.45 → 0.45; correctness 3/180 → 3/180; bandit wins 0/3.
 - Weak: kind accuracy 3/12 vs 6/12 baseline; simulated people; synthetic data.
 
 show: the E08–E10 tables (E08-E10.md) and experiments/RESULTS.md.

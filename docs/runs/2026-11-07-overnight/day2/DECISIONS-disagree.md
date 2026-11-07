@@ -3,7 +3,7 @@
 Branch `day2/b5`, from `run/2026-11-07-overnight` at `67dcb3f` (B1 and B2 merged). Brief: BUILD_BRIEF section 4, B5;
 DAY2_PLAN Move 5; Phase 1 map `maps/MAP-B4B5.md` (its spike facts were re-checked on the merged code).
 
-## D-B5-01 · The second expert's thread lives in data/demo/experts-disagree and is seeded by every demo reset
+## D-B5-01 · The second expert's thread lives in data/demo/experts-disagree and is seeded by the demo reset (narrowed by D-B5-13)
 
 `teams.json` (Aarne Koskela and Helmi Virtanen at TRN-512, 2021 batch, clear the forwarding table), `people.json` (the
 two people with the optic-forwarding-a ids and actorIds, so they merge) and a README saying it is generated. Not under
@@ -120,3 +120,82 @@ The heading, next step and people of the TRN-088 and TRN-301 steps are unchanged
 `docs/HOW_QUESTIONS_WORK.md` quoted 67 evidence / 108 claims / 6 cases (already stale after B1: 69 / 111 / 6); it now gives
 the counts of a fresh elisa reset with the thread (75 evidence, 121 claims, 7 cases, 11 attempts, 8 outcomes, 70 person
 links, 29 entities).
+
+## D-B5-13 · The thread is seeded only next to Elisa's TRN-042; the batch/age conflict works both ways
+
+Review finding (both reviewers, major): on a clean clone (seed `synthetic`, or `elisa` without `private/`) the seeded
+thread changed the DEMO.md texts (TRN-088: "Don't reuse the fix from TRN-512 ..."; TRN-301: the batch question), and the
+"disagreement" was Helmi against her own TRN-117. The story needs Erkki's TRN-042 as the first expert, so `resetDemo` now
+imports `data/demo/experts-disagree` only when Elisa's thread was imported, or when `EngineOptions.expertsDisagreeDir` is
+given explicitly (tests). A clean clone gives exactly the pre-B5 texts (test: `tests/experts-disagree.test.ts`, clean
+clone; TRN-088 headline "You already did the SFP replacement; TRN-117 has no other reported fix."). The engine fixes of
+D-B5-05 stay and are still exercised: the same test seeds the thread explicitly on the synthetic seed and checks the
+firmware 4.2 superseded story. Not chosen: seeding a synthetic stand-in for Erkki on a clean clone (it would change the
+TRN-301/TRN-088 steps there too), and re-ranking "already done" plans above ruled-out cases (not needed once the clean
+clone is not seeded; a wider ranking change than this item needs).
+
+Also (review finding, minor): the conflict between an older unit and a later batch was one-directional. `compareConditions`
+now has the reverse rule: a later batch in the problem (stated flatly, or a Yes to "Is {asset} from the {value} batch?")
+conflicts with a case that records `unit.age = older`; and a Yes to "Is {asset} an older unit?" conflicts with a case that
+records a later batch. The answer markers carry no value, so the year (or "older") is read from the marker's label, which
+the coordinator builds from the case condition's label ("2021 batch: yes (answered)", "older unit: yes (answered)"). Effects:
+Yes on the B5 question rules out Erkki's TRN-042 (caveat "TRN-042 does not apply: older unit there, 2021 batch, answered
+here."); "2022 batch" no longer asks "Is TRN-577 an older unit?"; Erkki's Yes on the TRN-301 question rules out TRN-512.
+Reversal: drop `laterBatchVsOlder` and the answered branch of `olderVsLaterBatch` in `retrieval/conditions.ts`.
+
+## D-B5-14 · DEMO.md follows the new texts
+
+TRN-301 (1:40) lists the "Also on record" line for Helmi's TRN-512; 2:35 gives the new caveat after Yes and says a No now
+moves to Helmi's branch (asking about the batch next) with Elisa's files, and still gives "Don't reuse the fix from TRN-042"
+on a clean clone. The "Experts disagree" section says it needs Elisa's files and states the TRN-117 limit (D-B5-17).
+
+## D-B5-15 · The panel shows only qualified alternatives
+
+Review finding (minor): the panel listed "Helmi Virtanen advised disabling and re-enabling the interface in TRN-117
+(applicable)" under a qualified recommendation, also after the Yes that picks the 2021 batch. TRN-117 records no age or
+batch, so "applicable" only means "nothing distinguishes it", not a branch a fact decides. `panel.ts` now shows only
+`applicability === 'qualified'` alternatives (at most two): exactly the disagreement one answer can still decide.
+Inapplicable ones are already caveats. `ResultView.alternatives` (API, MCP) keeps all of them, unchanged. Not changed: the
+alternative builder still differs from `recommend()` in what it offers (it lists any advised attempt not already done; the
+synthetic TRN-117's interface reset is advised there, while `recommend()` reports the SFP replacement as its fix); with the
+panel filter this no longer reaches the judge. Reversal: restore the `!== 'inapplicable'` filter.
+
+## D-B5-16 · A negated or hedged batch states nothing
+
+Review finding (minor): "Not sure if it is the 2021 batch." and "not the 2021 batch" parsed as a stated 2021 batch and
+skipped the question. Both batch parsers (problem lexicon `unit-batch` and capture `defaultConditionParsers`) now have a
+lookbehind: no `not|whether|if|unsure|maybe|perhaps|might` within 25 characters before the year in the same sentence. A
+negation after the batch ("On the 2021 batch the interface reset does not help") still counts. The older `unit-older` rule
+is unchanged (pre-B5; not this item's key). Reversal: drop the lookbehinds.
+
+## D-B5-17 · Known limit kept: the TRN-117 prompts ask about the 2021 batch
+
+Review finding (major in one review, minor in the other): with Elisa's files, both TRN-117 judge prompts now recommend
+"Confirm the unit details (2021 batch) before clearing the forwarding table." and ask "Is TRN-117 from the 2021 batch?",
+although TRN-117's own thread says it is from the 2019 batch. Verified. Not fixed here, because the cause is outside this
+item: the problem about TRN-117 does not inherit the facts recorded on TRN-117's own case (the engine has no "facts about
+this asset" lookup besides earlier answers), and TRN-117's "Is this one from the 2019 batch?" / "Yes, 2019." is not
+captured as a condition (D-B5-03 keeps pre-2020 batches out so one answer cannot flip both branches). Even before B5 the
+same prompt asked "Is TRN-117 an older unit?", which the same 2019 record answers. The recipients are unchanged (Aarne with
+Helmi asking, Helmi with Marja asking), the judge-prompt notes now say so, and the elisa test pins the text and recipient.
+A No from the recipient moves the problem to Erkki's older-unit branch. Reversal / proper fix: an asset-facts lookup that
+adds the asset's own recorded unit conditions to the problem, plus 19xx batch capture once answers are scoped per case.
+
+## Review (fixer pass)
+
+| Finding | Verdict | Where |
+|---|---|---|
+| Clean clone: seeded thread changes TRN-088 / TRN-301 texts (both reviews, major) | Confirmed, fixed | D-B5-13, clean-clone test |
+| Clean clone: Helmi against Helmi, No ends in retain-uncertainty (major) | Confirmed; fixed by not seeding the thread there (the B5 step needs Elisa's TRN-042; the test covers it with a synthetic stand-in) | D-B5-13, DEMO.md |
+| Batch/age conflict one-directional (minor) | Confirmed, fixed both ways, stated and answered | D-B5-13, batch-vocabulary test |
+| Panel lists TRN-117 as "applicable" (minor) | Confirmed, fixed in the panel | D-B5-15 |
+| TRN-117 prompts ask about the 2021 batch (major / minor) | Confirmed; kept as a documented limit, pinned by a test | D-B5-17 |
+| DEMO.md leaves out the "Also on record" lines (minor) | Confirmed, fixed | D-B5-14 |
+| No test of the access gate on alternatives (minor) | Confirmed, test added (fails without `visibleAlternatives`) | experts-disagree test |
+| Hedged / negated batch parsed as stated (minor) | Confirmed, fixed | D-B5-16 |
+| "Nothing overwritten" compares claims only (minor) | Confirmed, test now compares the case row, claims, attempts and outcomes | experts-disagree test |
+| Caveat wording "2021 batch: no, answered here" | Not changed: the same wording comes from the coordinator's answer label for every key (e.g. TRN-042 "older unit: no, answered here" before B5); a wording change belongs to the phrases owner | |
+
+E00 re-run after this pass (`node experiments/run.ts e00`): 17/17 checks; the results differ from the committed ones only in
+latencies and timestamps (not committed). E08/E10 pass `NO_FOLLOWUPS` (`expertsDisagreeDir` at a missing directory), so
+the narrowed seeding does not reach them.

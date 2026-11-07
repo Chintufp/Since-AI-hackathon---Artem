@@ -16,7 +16,7 @@ pnpm install
 pnpm demo:judge
 ```
 
-That one command resets the demo data, starts the service on `127.0.0.1:47831`, starts the simulated activity stream (see below), opens the activity page in your browser and launches the companion. Snowbally falls in from the top of the screen and lands bottom-right. Ctrl-C in that terminal stops everything. If you would rather not have the stream running during the core walkthrough, use `pnpm demo:judge --no-stream`.
+That one command resets the demo data, starts the service on `127.0.0.1:47831`, launches the companion, opens the activity page in your browser and starts the **simulated** activity stream, whose day begins four minutes later so the script below runs on untouched data first (`--stream-delay 0` starts it at once, `--no-stream` never). Snowbally falls in from the top of the screen and lands bottom-right. Ctrl-C in that terminal stops everything.
 
 The reset prints what was captured, for example:
 
@@ -49,7 +49,7 @@ You see the result card:
 
 Say: *"This is Erkki's rule, reused on a unit Erkki has never seen. It is phrased as a check before the corrective action, and it says the outcome was reported once, not verified."*
 
-**0:55 Link: where it comes from.** Click **Suggested checks** in the timeline. It expands to the advice with who gave it and the sentence from the chat it came from. Click **Reported outcome**: it says who reported recovery, after which attempt, and that timing, cause and lasting effect are unconfirmed. Say: *"Every node is bound to the message it came from, the person who said it and the time, and the outcome stays 'reported' until a later message confirms it held."*
+**0:55 Link: where it comes from.** Click **Suggested checks** in the timeline. It expands to the advice with who gave it and the sentence from the chat it came from (the Elisa thread has times but no date, so stamps read "09:22 (date unknown)"). Click **Reported outcome**: it says who reported recovery, after which attempt, and that timing, cause and lasting effect are unconfirmed. Say: *"Every node is bound to the message it came from, the person who said it and the time, and the outcome stays 'reported' until a later message confirms it held."*
 
 **1:15 People, and a message nothing sends.** Click **People with relevant experience**. First entry: `Erkki Expert · Network Expert — Advised the interface reset in TRN-042`, then Aarne Koskela, Helmi Virtanen and Tapio Lehto from the similar TRN-117 case, each with what they actually did. Click **Prepare message** under Erkki: a draft "Message to Erkki Expert · Draft for you to review · nothing is sent" with the current symptoms, the checks already performed and the open point. Click **Back**, then the back arrow to return to the result, then the pencil icon to write again.
 
@@ -71,11 +71,11 @@ Result heading: **Confirm the unit details (older unit) before disabling and re-
 pnpm demo:agent
 ```
 
-This is a plain MCP client (no model) starting the same MCP server on the same database and calling the tools an agent would: `kt_investigate` prints the qualified recommendation with its caveats, matches, people and open gaps; `kt_find_people` the same people with reasons; `kt_request_clarification` opens the one question (`status: question-open`, `text: "Is TRN-301 an older unit?"`); `kt_clarification_status` shows it `delivered` until a human answers. Because the question is already answered in this database from step 2:05, the agent's own investigation is a fresh one (an agent principal), so the question is opened again for Erkki: switch **You** to Erkki in the companion and the badge shows the agent's question too. Say: *"Same engine, same limits, same access rules for an agent as for a person; the agent cannot read restricted evidence or exceed anyone's question budget."* To let a real agent drive it, see "Your own Claude over MCP" below.
+This is a plain MCP client (no model) starting the same MCP server on the same database and calling the tools an agent would: `kt_investigate` prints the qualified recommendation with its caveats, matches, people and open gaps; `kt_find_people` the same people with reasons; `kt_request_clarification` opens the one question (`status: question-open`, `text: "Is TRN-301 an older unit?"`); `kt_clarification_status` shows it `delivered` until a human answers. The agent's investigation is its own (an agent principal), so the question is opened again for Erkki: switch **You** to Erkki in the companion and the badge shows the agent's question too. Say: *"Same engine, same limits, same access rules for an agent as for a person; the agent cannot read restricted evidence or exceed anyone's question budget."* To let a real agent drive it, see "Your own Claude over MCP" below. (Run this before the simulated day starts, or expect the coordinator to pick another NOC person once more people are in the directory.)
 
 ## The simulated real-time stream (what the browser tab shows)
 
-`pnpm demo:judge` also starts `pnpm demo:play`: a scripted, sped-up day (1 simulated hour = 10 real seconds, 07:30–17:30, seed 1) against the running service, printed in the terminal and shown at **http://127.0.0.1:47831/demo/activity.html**. Everything in it is simulated and labelled so:
+`pnpm demo:judge` also starts `pnpm demo:play`: a scripted, sped-up day (1 simulated hour = 10 real seconds, 07:30–17:30, seed 1) against the running service, printed in the terminal and shown at **http://127.0.0.1:47831/demo/activity.html**. Until the day begins the page shows *Simulated day begins in … s*. Everything in it is simulated and labelled so:
 
 - **evidence** rows: Teams threads, e-mails and Slack days from the synthetic incident families arrive and are captured (how many records, cases and claims the rules extractor produced).
 - **investigation** rows: simulated engineers ask the service, and the row shows the recommendation they got.
@@ -84,7 +84,7 @@ This is a plain MCP client (no model) starting the same MCP server on the same d
 - Rows marked **for you** concern the person chosen under Settings → You. Every couple of simulated hours the stream tries once to involve you; when the coordinator picks you, Snowbally's questions badge shows it and the row says *For you: … open the companion to answer*. The stream never answers for you, and it never exceeds the coordinator's limits (they are enforced by the service, and the service's clock runs in simulated time while the stream runs). Your own actions in the companion also appear in the stream.
 - Agent calls over MCP against the same database appear as **agent** rows.
 
-The same rows are appended as JSON lines to `data/local/demo-activity.jsonl` (git-ignored) and served by `GET /demo/activity`. `pnpm demo:play -- --seed 2` replays a different day; `--hour-seconds 5` runs it faster; `--instant` runs it in one go.
+The same rows are appended as JSON lines to `data/local/demo-activity.jsonl` (git-ignored) and served by `GET /demo/activity`. `pnpm demo:play -- --seed 2` replays a different day; `--hour-seconds 5` runs it faster; `--instant` runs it in one go; `--delay 0` skips the quiet period when you run it by hand.
 
 ## Privacy and no cloud, in one breath
 
@@ -97,6 +97,7 @@ The service listens on loopback only and refuses non-loopback host names. The da
 | The card says *Couldn't reach the service* | The service is not up. Run `pnpm service` in a terminal (it prints `listening on http://127.0.0.1:47831`), then click **Retry**. `pnpm demo:judge` starts it for you. |
 | Something is in a strange state | Sliders icon → **Demo data: Reset demo** (click twice), or `pnpm demo:reset` in a terminal; both re-import everything and keep your settings. |
 | A question does not appear | Questions are per person: check Settings → **You** is the person who was asked (the stream and the result card say who). The badge refreshes every 20 s while the card is open; close and reopen the card to refresh now. A person gets at most 3 questions a day with 30 minutes between them: `pnpm demo:reset` clears that too. |
+| The question went to someone other than Erkki | More NOC people are in the directory (the simulated day has begun, or a family was imported): the coordinator picks among equally placed observers deterministically. Reset, or do the script before the day begins. |
 | Snowbally is not visible | He sits bottom-right; the tray (menu bar) icon has **Show / Hide Snowbally**. |
 | Port 47831 is taken | `KT_PORT=47900 pnpm demo:judge` (or `pnpm demo:judge --port 47900`). |
 | The activity page is empty | The stream has not written anything yet (`pnpm demo:play` needs the service running), or it is pointed at another log file. |

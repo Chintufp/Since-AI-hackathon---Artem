@@ -35,6 +35,8 @@ const { values } = parseArgs({
     append: { type: 'boolean', default: false },
     quiet: { type: 'boolean', default: false },
     instant: { type: 'boolean', default: false },
+    /** Real seconds to wait before the day begins (so a judge can do the 3-minute walkthrough on the seeded data first). */
+    delay: { type: 'string', default: '0' },
   },
 });
 
@@ -50,6 +52,7 @@ const seed = num('seed', values.seed, 0);
 const hourSeconds = values.instant ? 0 : num('hour-seconds', values['hour-seconds'], 0);
 const hours = num('hours', values.hours, 0.25);
 const judgeEvery = num('judge-every', values['judge-every'], 1);
+const delay = num('delay', values.delay, 0);
 const [sh, sm] = values.start.split(':').map(Number);
 if (!Number.isInteger(sh) || !Number.isInteger(sm) || sh! < 0 || sh! > 23 || sm! < 0 || sm! > 59) {
   process.stderr.write(`Invalid --start ${values.start} (HH:MM)\n`);
@@ -134,7 +137,16 @@ process.on('SIGINT', onSignal);
 process.on('SIGTERM', onSignal);
 
 process.stdout.write(`${SIMULATED_BANNER}\nService ${values.url} · log ${values.log} · ${families.filter((f) => !f.seeded).length} arriving families, ${families.filter((f) => f.seeded).length} already seeded · ${plan.events.length} planned events\n\n`);
+if (delay > 0 && !stop) {
+  // Quiet period first: the seeded data and the people in it stay exactly as the walkthrough expects (no new NOC people
+  // competing for the one question, no budgets used) until the judge has done the 3-minute script.
+  const until = new Date(Date.now() + delay * 1000);
+  sink.write({ kind: 'clock', at: clock.now().toISOString(), real: new Date().toISOString(), simulated: true, text: `Simulated day begins in ${Math.round(delay)} s (at ${until.toTimeString().slice(0, 5)} real time): do the 3-minute walkthrough in the companion first; the data stays as seeded until then`, detail: { delaySeconds: delay } });
+  const step = 1000;
+  for (let waited = 0; waited < delay * 1000 && !stop; waited += step) await new Promise((r) => setTimeout(r, Math.min(step, delay * 1000 - waited)));
+}
 try {
+  if (stop) process.exit(130);
   const summary = await runDay({ client, plan, clock, seed, sink, judgePrompts, syncServiceClock: !values['no-clock'], shouldStop: () => stop });
   process.stdout.write(`\nDone. ${summary.questionsAsked} questions asked, ${summary.answered} answered, ${summary.judgeQuestions} for the judge, ${summary.errors} errors. Log: ${values.log}\n`);
   process.exitCode = summary.errors ? 1 : 0;

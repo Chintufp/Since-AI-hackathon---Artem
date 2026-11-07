@@ -1,6 +1,6 @@
 // One command for the judges: reset the demo data, start the service, start the simulated activity stream, open the
 // activity page in the browser and launch the desktop companion. Ctrl-C (or quitting Snowbally) stops everything.
-//   pnpm demo:judge [-- --seed 1 --hour-seconds 10 --hours 10 --no-browser --no-stream --port 47831]
+//   pnpm demo:judge [-- --seed 1 --hour-seconds 10 --hours 10 --stream-delay 240 --no-browser --no-stream --port 47831]
 // Everything runs on this machine; no model API, no real chat, mail or Slack. The stream is simulated and labelled so.
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -16,6 +16,8 @@ const { values } = parseArgs({
     'hour-seconds': { type: 'string', default: '10' },
     hours: { type: 'string', default: '10' },
     'judge-every': { type: 'string', default: '120' },
+    /** Real seconds before the simulated day begins; the 3-minute walkthrough runs on the untouched seeded data first. */
+    'stream-delay': { type: 'string', default: '240' },
     'no-browser': { type: 'boolean', default: false },
     'no-stream': { type: 'boolean', default: false },
     'no-desktop': { type: 'boolean', default: false },
@@ -90,8 +92,8 @@ if (!values['no-browser']) {
 }
 
 if (!values['no-stream']) {
-  log('starting the simulated activity stream (labelled simulated; Ctrl-C stops it)');
-  run('stream', process.execPath, [join(root, 'scripts/demo-play.ts'), '--url', url, '--seed', values.seed, '--hour-seconds', values['hour-seconds'], '--hours', values.hours, '--judge-every', values['judge-every']]);
+  log(`starting the simulated activity stream (labelled simulated; the day begins after ${values['stream-delay']} s so the walkthrough runs on the seeded data first; Ctrl-C stops it)`);
+  run('stream', process.execPath, [join(root, 'scripts/demo-play.ts'), '--url', url, '--seed', values.seed, '--hour-seconds', values['hour-seconds'], '--hours', values.hours, '--judge-every', values['judge-every'], '--delay', values['stream-delay']]);
 }
 
 if (!values['no-desktop']) {

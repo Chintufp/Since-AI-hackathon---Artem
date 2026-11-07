@@ -1,11 +1,13 @@
 // Real-service check: start the service on a spare port (in-memory db, Elisa seed), build the desktop app, run the
 // Electron screenshot harness against it (KT_SHOTS_REAL) and tear the service down.
-// Output: docs/runs/2026-11-07-overnight/screenshots/real/*.png and checks-real.json.
+// Output: docs/runs/2026-11-07-overnight/screenshots/real/*.png, checks-real.json and compare-real.json (the states
+// against the committed PNGs; python3 + Pillow, skipped when missing).
 // Env: KT_REAL_PORT (default 47951), KT_SHOTS_HIDDEN=1.
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { post } from './screenshot.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.KT_REAL_PORT) || 47951;
@@ -32,4 +34,8 @@ const env = { ...process.env, KT_SHOTS_REAL: url };
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.KT_MOCK;
 const child = spawn(electron, [join(root, 'dist/desktop/shots.cjs')], { stdio: 'inherit', env });
-child.on('exit', (code) => { stop(); process.exit(code ?? 0); });
+child.on('exit', (code) => {
+  stop();
+  if (code === 0) post(process.env.KT_SHOTS_OUT ?? join(root, 'docs/runs/2026-11-07-overnight/screenshots/real'), 'real');
+  process.exit(code ?? 0);
+});

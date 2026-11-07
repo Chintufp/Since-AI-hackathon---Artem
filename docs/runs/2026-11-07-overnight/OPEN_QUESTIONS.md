@@ -27,3 +27,12 @@ Status of each deliberately unanswered question from the technical handoff. "Def
 | U21 | default | v008 panel + v006 Snowbally, points off by default, reduced motion, tray | Windows packaging, sounds |
 | U22 | default | E00, E02, E04, E03, E05, E06, E07 bounded; 3 seeds | More repeats |
 | U23 | open | No small GPT route available; rules/local/replay routes only | Generator model and execution route |
+
+## UX pass (R31–R36): open for Artem
+
+| ID | Status | What exists now | Still open |
+| --- | --- | --- | --- |
+| UX1 | default | Global shortcut `CommandOrControl+Alt+S` (⌥⌘S) toggles away / back; `KT_SHORTCUT=0` turns it off | Is ⌥⌘S the right chord (it may clash with app shortcuts such as "Save all")? Alternatives that registered: `Control+Command+S`, `Alt+Shift+S` |
+| UX2 | default | He stands 26 px lower than before: contact row 12 px above the work-area bottom (the shadow ends about 4 px above the Dock line) | Does the lower floor feel right next to the Dock, or should it go back up? |
+| UX3 | default | Tray title shows ` ?` while he is away with an unseen question | Is a "?" in the menu bar welcome, or too noisy? On the right edge it is the only cue, since the authored glyph sits outside the window at the sliver |
+| UX4 | open | No throwing: release always falls straight down ("sticky snow"); pushing past an edge is the only way to send him off by hand | Should a fast release throw him (velocity fling), and should a throw toward an edge send him away? |

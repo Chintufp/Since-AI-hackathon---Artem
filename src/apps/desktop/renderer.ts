@@ -48,10 +48,12 @@ const api = mock
 const panel = createPanel({
   root: document.getElementById('kt-panel')!,
   api,
-  avatar: (canvas, host, surfaces) => new AvatarController(canvas, host, { drop: surfaces.drop }),
+  // desktop (R32): the floor-shadow strip goes with the drop surface; the companion (ui/companion.ts) runs from the flags.
+  avatar: (canvas, host, surfaces) => new AvatarController(canvas, host, { drop: surfaces.drop, shadow: surfaces.shadow }),
   groups: params.get('groups')?.split(',').filter(Boolean),
   storage: shots ? null : undefined,
   entrance: params.get('entrance') !== '0',
+  companion: flags,
 });
 
 // Click-through: the window is transparent; only Snowbally and the open panel take the mouse.

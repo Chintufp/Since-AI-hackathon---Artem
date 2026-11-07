@@ -9,7 +9,7 @@
  * reduced motion settles instantly, stationary avatar hitbox.
  */
 import { renderBurst, BURST } from '../motion/burst.ts';
-import type { Avatar, AvatarHost, AvatarStatus } from '../motion/avatar.ts';
+import type { ActKey, AvatarHost, AvatarStatus, CompanionAvatar } from '../motion/avatar.ts';
 import type { UserSettings } from '../contracts/outcomes.ts';
 import type { DirectoryEntry, Principal } from '../contracts/service.ts';
 import type { ContactDraft } from '../contracts/questions.ts';
@@ -19,6 +19,12 @@ import type { ApiClient } from './api-client.ts';
 import { hydrateIcons, iconSvg } from './icons.ts';
 import { createPanelMotion } from './panel-motion.ts';
 import type { PanelMotion, PanelMotionStatus } from './panel-motion.ts';
+import { attachCompanion, createCompanion } from './companion.ts';
+import type { Companion, CompanionCommand, CompanionFlags, CompanionPower, CompanionStatus } from './companion.ts';
+import { createAttention } from './attention.ts';
+import type { Attention, EngagementCounters } from './attention.ts';
+import { createQuestionWatch } from './question-watch.ts';
+import type { QuestionWatch } from './question-watch.ts';
 
 export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'receipt' | 'result' | 'people' | 'case' | 'contact';
 const RESTORABLE: ViewName[] = ['input', 'queue', 'settings'];
@@ -27,14 +33,37 @@ const BACK: Partial<Record<ViewName, ViewName>> = { people: 'result', case: 'peo
 export interface PanelOptions {
   root: HTMLElement;
   api: ApiClient;
-  /** Build Snowbally on the panel's canvas. The host callbacks let him react to panel state. */
-  avatar: (canvas: HTMLCanvasElement, host: AvatarHost, surfaces: { drop: HTMLCanvasElement }) => Avatar;
+  /**
+   * Build Snowbally on the panel's canvas. The host callbacks let him react to panel state.
+   * desktop (R31..R36): `surfaces.shadow` is the `.rf-shadow` floor strip (pass it as AvatarOptions.shadow).
+   */
+  avatar: (canvas: HTMLCanvasElement, host: AvatarHost, surfaces: { drop: HTMLCanvasElement; shadow: HTMLCanvasElement }) => CompanionAvatar;
   /** Groups for the principal; default comes from the shared contract's demo principal. */
   groups?: string[];
   /** Persist small per-viewer conveniences (draft, last view). Defaults to localStorage when available. */
   storage?: Pick<Storage, 'getItem' | 'setItem'> | null;
   /** Plays the launch entrance (R05). Disable for tests/screenshots that want a still start. */
   entrance?: boolean;
+  /**
+   * desktop (R31..R36): the companion flags (drag, away, gaze, fidgets). Default: `window.__ktFlags`
+   * (set by the desktop renderer). null, `companion: false` or `windowMode: 'column'` = the R28 panel.
+   */
+  companion?: CompanionFlags | null;
+}
+
+/** desktop (R31..R36): harness / test surface of the companion (also `panel.status().companion`). */
+export interface PanelCompanion {
+  command(command: CompanionCommand): void;
+  status(): CompanionStatus;
+  /** Feed a pointer position (window CSS px; null = left the window), as mousemove does. */
+  pointer(x: number | null, y?: number): void;
+  power(event: CompanionPower): void;
+  /** Make him arrive with `id` (default: the next eligible open question); true when he goes. */
+  arrive(id?: string): boolean;
+  /** Run the collapsed-poll refresh now. */
+  poll(): Promise<void>;
+  engagement(): EngagementCounters & { medianOpenDelayMs: number | null };
+  setFidgets(on: boolean): void;
 }
 
 export interface PanelStatus {
@@ -53,6 +82,10 @@ export interface PanelStatus {
   /** Id of the investigation shown in the result view, when there is one. */
   investigationId?: string;
   avatar: AvatarStatus;
+  /** desktop (R31..R36): the companion state (null when the companion is off). */
+  companion: CompanionStatus | null;
+  /** desktop (R34): an unseen question is waiting. */
+  unseenQuestion: boolean;
 }
 
 export interface Panel {
@@ -66,6 +99,8 @@ export interface Panel {
   refresh(): Promise<void>;
   /** Run the service connection check; used at startup and by Retry. */
   connect(): Promise<boolean>;
+  /** desktop (R31..R36): companion hooks for the harness; null when the companion is off. */
+  companion: PanelCompanion | null;
   destroy(): void;
 }
 
@@ -110,6 +145,8 @@ const TEMPLATE = `
      <label class="rf-setting rf-option"><span>Points &amp; rewards</span><input class="rf-points" type="checkbox"></label>
      <label class="rf-setting rf-option"><span>Sound</span><em class="rf-setting-note">No sounds yet</em><input class="rf-sound" type="checkbox" disabled aria-label="Sound (no sounds yet)"></label>
      <div class="rf-setting rf-option"><span>Demo data</span><button class="rf-later" type="button" data-action="reset-demo">Reset demo</button></div>
+     <label class="rf-setting rf-option rf-desktop-companion" hidden><span>Fidgets</span><input class="rf-fidgets" type="checkbox"></label>
+     <div class="rf-setting rf-option rf-desktop-companion" hidden><span>Position</span><button class="rf-later" type="button" data-action="reset-position">Put Snowbally back in the corner</button></div>
     </div>
    </section>
    <section class="rf-view rf-receipt" data-view="receipt" hidden aria-live="polite"><p class="rf-receipt-title"></p><div class="rf-receipt-detail"></div><div class="rf-reward" hidden><canvas width="${BURST.width}" height="${BURST.height}" aria-hidden="true"></canvas><span></span></div><button class="rf-undo" type="button" data-action="receipt-action">Undo</button></section>
@@ -142,12 +179,30 @@ const TEMPLATE = `
    <button class="rf-send" type="button" data-action="send" aria-label="Send message" disabled><i data-icon="arrow-up"></i></button>
   </footer>
   </div>
-  <button class="rf-avatar" type="button" data-action="avatar" aria-label="Close panel" aria-expanded="true"><canvas width="44" height="44" role="img" aria-label="White pixel companion at rest"></canvas><canvas class="rf-drop" width="44" height="86" hidden aria-hidden="true"></canvas></button>
+  <button class="rf-avatar" type="button" data-action="avatar" aria-label="Close panel" aria-expanded="true"><canvas width="44" height="44" role="img" aria-label="White pixel companion at rest"></canvas><canvas class="rf-drop" width="44" height="86" hidden aria-hidden="true"></canvas><canvas class="rf-shadow" width="44" height="8" aria-hidden="true"></canvas></button>
  </div>
 </div>`;
 
 const STORE_KEY = 'kt-panel.v1';
 const POLL_MS = 20000;
+
+/**
+ * desktop (R35): reactions to the person's answer (named so it can be reverted in one place; the
+ * v009 behaviour was `result` for all). Equal warmth for Yes / No; never yawn or sheepish here.
+ * 'settle' = the composed 2-frame low settle (crouch, low). A points reward plays `hop` instead (opt-in).
+ */
+const REACTIONS: Record<'yes' | 'no' | 'unknown' | 'later' | 'dismiss' | 'undo', ActKey | 'settle'> = {
+  yes: 'hello',
+  no: 'hello',
+  unknown: 'peek',
+  later: 'peek',
+  dismiss: 'settle',
+  undo: 'peek',
+};
+const SETTLE_REACTION_MS = 62;
+
+/** desktop (R31..R36): the flags the desktop renderer sets on window; elsewhere absent (companion off). */
+const globalFlags = (): CompanionFlags | null => (globalThis as { __ktFlags?: CompanionFlags }).__ktFlags ?? null;
 
 export function createPanel(options: PanelOptions): Panel {
   const { root, api } = options;
@@ -202,7 +257,19 @@ export function createPanel(options: PanelOptions): Panel {
   let destroyed = false;
 
   const isReduced = (): boolean => state.reducedSetting || systemReduced;
-  const hasQuestion = (): boolean => state.panelOpen && state.view === 'question';
+  // desktop (R31..R36): companion, attention and the collapsed question watch (null = the R28 panel).
+  const companionFlags: CompanionFlags | null = (() => {
+    const f = options.companion !== undefined ? options.companion : globalFlags();
+    return f && f.companion && f.windowMode !== 'column' ? f : null;
+  })();
+  let attention: Attention | null = null;
+  let companion: Companion | null = null;
+  let watch: QuestionWatch | null = null;
+  let detachCompanion: () => void = () => {};
+  const openIds = (): string[] => open.map((q) => q.questionId);
+  const unseenWaiting = (): boolean => !!attention && attention.hasUnseen(openIds());
+  // desktop (R34): with the companion the glyph also means "an unseen question is waiting".
+  const hasQuestion = (): boolean => (state.panelOpen && state.view === 'question') || (!!companion && unseenWaiting());
   // Never invent an identity: without a resolved current person the panel neither lists nor answers questions.
   const hasIdentity = (): boolean => Boolean(settings?.currentPersonEntityId);
   /** Chosen directory person (id, name, groups from the directory); otherwise a clearly labeled guest. */
@@ -214,7 +281,8 @@ export function createPanel(options: PanelOptions): Panel {
     return { id, displayName: me?.name ?? 'You', groups: me ? [...me.groups] : [...(options.groups ?? [])], type: 'human' };
   };
 
-  const avatar = options.avatar(canvas, { reduced: isReduced, hasQuestion }, { drop: $<HTMLCanvasElement>('.rf-drop') });
+  const shadowCanvas = $<HTMLCanvasElement>('.rf-shadow');
+  const avatar = options.avatar(canvas, { reduced: isReduced, hasQuestion }, { drop: $<HTMLCanvasElement>('.rf-drop'), shadow: shadowCanvas });
   const natural = (): number => {
     const v = views.find((n) => !n.hidden);
     return (v?.getBoundingClientRect().height || 0) + footer.getBoundingClientRect().height + 2;
@@ -278,6 +346,10 @@ export function createPanel(options: PanelOptions): Panel {
     const h = $('.rf-history');
     h.replaceChildren();
     if (!q) return;
+    if (state.panelOpen && attention && attention.get(q.questionId)?.seen === undefined) {
+      attention.markSeen(q.questionId); // desktop (R34)
+      syncGlyph();
+    }
     // Internal evidence ids are for traces, not for the person answering.
     h.append(el('p', 'rf-why', q.why.replace(/\s*Evidence:\s*(?:ev_\w+[,\s]*)+\.?\s*$/, '')));
     if (q.compare) {
@@ -329,6 +401,7 @@ export function createPanel(options: PanelOptions): Panel {
       state.serviceDown = false;
       updateCount();
       if (state.view === 'queue' && state.panelOpen) { renderQueue(); motion.view(false); }
+      afterQuestions();
       return;
     }
     try {
@@ -339,9 +412,26 @@ export function createPanel(options: PanelOptions): Panel {
       if (state.active && !cache.has(state.active)) state.active = null;
       updateCount();
       if (state.view === 'queue' && state.panelOpen) { renderQueue(); motion.view(false); }
+      afterQuestions();
     } catch {
       state.serviceDown = true;
     }
+  }
+  /** desktop (R34): after every refresh the attention rules may send him to the perch; the glyph may change. */
+  function afterQuestions(): void {
+    if (!companion) return;
+    watch?.handle(openIds());
+    syncGlyph();
+  }
+  let glyphShown = false;
+  function syncGlyph(): void {
+    if (!companion) return;
+    const u = unseenWaiting();
+    if (u !== glyphShown) {
+      glyphShown = u;
+      avatar.refresh();
+    }
+    companion.questionsChanged();
   }
 
   // ---- result / people / case / contact ----
@@ -455,6 +545,9 @@ export function createPanel(options: PanelOptions): Panel {
     const reset = $<HTMLButtonElement>('[data-action="reset-demo"]');
     reset.textContent = 'Reset demo';
     delete reset.dataset.armed;
+    // desktop (R35/R36): companion rows, only when the companion runs.
+    root.querySelectorAll<HTMLElement>('.rf-desktop-companion').forEach((r) => (r.hidden = !companion));
+    $<HTMLInputElement>('.rf-fidgets').checked = !!companion?.fidgets();
   }
   function renderYou(): void {
     const sel = $<HTMLSelectElement>('.rf-you');
@@ -486,6 +579,8 @@ export function createPanel(options: PanelOptions): Panel {
     avatarButton.setAttribute('aria-label', state.panelOpen ? 'Close panel' : 'Open panel');
   }
   function setView(view: ViewName, animate = true): void {
+    const wasOpen = state.panelOpen;
+    if (!wasOpen) companion?.makeRoom(); // desktop (R33): the card fits before it opens
     state.view = view;
     if (!['receipt', 'contact'].includes(view)) state.lastOpen = view;
     state.panelOpen = true;
@@ -512,11 +607,16 @@ export function createPanel(options: PanelOptions): Panel {
     motion.view(animate);
     avatar.refresh();
     persist();
+    if (!wasOpen) companion?.panelOpened();
   }
-  /** Poll the questions queue every 20 s only while the panel is open; no timer at all while collapsed. */
+  /**
+   * Poll the questions queue every 20 s while the panel is open. Collapsed: no timer in the R28 panel;
+   * with the companion (desktop R34) the question watch polls every COLLAPSED_POLL_MS instead.
+   */
   function syncPoll(): void {
     if (state.panelOpen && !pollTimer && !destroyed) pollTimer = setInterval(() => { if (!document.hidden && !state.busy) void refreshQuestions(); }, POLL_MS);
     else if ((!state.panelOpen || destroyed) && pollTimer) { clearInterval(pollTimer); pollTimer = 0; }
+    watch?.sync();
   }
   function closePanel(animate = true): void {
     state.panelOpen = false;
@@ -525,6 +625,7 @@ export function createPanel(options: PanelOptions): Panel {
     motion.panel(false, animate);
     avatar.refresh();
     avatarButton.focus({ preventScroll: true });
+    companion?.panelClosed(); // desktop (R33): the idle timer starts; a displaced Snowbally rolls back to his spot
   }
   function focusFor(view: ViewName): void {
     const target =
@@ -536,10 +637,21 @@ export function createPanel(options: PanelOptions): Panel {
       : viewEl(view).querySelector<HTMLElement>('button:not([disabled])');
     target?.focus({ preventScroll: true });
   }
-  function openPanel(): void {
+  /** `user`: a direct click / key on Snowbally. Programmatic opens never move focus (desktop R33). */
+  function openPanel(user = false): void {
     if (state.serviceDown) {
       showError(new ApiError('unreachable', 'GET /health', 'Couldn’t reach the service'), () => void retryConnect());
     } else if (!state.panelOpen) {
+      // desktop (R34): the glyph promised a question; a direct click opens it.
+      const waiting = user && attention ? attention.unseen(openIds())[0] : undefined;
+      if (waiting) {
+        if (state.active !== waiting) { state.openNodes.question = null; state.expanded = false; }
+        state.active = waiting;
+        setView('question');
+        focusFor('question');
+        return;
+      }
+      companion?.makeRoom(); // desktop (R33): slide to where the card fits (with the hop) before it opens
       state.panelOpen = true;
       syncPoll();
       void refreshQuestions();
@@ -547,9 +659,10 @@ export function createPanel(options: PanelOptions): Panel {
       else if (state.view === 'question') renderQuestion();
       syncPanelA11y();
       motion.panel(true);
-      focusFor(state.view);
+      if (user) focusFor(state.view);
       avatar.refresh(); // v009: opening itself is quiet; a direct click adds the Springy tap, programmatic opens do not
       persist();
+      companion?.panelOpened();
       return;
     }
   }
@@ -608,8 +721,9 @@ export function createPanel(options: PanelOptions): Panel {
       const res = value === 'later' ? await api.defer(q.questionId, p) : value === 'dismiss' ? await api.dismiss(q.questionId, p) : await api.answer(q.questionId, { principal: p, value });
       state.busy = false;
       const rc = res.receipt;
+      attention?.record(value === 'later' ? 'deferred' : value === 'dismiss' ? 'dismissed' : 'answered', q.questionId);
       showReceipt(rc.title, rc.detail, rc.canUndo ? { label: 'Undo', run: () => void undo(q.questionId) } : null, rc.pointsAwarded ?? 0);
-      avatar.play('result');
+      react(state.points && (rc.pointsAwarded ?? 0) > 0 ? 'hop' : REACTIONS[value]);
       void refreshQuestions();
     } catch (e) {
       showError(e, () => { setView('question'); void respond(value); });
@@ -624,7 +738,19 @@ export function createPanel(options: PanelOptions): Panel {
       await refreshQuestions();
       setView('question');
       focusFor('question');
+      react(REACTIONS.undo);
     } catch (e) { showError(e, () => void undo(id)); }
+  }
+  /** desktop (R35): play a reaction from REACTIONS ('settle' = the composed crouch, low settle). */
+  function react(r: ActKey | 'settle'): void {
+    if (r !== 'settle') { avatar.play(r); return; }
+    if (isReduced()) return;
+    avatar.pose({ kind: 'settle', frame: 0 });
+    later(() => {
+      if (avatar.status().mode !== 'pose:settle') return;
+      avatar.pose({ kind: 'settle', frame: 1 });
+      later(() => { if (avatar.status().mode === 'pose:settle') avatar.rest(); }, SETTLE_REACTION_MS);
+    }, SETTLE_REACTION_MS);
   }
   function setBusy(busy: boolean): void {
     state.busy = busy;
@@ -738,7 +864,10 @@ export function createPanel(options: PanelOptions): Panel {
     if (!button || !root.contains(button)) return;
     const a = button.dataset.action!;
     switch (a) {
-      case 'avatar': state.panelOpen ? closePanel() : openPanel(); avatar.play('click'); return; // v009: the Springy tap on every direct click
+      // v009: the Springy tap on every direct click. desktop (R32): with the companion, pointer clicks go through
+      // its gesture recogniser (press pose, then run('click', 2)) and the native click is suppressed; this path is the keyboard / programmatic click.
+      case 'avatar': state.panelOpen ? closePanel() : openPanel(true); avatar.play('click'); return;
+      case 'reset-position': companion?.command('reset-position'); return;
       case 'yes': case 'no': case 'unknown': case 'later': case 'dismiss': void respond(a); return;
       case 'input': case 'settings': case 'queue':
         if (a === 'queue') void refreshQuestions();
@@ -854,6 +983,7 @@ export function createPanel(options: PanelOptions): Panel {
   });
   $<HTMLInputElement>('.rf-points').addEventListener('change', (e) => void saveSetting({ points: (e.target as HTMLInputElement).checked }));
   $<HTMLInputElement>('.rf-mcp').addEventListener('change', (e) => void saveSetting({ mcp: (e.target as HTMLInputElement).checked }));
+  $<HTMLInputElement>('.rf-fidgets').addEventListener('change', (e) => companion?.setFidgets((e.target as HTMLInputElement).checked));
   const onMedia = (e: MediaQueryListEvent): void => syncMotion(e);
   media?.addEventListener('change', onMedia);
   const onResize = (): void => { motion.view(false); motion.settle(); };
@@ -871,13 +1001,76 @@ export function createPanel(options: PanelOptions): Panel {
   syncPanelA11y();
   motion.panel(false, false);
   updateSend();
+  if (companionFlags) {
+    // desktop (R31..R36): the companion owns the carrier from here; the entrance lands at his home spot.
+    const att = createAttention({ storage });
+    attention = att;
+    const c = createCompanion({
+      avatar,
+      flags: companionFlags,
+      storage,
+      panel: {
+        isOpen: () => state.panelOpen,
+        toggle: () => (state.panelOpen ? closePanel() : openPanel(true)),
+        open: () => { if (!state.panelOpen) openPanel(true); },
+        close: () => { if (state.panelOpen) closePanel(); },
+        busy: () => state.busy,
+        motionActive: () => motion.status().active,
+        hasQuestion: unseenWaiting,
+      },
+      render: {
+        carrier: (x, y) => { win.style.transform = `translate3d(${x}px, ${-y}px, 0)`; },
+        shadow: (lift) => { shadowCanvas.style.transform = lift > 0 ? `translateY(${lift}px)` : ''; },
+        carried: (on) => { if (on) root.dataset.ktCarried = 'true'; else delete root.dataset.ktCarried; },
+      },
+      area: () => ({ width: window.innerWidth, height: window.innerHeight }),
+      dpr: () => globalThis.devicePixelRatio || 1,
+      reduced: isReduced,
+      emit: (type, detail) => { window.dispatchEvent(new CustomEvent(type, { detail })); },
+      onReturn: () => watch?.wake('return'),
+      onWake: (event, ms) => watch?.wake(event === 'resume' ? 'resume' : 'unlock-screen', ms),
+      onIgnored: (id) => att.ignored(id),
+    });
+    companion = c;
+    watch = createQuestionWatch({
+      attention: att,
+      refresh: refreshQuestions,
+      collapsed: () => !state.panelOpen,
+      hidden: () => !!document.hidden,
+      arrive: (id, kind) => c.arrive(id, kind),
+    });
+    root.dataset.ktCompanion = 'on';
+    if (companionFlags.drag) root.dataset.ktDrag = 'on';
+    detachCompanion = attachCompanion(c, { root, avatarButton, win: window });
+    c.start();
+    watch.sync();
+  }
   if (options.entrance !== false) avatar.playEntranceThenRest();
   void connect();
+
+  const companionHooks: PanelCompanion | null = companion && attention
+    ? ((c: Companion, att: Attention): PanelCompanion => ({
+        command: (command) => c.command(command),
+        status: () => c.status(),
+        pointer: (x, y) => c.pointer(x, y),
+        power: (event) => c.power(event),
+        arrive: (id) => {
+          const target = id ?? att.nextArrival(openIds()) ?? openIds()[0];
+          if (!target || !c.arrive(target, 'arrival')) return false;
+          att.markAnnounced(target);
+          return true;
+        },
+        poll: () => refreshQuestions(),
+        engagement: () => att.counters(),
+        setFidgets: (on) => c.setFidgets(on),
+      }))(companion, attention)
+    : null;
 
   return {
     open: () => { if (!state.panelOpen) openPanel(); },
     close: () => { if (state.panelOpen) closePanel(); },
     toggle: () => (state.panelOpen ? closePanel() : openPanel()),
+    companion: companionHooks,
     attachFiles: addFiles,
     refresh: async () => { try { await loadDirectory(); applySettings(await api.getSettings()); } catch { state.serviceDown = true; return; } await refreshQuestions(); },
     connect,
@@ -896,11 +1089,16 @@ export function createPanel(options: PanelOptions): Panel {
       openQuestions: open.length,
       ...(result ? { investigationId: result.investigationId } : {}),
       avatar: avatar.status(),
+      companion: companion?.status() ?? null,
+      unseenQuestion: unseenWaiting(),
     }),
     destroy: () => {
       destroyed = true;
       timers.forEach(clearTimeout);
       syncPoll();
+      detachCompanion();
+      companion?.destroy();
+      watch?.destroy();
       document.removeEventListener('keydown', onKey);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('pointerup', onPointerUp);

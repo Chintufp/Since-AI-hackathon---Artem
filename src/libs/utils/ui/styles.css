@@ -246,3 +246,11 @@
 /* desktop (R28): launch drop surface, the 44x86 scene column floor-aligned with the avatar canvas; never takes the mouse */
 #kt-panel .rf-avatar canvas.rf-drop { position:absolute; width:88px; height:172px; left:-12px; top:-102px; pointer-events:none; image-rendering:pixelated; display:block; }
 #kt-panel .rf-avatar canvas.rf-drop[hidden] { display:none; }
+/* desktop (R31): the carrier. With the companion on, the card (.rf-window, which contains Snowbally) is anchored at the
+   window's bottom-left and moved only by the companion's translate3d (whole device pixels); card and Snowbally move together. */
+#kt-panel[data-kt-companion="on"] .rf-window { left:0; bottom:0; transform:none; }
+/* desktop (R32): floor-shadow strip (scene rows 80-88), floor-aligned with the avatar canvas; the companion keeps it on the floor while he is lifted; never takes the mouse */
+#kt-panel .rf-avatar canvas.rf-shadow { position:absolute; width:88px; height:16px; left:-12px; top:58px; pointer-events:none; image-rendering:pixelated; display:block; }
+/* desktop (R32): he can be picked up */
+#kt-panel[data-kt-drag="on"] .rf-avatar { cursor:grab; }
+#kt-panel[data-kt-carried="true"], #kt-panel[data-kt-carried="true"] .rf-avatar { cursor:grabbing; }

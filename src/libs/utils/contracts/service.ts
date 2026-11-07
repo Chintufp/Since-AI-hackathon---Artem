@@ -9,6 +9,7 @@ import type { ConnectionCard, ImportBatch } from './evidence.ts';
 import type { InvestigationState } from './investigation.ts';
 import type { Answer, ContactDraft, PreferenceFeedback, QuestionRecord } from './questions.ts';
 import type { OutcomeReport, ParticipationBalance, UserSettings } from './outcomes.ts';
+import type { PeopleDirectory } from './scenarios.ts';
 import type { CaseView, PersonView, QuestionView, ReceiptView, ResultView } from './views.ts';
 
 export const DEFAULT_SERVICE_PORT = 47831;
@@ -37,6 +38,8 @@ export interface ImportRequest {
   payload?: unknown;
   connectionId?: string;
   accessGroups?: string[];
+  /** Visible organization directory (a scenario's people.json) to apply together with an inline payload. */
+  directory?: PeopleDirectory;
 }
 
 export interface ImportResponse {
@@ -113,8 +116,46 @@ export interface ApiRoutes {
   'GET /settings': { res: UserSettings };
   'PUT /settings': { req: Partial<UserSettings>; res: UserSettings };
   'GET /participation/:personEntityId': { res: ParticipationBalance };
-  'POST /demo/reset': { req: { seed?: 'elisa' | 'synthetic' | 'empty' }; res: { ok: true; imported: ImportResponse[] } };
+  'POST /demo/reset': { req: { seed?: 'elisa' | 'synthetic' | 'empty'; defaultPerson?: string }; res: { ok: true; imported: ImportResponse[]; defaultPersonEntityId?: string } };
   'GET /events': { query: { since?: string; traceId?: string }; res: Array<{ id: string; at: string; type: string; traceId: string }> };
+  /** The engine's clock: real time, or a simulated moment advancing at `rate` simulated seconds per real second. */
+  'GET /demo/clock': { res: DemoClockView };
+  /** Moves the clock (the simulated activity stream does this); `{}` returns to real time. 409 when the host fixed the clock. */
+  'POST /demo/clock': { req: { now?: string | null; rate?: number }; res: DemoClockView };
+  /** Tail of the simulated activity log (JSONL under data/local/, written by scripts/demo-play.ts). Read-only; always labelled simulated. */
+  'GET /demo/activity': { query: { since?: number; limit?: number }; res: ActivityView };
+}
+
+export interface DemoClockView {
+  mode: 'real' | 'simulated';
+  now: string;
+  rate: number;
+  setAt?: string;
+}
+
+export interface ActivityRowView {
+  seq: number;
+  /** Simulated time. */
+  at: string;
+  /** Real time the row was written. */
+  real: string;
+  /** evidence | investigation | question | answer | judge | clock | note | summary */
+  kind: string;
+  text: string;
+  who?: string;
+  why?: string;
+  detail?: Record<string, unknown>;
+  simulated: true;
+  /** Involves the person chosen under Settings → You. */
+  forYou?: boolean;
+}
+
+export interface ActivityView {
+  simulated: true;
+  source: string;
+  present: boolean;
+  total: number;
+  rows: ActivityRowView[];
 }
 
 /** MCP tool names (documented defaults). Each maps to one API route above. */

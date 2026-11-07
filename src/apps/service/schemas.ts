@@ -23,12 +23,20 @@ export const conditionSchema = z.object({
   label: z.string().optional(),
 });
 
+const directorySchema = z.object({
+  people: z.array(z.object({
+    id: z.string().min(1), name: z.string().min(1), role: z.string(), groups: z.array(z.string()), actorIds: z.array(z.string()), available: z.boolean(),
+  })),
+});
+
 export const importSchema = z.object({
   format: z.enum(['teams-json', 'email-text', 'slack-export', 'scenario-dir']),
   path: z.string().min(1).optional(),
   payload: z.unknown().optional(),
   connectionId: z.string().optional(),
   accessGroups: z.array(z.string()).optional(),
+  /** Visible organization directory to apply with an inline payload (a scenario directory's people.json). */
+  directory: directorySchema.optional(),
 }).refine((r) => r.path !== undefined || r.payload !== undefined, { message: 'path or payload is required' });
 
 export const investigateSchema = z.object({
@@ -101,3 +109,6 @@ export const demoResetSchema = z.object({ seed: z.enum(['elisa', 'synthetic', 'e
 export const peopleQuerySchema = z.object({ investigationId: z.string().min(1), principalId: z.string().min(1) });
 export const questionsQuerySchema = z.object({ personEntityId: z.string().optional(), status: z.string().optional() });
 export const eventsQuerySchema = z.object({ since: z.string().optional(), traceId: z.string().optional() });
+/** `{}` or `{now: null}` returns the clock to real time; `rate` is simulated seconds per real second. */
+export const clockSchema = z.object({ now: z.string().min(1).nullable().optional(), rate: z.number().positive().optional() });
+export const activityQuerySchema = z.object({ since: z.coerce.number().int().min(0).optional(), limit: z.coerce.number().int().min(1).max(1000).optional() });

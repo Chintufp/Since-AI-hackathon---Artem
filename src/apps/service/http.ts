@@ -7,9 +7,10 @@ import { DEFAULT_SERVICE_PORT } from '../../libs/utils/contracts/index.ts';
 import type { Engine, ExtendedSettings } from './engine.ts';
 import { ServiceError, toServiceError } from './errors.ts';
 import {
-  answerSchema, cancelSchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema, observationSchema,
-  outcomeSchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, settingsPatchSchema,
+  activityQuerySchema, answerSchema, cancelSchema, clockSchema, contactDraftSchema, demoResetSchema, eventsQuerySchema, importSchema, investigateSchema,
+  observationSchema, outcomeSchema, peopleQuerySchema, preferenceSchema, principalOnlySchema, questionsQuerySchema, settingsPatchSchema,
 } from './schemas.ts';
+
 
 type RouteKey = keyof ApiRoutes;
 interface Ctx {
@@ -69,6 +70,12 @@ export function buildRoutes(engine: Engine): Record<RouteKey, Handler> {
       return engine.resetDemo(b.seed, b.defaultPerson);
     },
     'GET /events': (c) => engine.events(parse(eventsQuerySchema, q(c))),
+    'GET /demo/clock': () => engine.clockStatus(),
+    'POST /demo/clock': (c) => {
+      const b = parse(clockSchema, c.body ?? {});
+      return engine.setClock(b.now ? { now: b.now, ...(b.rate !== undefined ? { rate: b.rate } : {}) } : null);
+    },
+    'GET /demo/activity': (c) => engine.activity(parse(activityQuerySchema, q(c))),
   };
   return table;
 }
@@ -84,7 +91,7 @@ function compile(keys: RouteKey[]): CompiledRoute[] {
   return keys.map((key) => {
     const [method, path] = key.split(' ') as [string, string];
     const names: string[] = [];
-    const rx = new RegExp('^' + path.replace(/:([A-Za-z]+)/g, (_m, n: string) => (names.push(n), '([^/]+)')) + '/?$');
+    const rx = new RegExp('^' + path.replace(/\./g, '\\.').replace(/:([A-Za-z]+)/g, (_m, n: string) => (names.push(n), '([^/]+)')) + '/?$');
     return { key, method, rx, names };
   });
 }

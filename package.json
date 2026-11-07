@@ -2,7 +2,7 @@
   "name": "knowledge-twin",
   "version": "0.1.0",
   "private": true,
-  "description": "Knowledge Twin — Elisa Since AI hackathon prototype (local service, MCP, Electron companion)",
+  "description": "Knowledge Twin \u2014 Elisa Since AI hackathon prototype (local service, MCP, Electron companion)",
   "type": "module",
   "engines": {
     "node": ">=24"
@@ -18,7 +18,8 @@
     "desktop": "node scripts/build.mjs && electron dist/desktop/main.cjs",
     "dev": "node scripts/dev.mjs",
     "experiments": "node experiments/run.ts",
-    "benchmark": "node benchmarks/run.ts"
+    "benchmark": "node benchmarks/run.ts",
+    "demo:play": "node scripts/demo-play.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

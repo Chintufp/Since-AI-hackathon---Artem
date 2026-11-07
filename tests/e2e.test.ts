@@ -23,7 +23,7 @@ test('health lists every contract route', async () => {
   const h = await svc.call('GET', '/health');
   assert.equal(h.ok, true);
   assert.ok(h.routes.includes('POST /investigate') && h.routes.includes('GET /events'));
-  assert.equal(h.routes.length, 25);
+  assert.equal(h.routes.length, 28);
 });
 
 test('import dev-family-01, then GET /cases has the cases', async () => {

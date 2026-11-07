@@ -271,6 +271,9 @@ export const defaultActionLexicon: ActionLexiconEntry[] = [
   { action: 'logs.check', pattern: /\b(?:check\w*|read\w*|review\w*|look\w* (?:at|in)|inspect\w*)\b.{0,30}?\blogs?\b/i },
   { action: 'config.change', pattern: /\b(?:set|increase|raise|lower|configure|change)\b.{0,30}?\b(?:timers?|config\w*|settings?|parameters?|router[- ]?id)\b/i },
   { action: 'session.reset', pattern: /\bclear\w*\b.{0,20}?\b(?:sessions?|neighbou?rs?)\b|\breset\w*\b.{0,15}\bbgp\b/i },
+  // B5: "Clear the forwarding table" / "Cleared the forwarding table" (advice and attempt get the same action, so the
+  // adviser is credited with it).
+  { action: 'table.clear', pattern: /\b(?:clear\w*|flush\w*)\b.{0,25}?\bforwarding[- ]table\b/i },
   { action: 'site.visit', pattern: /\b(?:visit\w*|drive out|go(?:ing)? to (?:the )?site)\b/i },
 ];
 

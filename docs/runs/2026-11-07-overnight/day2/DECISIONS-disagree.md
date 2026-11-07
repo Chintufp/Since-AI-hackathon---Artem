@@ -68,3 +68,37 @@ E10 results.
 
 `node experiments/run.ts e00` (17/17 checks), `e08` and `e10` after the change differ from the committed results only in
 timings and timestamps (not committed). The new key is unseen in the frozen families.
+
+## D-B5-08 · table.clear in the action lexicon
+
+The generic verb fallback already turned "Cleared the forwarding table." into an attempt `table.clear`, but Helmi's advice
+"Clear the forwarding table on the node instead." got no action, so the attempt showed "No advice recorded for this step"
+and Helmi's person reason read "Advised a response in TRN-512". A `defaultActionLexicon` entry
+(`clear|flush ... forwarding table` -> `table.clear`) gives advice and attempt the same action: the attempt is "Advised by
+Helmi Virtanen" and her reason is "Advised the forwarding table clear in TRN-512". E00 unchanged (timings only).
+Reversal: remove the entry.
+
+## D-B5-09 · Alternatives are computed in investigate() and carried on the state and the ResultView
+
+`investigation/alternatives.ts` `buildAlternatives(related, selected, directory, settings, problemConditions)`: every
+related hypothesis except the selected one, with support not contradicted and an adviser: the adviser of the case's
+corrective attempt, else of another advised attempt, else the author of an advice claim. An attempt the problem says was
+already done (the SFP the requester just replaced) is skipped, as `recommend()` does. `deciding` is the plain label of
+the first missing distinguishing condition, else of the first conflicting one (the case's own value, "2021 batch").
+`text`: "<expert> advised <gerund> in <case> (<applicability>, depends on <deciding>)". Sorted applicable, qualified,
+unknown, inapplicable; at most 3. Stored as optional `InvestigationState.alternatives` (contracts/investigation.ts
+`AlternativeHypothesis`) and copied to optional `ResultView.alternatives` (contracts/views.ts), filtered to the cases
+among the viewer's visible candidates (`sanitizeState`). The MCP `agentResult` spreads the view, so it carries them too.
+Why in `investigate()` and not in `views.ts`: the attempt, its adviser and the related set are only available there
+(the related set is not persisted). Nothing is written to the store besides the state itself; the recommendation, the
+gaps and the single question are unchanged. Reversal: drop the field and the builder.
+
+## D-B5-10 · Seeding side effects on the judge prompts (checked on a fresh elisa reset)
+
+Checked every prompt of `data/demo/judge-prompts.json` with and without the thread: every `targets` entry is still
+reached and the TRN-042 / TRN-301 / TRN-508 questions are unchanged ("Is TRN-301 an older unit?" to Erkki). The two
+TRN-117 prompts now ask "Is TRN-117 from the 2021 batch?" (to the same people) instead of "Is TRN-117 an older unit?":
+TRN-512's hypothesis now scores above TRN-042's for that text, and TRN-117's own "2019 batch" is not parsed (D-B5-03). The
+recipients are what the prompts record, so the file is left as it is; the B5 prompt is added. Not caused by B5 and not
+fixed here: the TRN-412 prompt (target Erkki) asks nothing ("Existing evidence and your own observations settle the next
+step") with or without the thread.

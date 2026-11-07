@@ -53,6 +53,29 @@ export interface Hypothesis {
   notes: string[];
 }
 
+/**
+ * B5: another related hypothesis the recommendation did not pick, with the person who advised it firsthand ("Also on
+ * record: Helmi Virtanen advised clearing the forwarding table in TRN-512 (qualified, depends on 2021 batch)"). Read-only:
+ * listing it changes nothing in the store.
+ */
+export interface AlternativeHypothesis {
+  caseId: string;
+  /** Short case label ("TRN-512"). */
+  caseLabel: string;
+  hypothesisId: string;
+  /** What was advised, as a gerund phrase ("clearing the forwarding table"). */
+  label: string;
+  action?: string;
+  /** The person whose advice it was (firsthand 'advised' on that case). */
+  expert: { personEntityId?: string; displayName: string; role?: string };
+  support: Hypothesis['support'];
+  applicability: Hypothesis['applicability'];
+  /** Plain label of the distinguishing condition that decides it here (missing, else conflicting), when there is one. */
+  deciding?: string;
+  /** One line for the UI. */
+  text: string;
+}
+
 export type RecommendationKind = 'reuse' | 'check-first' | 'qualified' | 'retain-uncertainty' | 'none';
 
 export interface Recommendation {
@@ -106,6 +129,8 @@ export interface InvestigationState {
   people: PersonResult[];
   questionIds: string[];
   decisionIds: string[];
+  /** B5: related hypotheses the recommendation did not pick, each with its expert (absent on older states). */
+  alternatives?: AlternativeHypothesis[];
   /** Status of the question loop. */
   loop: 'no-question-needed' | 'question-open' | 'deferred' | 'answered' | 'exhausted';
   /** Short human reason for 'deferred' / 'exhausted' / 'no-question-needed' (shown in the UI). */

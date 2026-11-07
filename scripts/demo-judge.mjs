@@ -118,7 +118,9 @@ if (!values['no-desktop']) {
   log('building and launching the desktop companion');
   await import('./build.mjs');
   const electron = createRequire(import.meta.url)('electron');
-  const env = { ...process.env, KT_PORT: String(port) };
+  // B6: demo mode is this command's one switch (KT_DEMO=1): the "Be Veikko / Be Erkki" chips in the panel footer, and Lumi
+  // starts in and leaves only after 120 s without pointer or keyboard activity. `KT_DEMO=0 pnpm demo:judge` keeps the product default.
+  const env = { ...process.env, KT_PORT: String(port), KT_DEMO: process.env.KT_DEMO ?? '1' };
   delete env.ELECTRON_RUN_AS_NODE;
   // A per-checkout user-data directory keeps this companion's single-instance lock and local state apart from any other Electron app.
   run('desktop', electron, [join(root, 'dist/desktop/main.cjs'), `--user-data-dir=${join(root, 'data', 'local', 'electron')}`], { env });

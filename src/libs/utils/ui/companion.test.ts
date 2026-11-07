@@ -8,8 +8,8 @@ import type { ActKey, AvatarStatus, CompanionAvatar, FallOptions, PoseSpec } fro
 import type { HeldSpec, LookView } from '../motion/poses.ts';
 import type { LandingTier } from '../motion/physics.ts';
 import {
-  COMPANION, GEOMETRY, attachCompanion, carrierTransform, classifyGesture, createCompanion, homeXFor, inEdgeZone, loadPlacement, nearBody,
-  nextGaze, perchX, pushedSide, roomX, sliverX,
+  COMPANION, GEOMETRY, attachCompanion, carrierTransform, classifyGesture, createCompanion, homeXFor, idleLeftMs, inEdgeZone, leaveDelays,
+  loadPlacement, nearBody, nextGaze, perchX, pushedSide, roomX, sliverX,
 } from './companion.ts';
 import type { Companion, CompanionFlags } from './companion.ts';
 
@@ -1027,4 +1027,73 @@ test('attachCompanion: focus / visible / pageshow resume; blur and the context m
   win.dispatchEvent(new Event('focus'));
   win.dispatchEvent(new Event('blur'));
   assert.deepEqual(calls, []);
+});
+
+// ---- B6: demo flag (start in, leave after 120 s without pointer or keyboard activity) ----
+
+test('B6 idle logic (pure): leave delays per flag set, time left since the last activity', () => {
+  assert.equal(COMPANION.DEMO_LEAVE_AFTER_IDLE_MS, 120000, 'the one constant');
+  assert.deepEqual(leaveDelays({}), { launchMs: COMPANION.LEAVE_AFTER_LAUNCH_MS, idleMs: COMPANION.LEAVE_AFTER_IDLE_MS });
+  assert.deepEqual(leaveDelays({ demo: false }), { launchMs: 4000, idleMs: 20000 }, 'the product default is unchanged');
+  assert.deepEqual(leaveDelays({ demo: true }), { launchMs: 120000, idleMs: 120000 });
+  assert.equal(idleLeftMs(-Infinity, 5000, 120000), 0, 'no activity recorded: leave when the timer fires');
+  assert.equal(idleLeftMs(1000, 121000, 120000), 0, 'exactly 120 s idle');
+  assert.equal(idleLeftMs(60000, 120000, 120000), 60000, 'activity at 60 s: 60 s more');
+  assert.equal(idleLeftMs(119999, 120000, 120000), 119999);
+  assert.equal(idleLeftMs(0, 500000, 120000), 0, 'never negative');
+});
+
+test('B6 demo flag: he starts in and leaves only after 120 s without activity', () => {
+  const t = setup({ flags: { demo: true } });
+  t.c.start();
+  t.env.advance(32);
+  assert.equal(t.c.status().state, 'in');
+  t.env.advance(COMPANION.LEAVE_AFTER_LAUNCH_MS + COMPANION.LEAVE_AFTER_IDLE_MS + 1000);
+  assert.equal(t.c.status().state, 'in', 'not the 4 s launch leave, not the 20 s idle leave');
+  t.env.advance(COMPANION.DEMO_LEAVE_AFTER_IDLE_MS - (COMPANION.LEAVE_AFTER_LAUNCH_MS + COMPANION.LEAVE_AFTER_IDLE_MS + 1000) - 100);
+  assert.equal(t.c.status().state, 'in');
+  t.env.advance(200);
+  assert.equal(t.c.status().state, 'leaving');
+  t.env.advance(2000);
+  assert.equal(t.c.status().state, 'away', 'then the product behaviour: away is home');
+});
+
+test('B6 demo flag: pointer moves anywhere and key presses push the leave back', () => {
+  const t = setup({ flags: { demo: true } });
+  t.c.start();
+  t.env.advance(32);
+  t.env.advance(100000);
+  t.c.pointer(200, 200); // far from him: not near, but activity
+  t.env.advance(100000);
+  assert.equal(t.c.status().state, 'in', '100 s after the pointer moved');
+  t.c.activity(); // a key press
+  t.env.advance(110000);
+  assert.equal(t.c.status().state, 'in', '110 s after the key press');
+  t.c.pointer(null); // leaving the window is not activity
+  t.env.advance(10200);
+  assert.equal(t.c.status().state, 'leaving', '120 s after the last activity');
+});
+
+test('B6: without the demo flag, activity is a no-op and far pointer moves do not hold him', () => {
+  const t = setup();
+  t.c.start();
+  t.env.advance(32);
+  t.c.activity();
+  t.c.pointer(200, 200);
+  t.env.advance(COMPANION.LEAVE_AFTER_LAUNCH_MS + 200);
+  assert.equal(t.c.status().state, 'leaving', 'the 4 s launch leave as before');
+});
+
+test('B6 attachCompanion: a key press reports activity', () => {
+  const calls: string[] = [];
+  const c = new Proxy({} as Companion, { get: (_t, k: string) => () => { calls.push(k); return false; } });
+  const doc = Object.assign(new EventTarget(), { documentElement: new EventTarget(), visibilityState: 'visible' as DocumentVisibilityState });
+  const win = Object.assign(new EventTarget(), { document: doc });
+  const avatarButton = Object.assign(new EventTarget(), { setPointerCapture: () => {} });
+  const detach = attachCompanion(c, { root: new EventTarget() as unknown as HTMLElement, avatarButton: avatarButton as unknown as HTMLElement, win: win as unknown as Window });
+  doc.dispatchEvent(new Event('keydown'));
+  assert.deepEqual(calls, ['activity']);
+  detach();
+  doc.dispatchEvent(new Event('keydown'));
+  assert.deepEqual(calls, ['activity']);
 });

@@ -27,10 +27,16 @@ export interface DesktopFlags {
   texture: boolean;
   /** desktop (R36): global shortcut CommandOrControl+Alt+S toggles away / back. */
   shortcut: boolean;
+  /**
+   * B6: demo mode, the one switch `pnpm demo:judge` turns on (KT_DEMO=1; off everywhere else): the "Be Veikko / Be Erkki"
+   * chips in the panel footer, and Lumi starts in and leaves after COMPANION.DEMO_LEAVE_AFTER_IDLE_MS (120 s) without
+   * pointer or keyboard activity. The simulated day never reaches the panel (it is on the activity page only).
+   */
+  demo: boolean;
   windowMode: WindowMode;
 }
 
-export const FLAG_NAMES = ['companion', 'drag', 'away', 'gaze', 'fidgets', 'shortcut', 'texture'] as const;
+export const FLAG_NAMES = ['companion', 'drag', 'away', 'gaze', 'fidgets', 'shortcut', 'texture', 'demo'] as const;
 export type FlagName = (typeof FLAG_NAMES)[number];
 
 export const DEFAULT_FLAGS: Readonly<DesktopFlags> = Object.freeze({
@@ -41,6 +47,7 @@ export const DEFAULT_FLAGS: Readonly<DesktopFlags> = Object.freeze({
   fidgets: true,
   texture: false,
   shortcut: true,
+  demo: false,
   windowMode: 'area',
 });
 
@@ -56,10 +63,11 @@ export const COLUMN_FLAGS: Readonly<DesktopFlags> = Object.freeze({
   fidgets: false,
   texture: false,
   shortcut: false,
+  demo: false,
   windowMode: 'column',
 });
 
-/** Env var per flag: KT_COMPANION, KT_DRAG, KT_AWAY, KT_GAZE, KT_FIDGETS, KT_SHORTCUT. */
+/** Env var per flag: KT_COMPANION, KT_DRAG, KT_AWAY, KT_GAZE, KT_FIDGETS, KT_SHORTCUT, KT_TEXTURE, KT_DEMO. */
 export const flagEnvName = (name: FlagName): string => 'KT_' + name.toUpperCase();
 
 const parseBool = (value: string | null | undefined): boolean | undefined => {

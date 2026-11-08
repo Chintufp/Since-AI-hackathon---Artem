@@ -52,9 +52,12 @@ const click = () => {
   if (y < 40 || y > 885 || x < 2 || x > 1508) { console.log(`  (click at ${x},${y} refused: outside the safe area)`); return; }
   mouse('click');
 };
-const key = (code, mods) => (mods ? mouse('key', code, mods) : mouse('key', code));
+/** Release ⌘ ⇧ ⌥ ⌃ (their key codes, plain down/up), so no modifier is left held after a shortcut. */
+const releaseMods = () => { for (const k of [55, 56, 58, 59]) mouse('key', k); };
+const key = (code, mods) => { if (mods) { mouse('key', code, mods); releaseMods(); } else mouse('key', code); };
 async function glide(x, y, ms) { move(x + rnd(-3, 3), y + rnd(-2, 2), ms ?? rnd(550, 900)); await sleep(rnd(120, 260)); }
 async function typeHuman(text, speed = 1) {
+  releaseMods(); // never type with a modifier held (⌘N, ⌘T would open Safari windows instead of typing)
   for (const ch of text) {
     mouse('type', ch);
     await sleep(speed * (ch === ' ' ? rnd(50, 120) : /[.,:?]/.test(ch) ? rnd(90, 180) : rnd(15, 60)));
@@ -198,7 +201,7 @@ const db = health.store;
 safariFront(); tab(2); await sleep(1200);
 // Slack's bottom banners (Slackbot news, notifications) closed; the pages at actual size.
 for (let i = 0; i < 2; i++) { try { move(1489, 875, 300); click(); await sleep(900); } catch { /* none */ } }
-tab(3); await sleep(500); key(29, 'cmd'); await sleep(400); // actual size (⌘0), so the measured click points hold
+tab(3); await sleep(500); // (no ⌘0 here any more: a modifier sent with a synthetic key can stay held and turn typed letters into shortcuts)
 tab(1); await sleep(500);
 move(756, 520, 400);
 

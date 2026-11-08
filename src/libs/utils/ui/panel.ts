@@ -199,16 +199,16 @@ export const TEMPLATE = `
    <section class="rf-view rf-panel-content" data-view="settings" aria-label="Settings" hidden>
     <h2>Settings</h2><button class="rf-tool rf-close" type="button" data-action="input" aria-label="Back to input"><i data-icon="corner-up-left"></i></button>
     <div class="rf-settings-rows">
-     <div class="rf-setting"><span>Server</span><span class="rf-setting-value rf-server rf-selectable"></span></div>
-     <label class="rf-setting"><span>You</span><select class="rf-you" aria-label="Who you are"></select></label>
-     <div class="rf-setting rf-option"><span>Models</span><em class="rf-setting-note rf-models-summary"></em><button class="rf-later" type="button" data-action="models">Open</button></div>
-     <label class="rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox"></label>
+     <div class="rf-admin rf-setting"><span>Server</span><span class="rf-setting-value rf-server rf-selectable"></span></div>
+     <label class="rf-admin rf-setting"><span>You</span><select class="rf-you" aria-label="Who you are"></select></label>
+     <div class="rf-admin rf-setting rf-option"><span>Models</span><em class="rf-setting-note rf-models-summary"></em><button class="rf-later" type="button" data-action="models">Open</button></div>
+     <label class="rf-admin rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox"></label>
      <label class="rf-setting rf-option"><span>Reduced motion</span><input class="rf-motion" type="checkbox"></label>
      <div class="rf-setting rf-option"><span>Points &amp; rating</span><button class="rf-later" type="button" data-action="points">Open</button></div>
-     <div class="rf-setting rf-cost-row" hidden><span class="rf-cost-label">Cost</span><span class="rf-cost"><span class="rf-cost-line"></span><small class="rf-cost-store"></small></span></div>
-     <div class="rf-setting rf-option"><span>Connections</span><button class="rf-later" type="button" data-action="connections">Open</button></div>
+     <div class="rf-admin rf-setting rf-cost-row" hidden><span class="rf-cost-label">Cost</span><span class="rf-cost"><span class="rf-cost-line"></span><small class="rf-cost-store"></small></span></div>
+     <div class="rf-admin rf-setting rf-option"><span>Connections</span><button class="rf-later" type="button" data-action="connections">Open</button></div>
      <label class="rf-setting rf-option"><span>Sound</span><em class="rf-setting-note">No sounds yet</em><input class="rf-sound" type="checkbox" disabled aria-label="Sound (no sounds yet)"></label>
-     <div class="rf-setting rf-option"><span>Demo data</span><button class="rf-later" type="button" data-action="reset-demo">Reset demo</button></div>
+     <div class="rf-admin rf-setting rf-option"><span>Demo data</span><button class="rf-later" type="button" data-action="reset-demo">Reset demo</button></div>
      <label class="rf-setting rf-option rf-desktop-companion" hidden><span>Fidgets</span><input class="rf-fidgets" type="checkbox"></label>
      <div class="rf-setting rf-option rf-desktop-companion" hidden><span>Position</span><button class="rf-later" type="button" data-action="reset-position">Put Lumi back in the corner</button></div>
     </div>
@@ -699,6 +699,17 @@ export function createPanel(options: PanelOptions): Panel {
   }
 
   // ---- settings ----
+  // Admin rows (person switch, server, models, MCP, cost, connections, demo reset) stay hidden for everyday use; a
+  // triple-click on the Settings title shows them (remembered per app). Nothing on screen points at it.
+  let adminOn = (() => { try { return storage?.getItem('kt-admin') === '1'; } catch { return false; } })();
+  const syncAdmin = (): void => { $('.rf-settings-rows').dataset.admin = adminOn ? 'on' : 'off'; };
+  $('section[data-view="settings"] h2').addEventListener('click', (e) => {
+    if ((e as MouseEvent).detail !== 3) return;
+    adminOn = !adminOn;
+    try { storage?.setItem('kt-admin', adminOn ? '1' : '0'); } catch { /* memory only */ }
+    syncAdmin();
+  });
+  syncAdmin();
   function renderSettings(): void {
     $('.rf-server').textContent = api.kind === 'mock' ? 'Dev mock · no service' : api.baseUrl;
     $('.rf-models-summary').textContent = modelsSummary(settings?.models);

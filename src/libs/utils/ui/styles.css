@@ -373,3 +373,6 @@
 #kt-panel .rf-offer { padding:0 24px 7px; display:flex; }
 #kt-panel .rf-offer-chip { border:0; cursor:pointer; color:#3d4348; }
 #kt-panel .rf-offer-chip:hover { background:#eceeef; }
+
+/* Admin rows in Settings: hidden unless the admin switch is on (triple-click on the Settings title). */
+.rf-settings-rows[data-admin="off"] .rf-admin { display: none !important; }

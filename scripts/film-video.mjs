@@ -19,18 +19,20 @@ import { createRequire } from 'node:module';
 const REPO = '/Users/artevil/Since-AI-hackathon---Artem';
 const OUT = process.env.FILM_OUT ?? join(REPO, 'data', 'local', 'film-video');
 const FILM = process.env.FILM_ASSETS; // intro.mp4 lives here
-const SERVICE = 'http://127.0.0.1:47831';
+const SERVICE = `http://127.0.0.1:${process.env.FILM_PORT ?? 47831}`;
 const M = join(REPO, 'movie/capture/bin/mouse');
 const DRY = process.argv.includes('--dry');
 const REC = !DRY || process.argv.includes('--rec');
-const REC_SECONDS = 168;
+/** Lumi's own sends (Remember this, a question): always in a take; in a dry run only against a preview service. */
+const LUMI_SENDS = !DRY || (process.env.FILM_PORT ?? '47831') !== '47831';
+const REC_SECONDS = Number(process.env.FILM_REC ?? 162);
 /** Screen point of the "case json" summary on /pipeline after scrolling to the bottom (measured in the dry run). */
 const DETAILS = { x: Number(process.env.FILM_DETAILS_X ?? 54), y: Number(process.env.FILM_DETAILS_Y ?? 583) };
 const CDP = 9351;
 mkdirSync(OUT, { recursive: true });
 const CUES = join(OUT, 'cues.txt');
 /** Where Part 1 (capture) and Part 2 (confidence) begin in the take, for the title cards. */
-const MARK = { part1: 12, part2: 54 };
+const MARK = { part1: 9, part2: 37 };
 writeFileSync(CUES, '');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -44,7 +46,12 @@ const at = async (s) => { const w = s - t(); if (w > 0) await sleep(w * 1000); }
 // ---- hands ----
 const mouse = (...a) => execFileSync(M, a.map(String));
 const move = (x, y, ms = 700) => mouse('move', Math.round(x), Math.round(y), Math.round(ms));
-const click = () => mouse('click');
+/** Clicks only inside the safe area (never the Dock, the menu bar or off-screen). */
+const click = () => {
+  const [x, y] = execFileSync(M, ['pos']).toString().trim().split(' ').map(Number);
+  if (y < 40 || y > 885 || x < 2 || x > 1508) { console.log(`  (click at ${x},${y} refused: outside the safe area)`); return; }
+  mouse('click');
+};
 const key = (code, mods) => (mods ? mouse('key', code, mods) : mouse('key', code));
 async function glide(x, y, ms) { move(x + rnd(-3, 3), y + rnd(-2, 2), ms ?? rnd(550, 900)); await sleep(rnd(120, 260)); }
 async function typeHuman(text, speed = 1) {
@@ -64,10 +71,25 @@ async function cdp(expression) {
   ws.close();
   return out;
 }
+/** Type into Lumi key by key through DevTools (Input.insertText per character, same rhythm as typeHuman). */
+async function typeLumi(text, speed = 1) {
+  const pages = await (await fetch(`http://127.0.0.1:${CDP}/json`)).json();
+  const ws = new WebSocket(pages.find((x) => x.type === 'page').webSocketDebuggerUrl);
+  await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; });
+  let id = 0;
+  for (const ch of text) {
+    await new Promise((res) => { const my = ++id; ws.onmessage = (m) => { if (JSON.parse(String(m.data)).id === my) res(); }; ws.send(JSON.stringify({ id: my, method: 'Input.insertText', params: { text: ch } })); });
+    await sleep(speed * (ch === ' ' ? rnd(60, 130) : /[.,:?]/.test(ch) ? rnd(100, 190) : rnd(40, 95)));
+  }
+  ws.close();
+}
 /** Screen point of the centre of an element in Lumi's window. */
 async function lumiAt(selector) {
-  return cdp(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e) return null; const r = e.getBoundingClientRect(); if (!r.width) return null; return { x: screenX + r.x + r.width / 2, y: screenY + r.y + r.height / 2 }; })()`);
+  // Only an element that is really visible and on top at its centre (a hidden panel's buttons never count).
+  return cdp(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e || e.disabled || e.closest('[hidden]')) return null; const r = e.getBoundingClientRect(); if (!r.width || !r.height) return null; const cx = r.x + r.width / 2, cy = r.y + r.height / 2; const top = document.elementFromPoint(cx, cy); if (!top || !(top === e || e.contains(top))) return null; return { x: screenX + cx, y: screenY + cy }; })()`);
 }
+/** Make Lumi's app the active one, so key presses go to him (Safari stays behind). */
+const focusLumi = () => { try { execFileSync('osascript', ['-e', `tell application "System Events" to set frontmost of (first process whose unix id is ${lumi.pid}) to true`]); } catch { /* best effort */ } };
 const white = (on) => cdp(`document.documentElement.style.background = document.body.style.background = ${on ? "'#ffffff'" : "'transparent'"}; 1`);
 const lumiState = () => cdp(`({ open: !!document.querySelector('[aria-label="Close panel"]'), view: document.querySelector('.rf-stage')?.dataset.view ?? '', q: document.querySelector('section[data-view="question"] h2')?.textContent ?? '' })`);
 
@@ -80,7 +102,7 @@ async function launchLumi() {
   const electron = createRequire(join(REPO, 'package.json'))('electron');
   lumi = spawn(electron, [join(REPO, 'dist/desktop/main.cjs'), `--user-data-dir=${ud}`, `--remote-debugging-port=${CDP}`], {
     stdio: 'ignore', detached: true,
-    env: { ...process.env, KT_NO_SERVICE: '1', KT_PERSON: ARTEM_ID, KT_QUESTION_POLL_MS: '1000', KT_FILM_ARRIVE: '1' },
+    env: { ...process.env, KT_NO_SERVICE: '1', KT_SERVICE_URL: SERVICE, KT_PERSON: ARTEM_ID, KT_QUESTION_POLL_MS: '1000', KT_FILM_ARRIVE: '1' },
   });
   for (let i = 0; i < 60; i++) { try { await cdp('1'); return; } catch { await sleep(250); } }
   throw new Error('Lumi did not start');
@@ -185,80 +207,93 @@ const recDone = rec ? new Promise((res) => rec.on('exit', res)) : Promise.resolv
 T0 = Date.now();
 await launchLumi();
 await white(true);
-cue('WHITE · Lumi drops in, says hello, goes to the edge (hook)');
-await at(4); await glide(700, 560, 1400); await glide(980, 640, 1300);
-await at(7.5); await glide(1440, 760, 1500); cue('cursor comes near: Lumi peeks'); await sleep(1600); await glide(1180, 600, 1300);
+const ONLY_LUMI = process.argv.includes('--only-lumi');
+if (ONLY_LUMI) { await sleep(3500); T0 = Date.now() - 107000; }
+let p;
+if (!ONLY_LUMI) {
+cue('WHITE · Lumi drops in, says hello and runs off to the edge (hook)');
+await at(3.5); await glide(700, 560, 1300); await glide(980, 640, 1200);
+await at(6); await glide(1440, 760, 1400); cue('the cursor comes near: Lumi peeks'); await sleep(1300); await glide(1150, 600, 1000);
 
-await at(12); MARK.part1 = t(); await white(false); safariFront(); tab(2); cue('SLACK · #field-ops: the conversation so far (oat milk, alarms, pizza, the N5 idea)');
-await glide(520, 400, 900); await glide(560, 482, 900); await glide(640, 570, 900); await glide(700, 660, 900); await glide(820, 706, 1000);
+// PART 1 · capture
+await at(9); MARK.part1 = t(); await white(false); safariFront(); tab(2); cue('SLACK · #field-ops: oat milk, alarms, pizza, and in between a real problem');
+await glide(560, 482, 1000); await glide(640, 570, 900); await glide(820, 706, 1100);
+await at(16); tab(3); cue('PIPELINE · 1. raw: every message, chatter in grey');
+await glide(260, 330, 900); await sleep(1600);
+await at(21); cue('2. filtered: only the useful passages, each with its message id'); await glide(640, 360, 1000); await sleep(1800);
+await at(26); cue('3. linked: one case, TRN-418 · certainty 3 / threshold 4'); await glide(1000, 340, 900); await glide(1000, 580, 900); await sleep(1500);
+await at(31); cue('4. hypothesis: Mark\'s "probably the v6 template…", what supports it, what is open'); await glide(1320, 340, 900); await glide(1320, 470, 1000); await sleep(1500);
 
-await at(24); tab(3); cue('PIPELINE · 1. raw (all 8 messages, chatter grey)');
-await glide(260, 300, 900); await sleep(1500);
-await at(29); cue('2. filtered (only the useful passages, with their message ids)'); await glide(640, 320, 1000); await sleep(1700);
-await at(34); cue('3. linked (case TRN-418, symptom / condition / action / outcome, certainty 3 / threshold 4)'); await glide(1000, 300, 900); await glide(1000, 380, 700); await sleep(1500);
-await at(40); cue('4. hypothesis (Mark\'s "probably the v6 template…", supporting lines, what is open)'); await glide(1320, 300, 900); await glide(1320, 420, 900); await sleep(1300);
-await at(46); cue('stored record: the case as stored (claims, evidence ids, links)');
-// "case json" sits under the table: scroll down, click it open, look, click it shut, back to the top.
-await glide(DETAILS.x, DETAILS.y, 900); click(); await sleep(2600); await scroll(250); await sleep(1500); await scroll(-250); await sleep(400);
-await glide(DETAILS.x, DETAILS.y, 500); click(); await sleep(500); await scroll(-1500); await sleep(500);
-
-await at(54); MARK.part2 = t(); tab(2); cue('SLACK · Artem types the trigger: "Yes, older N5 unit, installed 2019."');
-await glide(900, 781, 900); click(); await sleep(400);
+// PART 2 · confidence
+await at(37); MARK.part2 = t(); tab(2); cue('SLACK · Artem sends one more message: "Yes, older N5 unit, installed 2019."');
+await glide(900, 781, 900); click(); await sleep(350);
 const TRIGGER = 'Yes, older N5 unit, installed 2019.';
-if (!DRY) { await typeHuman(TRIGGER); await sleep(300); key(36); } else await sleep(2600);
+if (!DRY) { await typeHuman(TRIGGER, 0.8); await sleep(300); key(36); } else await sleep(2600);
 const sentAt = t();
-await sleep(900); tab(3); cue('PIPELINE · certainty 4 / threshold 4: Lumi asks');
-await glide(1000, 390, 900);
-for (let i = 0; i < 16; i++) { const p = await get('/pipeline.json'); if (p.cases[0]?.certainty?.asked) break; await sleep(500); }
-await sleep(1500);
-await white(true); cue('WHITE · Lumi comes in by himself with the hypothesis: "… Is this a problem?"');
-await glide(760, 520, 1100);
+await sleep(800); tab(3); cue('PIPELINE · certainty 4 / threshold 4: enough to ask someone');
+await glide(1000, 580, 900);
+for (let i = 0; i < 20; i++) { const pj = await get('/pipeline.json'); if (pj.cases[0]?.certainty?.asked) break; await sleep(400); }
+await sleep(1200);
+await white(true); cue('WHITE · Lumi comes in from the side with the hypothesis: "… Is this a problem?"');
+await glide(760, 520, 1000);
 let opened = false;
-for (let i = 0; i < 40; i++) { const s = await lumiState(); if (s.open && s.view === 'question') { opened = true; break; } await sleep(250); }
-cue(opened ? `the card is open (${(t() - sentAt).toFixed(1)} s after the Slack message)` : 'the card did not open in time');
-await sleep(2500);
-let p = await lumiAt('[data-action="context"]'); if (p) { await glide(p.x, p.y, 1100); click(); cue('Why this question? (the Slack messages behind it)'); }
-await sleep(4200);
-p = await lumiAt('section[data-view="question"] [data-action="yes"]'); if (p) { await glide(p.x, p.y, 1000); await sleep(400); click(); cue('Artem: Yes · the case is recorded as a confirmed problem'); }
-await sleep(3500);
+for (let i = 0; i < 48; i++) { const st = await lumiState(); if (st.open && st.view === 'question') { opened = true; break; } await sleep(250); }
+cue(opened ? `the card is open, ${(t() - sentAt).toFixed(1)} s after the Slack message` : 'THE CARD DID NOT OPEN');
+await sleep(3000);
+p = await lumiAt('[data-action="context"]'); if (p) { await glide(p.x, p.y, 1100); click(); cue('Why this question? the Slack messages behind it'); }
+await sleep(3800);
+p = await lumiAt('section[data-view="question"] [data-action="yes"]'); if (p) { await glide(p.x, p.y, 1000); await sleep(350); click(); cue('Artem taps Yes: a confirmed problem, with his answer as evidence'); }
+await sleep(3200);
 
-await at(87); await white(false); safariFront(); tab(2); cue('SLACK · Artem: "Applied the v7.1 patch on TRN-418."');
+await at(68); await white(false); safariFront(); tab(2); cue('SLACK · "Applied the v7.1 patch on TRN-418."');
 await glide(900, 781, 800); click();
-if (!DRY) { await typeHuman('Applied the v7.1 patch on TRN-418.'); await sleep(250); key(36); } else await sleep(2500);
-await sleep(700); tab(4); cue('QUESTIONS · colleagues (simulated) hit the same symptom; Lumi picks the question and who can know');
+if (!DRY) { await typeHuman('Applied the v7.1 patch on TRN-418.', 0.6); await sleep(250); key(36); } else await sleep(2500);
+await sleep(600); tab(4); cue('QUESTIONS · colleagues (simulated) hit the same symptom; Lumi decides what to ask and whom');
 if (!DRY) void simulate();
-await glide(400, 260, 900);
-await at(97); await glide(760, 520, 1100); cue('open condition → question → who can know (score, reasons, gates)');
-await at(105); await glide(1200, 560, 1000); await sleep(2000);
-await at(110); cue('answers arrive (tagged simulated) → evidence → result'); await scroll(500); await sleep(2500); await glide(700, 600, 900);
-await at(117); await scroll(400); cue('ALL QUESTIONS: every question, who asked, to whom, why, the answer'); await glide(800, 700, 1000); await sleep(1500); await scroll(-900);
+await glide(300, 290, 900); await glide(900, 300, 1200);
+await at(80); await glide(700, 470, 1000); cue('latest question: who was asked and why, who else could, the answer, what changed');
+await at(86); await glide(500, 650, 1000); cue('all questions'); await sleep(2500);
 
-await at(122); tab(2); cue('SLACK · solved: "traffic is back", "still stable 2 h"');
+await at(92); tab(2); cue('SLACK · solved: "traffic is back", "still stable 2 h"');
 await glide(900, 781, 800); click();
-if (!DRY) { await typeHuman('TRN-418 traffic is back after the patch, alarms cleared.', 0.4); key(36); await sleep(700); await typeHuman('TRN-418 traffic still stable 2 h after the v7.1 patch. Closing it.', 0.4); key(36); } else await sleep(5000);
-await sleep(1500); tab(4); await sleep(2600); cue('CHAIN · problem → condition → cause → action → outcome, complete');
-await glide(1350, 230, 1000); await glide(200, 230, 1600); await sleep(1200);
+if (!DRY) { await typeHuman('TRN-418 traffic is back after the patch, alarms cleared.', 0.35); key(36); await sleep(600); await typeHuman('TRN-418 traffic still stable 2 h after the v7.1 patch. Closing it.', 0.35); key(36); } else await sleep(5000);
+await sleep(1600); tab(4); await sleep(1800); cue('WHAT WE KNOW · problem → condition → cause → fix → outcome');
+await glide(1400, 240, 1000); await glide(200, 240, 1500); await sleep(800);
 
-await at(136); await white(true); cue('WHITE · Lumi himself: ask him in plain words');
-const avatar = async () => lumiAt('[data-action="avatar"]');
-let a = await avatar(); if (a) { await glide(Math.min(a.x, 1500), a.y, 1200); await sleep(700); click(); }
-await sleep(1500); a = await avatar(); if (a) { await glide(a.x, a.y, 500); click(); }
+} // end of the parts before Lumi himself
+// LUMI himself
+await at(107); await white(true); cue('WHITE · Lumi: ask him in plain words');
+// Lumi himself: aim at the part of him that is on screen (away, only a sliver at the edge shows).
+const avatar = async () => cdp(`(() => { const e = document.querySelector('[data-action="avatar"]'); if (!e) return null; const r = e.getBoundingClientRect(); if (!r.width) return null; const x = Math.min(r.x + r.width / 2, innerWidth - 6), y = r.y + r.height / 2; return { x: screenX + x, y: screenY + y }; })()`);
+let a = await avatar(); if (a) { await glide(Math.min(a.x, 1500), a.y, 1100); await sleep(600); click(); }
+await sleep(1400); a = await avatar(); if (a) { await glide(a.x, a.y, 500); click(); }
+await sleep(900);
+// 1. Remember this: a note becomes knowledge, nobody is asked.
+p = await lumiAt('.rf-writing'); if (p) { focusLumi(); await glide(p.x, p.y, 600); click(); cue('Remember this: tell him something worth keeping'); await typeLumi('N5 units: never roll back to the v6 template, apply v7.1.', 0.5); }
+p = await lumiAt('.rf-footer [data-action="remember"]'); if (p) { await glide(p.x, p.y, 600); if (LUMI_SENDS) click(); }
+await sleep(3000);
+// 2. Back to writing (the pencil, only while it is labelled "Write a message"; in the writing view it would attach files).
+p = await lumiAt('[aria-label="Write a message"]'); if (p) { await glide(p.x, p.y, 700); click(); await sleep(800); }
+p = await lumiAt('.rf-writing'); if (p) { focusLumi(); await glide(p.x, p.y, 600); click(); cue('ask him in plain words'); await typeLumi('TRN-430: link up, no traffic after the v6 rollout.', 0.6); }
+p = await lumiAt('.rf-footer [data-action="send"]'); if (p) { await glide(p.x, p.y, 500); if (LUMI_SENDS) click(); }
+await sleep(4200); cue('his answer: what to check first, from which case, what is still unknown');
+p = await lumiAt('.rf-row-button[data-action="people"]'); if (p) { await glide(p.x, p.y, 900); click(); cue('people with relevant experience, and why each'); await sleep(3600); }
+p = await lumiAt('section[data-view="people"] [data-action="back"]'); if (p) { await glide(p.x, p.y, 700); click(); await sleep(700); }
+p = await lumiAt('.rf-footer [data-action="queue"]'); if (p) { await glide(p.x, p.y, 700); click(); cue('his questions for you'); await sleep(2400); }
+// 3. Play: close, pick him up, carry him, let go.
+a = await avatar(); if (a) { await glide(a.x, a.y, 600); click(); }
+await sleep(900); a = await avatar(); if (a && a.y < 885) { await glide(a.x, a.y - 4, 400); mouse('down'); cue('and he is fun to have around'); mouse('move', 760, 420, 1500, 'drag'); await sleep(120); mouse('up'); }
+await sleep(2200); a = await avatar(); if (a) { await glide(a.x + 60, Math.min(a.y - 80, 800), 900); }
 await sleep(1000);
-p = await lumiAt('.rf-writing'); if (p) { await glide(p.x, p.y, 600); click(); await typeHuman('TRN-430: link up, no traffic after the v6 rollout.', 0.7); }
-p = await lumiAt('[data-action="send"]'); if (p) { await glide(p.x, p.y, 500); if (!DRY) click(); }
-await sleep(4500); cue('his answer: what to check, from whose experience, what is still unknown');
-await sleep(1500); a = await avatar(); if (a) { await glide(a.x, a.y, 600); click(); }
-await sleep(900); a = await avatar(); if (a) { await glide(a.x, a.y - 4, 400); mouse('down'); cue('pick him up, carry him across'); mouse('move', 820, 430, 1500, 'drag'); await sleep(150); mouse('up'); }
-await sleep(1800);
 
-await at(156); cue('TERMINAL · an AI agent asks Lumi over MCP');
+await at(148); cue('TERMINAL · an AI agent asks Lumi over MCP');
 osa(`tell application "Terminal"
   activate
   do script "cd ${REPO} && clear && pnpm -s film:agent --db '${db}'"
   set bounds of front window to {120, 60, 1392, 880}
 end tell`);
 // Bigger text for this one window only (⌘+, like a person would; the Terminal profile is not touched).
-await sleep(400); for (let i = 0; i < 4; i++) { key(24, 'cmd'); await sleep(120); }
+await sleep(400); for (let k = 0; k < 4; k++) { key(24, 'cmd'); await sleep(120); }
 await sleep(Math.max(0, (REC_SECONDS - t()) * 1000) + 1500);
 
 // ---- finish ----

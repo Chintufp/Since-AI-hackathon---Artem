@@ -300,40 +300,23 @@ export function questionsPage(): string {
   return `${HEAD('questions')}
 <h1>questions</h1>
 <p>This is the backend: it runs on its own and nobody has to look at it, so it gets no design. People only ever see Lumi; this page just shows what happens behind him.</p>
-<h2 id="ctitle">chain</h2>
-<table border="1" width="100%"><tr><th width="20%">problem</th><th width="1%">→</th><th width="20%">condition</th><th width="1%">→</th><th width="19%">cause</th><th width="1%">→</th><th width="19%">action</th><th width="1%">→</th><th width="19%">outcome</th></tr><tr valign="top" id="chain"></tr></table>
-<h2 id="qtitle">question</h2>
-<table border="1" width="100%">
-<tr><th width="24%">1. inputs</th><th width="1%">→</th><th width="18%">2. open condition</th><th width="1%">→</th><th width="15%">3. questions</th><th width="1%">→</th><th width="40%">4. who can know</th></tr>
-<tr valign="top"><td id="inputs"></td><td></td><td id="open"></td><td></td><td id="questions"></td><td></td><td id="who"></td></tr>
-<tr><th>5. answer</th><th>→</th><th>6. evidence</th><th>→</th><th colspan="3">7. result</th></tr>
-<tr valign="top"><td id="answer"></td><td></td><td id="evidence"></td><td></td><td colspan="3" id="result"></td></tr>
-</table>
+<h2 id="ctitle">what we know</h2>
+<table border="1" width="100%"><tr><th width="20%">problem</th><th width="1%">→</th><th width="20%">condition</th><th width="1%">→</th><th width="19%">cause</th><th width="1%">→</th><th width="19%">fix</th><th width="1%">→</th><th width="19%">outcome</th></tr><tr valign="top" id="chain"></tr></table>
+<h2>latest question</h2>
+<table border="1" width="100%"><tr><th width="30%">question</th><th width="1%">→</th><th width="27%">asked</th><th width="1%">→</th><th width="12%">answer</th><th width="1%">→</th><th width="28%">what changed</th></tr><tr valign="top"><td id="q"></td><td></td><td id="who"></td><td></td><td id="answer"></td><td></td><td id="changed"></td></tr></table>
 <h2>all questions</h2>
-<table border="1" width="100%"><thead><tr><th>time</th><th>asked by</th><th>question</th><th>to</th><th>why</th><th>status</th><th>answer</th><th>evidence</th></tr></thead><tbody id="log"></tbody></table>
+<table border="1" width="100%"><thead><tr><th>time</th><th>asked by</th><th>question</th><th>to</th><th>answer</th></tr></thead><tbody id="log"></tbody></table>
 <script>${LOOP(`'/pipeline/questions.json' + (qs.get('question') ? '?question=' + encodeURIComponent(qs.get('question')) : '')`, `
   const sim = (b) => b ? ' (simulated)' : '';
-  set('ctitle', 'chain' + (d.chain ? ' ' + esc(d.chain.title) : ''));
-  set('chain', d.chain ? d.chain.stages.map((s, i) => (i ? '<td></td>' : '') + '<td>' + (s.rows.map((r) => '<div>' + esc(r.text) + ' — ' + esc(r.who) + ', ' + esc(r.via) + sim(r.simulated) + '</div>').join('') || '-') + '</td>').join('') : '<td colspan="9">-</td>');
-  set('qtitle', 'question <tt>' + esc(d.questionId || '-') + '</tt>');
-  const i = d.inputs;
-  set('inputs', (i.problem ? '<div>lumi, ' + esc(i.problem.by) + ': ' + esc(i.problem.text) + '</div>' : '<div>-</div>')
-    + i.slack.map((x) => '<div>slack, ' + esc(x.author) + ': ' + esc(x.text) + '</div>').join('')
-    + i.other.map((x) => '<div>' + esc(x.provider) + ', ' + esc(x.author) + ': ' + esc(x.text) + '</div>').join('')
-    + (i.more ? '<div>+' + i.more + '</div>' : '')
-    + i.answers.map((a) => '<div>answer, ' + esc(a.by) + ': ' + esc(a.value) + ' (' + esc(a.question) + ')</div>').join(''));
-  set('open', d.open ? '<div>' + esc(d.open.condition || '') + '</div><div>' + esc(d.open.text) + '</div>'
-    + (d.open.gates ? '<div>gates: ' + esc(d.open.gates) + '</div><div>support ' + esc(d.open.support) + ', applicability ' + esc(d.open.applicability) + '</div>' : '')
-    + d.otherGaps.map((g) => '<div class="drop">' + esc(g.text) + ' (' + esc(g.why) + ')</div>').join('') : '-');
-  set('questions', d.questions.map((q) => '<div>[' + (q.chosen ? 'x' : ' ') + '] ' + esc(q.text) + (q.note ? ' (' + esc(q.note) + ')' : '') + '</div>').join('') || '-');
-  set('who', d.who.length ? '<table border="1"><tr><th></th><th>person</th><th>score</th><th>eligible</th><th>reasons</th></tr>' + d.who.map((w) => '<tr><td>' + (w.chosen ? 'x' : '') + '</td><td>' + esc(w.name) + '</td><td>' + esc(w.score || '') + '</td><td>' + (w.eligible ? 'yes' : 'no: ' + esc(w.violations.join(', '))) + '</td><td>' + esc(w.reasons.join('; ')) + '</td></tr>').join('') + '</table>'
-    + (d.selector ? '<pre>' + esc(d.selector) + (d.features ? '\\n' + esc(JSON.stringify(d.features)) : '') + '</pre>' : '') : '-');
-  set('answer', d.answer ? '<div>' + esc(d.answer.by) + ': ' + esc(d.answer.value) + sim(d.answer.simulated) + '</div><div>' + esc(hhmm(d.answer.at)) + ' <tt>' + esc(d.answer.evidenceId) + '</tt></div>' : '-');
-  set('evidence', d.evidence.length ? '<table border="1"><tr><th>claim</th><th>type</th><th>status</th><th>change</th><th>sources</th><th>against</th></tr>' + d.evidence.map((e) => '<tr><td>' + esc(e.statement) + '</td><td>' + esc(e.type) + '</td><td>' + esc(e.status) + '</td><td>' + esc(e.change) + '</td><td>' + e.sources + '</td><td>' + e.contradicting + '</td></tr>').join('') + '</table>' : '-');
+  set('ctitle', 'what we know' + (d.chain ? ' about ' + esc(d.chain.title) : ''));
+  set('chain', d.chain ? d.chain.stages.map((s, i) => (i ? '<td></td>' : '') + '<td>' + (s.rows.map((r) => '<div>' + esc(r.text) + ' <i>' + esc(r.who) + sim(r.simulated) + '</i></div>').join('') || '-') + '</td>').join('') : '<td colspan="9">-</td>');
+  const chosen = d.who.find((w) => w.chosen);
+  const others = d.who.filter((w) => !w.chosen && w.eligible).slice(0, 3).map((w) => esc(w.name)).join(', ');
+  set('q', d.questions.find((q) => q.chosen) ? esc(d.questions.find((q) => q.chosen).text) : '-');
+  set('who', chosen ? '<div>' + esc(chosen.name) + (chosen.score ? ' (score ' + esc(chosen.score) + ')' : '') + '</div><div>' + esc(chosen.reasons[0] || '') + '</div>' + (others ? '<div class="drop">also could: ' + others + '</div>' : '') : '-');
+  set('answer', d.answer ? esc(d.answer.value) + sim(d.answer.simulated) : '-');
   const r = d.result || {};
-  set('result', (r.status ? '<div>question ' + esc(r.status) + '</div>' : '')
-    + (r.reward ? '<div>case completeness x correctness ' + r.reward.before + ' → ' + r.reward.after + ' (delta ' + r.reward.delta + ', ' + esc(r.reward.method) + ')</div>' : '')
-    + (r.recommendation ? '<div>recommendation ' + esc(r.recommendation.kind) + ', applicability ' + esc(r.recommendation.applicability) + ': ' + esc(r.recommendation.text) + '</div>' : '') || '-');
-  set('log', d.log.map((l) => '<tr><td>' + esc(hhmm(l.at)) + '</td><td>' + esc(l.asker.replace(' (simulated)', '')) + sim(l.askerSimulated) + '</td><td>' + esc(l.text) + '</td><td>' + esc(l.to) + '</td><td>' + esc(l.why) + '</td><td>' + esc(l.status) + '</td><td>' + esc(l.answer || '') + (l.answer ? sim(l.simulated) : '') + '</td><td>' + esc(l.changed) + '</td></tr>').join(''));`)}</script></body></html>`;
+  set('changed', (d.evidence.map((e) => '<div>' + esc(e.change) + ': ' + esc(e.statement.length > 70 ? e.statement.slice(0, 69) + '…' : e.statement) + '</div>').join('')
+    + (r.recommendation && d.answer ? '<div>now: ' + esc(r.recommendation.kind) + ', ' + esc(r.recommendation.applicability) + '</div>' : '')) || '-');
+  set('log', d.log.map((l) => '<tr><td>' + esc(hhmm(l.at)) + '</td><td>' + esc(l.asker.replace(' (simulated)', '')) + sim(l.askerSimulated) + '</td><td>' + esc(l.text.length > 110 ? l.text.slice(0, 109) + '…' : l.text) + '</td><td>' + esc(l.to) + '</td><td>' + esc(l.answer || '') + (l.answer ? sim(l.simulated) : '') + '</td></tr>').join(''));`)}</script></body></html>`;
 }
-

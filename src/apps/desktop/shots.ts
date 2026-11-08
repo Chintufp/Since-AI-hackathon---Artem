@@ -415,10 +415,11 @@ async function walk(width: number): Promise<Record<string, unknown>> {
   // B2: Settings -> Models (appended after the walk so the earlier shots keep their numbers)
   await act('__s.click(".rf-avatar")');
   await act('__s.click(".rf-footer [data-action=settings]")');
-  await act('__s.click(".rf-view[data-view=settings] [data-action=models]")');
+  await act('__s.click(".rf-view[data-view=settings] [data-action=admin]")');
+  await act('__s.click(".rf-view[data-view=admin] [data-action=models]")');
   await waitFor('!!document.querySelector(".rf-model-slot")');
   await shot('models', width, 0);
-  await act('__s.click(".rf-view[data-view=models] [data-action=back]"); __s.click(".rf-view[data-view=settings] [data-action=input]"); __s.click(".rf-avatar")');
+  await act('__s.click(".rf-view[data-view=models] [data-action=back]"); __s.click(".rf-view[data-view=admin] [data-action=back]"); __s.click(".rf-view[data-view=settings] [data-action=input]"); __s.click(".rf-avatar")');
   const final = await js<number[]>('__s.hit()');
   const mine = states.slice(first);
   const sizes = [...new Set(mine.map((s) => s.content.join('x')))];

@@ -413,3 +413,10 @@
 #kt-panel button.rf-fold-link .rf-fold-title::after { content:' ›'; color:#9aa0a6; font-weight:400; }
 #kt-panel button.rf-fold-link .rf-fold-count { margin-left:auto; font-size:12px; color:#9aa0a6; }
 #kt-panel button.rf-fold-link:disabled { cursor:default; opacity:.5; }
+
+/* Answer card: the case name and the People row as in the case view, above the larger chain. */
+#kt-panel .rf-result-case { padding:0 24px; }
+#kt-panel .rf-result-case:empty { display:none; }
+#kt-panel .rf-result-case .rf-case { margin:0 0 6px; }
+#kt-panel .rf-result-case + .rf-case-path { border-top:0; }
+@media (max-width:419px) { #kt-panel .rf-result-case { padding-left:19px; padding-right:19px; } }

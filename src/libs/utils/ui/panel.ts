@@ -246,7 +246,8 @@ export const TEMPLATE = `
    </section>
    <section class="rf-view rf-result" data-view="result" aria-label="Result" hidden>
     <div class="rf-result-head"><p class="rf-result-title"></p><p class="rf-provenance" hidden></p><div class="rf-result-notes"></div><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to writing"><i data-icon="arrow-left"></i></button></div>
-    <div class="rf-case-path"></div>
+    <div class="rf-result-case"></div>
+    <div class="rf-case-path rf-chain-big"></div>
     <div class="rf-result-rows"></div>
    </section>
    <section class="rf-view rf-panel-content" data-view="people" aria-label="People with relevant experience" hidden>
@@ -377,6 +378,8 @@ export function createPanel(options: PanelOptions): Panel {
   })();
   let attention: Attention | null = null;
   let companion: Companion | null = null;
+  let selfOpened = false; // the card opened by itself (a question he came with), not by a click
+  let detachMakeWay = (): void => {};
   let watch: QuestionWatch | null = null;
   let detachCompanion: () => void = () => {};
   const openIds = (): string[] => open.map((q) => q.questionId);
@@ -603,12 +606,15 @@ export function createPanel(options: PanelOptions): Panel {
     // and an 'applicable' one with no deciding fact is not a disagreement the panel can explain (D-B5-15).
     (result.alternatives ?? []).filter((a) => a.applicability === 'qualified').slice(0, 2).forEach((a) => notes.append(el('p', 'rf-result-note rf-on-record', 'Also on record: ' + a.text)));
     modelNotes(result.routes ?? []).forEach((t) => notes.append(el('p', 'rf-model-note', t)));
+    // Same layout as the case view (Artem 8 Nov): the case name on the left, the People row in the same style, the larger chain.
+    const head = $('.rf-result-case');
+    head.replaceChildren();
     const path = $('.rf-case-path');
     path.replaceChildren();
     const cv = result.caseView;
     if (cv?.timeline.length) {
       path.hidden = false;
-      { const t = el('p', 'rf-case'); caseTitle(t, cv.title); path.append(t); }
+      { const t = el('p', 'rf-case'); caseTitle(t, cv.title); head.append(t); }
       path.append(evidencePath(cv.timeline, 'result', 'Matched case timeline; expand a title for details'));
       if (cv.caveat) path.append(el('p', 'rf-context-caveat', cv.caveat));
     } else path.hidden = true;
@@ -641,7 +647,14 @@ export function createPanel(options: PanelOptions): Panel {
       if (none) rows.append(box); else more.append(box);
     }
     if (none && alts.length) { motion.registerDetails(state.openNodes.result, path); return; } // Artem: nothing else before a case is chosen
-    renderRow('People with relevant experience', String(result.people.length), 'people', rows).disabled = !result.people.length;
+    {
+      const people = el('button', 'rf-fold-link');
+      people.type = 'button';
+      people.dataset.action = 'people';
+      people.disabled = !result.people.length;
+      people.append(el('span', 'rf-fold-title', 'People with relevant experience'), el('span', 'rf-fold-count', String(result.people.length)));
+      head.append(people);
+    }
     if (result.question) {
       // The engine routes the question to someone else, never the requester: show it read-only.
       const asked = el('p', 'rf-asked', 'Asked a colleague with relevant experience');
@@ -1240,6 +1253,7 @@ export function createPanel(options: PanelOptions): Panel {
       showError(new ApiError('unreachable', 'GET /health', 'Couldn’t reach the service'), () => void retryConnect());
     } else if (!state.panelOpen) {
       // desktop (ux, Artem 7 Nov): a direct click opens the text panel (last view) as v009; a waiting question shows as the badge and the glyph.
+      selfOpened = !user;
       companion?.makeRoom(); // desktop (R33): slide to where the card fits (with the hop) before it opens
       state.panelOpen = true;
       syncPoll();
@@ -1750,7 +1764,7 @@ export function createPanel(options: PanelOptions): Panel {
             const s = c.status().state;
             if (s === 'perched' || Date.now() - started > 8000) {
               clearInterval(t);
-              if (s === 'perched' && !state.panelOpen) { state.active = id; setView('question'); }
+              if (s === 'perched' && !state.panelOpen) { state.active = id; selfOpened = true; setView('question'); }
             }
           }, 100);
         }
@@ -1763,6 +1777,39 @@ export function createPanel(options: PanelOptions): Panel {
     detachCompanion = attachCompanion(c, { root, avatarButton, win: window });
     c.start();
     watch.sync();
+    // Make way (Artem 8 Nov): when he works elsewhere while the card is open, the card closes and Lumi tucks away at
+    // the edge (he peeks out when the pointer comes near, and arrives with the next question). Two signals: he clicks
+    // into another app, or the pointer keeps working elsewhere (6 s; 12 s when the card opened by itself). Never while
+    // a message is being written or the service is busy.
+    {
+      const MAKE_WAY_MS = 6000, MAKE_WAY_SELF_MS = 12000, PAD = 24;
+      let elsewhere = 0, lastMove = 0;
+      const near = (x: number, y: number): boolean => [win, avatarButton].some((e) => {
+        const r = e.getBoundingClientRect();
+        return x >= r.left - PAD && x <= r.right + PAD && y >= r.top - PAD && y <= r.bottom + PAD;
+      });
+      const makeWay = (): void => {
+        elsewhere = 0;
+        if (!state.panelOpen || state.busy || field.value.trim() || destroyed) return;
+        closePanel(true, 'pointer');
+        if (companionFlags.away) c.command('away');
+      };
+      const onMove = (e: MouseEvent): void => {
+        const now = performance.now();
+        const dt = now - lastMove;
+        lastMove = now;
+        if (!state.panelOpen || near(e.clientX, e.clientY)) { elsewhere = 0; return; }
+        if (dt < 500) elsewhere += dt; // continuous work counts, not one stray move
+        if (elsewhere >= (selfOpened ? MAKE_WAY_SELF_MS : MAKE_WAY_MS)) makeWay();
+      };
+      const onBlur = (): void => {
+        if (!state.panelOpen) return;
+        setTimeout(() => { if (!document.hasFocus()) makeWay(); }, 400);
+      };
+      window.addEventListener('mousemove', onMove, { passive: true });
+      window.addEventListener('blur', onBlur);
+      detachMakeWay = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('blur', onBlur); };
+    }
     // Film: start away at the edge, so a question makes him come in (after the launch entrance).
     if (options.filmArrive && companionFlags.away) setTimeout(() => c.command('away'), 2500);
   }
@@ -1821,6 +1868,7 @@ export function createPanel(options: PanelOptions): Panel {
       modelTimers.forEach(clearTimeout);
       syncPoll();
       detachCompanion();
+      detachMakeWay();
       modality.detach();
       companion?.destroy();
       watch?.destroy();

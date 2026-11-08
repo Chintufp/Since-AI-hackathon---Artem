@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lumi · pilot and continuation plan</title>
+<style>
+  @page { size: A4; margin: 12mm 15mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #141a24; font-size: 9.5pt; line-height: 1.36; }
+  header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #2f5bea; padding-bottom: 6pt; margin-bottom: 10pt; }
+  h1 { margin: 0; font-size: 19pt; letter-spacing: -0.3pt; }
+  header p { margin: 0; color: #5a6472; font-size: 9pt; }
+  h2 { font-size: 10.5pt; margin: 9pt 0 3pt; color: #2f5bea; text-transform: uppercase; letter-spacing: 0.8pt; }
+  p { margin: 0 0 6pt; }
+  .lead { font-size: 10.5pt; }
+  table { width: 100%; border-collapse: collapse; margin: 2pt 0 4pt; }
+  th, td { text-align: left; vertical-align: top; padding: 3pt 6pt; border-bottom: 1px solid #dde2e8; }
+  th { font-size: 8.5pt; color: #5a6472; text-transform: uppercase; letter-spacing: 0.5pt; font-weight: 600; }
+  td:first-child { white-space: nowrap; font-weight: 600; }
+  ul { margin: 0 0 6pt; padding-left: 14pt; }
+  li { margin-bottom: 1pt; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; }
+  .note { color: #5a6472; font-size: 8.5pt; margin-top: 10pt; border-top: 1px solid #dde2e8; padding-top: 5pt; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Lumi · pilot and continuation plan</h1>
+  <p>Artem · Since AI Hackathon 2026 · Elisa challenge</p>
+</header>
+
+<p class="lead">Lumi catches fixes that live only in chat, checks them with the people who know through one Yes/No question at a time, and serves the confirmed knowledge to colleagues and to AI agents over MCP. The prototype runs end to end on one machine. The next step is to prove it with real engineers: an eight-week pilot with one Elisa operations team.</p>
+
+<h2>Where we are today</h2>
+<p>Working: capture from Slack, Teams exports, e-mail and paste; claims bound to equipment, people and time; retrieval and investigation; one-question-per-person under budgets and quiet hours; the Lumi companion (macOS, Windows build); an MCP server with 12 tools; 641 automated tests. Not yet shown: real engineers answering, a live channel over weeks, and deciding reliably whether old advice applies to a new unit (our weakest step on synthetic data).</p>
+
+<h2>Pilot: eight weeks, one team</h2>
+<table>
+  <tr><th style="width:17%">Weeks</th><th>What happens</th><th style="width:30%">Done when</th></tr>
+  <tr><td>1–2 · Set up</td><td>Central Lumi service inside Elisa’s environment (models local or Elisa-approved). Read-only access to one NOC Slack or Teams channel and one shared mailbox label. Lumi installed for 8–15 volunteer engineers; points opt-in.</td><td>Messages arrive live; every engineer can see and answer a question.</td></tr>
+  <tr><td>3–6 · Run</td><td>Lumi builds cases from the live channel and asks at most a few questions per person per day, never at night. Engineers search Lumi when a fault comes in. One internal agent reads Lumi over MCP.</td><td>Weekly review of a sample of cases with the team lead.</td></tr>
+  <tr><td>7–8 · Measure</td><td>Compare against the first two weeks and a held-out set of cases reviewed by experts. Decide on continuation with Elisa.</td><td>A short report with every number and its denominator.</td></tr>
+</table>
+
+<div class="cols">
+<div>
+<h2>What we measure</h2>
+<ul>
+  <li>Answer rate and seconds of expert time per answer.</li>
+  <li>Knowledge kept: cases with a confirmed fix and source, per week.</li>
+  <li>Reuse: searches and agent calls that found an earlier confirmed fix.</li>
+  <li>Errors: wrongly merged cases, advice marked as confirmed when it wasn’t (target: none in the reviewed sample).</li>
+  <li>Engineer opinion: would they keep Lumi on?</li>
+</ul>
+</div>
+<div>
+<h2>What we build during the pilot</h2>
+<ul>
+  <li>Live connectors hardened for the chosen channel and mailbox.</li>
+  <li>Better linking of new messages to open cases, trained on the pilot’s reviewed same/different pairs.</li>
+  <li>Applicability checks: does this fix fit this unit, firmware, site?</li>
+  <li>Question selection learned from real answers, kept only if it beats the rules on held-out cases.</li>
+</ul>
+</div>
+</div>
+
+<div class="cols">
+<div>
+<h2>What we need from Elisa</h2>
+<ul>
+  <li>A sponsor and one team lead; 8–15 volunteer engineers.</li>
+  <li>Read-only access to one channel and one mailbox label.</li>
+  <li>A place to run the service, and approval of the model boundary.</li>
+</ul>
+</div>
+<div>
+<h2>Guardrails</h2>
+<ul>
+  <li>Nothing leaves Elisa’s environment; private channels stay private.</li>
+  <li>Lumi only reads; it never posts or sends on anyone’s behalf.</li>
+  <li>Questions are capped per person and paused off-hours; one click turns Lumi off.</li>
+</ul>
+</div>
+</div>
+
+<h2>After the pilot</h2>
+<p>If the numbers hold: extend to more teams and channels (Teams, e-mail, GitHub, ticketing), add single sign-on and per-team permissions, and offer the MCP interface to Elisa’s own agents as their source of confirmed operational knowledge.</p>
+
+<p class="note">Code and demo: github.com/Chintufp/Since-AI-hackathon---Artem · Interactive preview: artem.love/sinceai · Team sizes and durations above are proposals to agree with Elisa, not commitments.</p>
+</body>
+</html>

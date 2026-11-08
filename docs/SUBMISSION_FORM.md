@@ -88,7 +88,7 @@ The YouTube link from the film, unlisted is fine. Under two minutes.
 | Source code | `.zip` of the repository at the deadline, without `node_modules`, `data/local`, `private/` (Elisa's material, must not leave), `movie/` renders | To make: `git archive` gives exactly the committed files |
 | Demo video | The MP4 if not using YouTube | From the film agent |
 | Pitch deck | PDF of the deck | `docs/slides/index.html` exists (12 slides) but says "Knowledge Twin" and predates the Lumi story; rename and export to PDF |
-| Supporting document | Pilot / continuation plan | `docs/END_TO_END_PRODUCT_PLAN.md` and `docs/CENTRAL_BACKEND_AND_EVIDENCE_DESIGN.md` hold the material; a 1–2 page pilot plan PDF would read better |
+| Supporting document | Pilot / continuation plan | `docs/submission/Lumi-continuation-plan.pdf` (one page; source `continuation-plan.html`) |
 
 Zip command, once everything is committed:
 

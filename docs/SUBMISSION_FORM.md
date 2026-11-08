@@ -26,33 +26,31 @@ Lumi catches fixes that live only in chat, checks them with the people who know,
 
 ## About the project (max 5000)
 
-The first two lines are what voters see under the tagline, so they carry the problem and the answer.
+Follows the film's script, with the technical detail and the features the film had no time for (points, quiet hours, the Context Layer). The first lines are what voters see under the tagline.
 
 ```
-The fix for the last outage lives in two people's heads and one Slack thread. Nobody writes it down, and nobody finds it again. Lumi catches that knowledge where it is said, checks it with the people who know, and makes it usable for colleagues and for AI agents.
+Lumi is a small snowball that lives at the edge of every engineer's screen. We made it cute on purpose: people answer a friendly avatar asking one quick question far more readily than they fill in a form or a wiki page. Behind it is a system that catches the knowledge your team only ever says out loud, checks it with the people who know, and makes it usable for colleagues and for AI agents.
 
 THE PROBLEM
-In Elisa's network operations, expert knowledge lives in Teams threads, e-mails and chat, never in the manuals. A conversation mixes three unrelated topics, a guess sits next to a confirmed fix, and advice that was right for one unit generation is wrong for the next. Documentation steps do not get done, so the knowledge is lost, and an AI agent working the next fault at 3 a.m. has nothing true to work from.
+In every team, the fix for the last outage lives in two people's heads, a Slack thread or an e-mail. Nobody documents it and nobody finds it again. Advice that was right for one unit generation is wrong for the next, a guess sits next to a confirmed fix, and an AI agent working the next fault at 3 a.m. has nothing true to work from.
 
-WHAT LUMI DOES
-1. Capture. Lumi reads the channels people already use (Slack, Teams exports, e-mail, a paste) with no form to fill in. Each message is kept verbatim with its author, time and access scope. Claims are cut from it (symptom, action, outcome, condition) and bound to the equipment, site and people they concern.
-2. Link. Each new sentence is scored against open cases on several signals, not one: meaning (embedding similarity), time, conversation (same thread or a reply to someone already in the case) and shared things such as unit, site and firmware. Lumi decides whether it is a new problem or part of an existing one.
-3. Check. A machine guess is only a hypothesis. Lumi, a small snowball that lives at the edge of each engineer's screen, asks the person best placed to know one Yes/No question, within a daily budget and never at night. Yes reinforces, No or "not quite" rescopes. Questions are ranked by expected gain in what is known per unit of people's time; a contextual bandit (LinUCB) learns from the measured reward. Nothing is invented: every answer points back to the sentence it came from and who said it, with its caveats ("reported once, outcome not verified").
-4. Serve. Colleagues ask Lumi about a new fault and get the earlier fix, its limits, a timeline of the source case and who to talk to. Any AI agent can call Lumi over MCP: it gets the confirmed fix, who said it, which fact is still missing, and can ask a person through Lumi instead of guessing.
+1. CAPTURE: FROM A NOISY CHANNEL TO ONE PRECISE PROBLEM
+Lumi reads where work is discussed: Slack (live, read-only), Teams exports, e-mail and pasted threads, with GitHub and ticketing next. Every message is kept verbatim with its author, its time as given ("date unknown" stays unknown) and its access scope, so private channels stay private. Chatter is dropped; work content is cut into claims (symptom, action, outcome, condition) bound to the equipment, site and people they concern. Each new sentence is scored against open cases on several signals, not one: meaning (embedding similarity, bge-m3 running locally), time, conversation (same thread, or a reply to someone already in the case), shared things (unit, site, firmware) and references ("that unit"). From the scores Lumi forms hypotheses (a new problem, or which existing one) and a local LLM phrases each candidate in one sentence. An e-mail that retells a thread is recognised as a copy, not a second confirmation.
 
-HOW WE BUILT IT
-TypeScript on Node 24: a local service with SQLite, an HTTP API (42 routes) and an MCP server (12 tools, Model Context Protocol SDK), plus an Electron companion for macOS that hosts Lumi. Retrieval fuses BM25, exact identifiers and trigrams, with optional bge-m3 embeddings. Models sit in three slots (embed, extract, phrase), each with rules by default, a local Ollama model (bge-m3, qwen3) or a hosted API as opt-in. A model only proposes; validated evidence decides what is stored, and every record names the route that made it. A network guard blocks every outside host unless a slot is switched on. Knowledge has validity in time: our Context Layer view shows what an agent would be told about a unit at any moment, including advice superseded by a later firmware fix.
+2. CHECK: CONFIDENCE FROM PEOPLE, NOT FROM THE MODEL
+A machine guess is only a hypothesis, so Lumi asks. It hops out with a question mark and asks the person best placed to know one Yes/No question: is this really the problem, did the fix work, does it apply to this unit? Yes reinforces; No or Not sure rescopes or reformulates; every answer is kept with who gave it. Candidate questions are ranked by expected gain in certainty per unit of people's time, and a contextual bandit (LinUCB) learns from the measured reward; it becomes the default only once it beats the rules on unseen cases. Daily budgets, quiet hours (questions raised at night wait until 07:00) and never asking the same person twice keep it light. Knowledge also has time: a fix can be superseded by a later firmware note, and our Context Layer view shows exactly what an agent would have been told about a unit at any moment.
 
-CHALLENGES
-- Telling a hypothesis from a fact. Support (how many independent sources) and applicability (does it fit this unit) are kept apart; an e-mail retelling a thread is recognised as a copy, not a second confirmation.
-- Asking without annoying. Budgets, quiet hours and "never ask the same person twice" are built into who gets asked.
-- Being honest about numbers. We ran experiments on synthetic scenario families with a hash-locked test split. Retrieval works (recall@3 8/8 on the demo set), but deciding whether old advice applies is still the weak part, and the bandit did not yet beat the rules ranking (0 of 3 seeds), so rules stay the default. All figures and their denominators are in docs/SUBMISSION.md.
+3. SERVE: COLLEAGUES AND AGENTS
+An engineer types a problem into Lumi and gets the earlier fix with its caveats ("reported once, outcome not verified"), a timeline of the source case where each step opens the sentence it came from, and people with relevant experience, each with what they actually did, plus a message draft Lumi never sends by itself. Any AI agent can call Lumi over MCP (12 tools) to investigate, see which fact is still missing and request a clarification. If the deciding fact is unknown, the agent doesn't guess: its question goes to an engineer through Lumi, queued until morning if it's 3 a.m.
 
-WHAT IS REAL TODAY
-641 automated tests pass. The demo runs fully offline on one Mac with one command (pnpm demo:judge). Elisa's example thread is imported unchanged; the rest of the data is synthetic and labelled as such. Live Slack works read-only behind an explicit switch. No real engineers have answered Lumi yet.
+POINTS
+Answering earns optional points and a happy reaction from Lumi. Points are opt-in per person; only people who take part are scored or listed. A No earns exactly what a Yes earns (the value is the information, not agreement), corrections and outcome reports earn more, Not sure and Later are never penalised, and points never decide whether something is true. They can be switched off completely.
 
-WHAT COMES NEXT
-A central service with Lumi clients on every engineer's machine, live Slack and Teams connectors, a pilot with one operations team to measure real answer rates and seconds of expert time, and learned linking trained on the answers people give.
+HOW IT'S BUILT
+TypeScript on Node 24: a local service with SQLite, an HTTP API (42 routes) and an MCP server, plus an Electron companion for macOS and Windows. Retrieval fuses BM25, exact identifiers and trigrams with optional bge-m3 embeddings. Models sit in three slots (embed, extract, phrase): rules by default, local Ollama models (bge-m3, qwen3) or a hosted API by choice. A model only proposes; validated evidence decides what is stored, and every record names the route that made it. A network guard blocks every outside host unless a slot is switched on, so by default nothing leaves the company.
+
+HONEST STATUS
+641 automated tests pass and the demo runs offline with one command. Elisa's example thread is imported unchanged; the rest of the data is synthetic and labelled. Retrieval works well; deciding whether old advice applies to a new unit is the weakest step, and the bandit has not yet beaten the rules on our synthetic runs. Try the interface at artem.love/sinceai.
 ```
 
 ## Built with (first five show on the vote card)

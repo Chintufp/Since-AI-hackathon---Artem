@@ -23,12 +23,14 @@ const SERVICE = 'http://127.0.0.1:47831';
 const M = join(REPO, 'movie/capture/bin/mouse');
 const DRY = process.argv.includes('--dry');
 const REC = !DRY || process.argv.includes('--rec');
-const REC_SECONDS = 184;
+const REC_SECONDS = 168;
 /** Screen point of the "case json" summary on /pipeline after scrolling to the bottom (measured in the dry run). */
 const DETAILS = { x: Number(process.env.FILM_DETAILS_X ?? 54), y: Number(process.env.FILM_DETAILS_Y ?? 583) };
 const CDP = 9351;
 mkdirSync(OUT, { recursive: true });
 const CUES = join(OUT, 'cues.txt');
+/** Where Part 1 (capture) and Part 2 (confidence) begin in the take, for the title cards. */
+const MARK = { part1: 12, part2: 54 };
 writeFileSync(CUES, '');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -36,7 +38,7 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 let T0 = Date.now();
 const t = () => (Date.now() - T0) / 1000;
 const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
-const cue = (text) => { const line = `${mmss(t() + 5)}  ${text}`; console.log(line); appendFileSync(CUES, line + '\n'); };
+const cue = (text) => { const v = t() + 5 + (t() >= MARK.part1 ? 2.5 : 0) + (t() >= MARK.part2 ? 2.5 : 0); const line = `${mmss(v)}  ${text}`; console.log(line); appendFileSync(CUES, line + '\n'); };
 const at = async (s) => { const w = s - t(); if (w > 0) await sleep(w * 1000); };
 
 // ---- hands ----
@@ -158,20 +160,20 @@ cue('WHITE · Lumi drops in, says hello, goes to the edge (hook)');
 await at(4); await glide(700, 560, 1400); await glide(980, 640, 1300);
 await at(7.5); await glide(1440, 760, 1500); cue('cursor comes near: Lumi peeks'); await sleep(1600); await glide(1180, 600, 1300);
 
-await at(12); await white(false); safariFront(); tab(2); cue('SLACK · #field-ops: the conversation so far (oat milk, alarms, pizza, the N5 idea)');
+await at(12); MARK.part1 = t(); await white(false); safariFront(); tab(2); cue('SLACK · #field-ops: the conversation so far (oat milk, alarms, pizza, the N5 idea)');
 await glide(520, 400, 900); await glide(560, 482, 900); await glide(640, 570, 900); await glide(700, 660, 900); await glide(820, 706, 1000);
 
-await at(26); tab(3); cue('PIPELINE · 1. raw (all 8 messages, chatter grey)');
+await at(24); tab(3); cue('PIPELINE · 1. raw (all 8 messages, chatter grey)');
 await glide(260, 300, 900); await sleep(1500);
-await at(31); cue('2. filtered (only the useful passages, with their message ids)'); await glide(640, 320, 1000); await sleep(1700);
-await at(36); cue('3. linked (case TRN-418, symptom / condition / action / outcome, certainty 3 / threshold 4)'); await glide(1000, 300, 900); await glide(1000, 380, 700); await sleep(1500);
-await at(42); cue('4. hypothesis (Mark\'s "probably the v6 template…", supporting lines, what is open)'); await glide(1320, 300, 900); await glide(1320, 420, 900); await sleep(1300);
-await at(48); cue('stored record: the case as stored (claims, evidence ids, links)');
+await at(29); cue('2. filtered (only the useful passages, with their message ids)'); await glide(640, 320, 1000); await sleep(1700);
+await at(34); cue('3. linked (case TRN-418, symptom / condition / action / outcome, certainty 3 / threshold 4)'); await glide(1000, 300, 900); await glide(1000, 380, 700); await sleep(1500);
+await at(40); cue('4. hypothesis (Mark\'s "probably the v6 template…", supporting lines, what is open)'); await glide(1320, 300, 900); await glide(1320, 420, 900); await sleep(1300);
+await at(46); cue('stored record: the case as stored (claims, evidence ids, links)');
 // "case json" sits under the table: scroll down, click it open, look, click it shut, back to the top.
 await glide(DETAILS.x, DETAILS.y, 900); click(); await sleep(2600); await scroll(250); await sleep(1500); await scroll(-250); await sleep(400);
 await glide(DETAILS.x, DETAILS.y, 500); click(); await sleep(500); await scroll(-1500); await sleep(500);
 
-await at(57); tab(2); cue('SLACK · Artem types the trigger: "Yes, older N5 unit, installed 2019."');
+await at(54); MARK.part2 = t(); tab(2); cue('SLACK · Artem types the trigger: "Yes, older N5 unit, installed 2019."');
 await glide(900, 781, 900); click(); await sleep(400);
 const TRIGGER = 'Yes, older N5 unit, installed 2019.';
 if (!DRY) { await typeHuman(TRIGGER); await sleep(300); key(36); } else await sleep(2600);
@@ -191,24 +193,24 @@ await sleep(4200);
 p = await lumiAt('section[data-view="question"] [data-action="yes"]'); if (p) { await glide(p.x, p.y, 1000); await sleep(400); click(); cue('Artem: Yes · the case is recorded as a confirmed problem'); }
 await sleep(3500);
 
-await at(90); await white(false); safariFront(); tab(2); cue('SLACK · Artem: "Applied the v7.1 patch on TRN-418."');
+await at(87); await white(false); safariFront(); tab(2); cue('SLACK · Artem: "Applied the v7.1 patch on TRN-418."');
 await glide(900, 781, 800); click();
 if (!DRY) { await typeHuman('Applied the v7.1 patch on TRN-418.'); await sleep(250); key(36); } else await sleep(2500);
 await sleep(700); tab(4); cue('QUESTIONS · colleagues (simulated) hit the same symptom; Lumi picks the question and who can know');
 if (!DRY) void simulate();
 await glide(400, 260, 900);
-await at(100); await glide(760, 520, 1100); cue('open condition → question → who can know (score, reasons, gates)');
-await at(108); await glide(1200, 560, 1000); await sleep(2000);
-await at(113); cue('answers arrive (tagged simulated) → evidence → result'); await scroll(500); await sleep(2500); await glide(700, 600, 900);
-await at(120); await scroll(400); cue('ALL QUESTIONS: every question, who asked, to whom, why, the answer'); await glide(800, 700, 1000); await sleep(1500); await scroll(-900);
+await at(97); await glide(760, 520, 1100); cue('open condition → question → who can know (score, reasons, gates)');
+await at(105); await glide(1200, 560, 1000); await sleep(2000);
+await at(110); cue('answers arrive (tagged simulated) → evidence → result'); await scroll(500); await sleep(2500); await glide(700, 600, 900);
+await at(117); await scroll(400); cue('ALL QUESTIONS: every question, who asked, to whom, why, the answer'); await glide(800, 700, 1000); await sleep(1500); await scroll(-900);
 
-await at(126); tab(2); cue('SLACK · solved: "traffic is back", "still stable 2 h"');
+await at(122); tab(2); cue('SLACK · solved: "traffic is back", "still stable 2 h"');
 await glide(900, 781, 800); click();
 if (!DRY) { await typeHuman('TRN-418 traffic is back after the patch, alarms cleared.', 0.4); key(36); await sleep(700); await typeHuman('TRN-418 traffic still stable 2 h after the v7.1 patch. Closing it.', 0.4); key(36); } else await sleep(5000);
 await sleep(1500); tab(4); await sleep(2600); cue('CHAIN · problem → condition → cause → action → outcome, complete');
 await glide(1350, 230, 1000); await glide(200, 230, 1600); await sleep(1200);
 
-await at(141); await white(true); cue('WHITE · Lumi himself: ask him in plain words');
+await at(136); await white(true); cue('WHITE · Lumi himself: ask him in plain words');
 const avatar = async () => lumiAt('[data-action="avatar"]');
 let a = await avatar(); if (a) { await glide(Math.min(a.x, 1500), a.y, 1200); await sleep(700); click(); }
 await sleep(1500); a = await avatar(); if (a) { await glide(a.x, a.y, 500); click(); }
@@ -220,7 +222,7 @@ await sleep(1500); a = await avatar(); if (a) { await glide(a.x, a.y, 600); clic
 await sleep(900); a = await avatar(); if (a) { await glide(a.x, a.y - 4, 400); mouse('down'); cue('pick him up, carry him across'); mouse('move', 820, 430, 1500, 'drag'); await sleep(150); mouse('up'); }
 await sleep(1800);
 
-await at(164); cue('TERMINAL · an AI agent asks Lumi over MCP');
+await at(156); cue('TERMINAL · an AI agent asks Lumi over MCP');
 osa(`tell application "Terminal"
   activate
   do script "cd ${REPO} && clear && pnpm -s film:agent --db '${db}'"
@@ -234,10 +236,15 @@ await sleep(Math.max(0, (REC_SECONDS - t()) * 1000) + 1500);
 await recDone;
 killLumi();
 console.log(`recorded ${t().toFixed(1)} s`);
+writeFileSync(join(OUT, 'markers.json'), JSON.stringify(MARK));
 if (!DRY && FILM && existsSync(join(OUT, 'take.mov'))) {
+  // intro · hook · card 1 · Part 1 · card 2 · Part 2 and the rest. The cards sit between cuts of the one continuous take.
   const final = join(OUT, 'lumi-demo.mp4');
-  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', join(FILM, 'intro.mp4'), '-i', join(OUT, 'take.mov'), '-filter_complex',
-    '[1:v]fps=60,scale=1920:1248:flags=lanczos,format=yuv420p[b];[0:v]fps=60,format=yuv420p[a];[a][b]concat=n=2:v=1:a=0[v]', '-map', '[v]', '-c:v', 'libx264', '-crf', '18', '-preset', 'slow', final]);
+  const a = MARK.part1.toFixed(3), b = MARK.part2.toFixed(3);
+  const take = (from, to) => `[1:v]trim=start=${from}${to ? `:end=${to}` : ''},setpts=PTS-STARTPTS,fps=60,scale=1920:1248:flags=lanczos,format=yuv420p`;
+  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', join(FILM, 'intro.mp4'), '-i', join(OUT, 'take.mov'), '-i', join(FILM, 'card1.mp4'), '-i', join(FILM, 'card2.mp4'), '-filter_complex',
+    `[0:v]fps=60,format=yuv420p[i];${take(0, a)}[h];[2:v]fps=60,format=yuv420p[c1];${take(a, b)}[p1];[3:v]fps=60,format=yuv420p[c2];${take(b)}[p2];[i][h][c1][p1][c2][p2]concat=n=6:v=1:a=0[v]`,
+    '-map', '[v]', '-c:v', 'libx264', '-crf', '18', '-preset', 'slow', final]);
   console.log(`video: ${final}`);
 }
 console.log(`cues: ${CUES}`);

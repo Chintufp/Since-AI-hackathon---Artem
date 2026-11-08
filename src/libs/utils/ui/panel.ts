@@ -448,7 +448,7 @@ export function createPanel(options: PanelOptions): Panel {
   function renderQuestion(): void {
     const q = activeQuestion();
     $('.rf-question h2').textContent = q?.text ?? 'No open question';
-    $('.rf-question .rf-case').textContent = q ? q.caseLabel + (q.deferred ? ' · later' : '') : '';
+    caseTitle($('.rf-question .rf-case'), q ? q.caseLabel : '', q?.deferred ? ' · later' : '');
     setProvenance($('.rf-question .rf-provenance'), q?.provenance);
     root.querySelectorAll<HTMLButtonElement>('.rf-answer[data-action], .rf-secondary-responses .rf-later').forEach((b) => (b.disabled = !q));
     // B1 review: a free-text question (a standing missing symptom) takes words; Yes becomes Send and No goes away.
@@ -567,6 +567,13 @@ export function createPanel(options: PanelOptions): Panel {
     target?.append(b);
     return b;
   }
+  /** "TRN-117 · no traffic after SFP change": the unit in bold, the short symptom quieter (Artem 8 Nov). */
+  function caseTitle(target: HTMLElement, title: string, suffix = ''): void {
+    const i = title.indexOf(' · ');
+    target.replaceChildren();
+    if (i < 0) { target.append(el('strong', 'rf-case-id', title + suffix)); return; }
+    target.append(el('strong', 'rf-case-id', title.slice(0, i)), el('span', 'rf-case-rest', ' · ' + title.slice(i + 3) + suffix));
+  }
   function renderResult(): void {
     if (!result) return;
     const r = result.recommendation;
@@ -591,7 +598,7 @@ export function createPanel(options: PanelOptions): Panel {
     const cv = result.caseView;
     if (cv?.timeline.length) {
       path.hidden = false;
-      path.append(el('p', 'rf-case', cv.title));
+      { const t = el('p', 'rf-case'); caseTitle(t, cv.title); path.append(t); }
       path.append(evidencePath(cv.timeline, 'result', 'Matched case timeline; expand a title for details'));
       if (cv.caveat) path.append(el('p', 'rf-context-caveat', cv.caveat));
     } else path.hidden = true;
@@ -616,7 +623,7 @@ export function createPanel(options: PanelOptions): Panel {
         b.dataset.action = 'view-case';
         b.dataset.caseId = m.caseId!;
         const hint = m.conflicting[0] ? `differs: ${m.conflicting[0]}` : m.missing[0] ? `if ${m.missing[0]}` : '';
-        b.append(el('span', 'rf-alt-title', m.title));
+        { const t = el('span', 'rf-alt-title'); caseTitle(t, m.title); b.append(t); }
         b.append(el('span', 'rf-alt-when', m.startedAt ? monthLabel(m.startedAt) : ''));
         if (hint) b.append(el('small', undefined, hint));
         box.append(b);
@@ -669,7 +676,7 @@ export function createPanel(options: PanelOptions): Panel {
   }
   function renderCase(): void {
     if (!caseView) return;
-    $('.rf-view[data-view="case"] .rf-case').textContent = caseView.title;
+    caseTitle($('.rf-view[data-view="case"] .rf-case'), caseView.title);
     setProvenance($('.rf-view[data-view="case"] .rf-provenance'), caseView.provenance);
     const body = $('.rf-case-body');
     body.replaceChildren();

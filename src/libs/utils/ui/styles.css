@@ -385,3 +385,7 @@
 #kt-panel details.rf-more[open] > summary::after { content:' ⌄'; }
 #kt-panel details.rf-more .rf-alts { border-top:0; padding:8px 0 0; }
 @media (max-width:419px) { #kt-panel details.rf-more { padding-left:19px; padding-right:19px; } }
+
+/* Case titles: the unit id leads, the short symptom stays quiet. */
+#kt-panel .rf-case-id { font-weight:600; color:#252729; }
+#kt-panel .rf-case-rest { font-weight:400; color:#9aa0a6; }

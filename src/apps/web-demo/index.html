@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'">
+<title>Lumi · interactive preview</title>
+<meta name="description" content="Click around Lumi’s interface. Sample data; the real engine runs locally or on your organisation’s server.">
+<link rel="stylesheet" href="styles.css">
+<style>
+ html, body { margin:0; height:100%; overflow:hidden; }
+ body { background:#e9ecee; font-family:-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; color:#1d2530; }
+ .demo-bar { position:fixed; top:16px; left:16px; right:16px; z-index:1; display:flex; flex-wrap:wrap; align-items:center; gap:8px 20px;
+   max-width:720px; padding:16px 20px; background:rgba(255,255,255,.86); border:1px solid #dde2e6; border-radius:14px;
+   box-shadow:0 6px 24px rgba(20,26,36,.06); font-size:14px; line-height:1.45; }
+ .demo-bar h1 { margin:0; font-size:16px; font-weight:600; letter-spacing:-.01em; }
+ .demo-bar p { margin:0; color:#4a5563; flex-basis:100%; }
+ .demo-bar a, .demo-bar button { color:#2f5bea; font:inherit; background:none; border:0; padding:0; cursor:pointer; text-decoration:none; }
+ .demo-bar a:hover, .demo-bar button:hover { text-decoration:underline; }
+ .demo-links { display:flex; gap:16px; flex-wrap:wrap; }
+ #demo-toast { position:fixed; left:50%; top:24px; transform:translate(-50%,-12px); z-index:3; max-width:min(560px, calc(100vw - 32px));
+   padding:12px 18px; border-radius:12px; background:#141a24; color:#f6f7f9; font-size:14px; line-height:1.45;
+   opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; }
+ #demo-toast.show { opacity:1; transform:translate(-50%,0); }
+ .demo-narrow { display:none; }
+ @media (max-width: 640px) { .demo-narrow { display:block; } }
+</style>
+</head>
+<body>
+<header class="demo-bar">
+  <h1>Lumi · interactive preview</h1>
+  <p>This is Lumi’s real interface with sample data. The engine that reads your channels, asks your colleagues and answers agents runs on your own machine or your organisation’s server, so nothing here is live.</p>
+  <p class="demo-narrow">Lumi is a desktop companion: it’s best on a laptop or desktop screen.</p>
+  <p>Click the snowball, drag it, push it off an edge. Type “labels come out blank after a ribbon swap” and press Enter, or answer the question waiting for you.</p>
+  <div class="demo-links">
+    <button id="demo-open" type="button">Open Lumi’s panel</button>
+    <a href="https://github.com/Chintufp/Since-AI-hackathon---Artem" target="_blank" rel="noopener">Source code</a>
+  </div>
+</header>
+<div id="demo-toast" role="status" aria-live="polite"></div>
+<div id="kt-panel"></div>
+<script src="app.js"></script>
+</body>
+</html>

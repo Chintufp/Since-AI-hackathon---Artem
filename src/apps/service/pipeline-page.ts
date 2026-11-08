@@ -175,7 +175,7 @@ export function questionStagesData(store: KnowledgeStore, opts: { questionId?: s
         { stage: 'PROBLEM', rows: [...rows('symptom'), ...confirm] },
         { stage: 'CONDITION', rows: [...rows('condition').filter((r) => !rows('symptom').some((x) => x.text === r.text) && !rows('outcome').some((x) => x.text === r.text)), ...others] },
         { stage: 'CAUSE', rows: main.hypotheses.map((h) => ({ text: h.statement, who: h.author, via: 'slack' })) },
-        { stage: 'ACTION', rows: rows('action') },
+        { stage: 'FIX', rows: rows('action') },
         { stage: 'OUTCOME', rows: rows('outcome') },
       ],
     };
@@ -275,6 +275,22 @@ html.clean i { font-style: normal; color: #6b6b6b; font-size: 13px; }
 html.clean .drop { color: #b0b0b0; }
 html.clean .cert { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; display: block; margin-top: 10px; }
 html.clean details summary { cursor: pointer; color: #6b6b6b; font-size: 13px; }
+html.clean .flow { display: flex; align-items: stretch; gap: 0; margin: 4px 0 14px; }
+html.clean .flow .box { flex: 1 1 0; border: 1px solid #111; padding: 14px 16px; min-width: 0; }
+html.clean .flow .arrow { flex: 0 0 44px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+html.clean .flow.small { margin: 0 0 10px; }
+html.clean .flow.small .box { padding: 10px 14px; }
+html.clean .flow.small .box.q { flex: 3 1 0; } html.clean .flow.small .box.p, html.clean .flow.small .box.a { flex: 1 1 0; }
+html.clean .boxlabel { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #6b6b6b; margin-bottom: 6px; }
+html.clean .boxtext { font-size: 15px; line-height: 1.45; }
+html.clean .boxwho, html.clean .boxmore { font-size: 12px; color: #6b6b6b; margin-top: 6px; }
+html.clean .boxempty { color: #b0b0b0; }
+html.clean .sim { font-size: 11px; color: #6b6b6b; border: 1px solid #c8c8c8; padding: 0 4px; margin-left: 4px; }
+/* /pipeline: the four columns as boxes with arrows between them */
+html.clean table.stages { border-collapse: separate; border-spacing: 0; }
+html.clean table.stages th { border-bottom: 0; padding: 0 0 6px; }
+html.clean table.stages td.col { border: 1px solid #111; padding: 14px 16px; }
+html.clean table.stages td.arr { border: 0; text-align: center; vertical-align: middle; font-size: 26px; padding: 0; }
 html.clean ul { padding-left: 18px; margin: 8px 0; }
 `;
 const HEAD = (title: string) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title><style>.drop{color:gray}${CLEAN}</style><script>if (new URLSearchParams(location.search).get('raw') !== '1') document.documentElement.className = 'clean';</script></head><body>`;
@@ -295,9 +311,9 @@ export function pipelinePage(): string {
 <h1>pipeline</h1>
 <p>Backend view: what Lumi sees. It runs on its own, so it gets no design. People only ever see Lumi.</p>
 <p id="src"></p>
-<table border="1" width="100%">
-<tr><th width="27%">1. raw</th><th width="1%">→</th><th width="27%">2. filtered</th><th width="1%">→</th><th width="17%">3. linked</th><th width="1%">→</th><th width="26%">4. hypothesis</th></tr>
-<tr valign="top"><td id="raw"></td><td></td><td id="useful"></td><td></td><td id="case"></td><td></td><td id="hyp"></td></tr>
+<table border="1" width="100%" class="stages">
+<tr><th width="26%">1. raw</th><th width="3%"></th><th width="26%">2. filtered</th><th width="3%"></th><th width="17%">3. linked</th><th width="3%"></th><th width="25%">4. hypothesis</th></tr>
+<tr valign="top"><td id="raw" class="col"></td><td class="arr">→</td><td id="useful" class="col"></td><td class="arr">→</td><td id="case" class="col"></td><td class="arr">→</td><td id="hyp" class="col"></td></tr>
 </table>
 <h2>stored record</h2>
 <details><summary>case json</summary><pre id="json"></pre></details>
@@ -321,22 +337,25 @@ export function questionsPage(): string {
 <h1>questions</h1>
 <p>Backend view: what Lumi sees. It runs on its own, so it gets no design. People only ever see Lumi.</p>
 <h2 id="ctitle">what we know</h2>
-<table border="1" width="100%"><tr><th width="20%">problem</th><th width="1%">→</th><th width="20%">condition</th><th width="1%">→</th><th width="19%">cause</th><th width="1%">→</th><th width="19%">fix</th><th width="1%">→</th><th width="19%">outcome</th></tr><tr valign="top" id="chain"></tr></table>
-<h2>latest question</h2>
-<table border="1" width="100%"><tr><th width="30%">question</th><th width="1%">→</th><th width="27%">asked</th><th width="1%">→</th><th width="12%">answer</th><th width="1%">→</th><th width="28%">what changed</th></tr><tr valign="top"><td id="q"></td><td></td><td id="who"></td><td></td><td id="answer"></td><td></td><td id="changed"></td></tr></table>
-<h2>all questions</h2>
-<table border="1" width="100%"><thead><tr><th>time</th><th>asked by</th><th>question</th><th>to</th><th>answer</th></tr></thead><tbody id="log"></tbody></table>
+<div class="flow" id="chain"></div>
+<h2>questions Lumi asked</h2>
+<div id="asked"></div>
 <script>${LOOP(`'/pipeline/questions.json' + (qs.get('question') ? '?question=' + encodeURIComponent(qs.get('question')) : '')`, `
-  const sim = (b) => b ? ' (simulated)' : '';
+  const sim = (b) => b ? ' <span class="sim">simulated</span>' : '';
+  const cut = (t, n) => t.length > n ? t.slice(0, n - 1) + '…' : t;
+  const arrow = '<div class="arrow">→</div>';
   set('ctitle', 'what we know' + (d.chain ? ' about ' + esc(d.chain.title) : ''));
-  set('chain', d.chain ? d.chain.stages.map((s, i) => (i ? '<td></td>' : '') + '<td>' + (s.rows.map((r) => '<div>' + esc(r.text) + ' <i>' + esc(r.who) + sim(r.simulated) + '</i></div>').join('') || '-') + '</td>').join('') : '<td colspan="9">-</td>');
-  const chosen = d.who.find((w) => w.chosen);
-  const others = d.who.filter((w) => !w.chosen && w.eligible).slice(0, 3).map((w) => esc(w.name)).join(', ');
-  set('q', d.questions.find((q) => q.chosen) ? esc(d.questions.find((q) => q.chosen).text) : '-');
-  set('who', chosen ? '<div>' + esc(chosen.name) + (chosen.score ? ' (score ' + esc(chosen.score) + ')' : '') + '</div><div>' + esc(chosen.reasons[0] || '') + '</div>' + (others ? '<div class="drop">also could: ' + others + '</div>' : '') : '-');
-  set('answer', d.answer ? esc(d.answer.value) + sim(d.answer.simulated) : '-');
-  const r = d.result || {};
-  set('changed', (d.evidence.map((e) => '<div>' + esc(e.change) + ': ' + esc(e.statement.length > 70 ? e.statement.slice(0, 69) + '…' : e.statement) + '</div>').join('')
-    + (r.recommendation && d.answer ? '<div>now: ' + esc(r.recommendation.kind) + ', ' + esc(r.recommendation.applicability) + '</div>' : '')) || '-');
-  set('log', d.log.map((l) => '<tr><td>' + esc(hhmm(l.at)) + '</td><td>' + esc(l.asker.replace(' (simulated)', '')) + sim(l.askerSimulated) + '</td><td>' + esc(l.text.length > 110 ? l.text.slice(0, 109) + '…' : l.text) + '</td><td>' + esc(l.to) + '</td><td>' + esc(l.answer || '') + (l.answer ? sim(l.simulated) : '') + '</td></tr>').join(''));`)}</script></body></html>`;
+  // One box per stage: its first line, who said it, and how many more there are.
+  set('chain', d.chain ? d.chain.stages.map((s) => {
+    const first = s.rows[0];
+    return '<div class="box"><div class="boxlabel">' + esc(s.stage.toLowerCase()) + '</div>'
+      + (first ? '<div class="boxtext">' + esc(cut(first.text, 90)) + '</div><div class="boxwho">' + esc(first.who) + sim(first.simulated) + '</div>' : '<div class="boxempty">not yet</div>')
+      + (s.rows.length > 1 ? '<div class="boxmore">+' + (s.rows.length - 1) + ' more</div>' : '') + '</div>';
+  }).join(arrow) : '<p class="drop">no case yet</p>');
+  // Each question as a small flow: the question → who it went to → the answer.
+  set('asked', d.log.length ? d.log.slice(-6).reverse().map((l) => '<div class="flow small">'
+    + '<div class="box q"><div class="boxlabel">' + esc(hhmm(l.at)) + ' · ' + esc(l.asker.replace(' (simulated)', '')) + sim(l.askerSimulated) + '</div><div class="boxtext">' + esc(cut(l.text, 110)) + '</div></div>' + arrow
+    + '<div class="box p"><div class="boxlabel">asked</div><div class="boxtext">' + esc(l.to) + '</div></div>' + arrow
+    + '<div class="box a"><div class="boxlabel">answer</div><div class="boxtext">' + (l.answer ? esc(l.answer) + (l.simulated ? sim(true) : '') : '<span class="drop">waiting</span>') + '</div></div>'
+    + '</div>').join('') : '<p class="drop">no questions yet</p>');`)}</script></body></html>`;
 }

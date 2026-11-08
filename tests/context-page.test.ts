@@ -15,19 +15,18 @@ before(async () => {
 });
 after(async () => svc.close());
 
-test('GET /context.html: 200 text/html, an svg, the open-bar label, the fetch paths, no external assets', async () => {
+test('GET /context.html: 200 text/html, the as-of slider, the open-row label, the fetch paths, no external assets', async () => {
   const res = await fetch(svc.http.url + '/context.html?entity=TRN-042');
   assert.equal(res.status, 200);
   assert.match(res.headers.get('content-type') ?? '', /^text\/html/);
   assert.equal(res.headers.get('cache-control'), 'no-store');
   const html = await res.text();
-  assert.match(html, /<svg/);
+  assert.match(html, /type="range"/);
   assert.match(html, /still believed true/);
   assert.match(html, /' · holds for '/);
   assert.match(html, /'\/context\?'/);
   assert.match(html, /'\/investigate'/);
   assert.match(html, /preview: true/);
-  assert.match(html, /role: 'slider'/);
   assert.match(html, /atEvidence/);
   assert.match(html, /function layoutTimeAxis/, 'the tested layout function is embedded');
   assert.doesNotMatch(html, /<script[^>]+src=|<link[^>]+href=|https?:\/\/(?!www\.w3\.org\/2000\/svg')/, 'no external script, stylesheet or URL (the SVG namespace aside)');

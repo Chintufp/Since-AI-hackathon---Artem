@@ -699,23 +699,28 @@ export function createPanel(options: PanelOptions): Panel {
       lines.forEach((t) => d.append(el('p', 'rf-fold-line', t)));
       return d;
     };
-    // What happened: the reported problem and conditions as written (first line of each detail, the source note aside).
+    // One folded Summary: what happened (the reported problem and conditions as written), then who and where.
     const said = caseView.timeline.filter((n) => n.stage === 'observation').flatMap((n) => n.detail.split('\n').filter((l) => l && !/^Reported by /.test(l)));
-    const what = fold('What happened', [...new Set(said)].slice(0, 6));
-    // Who and where: the provenance line and each source (person · channel · when).
-    const who = fold('Who and where', [
+    const where = [
       ...(caseView.provenance?.text ? [caseView.provenance.text] : []),
       ...caseView.sources.slice(0, 5).map((src) => [src.author, src.provider, src.when].filter(Boolean).join(' · ')),
-    ].filter((v, k, a) => a.indexOf(v) === k));
+    ].filter((v, k, a) => a.indexOf(v) === k);
     const folds = el('div', 'rf-folds');
-    if (what) folds.append(what);
-    if (who) folds.append(who);
-    if (folds.childElementCount) body.append(folds);
-    // Artem 7 Nov: the people with relevant experience are listed on the case page.
+    const summary = fold('Summary', [...new Set(said)].slice(0, 6));
+    if (summary || where.length) {
+      const d = summary ?? (() => { const x = el('details', 'rf-fold'); x.append(el('summary', 'rf-fold-title', 'Summary')); return x; })();
+      where.forEach((t, k) => d.append(el('p', k === 0 && summary ? 'rf-fold-line rf-fold-meta rf-fold-sep' : 'rf-fold-line rf-fold-meta', t)));
+      folds.append(d);
+    }
+    // People with relevant experience, in the same style as the Summary row (it opens the people view).
     const cp = caseView.people ?? [];
-    const rows = el('div', 'rf-result-rows');
-    renderRow('People with relevant experience', String(cp.length), 'case-people', rows).disabled = !cp.length;
-    body.append(rows);
+    const people = el('button', 'rf-fold-link');
+    people.type = 'button';
+    people.dataset.action = 'case-people';
+    people.disabled = !cp.length;
+    people.append(el('span', 'rf-fold-title', 'People with relevant experience'), el('span', 'rf-fold-count', String(cp.length)));
+    folds.append(people);
+    body.append(folds);
     const wrap = el('div', 'rf-case-path rf-chain-big');
     wrap.append(evidencePath(caseView.timeline, 'case', 'Case timeline; expand a title for details'));
     if (caseView.caveat) {

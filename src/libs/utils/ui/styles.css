@@ -404,3 +404,12 @@
 #kt-panel details.rf-info > summary { list-style:none; display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border:1px solid #b8bec4; border-radius:50%; font:italic 600 11px/1 Georgia, serif; color:#6f777e; cursor:pointer; }
 #kt-panel details.rf-info > summary::-webkit-details-marker { display:none; }
 #kt-panel details.rf-info[open] > summary { border-color:#252729; color:#252729; }
+
+/* Case view: the Summary fold and the People row look the same (two sections). */
+#kt-panel .rf-fold-meta { color:#6f777e; font-size:12px; }
+#kt-panel .rf-fold-sep { margin-top:12px; }
+#kt-panel button.rf-fold-link { display:flex; width:100%; align-items:baseline; gap:6px; border:0; border-top:1px solid #edf0f1; border-bottom:1px solid #edf0f1; background:none; padding:10px 0 8px; font:inherit; text-align:left; cursor:pointer; }
+#kt-panel button.rf-fold-link .rf-fold-title { font-size:13px; font-weight:600; color:#252729; }
+#kt-panel button.rf-fold-link .rf-fold-title::after { content:' ›'; color:#9aa0a6; font-weight:400; }
+#kt-panel button.rf-fold-link .rf-fold-count { margin-left:auto; font-size:12px; color:#9aa0a6; }
+#kt-panel button.rf-fold-link:disabled { cursor:default; opacity:.5; }

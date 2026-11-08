@@ -2,6 +2,8 @@
 
 **Since AI Hackathon 2026 · Elisa challenge · state of `main` on 8 November 2026**
 
+**▶ [Watch the demo video](https://www.youtube.com/watch?v=LjwcbjviiCQ)** · **[Try the interface in your browser](https://artem.love/sinceai/)** (sample data)
+
 Lumi turns the conversations engineers already have into checked, reusable operational knowledge. It reads a channel (Slack in the demo), keeps the sentences that matter, links them into a case per unit, and asks the right person a quick yes/no question only when an answer would change what is known. Colleagues get the knowledge back through a small desktop companion (Lumi, a pixel snowball); AI agents get the same knowledge over MCP.
 
 The pitch addresses four problems:

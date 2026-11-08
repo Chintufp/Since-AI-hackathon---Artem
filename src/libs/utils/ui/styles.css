@@ -374,9 +374,6 @@
 #kt-panel .rf-offer-chip { border:0; cursor:pointer; color:#3d4348; }
 #kt-panel .rf-offer-chip:hover { background:#eceeef; }
 
-/* Admin rows in Settings: hidden unless the admin switch is on (triple-click on the Settings title). */
-.rf-settings-rows[data-admin="off"] .rf-admin { display: none !important; }
-
 /* Answer view: the folded Details (source line, caveats, next step, similar cases). */
 #kt-panel details.rf-more { border-top:1px solid #edf0f1; padding:9px 24px 8px; }
 #kt-panel details.rf-more > summary { font-size:12px; color:#838990; cursor:pointer; list-style:none; }

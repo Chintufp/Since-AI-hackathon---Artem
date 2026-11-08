@@ -34,9 +34,9 @@ import type { QuestionWatch } from './question-watch.ts';
 import { focusOptions, trackModality } from './focus.ts';
 import type { InputModality } from './focus.ts';
 
-export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'receipt' | 'result' | 'people' | 'case' | 'contact' | 'points' | 'connections' | 'models';
+export type ViewName = 'input' | 'question' | 'queue' | 'settings' | 'admin' | 'receipt' | 'result' | 'people' | 'case' | 'contact' | 'points' | 'connections' | 'models';
 const RESTORABLE: ViewName[] = ['input', 'queue', 'settings'];
-const BACK: Partial<Record<ViewName, ViewName>> = { result: 'input', people: 'result', case: 'people', contact: 'people', points: 'settings', connections: 'settings', models: 'settings' };
+const BACK: Partial<Record<ViewName, ViewName>> = { admin: 'settings', result: 'input', people: 'result', case: 'people', contact: 'people', points: 'settings', connections: 'admin', models: 'admin' };
 // B2: Settings -> Models.
 type ApiVendorName = 'anthropic' | 'gemini';
 const MODEL_SLOTS: ModelSlotName[] = ['embed', 'extract', 'phrase'];
@@ -199,18 +199,12 @@ export const TEMPLATE = `
    <section class="rf-view rf-panel-content" data-view="settings" aria-label="Settings" hidden>
     <h2>Settings</h2><button class="rf-tool rf-close" type="button" data-action="input" aria-label="Back to input"><i data-icon="corner-up-left"></i></button>
     <div class="rf-settings-rows">
-     <label class="rf-setting"><span>You</span><select class="rf-you" aria-label="Who you are"></select></label>
-     <div class="rf-setting"><span>Server</span><span class="rf-setting-value rf-server rf-selectable"></span></div>
-     <div class="rf-setting rf-cost-row" hidden><span class="rf-cost-label">Cost</span><span class="rf-cost"><span class="rf-cost-line"></span><small class="rf-cost-store"></small></span></div>
      <label class="rf-setting rf-option"><span>Reduced motion</span><input class="rf-motion" type="checkbox"></label>
      <label class="rf-setting rf-option rf-desktop-companion" hidden><span>Fidgets</span><input class="rf-fidgets" type="checkbox"></label>
      <label class="rf-setting rf-option"><span>Sound</span><em class="rf-setting-note">No sounds yet</em><input class="rf-sound" type="checkbox" disabled aria-label="Sound (no sounds yet)"></label>
-     <label class="rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox"></label>
-     <div class="rf-setting rf-option"><span>Models</span><em class="rf-setting-note rf-models-summary"></em><button class="rf-later" type="button" data-action="models">Open</button></div>
      <div class="rf-setting rf-option"><span>Points &amp; rating</span><button class="rf-later" type="button" data-action="points">Open</button></div>
-     <div class="rf-setting rf-option"><span>Connections</span><button class="rf-later" type="button" data-action="connections">Open</button></div>
      <div class="rf-setting rf-option rf-desktop-companion" hidden><span>Position</span><button class="rf-later" type="button" data-action="reset-position">Put Lumi back in the corner</button></div>
-     <div class="rf-setting rf-option"><span>Demo data</span><button class="rf-later" type="button" data-action="reset-demo">Reset demo</button></div>
+     <div class="rf-setting rf-option"><span>Admin</span><em class="rf-setting-note">who you are, server, models, MCP, data</em><button class="rf-later" type="button" data-action="admin">Open</button></div>
     </div>
    </section>
    <section class="rf-view rf-receipt" data-view="receipt" hidden aria-live="polite"><p class="rf-receipt-title"></p><div class="rf-receipt-detail"></div><div class="rf-reward" hidden><canvas width="${BURST.width}" height="${BURST.height}" aria-hidden="true"></canvas><span></span><button class="rf-later" type="button" data-action="points">See your points</button></div><button class="rf-undo" type="button" data-action="receipt-action">Undo</button></section>
@@ -226,6 +220,18 @@ export const TEMPLATE = `
      <div class="rf-points-balance"><span class="rf-points-big"></span><span class="rf-points-meta"></span></div>
      <p class="rf-points-sub">Recent</p><div class="rf-points-events"></div>
      <p class="rf-points-sub">Participants</p><div class="rf-points-list"></div>
+    </div>
+   </section>
+   <section class="rf-view rf-panel-content" data-view="admin" aria-label="Admin" hidden>
+    <h2>Admin</h2><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back to settings"><i data-icon="arrow-left"></i></button>
+    <div class="rf-settings-rows">
+     <label class="rf-setting"><span>You</span><select class="rf-you" aria-label="Who you are"></select></label>
+     <div class="rf-setting"><span>Server</span><span class="rf-setting-value rf-server rf-selectable"></span></div>
+     <div class="rf-setting rf-cost-row" hidden><span class="rf-cost-label">Cost</span><span class="rf-cost"><span class="rf-cost-line"></span><small class="rf-cost-store"></small></span></div>
+     <label class="rf-setting rf-option"><span>MCP</span><input class="rf-mcp" type="checkbox"></label>
+     <div class="rf-setting rf-option"><span>Models</span><em class="rf-setting-note rf-models-summary"></em><button class="rf-later" type="button" data-action="models">Open</button></div>
+     <div class="rf-setting rf-option"><span>Connections</span><button class="rf-later" type="button" data-action="connections">Open</button></div>
+     <div class="rf-setting rf-option"><span>Demo data</span><button class="rf-later" type="button" data-action="reset-demo">Reset demo</button></div>
     </div>
    </section>
    <section class="rf-view rf-panel-content rf-connections-view" data-view="connections" aria-label="Connections" hidden>
@@ -1170,7 +1176,7 @@ export function createPanel(options: PanelOptions): Panel {
     compose.innerHTML = iconSvg(view === 'input' ? 'paperclip' : 'square-pen');
     if (view === 'queue') renderQueue();
     if (view === 'question') renderQuestion();
-    if (view === 'settings') { renderSettings(); void loadCosts(); }
+    if (view === 'settings' || view === 'admin') { renderSettings(); void loadCosts(); }
     if (view === 'result') renderResult();
     if (view === 'people') renderPeople();
     if (view === 'case') renderCase();
@@ -1560,6 +1566,7 @@ export function createPanel(options: PanelOptions): Panel {
       case 'case-people': peopleFromCase = true; setView('people'); focusFor('people'); return;
       case 'points': pointsFrom = state.view === 'receipt' ? 'receipt' : 'settings'; setView('points'); focusFor('points'); return;
       case 'connections': setView('connections'); focusFor('connections'); return;
+      case 'admin': setView('admin'); return;
       case 'conn': { // Artem 7 Nov: nothing connects yet; a click shows "Available soon" on that tile for a moment
         button.dataset.soon = '1';
         setTimeout(() => { delete button.dataset.soon; }, 1400);

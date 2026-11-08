@@ -257,7 +257,27 @@ export function questionStagesData(store: KnowledgeStore, opts: { questionId?: s
 
 // Plain debug pages (Artem 8 Nov): browser defaults, plain HTML structure, the raw values; only Lumi gets a designed UI.
 // The one style rule: dropped chatter is grey.
-const HEAD = (title: string) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title><style>.drop{color:gray}</style></head><body>`;
+/**
+ * Quiet technical document (the default; ?raw=1 shows browser defaults): one system font, mono for ids, hairline rules, grey only for metadata
+ * and dropped chatter, no colour, no boxes, no animation. Same markup as the plain page.
+ */
+const CLEAN = `
+html.clean body { margin: 0; padding: 36px 44px 60px; background: #fff; color: #111; font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+html.clean h1 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #6b6b6b; margin: 0 0 4px; }
+html.clean h1 + p { color: #111; font-size: 21px; line-height: 1.4; font-weight: 500; letter-spacing: -0.01em; margin: 6px 0 26px; padding-bottom: 18px; border-bottom: 1px solid #111; max-width: 1100px; }
+html.clean h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin: 30px 0 8px; }
+html.clean table { border-collapse: collapse; border: 0; }
+html.clean th { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; text-align: left; padding: 8px 12px 8px 0; border: 0; border-bottom: 1px solid #111; }
+html.clean td { padding: 10px 12px 10px 0; border: 0; border-bottom: 1px solid #e6e6e6; vertical-align: top; }
+html.clean td > div, html.clean td > ul { margin-bottom: 6px; }
+html.clean tt, html.clean pre, html.clean code { font: 11.5px/1.45 ui-monospace, "SF Mono", Menlo, monospace; color: #6b6b6b; }
+html.clean i { font-style: normal; color: #6b6b6b; font-size: 13px; }
+html.clean .drop { color: #b0b0b0; }
+html.clean .cert { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; display: block; margin-top: 10px; }
+html.clean details summary { cursor: pointer; color: #6b6b6b; font-size: 13px; }
+html.clean ul { padding-left: 18px; margin: 8px 0; }
+`;
+const HEAD = (title: string) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title><style>.drop{color:gray}${CLEAN}</style><script>if (new URLSearchParams(location.search).get('raw') !== '1') document.documentElement.className = 'clean';</script></head><body>`;
 /** Fetch the JSON, render, and replace the DOM only when the output changed (no animation). */
 const LOOP = (url: string, render: string) => `
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -289,7 +309,7 @@ export function pipelinePage(): string {
   const stages = ['symptom', 'condition', 'action', 'outcome'];
   set('case', c ? '<div>' + esc(c.title) + '</div><div><tt>' + esc(c.caseId) + '</tt> ' + esc(c.status) + '</div><ul>'
     + stages.map((s) => '<li>' + s + ' x' + c.items.filter((i) => i.stage.split(' · ').includes(s)).length + '</li>').join('') + '</ul>'
-    + '<div>certainty ' + c.certainty.messages + (c.certainty.threshold ? ' / threshold ' + c.certainty.threshold : '') + (c.certainty.asked ? ' · asked' : '') + '</div>' : '');
+    + '<div class="cert">certainty ' + c.certainty.messages + (c.certainty.threshold ? ' / threshold ' + c.certainty.threshold : '') + (c.certainty.asked ? ' · asked' : '') + '</div>' : '');
   set('hyp', c ? c.hypotheses.map((h) => '<div>' + esc(h.statement) + '</div><div>' + esc(h.author) + ' <tt>' + esc(h.evidenceId) + '</tt></div><hr>'
     + h.supporting.map((s) => '<div>+ ' + esc(s.text) + '</div>').join('')).join('') + c.open.map((o) => '<div>? ' + esc(o) + '</div>').join('') : '');
   const j = d.stored ? JSON.stringify(d.stored, null, 2) : 'null';

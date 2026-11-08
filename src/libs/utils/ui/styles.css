@@ -376,3 +376,12 @@
 
 /* Admin rows in Settings: hidden unless the admin switch is on (triple-click on the Settings title). */
 .rf-settings-rows[data-admin="off"] .rf-admin { display: none !important; }
+
+/* Answer view: the folded Details (source line, caveats, next step, similar cases). */
+#kt-panel details.rf-more { border-top:1px solid #edf0f1; padding:9px 24px 8px; }
+#kt-panel details.rf-more > summary { font-size:12px; color:#838990; cursor:pointer; list-style:none; }
+#kt-panel details.rf-more > summary::-webkit-details-marker { display:none; }
+#kt-panel details.rf-more > summary::after { content:' ›'; }
+#kt-panel details.rf-more[open] > summary::after { content:' ⌄'; }
+#kt-panel details.rf-more .rf-alts { border-top:0; padding:8px 0 0; }
+@media (max-width:419px) { #kt-panel details.rf-more { padding-left:19px; padding-right:19px; } }

@@ -571,9 +571,12 @@ export function createPanel(options: PanelOptions): Panel {
     if (!result) return;
     const r = result.recommendation;
     $('.rf-result-title').textContent = r.text;
-    setProvenance($('.rf-result-head .rf-provenance'), result.provenance);
-    const notes = $('.rf-result-notes');
-    notes.replaceChildren();
+    // Calm answer (Artem 8 Nov): the headline, the case path and the people; the source line, caveats, next step and
+    // similar cases go into one folded "Details" at the bottom.
+    setProvenance($('.rf-result-head .rf-provenance'), undefined);
+    $('.rf-result-notes').replaceChildren();
+    const notes = el('div', 'rf-more-notes');
+    if (result.provenance?.text) notes.append(el('p', 'rf-result-note', result.provenance.text));
     // The engine's applicability is a one-word enum (qualified, ...): the sentence above already says it, so only prose is shown.
     const prose = /\s/.test(r.applicability) ? [r.applicability] : [];
     [...prose, ...r.caveats.slice(0, 3)].filter(Boolean).forEach((t) => notes.append(el('p', 'rf-result-note', t)));
@@ -601,6 +604,9 @@ export function createPanel(options: PanelOptions): Panel {
     const top = result.matches[0]?.score ?? 0;
     const alts = (none ? others : others.filter((m) => m.score >= top - 0.1)).slice(0, 3);
     if (none && alts.length) $('.rf-result-title').textContent = 'Nothing close enough yet.';
+    const more = el('details', 'rf-more');
+    more.append(el('summary', 'rf-more-summary', 'Details'));
+    more.append(notes);
     if (alts.length) {
       const box = el('div', 'rf-alts');
       box.append(el('p', 'rf-alts-title', none ? 'Closest' : 'Also similar'));
@@ -615,7 +621,7 @@ export function createPanel(options: PanelOptions): Panel {
         if (hint) b.append(el('small', undefined, hint));
         box.append(b);
       });
-      rows.append(box);
+      if (none) rows.append(box); else more.append(box);
     }
     if (none && alts.length) { motion.registerDetails(state.openNodes.result, path); return; } // Artem: nothing else before a case is chosen
     renderRow('People with relevant experience', String(result.people.length), 'people', rows).disabled = !result.people.length;
@@ -625,6 +631,7 @@ export function createPanel(options: PanelOptions): Panel {
       asked.append(el('span', 'rf-row-meta', result.question.status));
       rows.append(asked);
     }
+    if (notes.childElementCount || more.querySelector('.rf-alts')) rows.append(more);
     motion.registerDetails(state.openNodes.result, path);
   }
   let peopleFromCase = false;

@@ -25,7 +25,8 @@ const DRY = process.argv.includes('--dry');
 const REC = !DRY || process.argv.includes('--rec');
 /** Lumi's own sends (Remember this, a question): always in a take; in a dry run only against a preview service. */
 const LUMI_SENDS = !DRY || (process.env.FILM_PORT ?? '47831') !== '47831';
-const REC_SECONDS = Number(process.env.FILM_REC ?? 160);
+const REC_SECONDS = Number(process.env.FILM_REC ?? 168);
+let TERM_FONT = 0;
 /** Screen point of the "case json" summary on /pipeline after scrolling to the bottom (measured in the dry run). */
 const DETAILS = { x: Number(process.env.FILM_DETAILS_X ?? 54), y: Number(process.env.FILM_DETAILS_Y ?? 583) };
 const CDP = 9351;
@@ -180,7 +181,9 @@ async function simulate() {
 
 // Safety: whatever happens, the film Lumi (and its white background) goes away when this script ends.
 const killLumi = () => { try { execFileSync('pkill', ['-9', '-f', 'lumi-film-artem-ud']); } catch { /* none */ } };
-process.on('exit', killLumi);
+/** Put the Terminal profile's font size back (the finale enlarges it for a few seconds). */
+const restoreTerm = () => { if (TERM_FONT) { try { execFileSync('osascript', ['-e', `tell application "Terminal" to set font size of current settings of window 1 to ${TERM_FONT}`]); TERM_FONT = 0; } catch { /* best effort */ } } };
+process.on('exit', () => { killLumi(); restoreTerm(); });
 for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.on(sig, () => process.exit(130));
 process.on('uncaughtException', (e) => { console.error(e); process.exit(1); });
 process.on('unhandledRejection', (e) => { console.error(e); process.exit(1); });
@@ -250,7 +253,8 @@ await sleep(3000);
 p = await lumiAt('[data-action="context"]'); if (p) { await glide(p.x, p.y, 1100); click(); cue('Why this question? the Slack messages behind it'); }
 await sleep(3800);
 p = await lumiAt('section[data-view="question"] [data-action="yes"]'); if (p) { await glide(p.x, p.y, 1000); await sleep(350); click(); cue('Artem taps Yes: a confirmed problem, with his answer as evidence'); }
-await sleep(3200);
+await sleep(2800);
+{ const av = await lumiAt('[data-action="avatar"]'); if (av) { await glide(av.x, av.y, 700); click(); await sleep(500); } } // put the card away
 
 await at(68);  safariFront(); tab(2); cue('SLACK · "Applied the v7.1 patch on TRN-418."');
 await glide(900, 781, 800); click();
@@ -276,6 +280,7 @@ let a = await avatar(); if (a) { await glide(Math.min(a.x, 1500), a.y, 1100); aw
 await sleep(1400); a = await avatar(); if (a) { await glide(a.x, a.y, 500); click(); }
 await sleep(900);
 // A new unit with the same symptom: the answer reuses what Artem and Mark found on TRN-418.
+{ const pen = await lumiAt('[aria-label="Write a message"]'); if (pen) { await glide(pen.x, pen.y, 700); click(); await sleep(700); } }
 p = await lumiAt('.rf-writing'); if (p) { focusLumi(); await glide(p.x, p.y, 600); click(); cue('a new unit, TRN-430, same symptom: ask Lumi in plain words'); await typeLumi('TRN-430: link is up but no traffic after the v6 template rollout, older N5 unit.', 0.55); }
 p = await lumiAt('.rf-footer [data-action="send"]'); if (p) { await glide(p.x, p.y, 500); if (LUMI_SENDS) click(); }
 await sleep(4500); cue('his answer comes from TRN-418: what Artem and Mark found this morning');
@@ -292,20 +297,18 @@ osa(`tell application "Terminal"
   set bounds of front window to {40, 40, 1472, 870}
 end tell`);
 // Bigger text for this one window only (⌘+, like a person would; the Terminal profile is not touched).
-await sleep(1200);
-// ⌘+ five times, sent to Terminal itself so none of them lands elsewhere (bigger text for this window only).
-try { osa(`tell application "System Events" to tell process "Terminal" to repeat 5 times
-  key code 24 using command down
-  delay 0.12
-end repeat`); } catch { /* best effort */ }
-await sleep(8800);
+await sleep(600);
+// Large text for the finale: the profile's font size is set for these seconds and put back right after (finish).
+try { TERM_FONT = Number(osa('tell application "Terminal" to get font size of current settings of front window')); osa('tell application "Terminal" to set font size of current settings of front window to 22'); } catch { /* best effort */ }
+await sleep(9400);
 cue('the agent never contacts anyone directly: its question lands in Mark\'s Lumi');
-await at(146); killLumi(); toDesk(); await sleep(300);
+await at(144); killLumi(); toDesk(); await sleep(300);
 if (MARK_ID) { await launchLumi(MARK_ID); cue('on Mark\'s side: Lumi comes in with the agent\'s question'); }
 for (let i = 0; i < 40; i++) { const st = await lumiState().catch(() => ({})); if (st.open && st.view === 'question') break; await sleep(250); }
 await sleep(Math.max(0, (REC_SECONDS - t()) * 1000) + 1500);
 
 // ---- finish ----
+restoreTerm();
 await recDone;
 killLumi();
 console.log(`recorded ${t().toFixed(1)} s`);

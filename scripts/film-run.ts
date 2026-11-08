@@ -132,15 +132,22 @@ let lastHistory: Array<{ ts: string; text?: string }> = [];
 // Slack allows users.list / conversations.list about 20 times a minute: everything except the history is cached for a
 // minute, so only conversations.history runs every poll.
 const slow = new Map<string, { at: number; r: Record<string, unknown> }>();
+const slowFail = new Map<string, { at: number; e: unknown }>();
 const wrap = (read: SlackReadClient): SlackReadClient => ({
   async call(method, params) {
     if (method !== 'conversations.history') {
       const key = method + JSON.stringify(params ?? {});
       const hit = slow.get(key);
       if (hit && Date.now() - hit.at < 60_000) return hit.r;
-      const r = await read.call(method, params);
-      slow.set(key, { at: Date.now(), r });
-      return r;
+      // After a failure (e.g. ratelimited) wait 30 s before asking Slack again.
+      const failed = slowFail.get(key);
+      if (failed && Date.now() - failed.at < 30_000) throw failed.e;
+      try {
+        const r = await read.call(method, params);
+        slow.set(key, { at: Date.now(), r });
+        slowFail.delete(key);
+        return r;
+      } catch (e) { slowFail.set(key, { at: Date.now(), e }); throw e; }
     }
     const r = await read.call(method, params);
     lastHistory = (r.messages as Array<{ ts: string; text?: string }>) ?? [];

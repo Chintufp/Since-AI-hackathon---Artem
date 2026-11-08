@@ -218,6 +218,8 @@ function makeHandlers(s: MockState): Handlers {
     'GET /health': () => ({ ok: true as const, version: 'ui-dev-mock', store: 'memory', routes: Object.keys(h) }),
     // As the service: GET /settings always carries the model slots (rules by default).
     'GET /settings': () => ({ ...s.settings, models: s.settings.models ?? DEFAULT_MODEL_SLOTS }),
+    // As a film run: the live Slack channel is connected; the rest are planned.
+    'GET /connections': () => ([{ id: 'slack:workspace', provider: 'slack', label: 'Slack', status: 'live-verified', lastSyncAt: NOW() }] as unknown as ResOf<'GET /connections'>),
     'PUT /settings': ({ body }) => {
       const { models, ...plain } = body;
       s.settings = { ...s.settings, ...plain, ...(models ? { models: { ...(s.settings.models ?? DEFAULT_MODEL_SLOTS), ...models } } : {}) };

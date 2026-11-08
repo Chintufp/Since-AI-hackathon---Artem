@@ -602,7 +602,13 @@ export class Engine {
 
   connections(): ConnectionCard[] {
     const batches = this.store.list('importBatch');
+    // A channel the live Slack poller reads (connection id slack-live:...) makes the Slack card live.
+    const live = this.store.list('evidence').filter((e) => e.connectionId?.startsWith('slack-live:'));
     return connectionCards().map((c) => {
+      if (c.provider === 'slack' && live.length) {
+        const at = live.map((e) => e.ingestedAt ?? '').sort().at(-1);
+        return { ...c, status: 'live-verified' as const, ...(at ? { lastSyncAt: at } : {}) };
+      }
       const mine = batches.filter((b) => b.connectionId === c.id).sort((a, b) => (b.finishedAt ?? b.startedAt).localeCompare(a.finishedAt ?? a.startedAt));
       const last = mine[0];
       return last ? { ...c, lastImportBatchId: last.id, lastSyncAt: last.finishedAt ?? last.startedAt } : c;

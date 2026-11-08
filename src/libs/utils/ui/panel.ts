@@ -236,7 +236,6 @@ export const TEMPLATE = `
    </section>
    <section class="rf-view rf-panel-content rf-connections-view" data-view="connections" aria-label="Connections" hidden>
     <h2>Connections</h2><button class="rf-tool rf-close" type="button" data-action="back" aria-label="Back"><i data-icon="arrow-left"></i></button>
-    <p class="rf-conn-note">Channels Lumi will read as they are, through Nango. Nothing is connected yet.</p>
     <div class="rf-conn-grid"><button class="rf-conn" type="button" data-action="conn" data-conn="slack" aria-label="Slack (available soon)"><img class="rf-conn-logo" src="logos/slack.svg" alt=""><span class="rf-conn-name">Slack</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="teams" aria-label="Microsoft Teams (available soon)"><img class="rf-conn-logo" src="logos/teams.svg" alt=""><span class="rf-conn-name">Microsoft Teams</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="outlook" aria-label="Outlook mail (available soon)"><img class="rf-conn-logo" src="logos/outlook.svg" alt=""><span class="rf-conn-name">Outlook mail</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="gmail" aria-label="Gmail (available soon)"><img class="rf-conn-logo" src="logos/gmail.svg" alt=""><span class="rf-conn-name">Gmail</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="jira" aria-label="Jira (available soon)"><img class="rf-conn-logo" src="logos/jira.svg" alt=""><span class="rf-conn-name">Jira</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="confluence" aria-label="Confluence (available soon)"><img class="rf-conn-logo" src="logos/confluence.svg" alt=""><span class="rf-conn-name">Confluence</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="servicenow" aria-label="ServiceNow (available soon)"><img class="rf-conn-logo" src="logos/servicenow.svg" alt=""><span class="rf-conn-name">ServiceNow</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button><button class="rf-conn" type="button" data-action="conn" data-conn="github" aria-label="GitHub (available soon)"><img class="rf-conn-logo" src="logos/github.svg" alt=""><span class="rf-conn-name">GitHub</span><span class="rf-conn-soon" aria-hidden="true">Available soon</span></button></div>
    </section>
    <section class="rf-view rf-panel-content rf-models-view" data-view="models" aria-label="Models" hidden>
@@ -909,6 +908,22 @@ export function createPanel(options: PanelOptions): Panel {
    * B3: "Erkki's cost" row: what answering cost the most-asked person and how often their knowledge was reused, plus the
    * store line. Loaded after the view opens; any failure (older service, mock without the route) leaves the row hidden.
    */
+  /** Connections (Artem 8 Nov): a live channel shows as connected in full colour; the others stay "available soon". */
+  async function loadConnections(): Promise<void> {
+    let cards: Array<{ provider: string; status: string }> = [];
+    try { cards = (await api.getConnections()) as Array<{ provider: string; status: string }>; } catch { return; }
+    const live = new Set(cards.filter((c) => c.status === 'live-verified').map((c) => c.provider));
+    const v = viewEl('connections');
+    v.querySelectorAll<HTMLElement>('.rf-conn').forEach((b) => {
+      const on = live.has(b.dataset.conn ?? '');
+      if (on) b.dataset.live = '1'; else delete b.dataset.live;
+      const name = b.querySelector('.rf-conn-name')?.textContent ?? '';
+      b.setAttribute('aria-label', on ? `${name} (connected)` : `${name} (available soon)`);
+      let tag = b.querySelector<HTMLElement>('.rf-conn-state');
+      if (!tag) { tag = el('span', 'rf-conn-state'); b.append(tag); }
+      tag.textContent = on ? 'Connected' : 'Soon';
+    });
+  }
   async function loadCosts(): Promise<void> {
     const n = ++costsLoad;
     const row = $('.rf-cost-row');
@@ -1584,7 +1599,7 @@ export function createPanel(options: PanelOptions): Panel {
       case 'people': peopleFromCase = false; setView('people'); focusFor('people'); return;
       case 'case-people': peopleFromCase = true; setView('people'); focusFor('people'); return;
       case 'points': pointsFrom = state.view === 'receipt' ? 'receipt' : 'settings'; setView('points'); focusFor('points'); return;
-      case 'connections': setView('connections'); focusFor('connections'); return;
+      case 'connections': setView('connections'); focusFor('connections'); void loadConnections(); return;
       case 'admin': setView('admin'); return;
       case 'conn': { // Artem 7 Nov: nothing connects yet; a click shows "Available soon" on that tile for a moment
         button.dataset.soon = '1';

@@ -51,6 +51,7 @@ export interface ApiClient {
   call<K extends RouteKey>(route: K, options?: CallOptions<K>): Promise<ResOf<K>>;
   health(): Promise<ResOf<'GET /health'>>;
   getSettings(): Promise<ResOf<'GET /settings'>>;
+  getConnections(): Promise<ResOf<'GET /connections'>>;
   putSettings(patch: ReqOf<'PUT /settings'>): Promise<ResOf<'PUT /settings'>>;
   investigate(req: ReqOf<'POST /investigate'>): Promise<ResOf<'POST /investigate'>>;
   caseView(id: string): Promise<ResOf<'GET /cases/:id'>>;
@@ -160,6 +161,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     call,
     health: () => call('GET /health'),
     getSettings: () => call('GET /settings'),
+    getConnections: () => call('GET /connections'),
     putSettings: (patch) => call('PUT /settings', { body: patch }),
     investigate: (req) => call('POST /investigate', { body: req }),
     caseView: (id) => call('GET /cases/:id', { params: { id } }),

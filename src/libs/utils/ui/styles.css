@@ -315,7 +315,7 @@
 #kt-panel .rf-chip:has(.rf-chip-thumb) { padding:3px 7px 3px 3px; }
 /* desktop (Artem 7 Nov): Connections page, two columns of rounded tiles, nothing connected yet */
 #kt-panel .rf-conn-note { font-size:12px; line-height:1.5; color:#747b82; margin:0 0 14px; }
-#kt-panel .rf-conn-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; max-height:min(330px, calc(var(--kt-vh) - 330px)); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; padding-bottom:4px; }
+#kt-panel .rf-conn-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; max-height:min(330px, calc(var(--kt-vh) - 330px)); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#dfe2e4 transparent; padding-bottom:4px; }
 #kt-panel .rf-conn { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; aspect-ratio:1.35; border:1px solid #e3e4e5; border-radius:14px; background:#fafbfb; padding:12px; cursor:default; color:#5e676e; }
 #kt-panel .rf-conn:hover { border-color:#d3d7da; }
 #kt-panel .rf-conn-logo { width:36px; height:36px; object-fit:contain; opacity:.6; filter:saturate(.75); }
@@ -420,3 +420,16 @@
 #kt-panel .rf-result-case .rf-case { margin:0 0 6px; }
 #kt-panel .rf-result-case + .rf-case-path { border-top:0; }
 @media (max-width:419px) { #kt-panel .rf-result-case { padding-left:19px; padding-right:19px; } }
+
+/* Connections: a live channel in full colour with a "Connected" tag; the others quiet with "Soon". */
+#kt-panel .rf-conn { aspect-ratio:auto; min-width:0; height:96px; gap:4px; padding:8px 4px; }
+#kt-panel .rf-conn-grid { gap:8px; max-height:min(330px, calc(var(--kt-vh) - 300px)); }
+#kt-panel .rf-conn-name { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#kt-panel .rf-conn-logo { width:28px; height:28px; }
+#kt-panel .rf-conn-name { font-size:11.5px; }
+#kt-panel .rf-conn-state { font-size:10.5px; color:#9aa0a6; letter-spacing:.02em; }
+#kt-panel .rf-conn[data-live="1"] { background:#fff; border-color:#cfd5d9; }
+#kt-panel .rf-conn[data-live="1"] .rf-conn-logo { opacity:1; filter:none; }
+#kt-panel .rf-conn[data-live="1"] .rf-conn-name { color:#252729; font-weight:600; }
+#kt-panel .rf-conn[data-live="1"] .rf-conn-state { color:#2f7d4f; font-weight:600; }
+#kt-panel .rf-conn[data-live="1"] .rf-conn-state::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:#3aa76d; margin-right:5px; vertical-align:1px; }

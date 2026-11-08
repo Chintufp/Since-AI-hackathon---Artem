@@ -20,7 +20,8 @@ export interface OllamaSystem {
 
 export const nodeSystem: OllamaSystem = {
   which: () => new Promise((resolve) => {
-    execFile('which', ['ollama'], { timeout: 2000 }, (err, out) => resolve(err ? undefined : String(out).trim() || undefined));
+    // Windows has `where` (and may print several matches, one per line); macOS / Linux have `which`.
+    execFile(process.platform === 'win32' ? 'where' : 'which', ['ollama'], { timeout: 2000 }, (err, out) => resolve(err ? undefined : String(out).trim().split(/\r?\n/)[0] || undefined));
   }),
   totalMem: () => totalmem(),
   freeDisk: async () => {

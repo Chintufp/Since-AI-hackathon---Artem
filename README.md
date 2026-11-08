@@ -46,6 +46,12 @@ pnpm desktop
 
 The Elisa TRN-042 example is read from the git-ignored `private/Elisa_SinceAI2026/...` folder when present; a fresh clone without it gets only the synthetic demo families and the dev fixture. `pnpm desktop` builds the renderer, starts the local service on `127.0.0.1:47831` if it is not already running (SQLite at `data/local/knowledge-twin.sqlite`), and opens Lumi bottom-right. He falls in from the top of the screen, lands with a plop, says hello and, after a few seconds, rolls off to the edge of the screen: that is his home. A sliver of him stays at the edge; move the cursor near it and he peeks and hops back in, click him for the panel (Springy tap), drag him anywhere along the bottom (drop him from high up for the plop), push him past an edge to send him away, ⌘⌥S or the menu-bar icon toggles him. When a question arrives for you he comes to the edge with a question mark. `KT_WINDOW_MODE=column pnpm desktop` gives the earlier fixed-corner behaviour. Points are opt-in per person (Settings → Points & rating): only people who take part are scored or listed, and points never judge correctness. Settings → **You** chooses whose questions you see. `pnpm service` runs the service alone; `pnpm mcp` runs the MCP stdio server (`{"command":"node","args":["src/apps/service/mcp.ts"]}` in a client config). `pnpm test`, `pnpm typecheck`, `node experiments/run.ts all`, `node scripts/screenshot.mjs`.
 
+## Windows
+
+From source (Node 24 and pnpm on PATH), the same commands work in PowerShell: `pnpm install`, `pnpm demo:reset`, `pnpm desktop`. Lumi sits above the taskbar; the tray icon (white snowball, by the clock) toggles him away and back, right-click for the menu, Ctrl+Alt+S toggles.
+
+Installer: `pnpm dist:win` builds `dist/release/Lumi-Setup-<version>.exe` (per-user install, no admin) and `Lumi-Portable-<version>.exe`, cross-built on macOS. The packaged app runs its own service with Electron's Node, keeps the database in `%APPDATA%\Lumi\knowledge-twin.sqlite` and seeds the demo on first launch (the generated TRN-233 stand-in; Elisa's files are never packaged). The builds are unsigned, so SmartScreen asks once ("More info" → "Run anyway").
+
 ## Documentation
 
 All planning and development Markdown lives under [`docs/`](docs/README.md).

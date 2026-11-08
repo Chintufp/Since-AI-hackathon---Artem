@@ -97,7 +97,9 @@ export function createCompanionWindow(options: CompanionWindowOptions): BrowserW
     resizable: false,
     maximizable: false,
     fullscreenable: false,
-    skipTaskbar: false,
+    // Windows / Linux: the full-work-area overlay must not appear as a taskbar button or in Alt-Tab; the tray icon
+    // is the handle there. macOS keeps its Dock icon.
+    skipTaskbar: process.platform !== 'darwin',
     alwaysOnTop: true,
     // desktop (shell-09): the first click on him while another app is active reaches the page (macOS default:
     // that click only activates the window). Not yet verified with a real mouse.
@@ -268,7 +270,7 @@ export function createShell(options: ShellOptions): Shell {
       ),
     );
 
-  const tray = new Tray(createTrayIcon());
+  const tray = new Tray(createTrayIcon(process.platform));
   tray.setToolTip('Lumi');
   // desktop (R36): on macOS a set context menu would swallow the left click; the click toggles away / back and
   // right-click (or ctrl-click) opens the menu. Fallback mode keeps the R28 tray (menu on click).

@@ -11,7 +11,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test 'tests/**/*.test.ts' 'src/**/*.test.ts'",
+    "test": "node --test \"tests/**/*.test.ts\" \"src/**/*.test.ts\"",
     "service": "node src/apps/service/main.ts",
     "mcp": "node src/apps/service/mcp.ts",
     "demo:reset": "node scripts/demo-reset.ts",
@@ -25,11 +25,14 @@
     "demo:slack": "node scripts/slack-demo.ts",
     "demo:slack-poll": "node scripts/slack-poll.ts",
     "film": "node scripts/film-run.ts",
-    "film:agent": "node scripts/film-agent.ts"
+    "film:agent": "node scripts/film-agent.ts",
+    "dist:win": "node scripts/build.mjs && electron-builder --win --x64",
+    "web-demo": "node scripts/build-web-demo.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
     "electron": "^45.2.3",
+    "electron-builder": "^26.18.0",
     "esbuild": "^0.28.2",
     "typescript": "^5.9.0"
   },
@@ -42,5 +45,53 @@
       "electron",
       "esbuild"
     ]
+  },
+  "main": "dist/desktop/main.cjs",
+  "build": {
+    "appId": "org.sinceai.lumi",
+    "productName": "Lumi",
+    "copyright": "Artem, Since AI Hackathon 2026",
+    "directories": {
+      "output": "dist/release",
+      "buildResources": "src/apps/desktop"
+    },
+    "asar": false,
+    "files": [
+      "package.json",
+      "dist/desktop/**",
+      "!dist/desktop/shots.cjs*",
+      "!dist/desktop/**/*.map",
+      "src/**/*.ts",
+      "!src/**/*.test.ts",
+      "data/scenarios/**",
+      "data/fixtures/**",
+      "data/demo/**",
+      "data/models/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "src/apps/desktop/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "artifactName": "Lumi-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Lumi-Portable-${version}.${ext}"
+    }
   }
 }

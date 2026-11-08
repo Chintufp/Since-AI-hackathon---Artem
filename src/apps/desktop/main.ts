@@ -53,14 +53,25 @@ async function ensureService(): Promise<boolean> {
     console.error(`[desktop] service entry not found: ${entry}`);
     return false;
   }
+  const args = [entry, '--port', String(port)];
+  // Packaged build (Windows installer / portable): the install folder may be read-only and has no data/local, so the
+  // database lives in the app's user-data folder; the first launch seeds the demo there (Elisa's files are never
+  // packaged, so this is the generated stand-in).
+  if (app.isPackaged) {
+    const db = join(app.getPath('userData'), 'knowledge-twin.sqlite');
+    args.push('--db', db);
+    if (!existsSync(db)) args.push('--seed', 'elisa');
+  }
   const start = (command: string, env: NodeJS.ProcessEnv): ChildProcess => {
-    const child = spawn(command, [entry, '--port', String(port)], { stdio: ['ignore', 'inherit', 'inherit'], env });
+    const child = spawn(command, args, { stdio: ['ignore', 'inherit', 'inherit'], env, windowsHide: true });
     return child;
   };
-  service = start(process.env.KT_NODE ?? 'node', process.env);
+  const electronNode = (): ChildProcess => start(process.execPath, { ...process.env, ELECTRON_RUN_AS_NODE: '1' });
+  // Packaged: always Electron's own Node (24, with node:sqlite and type stripping); a system `node` may be older.
+  service = app.isPackaged && !process.env.KT_NODE ? electronNode() : start(process.env.KT_NODE ?? 'node', process.env);
   service.on('error', () => {
     // No `node` on PATH (GUI launch): fall back to Electron's own Node runtime.
-    service = start(process.execPath, { ...process.env, ELECTRON_RUN_AS_NODE: '1' });
+    service = electronNode();
   });
   const deadline = Date.now() + HEALTH_TIMEOUT_MS;
   while (Date.now() < deadline) {

@@ -273,7 +273,7 @@ tick(); setInterval(tick, 1500);`;
 export function pipelinePage(): string {
   return `${HEAD('pipeline')}
 <h1>pipeline</h1>
-<p><tt># no UI needed</tt> This is the backend: it runs on its own and nobody has to look at it, so it gets no design. People only ever see Lumi; this page just shows what happens behind him.</p>
+<p>This is the backend: it runs on its own and nobody has to look at it, so it gets no design. People only ever see Lumi; this page just shows what happens behind him.</p>
 <p id="src"></p>
 <table border="1" width="100%">
 <tr><th width="27%">1. raw</th><th width="1%">→</th><th width="27%">2. filtered</th><th width="1%">→</th><th width="17%">3. linked</th><th width="1%">→</th><th width="26%">4. hypothesis</th></tr>
@@ -299,7 +299,7 @@ export function pipelinePage(): string {
 export function questionsPage(): string {
   return `${HEAD('questions')}
 <h1>questions</h1>
-<p><tt># no UI needed</tt> This is the backend: it runs on its own and nobody has to look at it, so it gets no design. People only ever see Lumi; this page just shows what happens behind him.</p>
+<p>This is the backend: it runs on its own and nobody has to look at it, so it gets no design. People only ever see Lumi; this page just shows what happens behind him.</p>
 <h2 id="ctitle">chain</h2>
 <table border="1" width="100%"><tr><th width="20%">problem</th><th width="1%">→</th><th width="20%">condition</th><th width="1%">→</th><th width="19%">cause</th><th width="1%">→</th><th width="19%">action</th><th width="1%">→</th><th width="19%">outcome</th></tr><tr valign="top" id="chain"></tr></table>
 <h2 id="qtitle">question</h2>

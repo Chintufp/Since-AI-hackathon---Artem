@@ -80,7 +80,7 @@ async function launchLumi() {
   const electron = createRequire(join(REPO, 'package.json'))('electron');
   lumi = spawn(electron, [join(REPO, 'dist/desktop/main.cjs'), `--user-data-dir=${ud}`, `--remote-debugging-port=${CDP}`], {
     stdio: 'ignore', detached: true,
-    env: { ...process.env, KT_NO_SERVICE: '1', KT_PERSON: 'Artem', KT_QUESTION_POLL_MS: '1000', KT_FILM_ARRIVE: '1' },
+    env: { ...process.env, KT_NO_SERVICE: '1', KT_PERSON: ARTEM_ID, KT_QUESTION_POLL_MS: '1000', KT_FILM_ARRIVE: '1' },
   });
   for (let i = 0; i < 60; i++) { try { await cdp('1'); return; } catch { await sleep(250); } }
   throw new Error('Lumi did not start');
@@ -88,8 +88,32 @@ async function launchLumi() {
 
 // ---- Safari ----
 const osa = (script) => execFileSync('osascript', ['-e', script]).toString().trim();
-const tab = (n) => osa(`tell application "Safari" to set current tab of front window to tab ${n} of front window`);
-const safariFront = () => osa('tell application "Safari" to activate');
+// The film window and its tabs are found by URL, so other Safari windows or a closed tab never get in the way.
+// tab(1) white (no web page needed: Lumi's own window is the white stage), tab(2) Slack, tab(3) /pipeline, tab(4) /pipeline/questions.
+const FILMWIN = Number(osa(`tell application "Safari"
+  repeat with w in every window
+    repeat with t in every tab of w
+      if (URL of t) ends with "47831/pipeline/questions" then return id of w
+    end repeat
+  end repeat
+  return 0
+end tell`));
+if (!FILMWIN) { console.log('No Safari window with the film tabs (Slack #field-ops · /pipeline · /pipeline/questions).'); process.exit(2); }
+const URLS = { 1: '47831/pipeline', 2: 'C0CFSG604RL', 3: '47831/pipeline', 4: '47831/pipeline/questions' };
+const tab = (n) => osa(`tell application "Safari"
+  set w to window id ${FILMWIN}
+  set index of w to 1
+  repeat with t in every tab of w
+    if (URL of t) ends with "${URLS[n]}" then
+      set current tab of w to t
+      exit repeat
+    end if
+  end repeat
+end tell`);
+const safariFront = () => osa(`tell application "Safari"
+  activate
+  set index of window id ${FILMWIN} to 1
+end tell`);
 const scroll = async (dy, steps = 6) => { for (let i = 0; i < steps; i++) { mouse('scroll', Math.round(dy / steps)); await sleep(45); } };
 
 // ---- service ----
@@ -104,7 +128,7 @@ const SIM = [
 ];
 async function simulate() {
   const dir = await get('/directory');
-  const real = new Set(dir.filter((d) => d.name === 'Artem' || d.name === 'Mark').map((d) => d.personEntityId));
+  const real = new Set(dir.filter((d) => /^(Artem|Mark)\b/.test(d.name)).map((d) => d.personEntityId));
   const inv = new Set(); const done = new Set();
   const answerer = setInterval(async () => {
     const open = await get('/questions?status=delivered').catch(() => []);
@@ -140,6 +164,10 @@ const c0 = pre.cases[0];
 console.log(`pre-flight: ${pre.raw.length} messages; ${c0 ? `${c0.title} certainty ${c0.certainty.messages}/${c0.certainty.threshold} asked ${c0.certainty.asked}` : 'no case'}`);
 if (!DRY && (!c0 || c0.certainty.asked || c0.certainty.messages !== 3)) { console.log('Not in the pre-recording state (need certainty 3/4, nothing asked). Reset the live run (r) first.'); process.exit(2); }
 const health = await get('/health');
+// Artem's person as the store names him (with Slack ids mapped it is his Slack name, e.g. "Artem Sergeyev").
+const ARTEM_ID = (await get('/directory')).find((d) => /^Artem\b/.test(d.name))?.personEntityId;
+if (!ARTEM_ID) { console.log('No Artem in the directory.'); process.exit(2); }
+console.log(`Artem's Lumi person: ${ARTEM_ID}`);
 const db = health.store;
 // Slack's banner off, Safari at the white tab.
 safariFront(); tab(2); await sleep(1200);
@@ -151,6 +179,7 @@ move(756, 520, 400);
 
 // ---- RECORD ----
 let rec;
+rmSync(join(OUT, 'take.mov'), { force: true }); // screencapture never overwrites an existing file
 if (REC) rec = spawn('/usr/sbin/screencapture', ['-v', '-V', String(REC_SECONDS), '-x', join(OUT, 'take.mov')], { stdio: 'ignore' });
 const recDone = rec ? new Promise((res) => rec.on('exit', res)) : Promise.resolve();
 T0 = Date.now();

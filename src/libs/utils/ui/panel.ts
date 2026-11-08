@@ -676,16 +676,46 @@ export function createPanel(options: PanelOptions): Panel {
   }
   function renderCase(): void {
     if (!caseView) return;
+    // Case view (Artem 8 Nov): the name; two folded sections in plain black text (what happened, who and where); the
+    // people; then the chain, larger. The verification caveat sits behind an (i).
     caseTitle($('.rf-view[data-view="case"] .rf-case'), caseView.title);
-    setProvenance($('.rf-view[data-view="case"] .rf-provenance'), caseView.provenance);
+    setProvenance($('.rf-view[data-view="case"] .rf-provenance'), undefined);
     const body = $('.rf-case-body');
     body.replaceChildren();
-    const wrap = el('div', 'rf-case-path');
-    wrap.style.borderTop = '0';
-    wrap.style.padding = '8px 0 0';
+    const fold = (title: string, lines: string[]): HTMLDetailsElement | null => {
+      if (!lines.length) return null;
+      const d = el('details', 'rf-fold');
+      d.append(el('summary', 'rf-fold-title', title));
+      lines.forEach((t) => d.append(el('p', 'rf-fold-line', t)));
+      return d;
+    };
+    // What happened: the reported problem and conditions as written (first line of each detail, the source note aside).
+    const said = caseView.timeline.filter((n) => n.stage === 'observation').flatMap((n) => n.detail.split('\n').filter((l) => l && !/^Reported by /.test(l)));
+    const what = fold('What happened', [...new Set(said)].slice(0, 6));
+    // Who and where: the provenance line and each source (person · channel · when).
+    const who = fold('Who and where', [
+      ...(caseView.provenance?.text ? [caseView.provenance.text] : []),
+      ...caseView.sources.slice(0, 5).map((src) => [src.author, src.provider, src.when].filter(Boolean).join(' · ')),
+    ].filter((v, k, a) => a.indexOf(v) === k));
+    const folds = el('div', 'rf-folds');
+    if (what) folds.append(what);
+    if (who) folds.append(who);
+    if (folds.childElementCount) body.append(folds);
+    // Artem 7 Nov: the people with relevant experience are listed on the case page.
+    const cp = caseView.people ?? [];
+    const rows = el('div', 'rf-result-rows');
+    renderRow('People with relevant experience', String(cp.length), 'case-people', rows).disabled = !cp.length;
+    body.append(rows);
+    const wrap = el('div', 'rf-case-path rf-chain-big');
     wrap.append(evidencePath(caseView.timeline, 'case', 'Case timeline; expand a title for details'));
-    if (caseView.caveat) wrap.append(el('p', 'rf-context-caveat', caseView.caveat));
-    // B3: the case's asset on the Context Layer page (time axis, validity windows, t slider), when the host can open it.
+    if (caseView.caveat) {
+      const info = el('details', 'rf-info');
+      info.append(el('summary', 'rf-info-button', 'i'));
+      info.querySelector('summary')!.setAttribute('aria-label', 'How sure is this?');
+      info.append(el('p', 'rf-context-caveat', caseView.caveat));
+      wrap.append(info);
+    }
+    // B3: the case's asset on the Context Layer page, when the host can open it.
     const asset = caseView.entities.find((e) => e.type !== 'person');
     if (options.openContext && asset) {
       const open = el('button', 'rf-later rf-open-context', 'Open the context layer');
@@ -695,11 +725,6 @@ export function createPanel(options: PanelOptions): Panel {
       wrap.append(open);
     }
     body.append(wrap);
-    // Artem 7 Nov: the people with relevant experience are listed on the case page.
-    const cp = caseView.people ?? [];
-    const rows = el('div', 'rf-result-rows');
-    renderRow('People with relevant experience', String(cp.length), 'case-people', rows).disabled = !cp.length;
-    body.append(rows);
     motion.registerDetails(state.openNodes.case, wrap);
   }
   function renderContact(draft: ContactDraft): void {

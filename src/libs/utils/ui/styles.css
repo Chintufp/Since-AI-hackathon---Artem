@@ -389,3 +389,21 @@
 /* Case titles: the unit id leads, the short symptom stays quiet. */
 #kt-panel .rf-case-id { font-weight:600; color:#252729; }
 #kt-panel .rf-case-rest { font-weight:400; color:#9aa0a6; }
+
+/* Case view: two folded sections in plain black text, then people, then a larger chain; the caveat behind an (i). */
+#kt-panel .rf-folds { padding:4px 0 6px; }
+#kt-panel details.rf-fold { border-top:1px solid #edf0f1; padding:10px 0 8px; }
+#kt-panel details.rf-fold > summary { font-size:13px; font-weight:600; color:#252729; cursor:pointer; list-style:none; }
+#kt-panel details.rf-fold > summary::-webkit-details-marker { display:none; }
+#kt-panel details.rf-fold > summary::after { content:' ›'; color:#9aa0a6; font-weight:400; }
+#kt-panel details.rf-fold[open] > summary::after { content:' ⌄'; }
+#kt-panel .rf-fold-line { font-size:13px; line-height:1.5; color:#252729; margin:6px 0 0; }
+#kt-panel .rf-chain-big { padding-top:14px; }
+#kt-panel .rf-chain-big .rf-evidence-node { padding-top:10px; margin-bottom:14px; }
+#kt-panel .rf-chain-big .rf-node-title { font-size:15px; min-height:34px; padding:6px 14px; }
+#kt-panel .rf-chain-big .rf-node-title::before { width:8px; height:8px; left:calc(50% - 4px); top:-8px; }
+#kt-panel .rf-chain-big .rf-node-inner p { font-size:13px; color:#252729; }
+#kt-panel details.rf-info { text-align:center; margin-top:8px; }
+#kt-panel details.rf-info > summary { list-style:none; display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border:1px solid #b8bec4; border-radius:50%; font:italic 600 11px/1 Georgia, serif; color:#6f777e; cursor:pointer; }
+#kt-panel details.rf-info > summary::-webkit-details-marker { display:none; }
+#kt-panel details.rf-info[open] > summary { border-color:#252729; color:#252729; }

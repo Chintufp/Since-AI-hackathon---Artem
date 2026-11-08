@@ -309,7 +309,7 @@ tick(); setInterval(tick, 1500);`;
 export function pipelinePage(): string {
   return `${HEAD('pipeline')}
 <h1>pipeline</h1>
-<p>Backend view: what Lumi sees. It runs on its own, so it gets no design. People only ever see Lumi.</p>
+<p>No dashboard on purpose: this is live data from the real server and a real Slack channel, shown plainly to prove the system works. People only ever see Lumi.</p>
 <p id="src"></p>
 <table border="1" width="100%" class="stages">
 <tr><th width="26%">1. raw</th><th width="3%"></th><th width="26%">2. filtered</th><th width="3%"></th><th width="17%">3. linked</th><th width="3%"></th><th width="25%">4. hypothesis</th></tr>
@@ -335,7 +335,7 @@ export function pipelinePage(): string {
 export function questionsPage(): string {
   return `${HEAD('questions')}
 <h1>questions</h1>
-<p>Backend view: what Lumi sees. It runs on its own, so it gets no design. People only ever see Lumi.</p>
+<p>No dashboard on purpose: this is live data from the real server and a real Slack channel, shown plainly to prove the system works. People only ever see Lumi.</p>
 <h2 id="ctitle">what we know</h2>
 <div class="flow" id="chain"></div>
 <h2>questions Lumi asked</h2>

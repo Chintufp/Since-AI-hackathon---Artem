@@ -90,6 +90,8 @@ async function lumiAt(selector) {
 }
 /** Make Lumi's app the active one, so key presses go to him (Safari stays behind). */
 const focusLumi = () => { try { execFileSync('osascript', ['-e', `tell application "System Events" to set frontmost of (first process whose unix id is ${lumi.pid}) to true`]); } catch { /* best effort */ } };
+/** The desktop as Lumi's stage: every other app hidden (not quit); Safari comes back with safariFront(). */
+const toDesk = () => osa(`tell application "System Events" to set visible of (every process whose visible is true and background only is false and name is not "Electron") to false`);
 const white = (on) => cdp(`document.documentElement.style.background = document.body.style.background = ${on ? "'#ffffff'" : "'transparent'"}; 1`);
 const lumiState = () => cdp(`({ open: !!document.querySelector('[aria-label="Close panel"]'), view: document.querySelector('.rf-stage')?.dataset.view ?? '', q: document.querySelector('section[data-view="question"] h2')?.textContent ?? '' })`);
 
@@ -205,18 +207,19 @@ rmSync(join(OUT, 'take.mov'), { force: true }); // screencapture never overwrite
 if (REC) rec = spawn('/usr/sbin/screencapture', ['-v', '-V', String(REC_SECONDS), '-x', join(OUT, 'take.mov')], { stdio: 'ignore' });
 const recDone = rec ? new Promise((res) => rec.on('exit', res)) : Promise.resolve();
 T0 = Date.now();
+toDesk(); await sleep(400);
 await launchLumi();
-await white(true);
+toDesk();
 const ONLY_LUMI = process.argv.includes('--only-lumi');
 if (ONLY_LUMI) { await sleep(3500); T0 = Date.now() - 107000; }
 let p;
 if (!ONLY_LUMI) {
-cue('WHITE · Lumi drops in, says hello and runs off to the edge (hook)');
+cue('DESKTOP · Lumi drops in, says hello and runs off to the edge (hook)');
 await at(3.5); await glide(700, 560, 1300); await glide(980, 640, 1200);
 await at(6); await glide(1440, 760, 1400); cue('the cursor comes near: Lumi peeks'); await sleep(1300); await glide(1150, 600, 1000);
 
 // PART 1 · capture
-await at(9); MARK.part1 = t(); await white(false); safariFront(); tab(2); cue('SLACK · #field-ops: oat milk, alarms, pizza, and in between a real problem');
+await at(9); MARK.part1 = t();  safariFront(); tab(2); cue('SLACK · #field-ops: oat milk, alarms, pizza, and in between a real problem');
 await glide(560, 482, 1000); await glide(640, 570, 900); await glide(820, 706, 1100);
 await at(16); tab(3); cue('PIPELINE · 1. raw: every message, chatter in grey');
 await glide(260, 330, 900); await sleep(1600);
@@ -234,7 +237,7 @@ await sleep(800); tab(3); cue('PIPELINE · certainty 4 / threshold 4: enough to 
 await glide(1000, 580, 900);
 for (let i = 0; i < 20; i++) { const pj = await get('/pipeline.json'); if (pj.cases[0]?.certainty?.asked) break; await sleep(400); }
 await sleep(1200);
-await white(true); cue('WHITE · Lumi comes in from the side with the hypothesis: "… Is this a problem?"');
+toDesk(); cue('DESKTOP · Lumi comes in from the side with the hypothesis: "… Is this a problem?"');
 await glide(760, 520, 1000);
 let opened = false;
 for (let i = 0; i < 48; i++) { const st = await lumiState(); if (st.open && st.view === 'question') { opened = true; break; } await sleep(250); }
@@ -245,7 +248,7 @@ await sleep(3800);
 p = await lumiAt('section[data-view="question"] [data-action="yes"]'); if (p) { await glide(p.x, p.y, 1000); await sleep(350); click(); cue('Artem taps Yes: a confirmed problem, with his answer as evidence'); }
 await sleep(3200);
 
-await at(68); await white(false); safariFront(); tab(2); cue('SLACK · "Applied the v7.1 patch on TRN-418."');
+await at(68);  safariFront(); tab(2); cue('SLACK · "Applied the v7.1 patch on TRN-418."');
 await glide(900, 781, 800); click();
 if (!DRY) { await typeHuman('Applied the v7.1 patch on TRN-418.', 0.6); await sleep(250); key(36); } else await sleep(2500);
 await sleep(600); tab(4); cue('QUESTIONS · colleagues (simulated) hit the same symptom; Lumi decides what to ask and whom');
@@ -262,7 +265,7 @@ await glide(1400, 240, 1000); await glide(200, 240, 1500); await sleep(800);
 
 } // end of the parts before Lumi himself
 // LUMI himself
-await at(107); await white(true); cue('WHITE · Lumi: ask him in plain words');
+await at(107); toDesk(); cue('DESKTOP · Lumi: ask him in plain words');
 // Lumi himself: aim at the part of him that is on screen (away, only a sliver at the edge shows).
 const avatar = async () => cdp(`(() => { const e = document.querySelector('[data-action="avatar"]'); if (!e) return null; const r = e.getBoundingClientRect(); if (!r.width) return null; const x = Math.min(r.x + r.width / 2, innerWidth - 6), y = r.y + r.height / 2; return { x: screenX + x, y: screenY + y }; })()`);
 let a = await avatar(); if (a) { await glide(Math.min(a.x, 1500), a.y, 1100); await sleep(600); click(); }

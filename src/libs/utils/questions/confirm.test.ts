@@ -35,7 +35,7 @@ test('confirm: once enough messages support a symptom and a cause, the reporter 
   assert.equal(qs.length, 1);
   const q = qs[0]!;
   assert.equal(parseGapId(q.candidate.gapId)?.kind, 'confirm');
-  assert.equal(q.candidate.text, 'TRN-418: link is up but no traffic since 08:40, older N5 unit, installed 2019. Probably the v6 template cannot address the N5 port layout. Is this a problem?');
+  assert.equal(q.candidate.text, 'TRN-418 (older N5 unit): the v6 template cannot address the N5 port layout. Is that the problem?');
   const artem = e.directory().find((d) => d.name === 'Artem')!;
   assert.equal(q.personEntityId, artem.personEntityId, 'asked of the person who reported the problem');
   const principal = { id: artem.personEntityId, displayName: 'Artem', groups: [], type: 'human' as const };

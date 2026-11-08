@@ -202,7 +202,7 @@ const watcher = setInterval(() => void (async () => {
       if (seen.has(q.questionId)) continue;
       seen.add(q.questionId);
       say(`  [lumi → ${name}] "${q.text}" (${q.status})`);
-      if (pid === ARTEM && /Is this a problem\?$/.test(q.text) && confirmAt === undefined) {
+      if (pid === ARTEM && /Is (this|that the) problem\?$/.test(q.text) && confirmAt === undefined) {
         confirmAt = q.deliveredAt ? Date.parse(q.deliveredAt) : Date.now();
         // The trigger's own time: typed (replay) or its Slack timestamp (live: the first message after the pre-lines).
         const preTexts = new Set(pre.map((l) => l.text));
@@ -317,7 +317,7 @@ async function capture(port: number, name: string): Promise<void> {
 async function measureArrival(): Promise<void> {
   for (let i = 0; i < 120; i++) {
     const s = await lumiState(cdpPorts.artem);
-    if (s?.open && s.view === 'question' && /Is this a problem\?/.test(s.q)) {
+    if (s?.open && s.view === 'question' && /Is (this|that the) problem\?/.test(s.q)) {
       const from = triggerAt ?? Date.now();
       say(`  [latency] trigger message → Artem's Lumi open on the question by itself: ${secs(Date.now() - from)}`);
       await sleep(1200);
@@ -367,7 +367,7 @@ if (values.auto) {
   for (let i = 0; i < 60 && confirmAt === undefined; i++) await sleep(250);
   await arrival;
   await sleep(2000);
-  await standIn(ARTEM, 'Artem', (q) => /Is this a problem\?$/.test(q.text));
+  await standIn(ARTEM, 'Artem', (q) => /Is (this|that the) problem\?$/.test(q.text));
   say('\n== FIX ==');
   await typeBlock(fix, 'the fix');
   await sleep(pollMs + 1000);

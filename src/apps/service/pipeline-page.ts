@@ -164,7 +164,7 @@ export function questionStagesData(store: KnowledgeStore, opts: { questionId?: s
     const rows = (s: string) => main.items.filter((i) => i.stage.split(' · ').includes(s)).map((i) => ({ text: i.text, who: i.author, via: 'slack' }));
     const onCase = store.list('answer').filter((a) => { const qq = store.get('question', a.questionId); return qq?.candidate.scope.caseId === main.caseId; })
       .map((a) => ({ a, q: store.get('question', a.questionId)! }));
-    const confirm = onCase.filter((x) => parseGapId(x.q.candidate.gapId)?.kind === 'confirm').map((x) => ({ text: `${x.a.value === 'yes' ? 'confirmed' : x.a.value}: ${x.q.candidate.text.replace(/ Is this a problem\?$/, '')}`, who: nameOf(store, x.a.personEntityId), via: 'lumi answer', ...(SIM(x.a.text) ? { simulated: true } : {}) }));
+    const confirm = onCase.filter((x) => parseGapId(x.q.candidate.gapId)?.kind === 'confirm').map((x) => ({ text: `${x.a.value === 'yes' ? 'confirmed' : x.a.value}: ${x.q.candidate.text.replace(/ Is (this|that the) problem\?$/, '')}`, who: nameOf(store, x.a.personEntityId), via: 'lumi answer', ...(SIM(x.a.text) ? { simulated: true } : {}) }));
     // Answers from other units' investigations that matched this case (the retrieval put it among their candidates).
     const related = store.list('answer').map((a) => ({ a, q: store.get('question', a.questionId)! })).filter(({ q }) => q && q.candidate.scope.caseId !== main.caseId
       && !!store.get('investigation', q.candidate.investigationId)?.candidates.some((m) => m.caseId === main.caseId));
@@ -293,7 +293,7 @@ tick(); setInterval(tick, 1500);`;
 export function pipelinePage(): string {
   return `${HEAD('pipeline')}
 <h1>pipeline</h1>
-<p>This is the backend: it runs on its own and nobody has to look at it, so it gets no design. People only ever see Lumi; this page just shows what happens behind him.</p>
+<p>Backend view: what Lumi sees. It runs on its own, so it gets no design. People only ever see Lumi.</p>
 <p id="src"></p>
 <table border="1" width="100%">
 <tr><th width="27%">1. raw</th><th width="1%">→</th><th width="27%">2. filtered</th><th width="1%">→</th><th width="17%">3. linked</th><th width="1%">→</th><th width="26%">4. hypothesis</th></tr>
@@ -309,7 +309,7 @@ export function pipelinePage(): string {
   const stages = ['symptom', 'condition', 'action', 'outcome'];
   set('case', c ? '<div>' + esc(c.title) + '</div><div><tt>' + esc(c.caseId) + '</tt> ' + esc(c.status) + '</div><ul>'
     + stages.map((s) => '<li>' + s + ' x' + c.items.filter((i) => i.stage.split(' · ').includes(s)).length + '</li>').join('') + '</ul>'
-    + '<div class="cert">certainty ' + c.certainty.messages + (c.certainty.threshold ? ' / threshold ' + c.certainty.threshold : '') + (c.certainty.asked ? ' · asked' : '') + '</div>' : '');
+    + '<div class="cert">evidence: ' + c.certainty.messages + (c.certainty.threshold ? ' of ' + c.certainty.threshold : '') + ' messages</div><div>' + (c.certainty.threshold ? (c.certainty.asked ? 'enough: Lumi asked' : 'not enough to ask anyone yet') : '') + '</div>' : '');
   set('hyp', c ? c.hypotheses.map((h) => '<div>' + esc(h.statement) + '</div><div>' + esc(h.author) + ' <tt>' + esc(h.evidenceId) + '</tt></div><hr>'
     + h.supporting.map((s) => '<div>+ ' + esc(s.text) + '</div>').join('')).join('') + c.open.map((o) => '<div>? ' + esc(o) + '</div>').join('') : '');
   const j = d.stored ? JSON.stringify(d.stored, null, 2) : 'null';
@@ -319,7 +319,7 @@ export function pipelinePage(): string {
 export function questionsPage(): string {
   return `${HEAD('questions')}
 <h1>questions</h1>
-<p>This is the backend: it runs on its own and nobody has to look at it, so it gets no design. People only ever see Lumi; this page just shows what happens behind him.</p>
+<p>Backend view: what Lumi sees. It runs on its own, so it gets no design. People only ever see Lumi.</p>
 <h2 id="ctitle">what we know</h2>
 <table border="1" width="100%"><tr><th width="20%">problem</th><th width="1%">→</th><th width="20%">condition</th><th width="1%">→</th><th width="19%">cause</th><th width="1%">→</th><th width="19%">fix</th><th width="1%">→</th><th width="19%">outcome</th></tr><tr valign="top" id="chain"></tr></table>
 <h2>latest question</h2>

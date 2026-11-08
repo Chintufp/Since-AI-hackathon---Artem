@@ -136,9 +136,12 @@ export class TemplateQuestionGenerator implements QuestionGenerator {
         }).filter(Boolean);
         // The hypothesis as stated in the case (the cause someone proposed), so the card is the hypothesis itself.
         const hypo = store.list('claim', { where: { caseId: c.id } }).find((x) => x.type === 'hypothesis' && (x.status === 'provisional' || x.status === 'supported') && (!gate || x.supporting.some((r) => gate.ref(r))));
-        const cause = hypo ? ` ${hypo.statement.trim().replace(/([^.!?])$/, '$1.')}` : '';
-        const vars = { asset: caseLabel, symptom, conditions: conds.length ? `, ${conds.join(', ')}` : '', cause };
-        const tpl = '{asset}: {symptom}{conditions}.{cause} Is this a problem?';
+        // One short line (judge feedback, 8 Nov): the unit, its first stated condition, the proposed cause without its
+        // hedge and asides; the symptom and the supporting messages stay under "Why this question?".
+        const short = (x: string): string => x.split(/,\s/)[0]!.trim();
+        const cause = hypo ? short(hypo.statement.trim().replace(/^(probably|maybe|perhaps|likely|possibly|i think|i guess)\b[\s,]*/i, '')).replace(/[.!?]+$/, '') : '';
+        const vars = { asset: caseLabel, symptom, conditions: conds.length ? ` (${short(conds[conds.length - 1]!)})` : '', cause };
+        const tpl = cause ? '{asset}{conditions}: {cause}. Is that the problem?' : '{asset}: {symptom}{conditions}. Is this a problem?';
         if (!vars.symptom) continue;
         text = tidy(fill(tpl, vars));
         rationale = `${gap.description} ${gap.whatAnswerChanges}`;

@@ -19,6 +19,8 @@ const { values } = parseArgs({
     db: { type: 'string' },
     text: { type: 'string', default: 'TRN-423 at Masku: link is up but no traffic after the v6 template rollout.' },
     json: { type: 'boolean', default: false },
+    /** Ask this person (name prefix) if every gate allows it; otherwise the engine's choice is reported. */
+    prefer: { type: 'string' },
   },
 });
 if (!values.db) { process.stderr.write('--db <the film database> is required (pnpm film prints it)\n'); process.exit(2); }
@@ -36,41 +38,29 @@ async function call<T = Record<string, any>>(name: string, args: Record<string, 
   return JSON.parse(first.text) as T;
 }
 
-say('AGENT  →  Lumi over MCP   (real MCP client, same database as the film service)');
+// Few lines, large enough to read on video: the problem, Lumi's answer, the case it rests on (and who said it), and the
+// question the agent organises for a person. --prefer "<name>" asks that person if every gate allows it.
+const ro = new DatabaseSync(values.db, { readOnly: true });
+const nameOf = (id: string): string => (ro.prepare("select json_extract(json, '$.name') as name from r_entity where id = ?").get(id) as { name?: string } | undefined)?.name ?? id;
+const preferId = values.prefer ? (ro.prepare("select id from r_entity where json_extract(json, '$.type') = 'person' and json_extract(json, '$.name') like ? limit 1").get(`${values.prefer}%`) as { id?: string } | undefined)?.id : undefined;
+say('AI AGENT  →  Lumi  (MCP)');
 rule();
-say(`problem: ${values.text}`);
+say(`  ${values.text}`);
 const inv = await call('kt_investigate', { text: values.text, principal });
 if (values.json) say(JSON.stringify(inv, null, 2));
 const rec = inv.recommendation;
-say(`\n  RECOMMENDATION   ${rec.kind} · applicability ${rec.applicability}`);
-say(`  ${rec.text}`);
-if (rec.nextStep) say(`  next: ${rec.nextStep}`);
-say('\n  CHAIN IT RESTS ON');
-for (const m of (inv.matches ?? []).slice(0, 2)) {
-  say(`  ${m.title}`);
-  if (m.matching?.length) say(`    matches: ${m.matching.join(', ')}`);
-  if (m.missing?.length) say(`    unknown here: ${m.missing.join(', ')}`);
-}
+say(`\n  LUMI      ${rec.text}`);
 const tl = (inv.caseView?.timeline ?? []) as Array<{ stage: string; label: string; who?: string; when?: string; evidence?: Array<{ excerpt?: string }> }>;
-if (tl.length) say(`  the recommendation's case, ${inv.caseView?.title ?? ''}:`);
-for (const t of tl.slice(0, 6)) say(`    ${t.stage.padEnd(12)} ${t.evidence?.[0]?.excerpt ?? t.label}${t.who ? `  — ${t.who}` : ''}`);
-say('\n  PEOPLE');
-for (const p of (inv.people ?? []).slice(0, 4)) say(`  ${p.name}: ${(p.reasons ?? []).slice(0, 2).map((x: { text: string }) => x.text).join('; ')}`);
+say(`  FROM      ${inv.caseView?.title ?? (inv.matches?.[0]?.title ?? '')}`);
+for (const t of tl.slice(0, 3)) say(`            "${(t.evidence?.[0]?.excerpt ?? t.label).slice(0, 70)}"${t.who ? `  — ${t.who}` : ''}`);
+say(`  PEOPLE    ${(inv.people ?? []).slice(0, 3).map((p: { name: string }) => p.name).join(', ') || '-'}`);
 rule();
-const cl = await call('kt_request_clarification', { investigationId: inv.investigationId, principal });
+const cl = await call('kt_request_clarification', { investigationId: inv.investigationId, principal, ...(preferId ? { preferPersonEntityId: preferId } : {}) });
 if (values.json) say(JSON.stringify(cl, null, 2));
-say(`\n  STATUS     ${cl.status}`);
-if (cl.text) say(`  QUESTION   "${cl.text}"`);
-if (cl.personEntityId) {
-  // The name from the same database, read only (the MCP result carries the id).
-  const ro = new DatabaseSync(values.db, { readOnly: true });
-  const row = ro.prepare("select json_extract(json, '$.name') as name from r_entity where id = ?").get(cl.personEntityId) as { name?: string } | undefined;
-  ro.close();
-  say(`  TO         ${row?.name ?? cl.personEntityId}`);
-}
-if (cl.reason) say(`  WHY        ${cl.reason}`);
-say('\n  The agent never contacts anyone directly: the question reaches the person in their Lumi app,');
-say('  under the same limits, access rules and receipts as a question from a colleague.');
+if (cl.text) say(`\n  ASKS      "${cl.text}"`);
+if (cl.personEntityId) say(`  TO        ${nameOf(cl.personEntityId)}  (in their Lumi; the agent never contacts anyone directly)`);
+else if (cl.reason) say(`\n  ${cl.status}: ${cl.reason}`);
 rule();
+ro.close();
 await client.close();
 process.exit(0);

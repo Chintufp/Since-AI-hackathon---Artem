@@ -25,7 +25,7 @@ const DRY = process.argv.includes('--dry');
 const REC = !DRY || process.argv.includes('--rec');
 /** Lumi's own sends (Remember this, a question): always in a take; in a dry run only against a preview service. */
 const LUMI_SENDS = !DRY || (process.env.FILM_PORT ?? '47831') !== '47831';
-const REC_SECONDS = Number(process.env.FILM_REC ?? 162);
+const REC_SECONDS = Number(process.env.FILM_REC ?? 160);
 /** Screen point of the "case json" summary on /pipeline after scrolling to the bottom (measured in the dry run). */
 const DETAILS = { x: Number(process.env.FILM_DETAILS_X ?? 54), y: Number(process.env.FILM_DETAILS_Y ?? 583) };
 const CDP = 9351;
@@ -40,7 +40,7 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 let T0 = Date.now();
 const t = () => (Date.now() - T0) / 1000;
 const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
-const cue = (text) => { const v = t() + 5 + (t() >= MARK.part1 ? 2.5 : 0) + (t() >= MARK.part2 ? 2.5 : 0); const line = `${mmss(v)}  ${text}`; console.log(line); appendFileSync(CUES, line + '\n'); };
+const cue = (text) => { const v = t() + 2.5 + (t() >= MARK.part1 ? 2.5 : 0) + (t() >= MARK.part2 ? 2.5 : 0); const line = `${mmss(v)}  ${text}`; console.log(line); appendFileSync(CUES, line + '\n'); };
 const at = async (s) => { const w = s - t(); if (w > 0) await sleep(w * 1000); };
 
 // ---- hands ----
@@ -96,7 +96,7 @@ const white = (on) => cdp(`document.documentElement.style.background = document.
 const lumiState = () => cdp(`({ open: !!document.querySelector('[aria-label="Close panel"]'), view: document.querySelector('.rf-stage')?.dataset.view ?? '', q: document.querySelector('section[data-view="question"] h2')?.textContent ?? '' })`);
 
 let lumi;
-async function launchLumi() {
+async function launchLumi(person = ARTEM_ID) {
   try { execFileSync('pkill', ['-f', 'lumi-film-artem-ud']); } catch { /* none running */ }
   await sleep(800);
   const ud = join(OUT, 'lumi-film-artem-ud');
@@ -104,7 +104,7 @@ async function launchLumi() {
   const electron = createRequire(join(REPO, 'package.json'))('electron');
   lumi = spawn(electron, [join(REPO, 'dist/desktop/main.cjs'), `--user-data-dir=${ud}`, `--remote-debugging-port=${CDP}`], {
     stdio: 'ignore', detached: true,
-    env: { ...process.env, KT_NO_SERVICE: '1', KT_SERVICE_URL: SERVICE, KT_PERSON: ARTEM_ID, KT_QUESTION_POLL_MS: '1000', KT_FILM_ARRIVE: '1' },
+    env: { ...process.env, KT_NO_SERVICE: '1', KT_SERVICE_URL: SERVICE, KT_PERSON: person, KT_QUESTION_POLL_MS: '1000', KT_FILM_ARRIVE: '1' },
   });
   for (let i = 0; i < 60; i++) { try { await cdp('1'); return; } catch { await sleep(250); } }
   throw new Error('Lumi did not start');
@@ -191,6 +191,7 @@ const health = await get('/health');
 // Artem's person as the store names him (with Slack ids mapped it is his Slack name, e.g. "Artem Sergeyev").
 const ARTEM_ID = (await get('/directory')).find((d) => /^Artem\b/.test(d.name))?.personEntityId;
 if (!ARTEM_ID) { console.log('No Artem in the directory.'); process.exit(2); }
+const MARK_ID = (await get('/directory')).find((d) => /^Mark\b/.test(d.name))?.personEntityId;
 console.log(`Artem's Lumi person: ${ARTEM_ID}`);
 const db = health.store;
 // Slack's banner off, Safari at the white tab.
@@ -259,7 +260,7 @@ await at(86); await glide(500, 650, 1000); cue('all questions'); await sleep(250
 
 await at(92); tab(2); cue('SLACK · solved: "traffic is back", "still stable 2 h"');
 await glide(900, 781, 800); click();
-if (!DRY) { await typeHuman('TRN-418 traffic is back after the patch, alarms cleared.', 0.35); key(36); await sleep(600); await typeHuman('TRN-418 traffic still stable 2 h after the v7.1 patch. Closing it.', 0.35); key(36); } else await sleep(5000);
+if (!DRY) { await typeHuman('TRN-418 traffic restored after the v7.1 patch, no alarms.', 0.35); key(36); await sleep(600); await typeHuman('TRN-418 traffic still stable 2 h after the v7.1 patch. Closing it.', 0.35); key(36); } else await sleep(5000);
 await sleep(1600); tab(4); await sleep(1800); cue('WHAT WE KNOW · problem → condition → cause → fix → outcome');
 await glide(1400, 240, 1000); await glide(200, 240, 1500); await sleep(800);
 
@@ -271,32 +272,34 @@ const avatar = async () => cdp(`(() => { const e = document.querySelector('[data
 let a = await avatar(); if (a) { await glide(Math.min(a.x, 1500), a.y, 1100); await sleep(600); click(); }
 await sleep(1400); a = await avatar(); if (a) { await glide(a.x, a.y, 500); click(); }
 await sleep(900);
-// 1. Remember this: a note becomes knowledge, nobody is asked.
-p = await lumiAt('.rf-writing'); if (p) { focusLumi(); await glide(p.x, p.y, 600); click(); cue('Remember this: tell him something worth keeping'); await typeLumi('N5 units: never roll back to the v6 template, apply v7.1.', 0.5); }
-p = await lumiAt('.rf-footer [data-action="remember"]'); if (p) { await glide(p.x, p.y, 600); if (LUMI_SENDS) click(); }
-await sleep(3000);
-// 2. Back to writing (the pencil, only while it is labelled "Write a message"; in the writing view it would attach files).
-p = await lumiAt('[aria-label="Write a message"]'); if (p) { await glide(p.x, p.y, 700); click(); await sleep(800); }
-p = await lumiAt('.rf-writing'); if (p) { focusLumi(); await glide(p.x, p.y, 600); click(); cue('ask him in plain words'); await typeLumi('TRN-430: link up, no traffic after the v6 rollout.', 0.6); }
+// A new unit with the same symptom: the answer reuses what Artem and Mark found on TRN-418.
+p = await lumiAt('.rf-writing'); if (p) { focusLumi(); await glide(p.x, p.y, 600); click(); cue('a new unit, TRN-430, same symptom: ask Lumi in plain words'); await typeLumi('TRN-430: link is up but no traffic after the v6 template rollout, older N5 unit.', 0.55); }
 p = await lumiAt('.rf-footer [data-action="send"]'); if (p) { await glide(p.x, p.y, 500); if (LUMI_SENDS) click(); }
-await sleep(4200); cue('his answer: what to check first, from which case, what is still unknown');
-p = await lumiAt('.rf-row-button[data-action="people"]'); if (p) { await glide(p.x, p.y, 900); click(); cue('people with relevant experience, and why each'); await sleep(3600); }
-p = await lumiAt('section[data-view="people"] [data-action="back"]'); if (p) { await glide(p.x, p.y, 700); click(); await sleep(700); }
-p = await lumiAt('.rf-footer [data-action="queue"]'); if (p) { await glide(p.x, p.y, 700); click(); cue('his questions for you'); await sleep(2400); }
-// 3. Play: close, pick him up, carry him, let go.
+await sleep(4500); cue('his answer comes from TRN-418: what Artem and Mark found this morning');
+await sleep(2500);
+p = await lumiAt('.rf-row-button[data-action="people"]'); if (p) { await glide(p.x, p.y, 900); click(); cue('people with relevant experience: Artem and Mark, and why'); await sleep(4000); }
 a = await avatar(); if (a) { await glide(a.x, a.y, 600); click(); }
-await sleep(900); a = await avatar(); if (a && a.y < 885) { await glide(a.x, a.y - 4, 400); mouse('down'); cue('and he is fun to have around'); mouse('move', 760, 420, 1500, 'drag'); await sleep(120); mouse('up'); }
-await sleep(2200); a = await avatar(); if (a) { await glide(a.x + 60, Math.min(a.y - 80, 800), 900); }
-await sleep(1000);
+await sleep(800);
 
-await at(148); cue('TERMINAL · an AI agent asks Lumi over MCP');
+// The agent: same knowledge over MCP, and it hands a question to a person.
+await at(130); cue('TERMINAL · an AI agent asks Lumi over MCP');
 osa(`tell application "Terminal"
   activate
-  do script "cd ${REPO} && clear && pnpm -s film:agent --db '${db}'"
-  set bounds of front window to {120, 60, 1392, 880}
+  do script "cd ${REPO} && clear && pnpm -s film:agent --db '${db}' --prefer Mark"
+  set bounds of front window to {40, 40, 1472, 870}
 end tell`);
 // Bigger text for this one window only (⌘+, like a person would; the Terminal profile is not touched).
-await sleep(400); for (let k = 0; k < 4; k++) { key(24, 'cmd'); await sleep(120); }
+await sleep(1200);
+// ⌘+ five times, sent to Terminal itself so none of them lands elsewhere (bigger text for this window only).
+try { osa(`tell application "System Events" to tell process "Terminal" to repeat 5 times
+  key code 24 using command down
+  delay 0.12
+end repeat`); } catch { /* best effort */ }
+await sleep(8800);
+cue('the agent never contacts anyone directly: its question lands in Mark\'s Lumi');
+await at(146); killLumi(); toDesk(); await sleep(300);
+if (MARK_ID) { await launchLumi(MARK_ID); cue('on Mark\'s side: Lumi comes in with the agent\'s question'); }
+for (let i = 0; i < 40; i++) { const st = await lumiState().catch(() => ({})); if (st.open && st.view === 'question') break; await sleep(250); }
 await sleep(Math.max(0, (REC_SECONDS - t()) * 1000) + 1500);
 
 // ---- finish ----

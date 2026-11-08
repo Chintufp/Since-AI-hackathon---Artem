@@ -1,0 +1,259 @@
+{
+ "messages": [
+  {
+   "author": "Mark Pokidko",
+   "text": "morning! did anyone take the last oat milk again :triumph:",
+   "time": "2026-11-08T00:12:03.794Z",
+   "relevant": false,
+   "type": null
+  },
+  {
+   "author": "Artem Sergeyev",
+   "text": "guilty. buying more today",
+   "time": "2026-11-08T00:12:30.408Z",
+   "relevant": false,
+   "type": null
+  },
+  {
+   "author": "Artem Sergeyev",
+   "text": "TRN-418 at Kupittaa: link is up but no traffic since 08:40.",
+   "time": "2026-11-08T00:12:58.888Z",
+   "relevant": true,
+   "type": "observation"
+  },
+  {
+   "author": "Mark Pokidko",
+   "text": "alarms?",
+   "time": "2026-11-08T00:13:09.230Z",
+   "relevant": false,
+   "type": null
+  },
+  {
+   "author": "Artem Sergeyev",
+   "text": "TRN-418: alarms cleared, RX power normal, counters at zero.",
+   "time": "2026-11-08T00:13:20.126Z",
+   "relevant": true,
+   "type": "observation"
+  },
+  {
+   "author": "Mark Pokidko",
+   "text": "are we still on for pizza on friday?",
+   "time": "2026-11-08T00:13:39.552Z",
+   "relevant": false,
+   "type": null
+  },
+  {
+   "author": "Artem Sergeyev",
+   "text": "on it, 4 ordered :pizza:",
+   "time": "2026-11-08T00:13:51.326Z",
+   "relevant": false,
+   "type": null
+  },
+  {
+   "author": "Mark Pokidko",
+   "text": "Is TRN-418 one of the older N5 units? Probably the v6 template cannot address the N5 port layout, same as ACC-30 in July.",
+   "time": "2026-11-08T00:14:02.932Z",
+   "relevant": true,
+   "type": "hypothesis"
+  }
+ ],
+ "rows": [
+  {
+   "author": "Artem Sergeyev",
+   "text": "TRN-418 at Kupittaa: link is up but no traffic since 08:40.",
+   "vec": [
+    -0.03,
+    0.026,
+    -0.026,
+    0.001,
+    -0.039,
+    -0.004,
+    0.026,
+    0.068,
+    -0.006,
+    0.002,
+    0.013,
+    0.006,
+    0.02,
+    0.013,
+    -0.016,
+    -0.005,
+    0.076,
+    0.038,
+    0.007,
+    -0.01,
+    0.002,
+    0.018,
+    -0.064,
+    0.028
+   ],
+   "scores": [
+    {
+     "caseId": "case_6bf5c542fa95668375f0",
+     "title": "TRN-418 \u00b7 no traffic",
+     "meaning": 0.88,
+     "time": 1.0,
+     "conversation": 1.0,
+     "total": 0.93
+    },
+    {
+     "caseId": "case_bfe94af54ee18df46e01",
+     "title": "TRN-042 \u00b7 no traffic after SFP change",
+     "meaning": 0.67,
+     "time": 0.2,
+     "conversation": 0.0,
+     "total": 0.45
+    },
+    {
+     "caseId": "case_7f2de0e2f38e26b5a620",
+     "title": "TRN-512 \u00b7 no traffic after SFP change",
+     "meaning": 0.67,
+     "time": 0.2,
+     "conversation": 0.0,
+     "total": 0.45
+    }
+   ]
+  },
+  {
+   "author": "Artem Sergeyev",
+   "text": "TRN-418: alarms cleared, RX power normal, counters at zero.",
+   "vec": [
+    0.028,
+    0.025,
+    -0.065,
+    -0.026,
+    -0.008,
+    -0.036,
+    0.045,
+    0.038,
+    0.002,
+    0.01,
+    -0.005,
+    -0.023,
+    -0.013,
+    0.001,
+    -0.011,
+    -0.018,
+    0.027,
+    0.01,
+    -0.005,
+    -0.031,
+    0.015,
+    0.034,
+    -0.032,
+    -0.006
+   ],
+   "scores": [
+    {
+     "caseId": "case_6bf5c542fa95668375f0",
+     "title": "TRN-418 \u00b7 no traffic",
+     "meaning": 0.76,
+     "time": 1.0,
+     "conversation": 1.0,
+     "total": 0.85
+    },
+    {
+     "caseId": "case_bfe94af54ee18df46e01",
+     "title": "TRN-042 \u00b7 no traffic after SFP change",
+     "meaning": 0.72,
+     "time": 0.2,
+     "conversation": 0.0,
+     "total": 0.48
+    },
+    {
+     "caseId": "case_7f2de0e2f38e26b5a620",
+     "title": "TRN-512 \u00b7 no traffic after SFP change",
+     "meaning": 0.69,
+     "time": 0.2,
+     "conversation": 0.0,
+     "total": 0.46
+    }
+   ]
+  },
+  {
+   "author": "Mark Pokidko",
+   "text": "Is TRN-418 one of the older N5 units? Probably the v6 template cannot address the N5 port layout, same as ACC-30 in July.",
+   "vec": [
+    0.021,
+    0.01,
+    -0.051,
+    0.022,
+    -0.022,
+    -0.053,
+    0.006,
+    0.026,
+    -0.003,
+    0.012,
+    -0.011,
+    0.016,
+    -0.014,
+    0.019,
+    -0.048,
+    -0.01,
+    -0.032,
+    0.002,
+    0.015,
+    -0.021,
+    -0.021,
+    0.017,
+    -0.026,
+    0.021
+   ],
+   "scores": [
+    {
+     "caseId": "case_6bf5c542fa95668375f0",
+     "title": "TRN-418 \u00b7 no traffic",
+     "meaning": 0.4,
+     "time": 1.0,
+     "conversation": 1.0,
+     "total": 0.64
+    },
+    {
+     "caseId": "case_bfe94af54ee18df46e01",
+     "title": "TRN-042 \u00b7 no traffic after SFP change",
+     "meaning": 0.47,
+     "time": 0.2,
+     "conversation": 0.0,
+     "total": 0.33
+    },
+    {
+     "caseId": "case_6d17d4ec724c87f69419",
+     "title": "TRN-117 \u00b7 no traffic after SFP change",
+     "meaning": 0.45,
+     "time": 0.2,
+     "conversation": 0.0,
+     "total": 0.32
+    }
+   ]
+  }
+ ],
+ "hypotheses": [
+  {
+   "kind": "existing",
+   "caseId": "case_6bf5c542fa95668375f0",
+   "title": "TRN-418 \u00b7 no traffic",
+   "score": 0.81
+  },
+  {
+   "kind": "existing",
+   "caseId": "case_bfe94af54ee18df46e01",
+   "title": "TRN-042 \u00b7 no traffic after SFP change",
+   "score": 0.42
+  },
+  {
+   "kind": "new",
+   "title": "a new problem",
+   "score": 0.09
+  }
+ ],
+ "llm": {
+  "model": "qwen3:8b (local)",
+  "sentence": "The TRN-418 unit at Kupittaa has no traffic despite a link being up since 08:40, with cleared alarms, normal RX power, and zero counters, and it is suspected that the v6 template cannot address the N5 port layout."
+ },
+ "embedModel": "bge-m3 (local)",
+ "weights": {
+  "meaning": 0.6,
+  "time": 0.25,
+  "conversation": 0.15
+ }
+}

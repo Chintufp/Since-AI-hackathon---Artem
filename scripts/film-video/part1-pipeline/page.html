@@ -1,0 +1,76 @@
+<!doctype html><html><head><meta charset="utf-8"><title>pipeline · under the hood</title><style>
+*{box-sizing:border-box}
+body{margin:0;padding:34px 40px;background:#fff;color:#111;font:15px/1.45 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;width:1280px;height:832px;overflow:hidden}
+h1{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin:0 0 4px}
+.lead{font-size:19px;font-weight:500;margin:4px 0 18px;padding-bottom:14px;border-bottom:1px solid #111}
+.hl{background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 40' preserveAspectRatio='none'><path d='M6 20 C40 8 80 4 140 5 C240 3 330 12 420 10 C510 8 580 3 690 4 C790 5 870 6 940 4 C988 3 1000 12 990 20 C978 30 900 33 800 33 C700 33 610 37 510 37 C410 37 330 31 230 32 C160 33 120 36 90 38 C60 39 30 36 12 32 C2 29 0 24 6 20 Z' fill='%23fcef8a'/></svg>") no-repeat left bottom/100% .8em;padding:0 6px 5px;margin:0 -6px;font-weight:600}
+.flow{display:flex;align-items:stretch;height:640px}
+.box{flex:1 1 0;border:1px solid #111;padding:14px 14px;min-width:0;opacity:.0;transform:translateY(8px);transition:none;overflow:hidden}
+.arrow{flex:0 0 34px;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:0}
+.lab{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin-bottom:10px}
+.lab b{color:#111}
+.msg{font-size:13px;margin:0 0 7px;padding:5px 7px;border-left:2px solid transparent}
+.msg .who{color:#888;font-size:11px;display:block}
+.msg.fluff{color:#b4b4b4}
+.msg.fluff .t{text-decoration:line-through;text-decoration-color:rgba(0,0,0,0)}
+.msg.rel{border-left-color:#111}
+.tag{font-size:10.5px;letter-spacing:.04em;padding:0 5px;border:1px solid #c8c8c8;margin-left:4px;color:#666;opacity:0}
+.msg.rel .tag{border-color:#111;color:#111}
+.sent{margin-bottom:16px}
+.sent .t{font-size:12.5px;margin-bottom:6px}
+.vec{display:flex;gap:2px;height:22px;align-items:center;margin-bottom:6px}
+.vec i{display:block;width:6px;background:#111;opacity:.75}
+.sc{font:12px ui-monospace,"SF Mono",Menlo,monospace;color:#333}
+.sc .tot{font-weight:700;color:#111}
+.small{font-size:11px;color:#777}
+.h{margin-bottom:16px}
+.h .n{font-size:13px;margin-bottom:5px}
+.bar{height:16px;background:#eee;position:relative}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:#111}
+.h .v{font:12px ui-monospace,Menlo,monospace;margin-top:3px}
+.h.win .n{font-weight:700}
+.q{font-size:13px;margin:4px 0 14px;color:#444}
+.llm{font-size:16px;line-height:1.5;font-weight:500}
+.cursor{display:inline-block;width:8px;height:18px;background:#111;vertical-align:-3px;margin-left:2px}
+</style></head><body>
+<h1>pipeline · under the hood</h1>
+<p class="lead"><span class="hl">No fancy UI here.</span> Real messages from the film's Slack channel, real local models.</p>
+<div class="flow">
+ <div class="box" id="b1"><div class="lab">1 · <b>relevant or not</b></div><div id="msgs"></div></div>
+ <div class="arrow" id="a1">→</div>
+ <div class="box" id="b2"><div class="lab">2 · <b>embed and score</b> · bge-m3 (local)</div><div id="emb"></div>
+   <div class="small" id="w">score = 0.6 meaning + 0.25 time + 0.15 conversation</div></div>
+ <div class="arrow" id="a2">→</div>
+ <div class="box" id="b3"><div class="lab">3 · <b>hypotheses</b></div><div class="q" id="hq">New problem or an existing one? Which one?</div><div id="hyp"></div></div>
+ <div class="arrow" id="a3">→</div>
+ <div class="box" id="b4"><div class="lab">4 · <b>one precise sentence</b> · qwen3:8b (local)</div><div class="small" style="margin-bottom:10px">from the cluster of 3 sentences</div><div class="llm"><span id="typed"></span><span class="cursor" id="cur"></span></div></div>
+</div>
+<script>
+const D={"messages": [{"author": "Mark Pokidko", "text": "morning! did anyone take the last oat milk again :triumph:", "time": "2026-11-08T00:12:03.794Z", "relevant": false, "type": null}, {"author": "Artem Sergeyev", "text": "guilty. buying more today", "time": "2026-11-08T00:12:30.408Z", "relevant": false, "type": null}, {"author": "Artem Sergeyev", "text": "TRN-418 at Kupittaa: link is up but no traffic since 08:40.", "time": "2026-11-08T00:12:58.888Z", "relevant": true, "type": "observation"}, {"author": "Mark Pokidko", "text": "alarms?", "time": "2026-11-08T00:13:09.230Z", "relevant": false, "type": null}, {"author": "Artem Sergeyev", "text": "TRN-418: alarms cleared, RX power normal, counters at zero.", "time": "2026-11-08T00:13:20.126Z", "relevant": true, "type": "observation"}, {"author": "Mark Pokidko", "text": "are we still on for pizza on friday?", "time": "2026-11-08T00:13:39.552Z", "relevant": false, "type": null}, {"author": "Artem Sergeyev", "text": "on it, 4 ordered :pizza:", "time": "2026-11-08T00:13:51.326Z", "relevant": false, "type": null}, {"author": "Mark Pokidko", "text": "Is TRN-418 one of the older N5 units? Probably the v6 template cannot address the N5 port layout, same as ACC-30 in July.", "time": "2026-11-08T00:14:02.932Z", "relevant": true, "type": "hypothesis"}], "rows": [{"author": "Artem Sergeyev", "text": "TRN-418 at Kupittaa: link is up but no traffic since 08:40.", "vec": [-0.03, 0.026, -0.026, 0.001, -0.039, -0.004, 0.026, 0.068, -0.006, 0.002, 0.013, 0.006, 0.02, 0.013, -0.016, -0.005, 0.076, 0.038, 0.007, -0.01, 0.002, 0.018, -0.064, 0.028], "scores": [{"caseId": "case_6bf5c542fa95668375f0", "title": "TRN-418 \u00b7 no traffic", "meaning": 0.88, "time": 1.0, "conversation": 1.0, "total": 0.93}, {"caseId": "case_bfe94af54ee18df46e01", "title": "TRN-042 \u00b7 no traffic after SFP change", "meaning": 0.67, "time": 0.2, "conversation": 0.0, "total": 0.45}, {"caseId": "case_7f2de0e2f38e26b5a620", "title": "TRN-512 \u00b7 no traffic after SFP change", "meaning": 0.67, "time": 0.2, "conversation": 0.0, "total": 0.45}]}, {"author": "Artem Sergeyev", "text": "TRN-418: alarms cleared, RX power normal, counters at zero.", "vec": [0.028, 0.025, -0.065, -0.026, -0.008, -0.036, 0.045, 0.038, 0.002, 0.01, -0.005, -0.023, -0.013, 0.001, -0.011, -0.018, 0.027, 0.01, -0.005, -0.031, 0.015, 0.034, -0.032, -0.006], "scores": [{"caseId": "case_6bf5c542fa95668375f0", "title": "TRN-418 \u00b7 no traffic", "meaning": 0.76, "time": 1.0, "conversation": 1.0, "total": 0.85}, {"caseId": "case_bfe94af54ee18df46e01", "title": "TRN-042 \u00b7 no traffic after SFP change", "meaning": 0.72, "time": 0.2, "conversation": 0.0, "total": 0.48}, {"caseId": "case_7f2de0e2f38e26b5a620", "title": "TRN-512 \u00b7 no traffic after SFP change", "meaning": 0.69, "time": 0.2, "conversation": 0.0, "total": 0.46}]}, {"author": "Mark Pokidko", "text": "Is TRN-418 one of the older N5 units? Probably the v6 template cannot address the N5 port layout, same as ACC-30 in July.", "vec": [0.021, 0.01, -0.051, 0.022, -0.022, -0.053, 0.006, 0.026, -0.003, 0.012, -0.011, 0.016, -0.014, 0.019, -0.048, -0.01, -0.032, 0.002, 0.015, -0.021, -0.021, 0.017, -0.026, 0.021], "scores": [{"caseId": "case_6bf5c542fa95668375f0", "title": "TRN-418 \u00b7 no traffic", "meaning": 0.4, "time": 1.0, "conversation": 1.0, "total": 0.64}, {"caseId": "case_bfe94af54ee18df46e01", "title": "TRN-042 \u00b7 no traffic after SFP change", "meaning": 0.47, "time": 0.2, "conversation": 0.0, "total": 0.33}, {"caseId": "case_6d17d4ec724c87f69419", "title": "TRN-117 \u00b7 no traffic after SFP change", "meaning": 0.45, "time": 0.2, "conversation": 0.0, "total": 0.32}]}], "hypotheses": [{"kind": "existing", "caseId": "case_6bf5c542fa95668375f0", "title": "TRN-418 \u00b7 no traffic", "score": 0.81}, {"kind": "existing", "caseId": "case_bfe94af54ee18df46e01", "title": "TRN-042 \u00b7 no traffic after SFP change", "score": 0.42}, {"kind": "new", "title": "a new problem", "score": 0.09}], "llm": {"model": "qwen3:8b (local)", "sentence": "The TRN-418 unit at Kupittaa has no traffic despite a link being up since 08:40, with cleared alarms, normal RX power, and zero counters, and it is suspected that the v6 template cannot address the N5 port layout."}, "embedModel": "bge-m3 (local)", "weights": {"meaning": 0.6, "time": 0.25, "conversation": 0.15}};
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const clean=s=>s.replace(/:triumph:/,'😤').replace(/:pizza:/,'🍕');
+$('#msgs').innerHTML=D.messages.map(m=>`<div class="msg ${m.relevant?'rel':'fluff'}"><span class="who">${esc(m.author.split(' ')[0])}<span class="tag">${m.relevant?'relevant · '+m.type:'fluff'}</span></span><span class="t">${esc(clean(m.text))}</span></div>`).join('');
+$('#emb').innerHTML=D.rows.map(r=>{const s=r.scores[0];return `<div class="sent"><div class="t">${esc(r.text.length>70?r.text.slice(0,68)+'…':r.text)}</div><div class="vec">${r.vec.map(v=>`<i style="height:${Math.max(2,Math.min(22,Math.abs(v)*260))}px"></i>`).join('')}<span class="small">&nbsp;1024 numbers</span></div><div class="sc">vs ${esc(s.title.split(' · ')[0])}: meaning <span data-n="${s.meaning}">0.00</span> · time <span data-n="${s.time}">0.00</span> · conv. <span data-n="${s.conversation}">0.00</span> → <span class="tot" data-n="${s.total}">0.00</span></div></div>`}).join('');
+$('#hyp').innerHTML=D.hypotheses.map((h,i)=>`<div class="h ${i==0?'win':''}"><div class="n">${h.kind=='new'?'New problem':'Existing: '+esc(h.title)}</div><div class="bar"><i data-w="${h.score}"></i></div><div class="v" data-n="${h.score}">0.00</div></div>`).join('');
+const S=D.llm.sentence;
+const cl=(x)=>Math.max(0,Math.min(1,x)); const ease=u=>u*u*(3-2*u);
+const show=(el,t,t0)=>{const u=ease(cl((t-t0)/0.5));el.style.opacity=u;el.style.transform=`translateY(${8*(1-u)}px)`};
+const dim=(el,t,t1)=>{ if(t>t1){const u=ease(cl((t-t1)/0.6)); el.style.opacity=1-0.55*u;} };
+window.setT=function(t){
+  // stage times (seconds from the start of the narration of Part 1's pipeline)
+  const T1=0.2,T2=5.2,T3=11.9,T4=14.1;
+  show($('#b1'),t,T1); dim($('#b1'),t,T2+0.4);
+  document.querySelectorAll('.msg').forEach((m,i)=>{const u=cl((t-(T1+1.2+i*0.32))/0.35); m.querySelector('.tag').style.opacity=u;
+     if(m.classList.contains('fluff')){m.querySelector('.t').style.textDecorationColor=`rgba(170,170,170,${u})`; m.style.opacity=1-0.45*u;}});
+  show($('#a1'),t,T2-0.3); show($('#b2'),t,T2); dim($('#b2'),t,T3+0.4);
+  document.querySelectorAll('.vec').forEach((v,i)=>{v.querySelectorAll('i').forEach((b,j)=>{b.style.transform=`scaleY(${ease(cl((t-(T2+0.4+i*0.5+j*0.03))/0.3))})`})});
+  document.querySelectorAll('#emb [data-n]').forEach((s,i)=>{const u=ease(cl((t-(T2+3.0+Math.floor(i/4)*0.9))/0.8)); s.textContent=(parseFloat(s.dataset.n)*u).toFixed(2)});
+  show($('#w'),t,T2+3.0);
+  show($('#a2'),t,T3-0.3); show($('#b3'),t,T3); dim($('#b3'),t,T4+0.4);
+  document.querySelectorAll('#hyp .h').forEach((h,i)=>{const u=ease(cl((t-(T3+0.3+i*0.3))/0.8)); h.querySelector('.bar i').style.width=(parseFloat(h.querySelector('.bar i').dataset.w)*100*u)+'%'; const v=h.querySelector('.v'); v.textContent=(parseFloat(v.dataset.n)*u).toFixed(2)+(i==0&&t>T3+1.5?'  ← chosen: same problem':'');});
+  show($('#a3'),t,T4-0.3); show($('#b4'),t,T4);
+  const n=Math.floor(S.length*cl((t-(T4+0.5))/2.8)); $('#typed').textContent=S.slice(0,n); $('#cur').style.opacity=(t>T4&&Math.floor(t*2.5)%2==0)||n<S.length&&n>0?1:0;
+};
+window.setT(0);
+</script></body></html>

@@ -292,6 +292,7 @@ html.clean table.stages th { border-bottom: 0; padding: 0 0 6px; }
 html.clean table.stages td.col { border: 1px solid #111; padding: 14px 16px; }
 html.clean table.stages td.arr { border: 0; text-align: center; vertical-align: middle; font-size: 26px; padding: 0; }
 html.clean ul { padding-left: 18px; margin: 8px 0; }
+html.clean .hl { background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 40' preserveAspectRatio='none'><path d='M6 20 C40 8 80 4 140 5 C240 3 330 12 420 10 C510 8 580 3 690 4 C790 5 870 6 940 4 C988 3 1000 12 990 20 C978 30 900 33 800 33 C700 33 610 37 510 37 C410 37 330 31 230 32 C160 33 120 36 90 38 C60 39 30 36 12 32 C2 29 0 24 6 20 Z' fill='%23fcef8a'/></svg>") no-repeat left bottom / 100% 0.8em; padding: 0 6px 5px; margin: 0 -6px; -webkit-box-decoration-break: clone; box-decoration-break: clone; font-weight: 600; }
 `;
 const HEAD = (title: string) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title><style>.drop{color:gray}${CLEAN}</style><script>if (new URLSearchParams(location.search).get('raw') !== '1') document.documentElement.className = 'clean';</script></head><body>`;
 /** Fetch the JSON, render, and replace the DOM only when the output changed (no animation). */
@@ -309,7 +310,7 @@ tick(); setInterval(tick, 1500);`;
 export function pipelinePage(): string {
   return `${HEAD('pipeline')}
 <h1>pipeline</h1>
-<p>No dashboard on purpose: this is live data from the real server and a real Slack channel, shown plainly to prove the system works. People only ever see Lumi.</p>
+<p><span class="hl">It is a dashboard, just without the design.</span> Live data from the real server and a real Slack channel, shown plainly to prove the system works. People only ever see Lumi.</p>
 <p id="src"></p>
 <table border="1" width="100%" class="stages">
 <tr><th width="26%">1. raw</th><th width="3%"></th><th width="26%">2. filtered</th><th width="3%"></th><th width="17%">3. linked</th><th width="3%"></th><th width="25%">4. hypothesis</th></tr>
@@ -335,7 +336,7 @@ export function pipelinePage(): string {
 export function questionsPage(): string {
   return `${HEAD('questions')}
 <h1>questions</h1>
-<p>No dashboard on purpose: this is live data from the real server and a real Slack channel, shown plainly to prove the system works. People only ever see Lumi.</p>
+<p><span class="hl">It is a dashboard, just without the design.</span> Live data from the real server and a real Slack channel, shown plainly to prove the system works. People only ever see Lumi.</p>
 <h2 id="ctitle">what we know</h2>
 <div class="flow" id="chain"></div>
 <h2>questions Lumi asked</h2>

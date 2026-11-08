@@ -310,7 +310,7 @@ tick(); setInterval(tick, 1500);`;
 export function pipelinePage(): string {
   return `${HEAD('pipeline')}
 <h1>pipeline</h1>
-<p><span class="hl">It is a dashboard, just without the design.</span> Live data from the real server and a real Slack channel, shown plainly to prove the system works. People only ever see Lumi.</p>
+<p><span class="hl">No fancy UI here.</span> All of this happens on the backend and users never see it. This page only shows what is happening under the hood, live from the real server and a real Slack channel.</p>
 <p id="src"></p>
 <table border="1" width="100%" class="stages">
 <tr><th width="26%">1. raw</th><th width="3%"></th><th width="26%">2. filtered</th><th width="3%"></th><th width="17%">3. linked</th><th width="3%"></th><th width="25%">4. hypothesis</th></tr>
@@ -336,7 +336,7 @@ export function pipelinePage(): string {
 export function questionsPage(): string {
   return `${HEAD('questions')}
 <h1>questions</h1>
-<p><span class="hl">It is a dashboard, just without the design.</span> Live data from the real server and a real Slack channel, shown plainly to prove the system works. People only ever see Lumi.</p>
+<p><span class="hl">No fancy UI here.</span> All of this happens on the backend and users never see it. This page only shows what is happening under the hood, live from the real server and a real Slack channel.</p>
 <h2 id="ctitle">what we know</h2>
 <div class="flow" id="chain"></div>
 <h2>questions Lumi asked</h2>

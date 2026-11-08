@@ -46,9 +46,6 @@ An engineer types a problem into Lumi and gets the earlier fix with its caveats 
 POINTS
 Answering earns optional points and a happy reaction from Lumi. Points are opt-in per person; only people who take part are scored or listed. A No earns exactly what a Yes earns (the value is the information, not agreement), corrections and outcome reports earn more, Not sure and Later are never penalised, and points never decide whether something is true. They can be switched off completely.
 
-HOW IT'S BUILT
-TypeScript on Node 24: a local service with SQLite, an HTTP API (42 routes) and an MCP server, plus an Electron companion for macOS and Windows. Retrieval fuses BM25, exact identifiers and trigrams with optional bge-m3 embeddings. Models sit in three slots (embed, extract, phrase): rules by default, local Ollama models (bge-m3, qwen3) or a hosted API by choice. A model only proposes; validated evidence decides what is stored, and every record names the route that made it. A network guard blocks every outside host unless a slot is switched on, so by default nothing leaves the company.
-
 HONEST STATUS
 641 automated tests pass and the demo runs offline with one command. Elisa's example thread is imported unchanged; the rest of the data is synthetic and labelled. Retrieval works well; deciding whether old advice applies to a new unit is the weakest step, and the bandit has not yet beaten the rules on our synthetic runs. Try the interface at artem.love/sinceai.
 ```

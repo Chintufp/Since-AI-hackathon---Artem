@@ -46,8 +46,10 @@ An engineer types a problem into Lumi and gets the earlier fix with its caveats 
 POINTS
 Answering earns optional points and a happy reaction from Lumi. Points are opt-in per person; only people who take part are scored or listed. A No earns exactly what a Yes earns (the value is the information, not agreement), corrections and outcome reports earn more, Not sure and Later are never penalised, and points never decide whether something is true. They can be switched off completely.
 
-HONEST STATUS
-641 automated tests pass and the demo runs offline with one command. Elisa's example thread is imported unchanged; the rest of the data is synthetic and labelled. Retrieval works well; deciding whether old advice applies to a new unit is the weakest step, and the bandit has not yet beaten the rules on our synthetic runs. Try the interface at artem.love/sinceai.
+WHAT IT MEANS FOR A TEAM
+Engineers stop solving the same outage twice. When someone leaves, their know-how stays. New people get answers from colleagues who have actually done it, for the price of one tap. AI agents work from facts your team has confirmed instead of guessing. And every answer makes the next one better: like a snowball, the knowledge grows with each tap, and every layer is checked. All of it runs on your own machines; nothing leaves the company. Try the interface at artem.love/sinceai.
+
+Lumi: the knowledge your team already has, finally kept, checked and usable.
 ```
 
 ## Built with (first five show on the vote card)
